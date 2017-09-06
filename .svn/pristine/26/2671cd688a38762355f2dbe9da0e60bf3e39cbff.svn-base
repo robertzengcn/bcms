@@ -1,0 +1,56 @@
+@charset "utf-8";
+/* CSS Document */
+ul, li, ol {list-style: none;}
+[class*="am-u-"] {padding-left:0rem;padding-right:0rem;}
+img{width:100%;}
+a:hover {color:#000000;}
+dt + dd {margin-top: 0;}
+.am-slider-default{margin-bottom: 0px;}
+.am-container {padding-left:0px;padding-right:0px ;}
+.am-container > .am-g {margin-left: 0px;margin-right:0px ;}
+/*轮播图按钮*/
+.banner,.bannerTwo{margin-top:55px ;}
+.am-slider-default .am-control-nav {width: 100%;position: absolute;bottom: 15px;text-align: center;}
+.am-u-sm-3 {text-align:center;}
+.am-control-nav li { float:none;}
+.am-slider-default .am-direction-nav{ opacity: 0;}
+#ai-topsearch{ padding:0;}
+/*手机专享*/
+.smallnav{padding:10px 0px; font-size:12px;}
+.smallnav img{max-width:40px;}
+.smallnav .am-u-sm-3{ margin-bottom:15px;}
+.smallnav div.title{ margin-top:2px;}
+@media only screen and (min-width: 480px) {.smallnav img{max-width:60px;}.smallnav{ font-size:14px;}}
+
+/*标题*/
+.shopTitle{text-align: center;width: 100%;overflow: hidden;background:#eee ;}
+.shopTitle h4{font-size: 14px;margin:20px 0px;line-height: 1px;border-left: 100px solid #F5F5F5;border-right: 100px solid #f5f5f5;
+text-align: center;float:none}
+.shopTitle h3,.shopTitle .today-brands,.shopTitle .more{display: none;}
+
+/*活动*/
+.activity {min-height:180px ;}
+.activity .am-g{background:#fff ;padding: 10px 0px; margin:auto;}
+.activity .am-u-sm-6{padding:0px 3px;}
+.activity .info{margin-top: 5px; text-align:center; margin-bottom:5px;}
+.activity .icon-sale{position: absolute; width: 0;height: 0;border-top: 40px solid #0087e5;border-right: 40px solid transparent;}
+.activity .icon-sale.one{border-top-color: #9b0d5f;}
+.activity .icon-sale.two{border-top-color: #b48c66;}
+.activity .icon-sale.three{border-top-color: #7fb113;}
+.activity .am-g h4{position: absolute;color: #fff;top:5px;left: 4px;}
+
+/*文字说明*/
+.seprate{display: none;}
+.outer-con {position: absolute;top:0px;width:100% ;}
+.text-one .outer-con {text-align: center;top:7%;}
+.outer-con .title,.recommendation .info h3{font-size:12px;color:#F03726} 
+
+/*商品*/
+.flood .text-one{border-top: 1px solid #eee;}
+.flood .text-one img{width:96%;margin:46% 2% 2% 2%;}
+.flood .text-two{border-top: 1px solid #eee;border-left: 1px solid #eee;position:relative;}
+.flood .text-two img{width:50%;margin:1% 3% 1% 47%;}
+.flood .text-three{border-top: 1px solid #eee;border-left: 1px solid #eee;}
+.flood .text-three img{width:96%;margin:45% 2% 2% 2%;}
+.flood .text-two .outer-con{top:7%;left:3% ;width:40%;}
+.flood .text-three .outer-con{top:2%;}

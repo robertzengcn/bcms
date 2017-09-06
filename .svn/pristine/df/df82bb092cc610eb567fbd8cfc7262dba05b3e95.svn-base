@@ -1,0 +1,82 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/reservation.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>医生管理-预约挂号</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 预约挂号 <span class="c-gray en">&gt;</span> 医生管理 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" title="刷新" href="javascript:location.replace(location.href);"><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<nav class="mainnav cl">
+    	<ul class="cl ifr_list">
+    	<li class="menulist"><a href="javascript:void(0)" _href="reservation/index.html">预约首页</a></li>    		
+    		<li class="menulist"><a href="javascript:void(0)" _href="reservation/manage-department.html" id="setdep">科室设置</a></li>
+			<li class="menulist current"><a href="javascript:void(0)" _href="reservation/manage-doctor.html">医生管理</a></li>
+			<li class="menulist"><a href="javascript:void(0)" _href="reservation/scheduling-temps.html">排班模板</a></li>
+			<li class="menulist"><a href="javascript:void(0)" _href="reservation/wholebookinginfos.html">预约总览</a></li>		
+    	</ul>
+    </nav>	
+	<div class="text-c mt-10"> 
+	<form id="frm_post">
+		医生名称：<input type="text" name="name" id="searchkey" placeholder=" 请输入关键词" style="width:250px" class="input-text">			
+		&nbsp;<button name="qry" id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	</form>	
+	</div>
+	<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;" class="btn btn-danger radius" id="datadel"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" onclick="doctormanager.openEditWID('新增医生','edit-doctor.html','900','450')" id="adddoctor"><i class="Hui-iconfont">&#xe607;</i> 新增医生</a>  <a class="btn btn-success radius" onclick="doctormanager.exportdate('doctor');" href="javascript:;"><i class="Hui-iconfont">&#xe645;</i> 导出数据</a></span></div>
+	<div class="mt-20" id="grid">
+		<table class="table table-border table-bordered table-bg table-hover table-sort" id="TotalDoctorlist">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value="" class="firstone"></th>
+					<th width="60">序号</th>
+					<th width="90">姓名</th>
+					<th width="100">头像</th>
+					<th width="100">所属科室</th>
+					<th class="text-c">个人简介</th>					
+					<th width="90">预约量（次）</th>	
+					<th width="90">到诊量（个）</th>									
+					<th width="80">操作</th>
+				</tr>
+			</thead>
+			<tbody class="text-c">
+				
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation2.js"></script>
+<script type="text/javascript">
+var doctormanager = new Reservation();
+doctormanager.setThisName('doctormanager');
+doctormanager.doctor_manager();
+
+</script> 
+
+</body>
+</html>

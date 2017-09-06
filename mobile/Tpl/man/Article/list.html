@@ -1,0 +1,24 @@
+{{include file="Common/header.html"}}
+<link href="{{$RESOURCE}}/css/yangshi.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{{$RESOURCE}}/js/jquery-1.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/function.js"></script>
+
+</div>
+
+<!--栏目开始 -->
+
+<!-- <div class="lanmu1"><h2>疾病资讯</h2></div> -->
+<div class="crumb">当前位置：<a href="{{$MOBILE}}">主页</a> &gt; <a href="">疾病资讯</a></div>
+<div class="liebiao">
+    {{foreach from=$list item=value name=name}}
+    <div class="liebiao1">
+        <h3><a href="/mobile/article.php?method=get&id={{$value->id}}"><b>{{$value->subject}}</b></a></h3>
+        <p><a href="/mobile/article.php?method=get&id={{$value->id}}">{{$value->description|truncate:28}}</a>...</p>
+    </div>
+    {{/foreach}}
+</div>
+<div class="fenye">
+    {{include file="Common/page.html"}}
+</div>
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/footer.html"}}

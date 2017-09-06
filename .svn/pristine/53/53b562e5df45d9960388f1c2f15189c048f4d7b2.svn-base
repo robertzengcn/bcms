@@ -1,0 +1,505 @@
+/**
+ * 在线问答
+ * */
+function Ask() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			
+			$("#department_id").fillDepartment();
+			
+			//table加载数据
+			self.fillDataTable();
+			
+			$('#qry').click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function initEdit()
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			var type = para.type;
+			if (para.id != undefined) {
+				self.askGetRepeat(para.id);
+			}
+			
+			//设置问题
+			if (type == 'update') $("input[name='ask_id']").val(para.id);
+			
+			//保存
+			$('#save').click(function(){
+				self.save(type, para.id);
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+	// }}}
+	// {{{ function askGetAddTo()
+	
+	/**
+	 * 获取回复
+	 * */
+	this.askGetAddTo = function(answerID) {
+		answerID = answerID ? answerID : 'null';
+		var replyObj = $('#box_answer_' + answerID);
+		if (replyObj != undefined && replyObj.length>0) {
+			replyObj.find('ul.user_talk').remove();
+    	}
+		self.cmd(gHttp,{controller:'Answer',method:'getAskAddto',answerID:answerID,from:'admin'},function(ret2){
+			if(ret2.statu){
+				var data = ret2.data;
+				if (data.length <1) return false;
+				
+				for (var i in data) {
+					if (data[i].mode == 1) { //追问
+						var addToHtml = '';
+						
+						addToHtml += '<ul class="user_talk">';
+						addToHtml += '<li class="li_user" id="li_fllow_'+data[i].id+'"><img src="../images/user.png"><span><a href="javascript:void(0)"> 匿名</a><i>的追问：</i><cite>'+data[i].plushtime+'</cite></span>';
+						addToHtml += '<p>'+data[i].info+'&nbsp;&nbsp;<a href="javascript:;" onclick="return gAsk.fllowReply('+data[i].id+');" class="label label-success radius">回复追问 </a></p>';
+						addToHtml += self.getFllowReplyBox(data[i].id);
+						addToHtml += '</li>';
+						addToHtml += '</ul>';
+						
+						var replyObj = $('#box_answer_' + data[i].ans_id);
+						if (replyObj == undefined) {
+							var replyObj = $('#reply_'+data[i].add_id);
+							if (replyObj != undefined && replyObj.length>0) {
+								replyObj.after(addToHtml);
+			            	}
+						} else {
+							replyObj.find('div.t_right').append(addToHtml);
+						}
+						
+		            } else { //回复
+		            	if (data[i].add_id != '' && data[i].add_id != null) {
+		            		//对追问的回复
+		            		var addToHtml = '';
+		            		var li_fllow = $("#li_fllow_" + data[i].add_id);
+		            		if (li_fllow != undefined && li_fllow.length>0) {
+		            			addToHtml += '<li class=""><img src=" ../images/boyicms/ask/doctor_pic.png"> <span><a href="javascript:void(0)"> 匿名 </a><i>的回复：</i><cite>'+data[i].plushtime+'</cite></span>';
+								addToHtml += '<p>' + data[i].info + '</p>';
+								addToHtml += '</li>';  
+		            			li_fllow.after(addToHtml);
+			            	}
+		            		
+		            	} else {
+		            		//对问题的回复
+		            		var reply = '';
+			            	reply += '<span class="user_name"><strong><a href="javascript:void(0)"> 匿名 </a><i>对问题的回复</i></strong> <cite>'+data[i].plushtime+'</cite> </span>';
+			            	reply += '<p class="user_p" id="reply_'+data[i].id+'"> <strong>建议：</strong><span id="replyContent">'+data[i].info+'</span> </p>';
+			            	//查找此医生是否有回复过该问题
+			            	var askObj = $('#box_'+data[i].ask_id+'_'+data[i].ans_id);
+			            	if (askObj != undefined && askObj.length>0) {
+			            		$("#reply").append(reply);
+			            	} else {
+			            		self.getReplyHtml(data[i].ask_id, data[i].ans_id);
+			            		//console.log($("#reply_"+data[i].ans_id).length);
+			            		$("#reply_"+data[i].ask_id + "_" + data[i].ans_id).html(reply);
+			            	}
+		            	}
+		            	
+		            }
+				}
+			}else{
+				layer.alert(ret2.msg);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function getReplyHtml()
+	
+	/**
+	 * 获取回复或追问html
+	 * */
+	this.getReplyHtml = function(ask_id, ans_id) {
+		var str = '<div class="tbox" id="box_'+ask_id+'_'+ans_id+'"><div class="t_con">';
+		
+		str += '<div class="t_left">';
+		str += ' <span class="user_img"><img alt="" src="../images/boyicms/ask/doctor_pic.png"></span>';
+		str += ' </div> ';
+		
+        str += '<div class="t_right"><span id="reply_'+ask_id+'_'+ans_id+'"></span>';
+        
+        str += '</div>';
+        
+        str += '</div>';
+        
+        str += '</div>';
+
+        $("#reply_box_before").before(str);
+	}
+	
+	// }}}
+	// {{{　function getFllowReplyBox()
+	
+	/**
+	 * 获取追问回复的回复框
+	 * */
+	this.getFllowReplyBox = function (id) {
+		var str = '';
+        str += '<div style="display:none;" id="hf_textarea_' + id + '" class="user_box">';
+        str += '<div class="row cl">';				
+        str += '<div class="formControls col-12">';
+        str += '<textarea id="hf_textarea_text_'+id+'" onkeyup="textarealength(this,1000)" nullmsg="回复内容不能为空！" dragonfly="true" datatype="*10-100" placeholder="请输入您的回复内容..." class="textarea" rows="" cols="" name=""></textarea>';
+        str += '<p class="textarea-numberbar"><em class="textarea-length">0</em>/1000</p>';
+        str += '</div>';
+        str += '</div>';
+        str += '<div class="row cl mt-5">';
+        str += '<div style="text-align:right;" class="col-12">';
+        str += '<button type="button" class="btn btn-primary radius" onclick="return gAsk.submitFllowReply('+id+');"><i class="Hui-iconfont"></i> 保存</button>';				
+        str += '<button type="button" class="btn btn-default radius" onclick="return gAsk.fllowReply('+id+')">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>';
+        str += '</div>';
+        str += '</div>';
+        str += '</div>';
+        
+        return str;
+	}
+	
+	// }}}
+	// {{{ function askGetRepeat()
+	
+	/**
+	 * 数据填充
+	 * */
+	this.askGetRepeat = function(id) {
+		var self = this;
+		//获取联合数据
+		self.cmd(gHttp,{controller:'Ask',method:'getRepeat',id:id},function(result1){
+			if(result1.statu){
+				result1.data.gender = result1.data.gender == 0 ? '女' : '男';
+				$('#formEdit').frmFill('',result1.data);
+				
+				if (result1.data.plushtime != '') {
+					$('#plushtime').html(result1.data.plushtime);
+				}
+				
+				if (result1.data.answertime != '') {
+					$('#answertime').html(result1.data.answertime);
+				}
+				
+				if( result1.data.pic1 != '' && result1.data.pic1 != null ){
+					$('img#ask_pic_pic').attr('src',result1.data.pic1);
+				}else{
+					$('img#ask_pic_pic').attr('src','/hcc/images/askimg.png');
+				}
+				if( result1.data.content != '' ) {
+					$('#addToHtmlHeader').html( "RE："+result1.data.content );
+				}
+				if( result1.data.assay == '' ) {
+					$('#assay_box').html('该用户未上传报告单.');
+				}else{
+					$('#assay').attr("src", result1.data.assay_pic);
+				}
+				
+				//填充回复
+				//对问题的回复
+				//self.cmd(gHttp,{controller:'Answer',method:'getAskAddto',answerID:answerID,from:'admin'},function(ret2){
+					//if(ret2.statu){
+						//var data = ret2.data;
+						//if (data.length <1) return false;
+				
+				if (result1.data.answer_id) {
+					var str = '<div class="tbox" id="box_answer_'+result1.data.answer_id+'"><div class="t_con">';
+					str += '<div class="t_left">';
+					str += ' <span class="user_img"><img alt="" src="../images/boyicms/ask/doctor_pic.png"></span>';
+					str += ' </div> ';
+			        str += '<div class="t_right"><span id="reply"></span>';
+			        str += '</div>';
+			        str += '</div>';
+			        str += '</div>';
+			        $("#reply_box_before").before(str);
+					var reply = '';
+	            	reply += '<span class="user_name"><strong><a href="javascript:void(0)"> 匿名 </a><i>对问题的回复</i></strong> <cite>'+result1.data.plushtime+'</cite> </span>';
+	            	reply += '<p class="user_p" id="reply_'+result1.data.answer_id+'"> <strong>建议：</strong><span id="replyContent">'+result1.data.content+'</span> </p>';
+	            	$("#reply").append(reply);
+					$('#ask_textarea_zhuan').attr('name', 'info');
+				}
+				
+					//}else{
+					//	layer.alert(ret2.msg);
+					//}
+				//});
+				
+				self.askGetAddTo(result1.data.answer_id);
+				var assign = new Array();
+				assign.push('age');assign.push('subject');assign.push('gender');assign.push('description');
+				var len = assign.length;var temp;
+				for(var i=0;i<len;i++){
+					temp = $('[name="'+assign[i]+'"]').val();
+					$('[name="'+assign[i]+'"]').after(temp);
+					$('[name="'+assign[i]+'"]').hide();
+					$('[name="'+assign[i]+'"]').attr("readonly","readonly");
+					$('[name="'+assign[i]+'"]').css("border","none");
+				}
+			}else{
+				layer.alert(result1.msg);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function toggleReplyBox()
+	
+	this.toggleReplyBox = function() {
+		$("#reply_box").toggle(200);
+		$("#ask_textarea_zhuan").focus();
+	}
+	
+	// }}}
+	// {{{ function askFllow()
+	
+	/**
+	 * 追问(此功能为用户使用功能)
+	 * */
+	this.askFllow = function(add_id){
+		var textareaID = 'zw_textarea_' + add_id;
+		$('#'+textareaID).toggle(200);
+	}
+	
+	// }}}
+	// {{{ function submitAskFllow()
+	
+	/**
+	 * 追问提交
+	 * */
+	this.submitAskFllow = function (add_id){
+		var textareaVal = $('#zw_textarea_' + add_id + ' textarea').val();
+		if(textareaVal==''){
+			alert('请输入您要追问的内容!');return false;
+		}
+		$('#ask_textarea_zhuan').attr('name','info_s');
+		$('#formEdit').frmPost({controller:'AskAddto',method:'addtoDoc',info:textareaVal,addID:add_id,askID:$("[name='ask_id']").val(),ansID:$("[name='answer_id']").val(),mode:1},function(res){
+			self.askGetAddTo($("[name='answer_id']").val());
+			$('#ask_textarea_zhuan').attr('name','info');
+			return false;
+		});
+	}
+	
+	// }}}
+	// {{{ function fllowReply()
+	
+	/**
+	 * 追问回复
+	 * */
+	this.fllowReply = function (add_id){
+		var textareaID = 'hf_textarea_' + add_id;
+		$('#'+textareaID).toggle();
+	}
+	
+	// }}}
+	// {{{ function submitFllowReply()
+	
+	/**
+	 * 提交追问回复
+	 * */
+	this.submitFllowReply = function (add_id){
+		var textareaVal = $('#hf_textarea_text_' + add_id).val();
+		if(textareaVal==''){
+			alert('请输入您要回复的内容!');return false;
+		}
+		$('#ask_textarea_zhuan').attr('name','info_s');
+		$('#formEdit').frmPost({controller:'AskAddto',method:'addtoDoc',info:textareaVal,addID:add_id,askID:$("[name='ask_id']").val(),ansID:$("[name='answer_id']").val(),mode:0},function(res){
+			self.askGetAddTo($("[name='answer_id']").val());
+			$('#ask_textarea_zhuan').attr('name','info');
+			return false;
+		});
+	}
+	
+	// }}}
+    // {{{ function onloadCss()
+	
+	/**
+	 * 加载css
+	 * */
+	this.onloadCss = function() {
+		$('.skin-minimal input').iCheck({
+			checkboxClass: 'icheckbox-blue',
+			radioClass: 'iradio-blue',
+			increaseArea: '20%'
+		});
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Ask',method:'query'},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[8]},{sClass:'text-c',aTargets:[9]},{sClass:'text-c',aTargets:[10]},{sClass:'text-c',aTargets:[11]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'department_name' },
+			            { data: 'disease_name' },
+			            { data: 'name' },
+			            { data: 'age' },
+			            { data: 'gender' },
+			            { data: 'subject' },
+			            { data: 'plushtime' },
+			            { data: 'isanswer', render : function(value){
+			            	    var flag = value == '是' ? 'label-success' : 'label-default';
+			            	    var value = value == '是' ? '已回复' : '未回复';
+			            	    return '<span class="label '+flag+' radius">'+value+'</span>';
+			            	}
+			            },
+			            { data: 'isdisplay', render : function(value, type, row){
+			            	    var flag = value == '1' ? 'label-success' : 'label-default';
+			            	    var str = value == '1' ? '显示' : '不显示';
+			            	    var isDisplay = value == '1' ? '0' : '1';
+		            	        return '<span data="'+value+'" id="display_'+row.id+'" class="label '+flag+' radius">'+str+'</span>';
+			            	} 
+			            },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+				              str += '<a style="text-decoration:none" target="_blank" href="/controller/?controller=ViewHtml&method=ask&op=ask&id='+id+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>&nbsp;';
+				              switch(row['isanswer']){
+					    		case '否':
+					    			str += '<a style="text-decoration:none" class="ml-5" onClick="gAsk.openAdd(\'回复患者提问\',\'ask-detail.html?type=reply&id='+id+'\',\'820\',\'500\')" href="javascript:;" title="回复"><i class="Hui-iconfont">&#xe68a;</i></a>&nbsp;&nbsp;';
+					    			break;
+					    		case '是':
+					    			str += '<a style="text-decoration:none" class="ml-5" onClick="gAsk.edit('+id+');" href="javascript:;" title="修改"><i class="Hui-iconfont">&#xe6df;</i></a>&nbsp;&nbsp;';	
+					    			break;
+					    	 }
+				              
+				              str += '<a style="text-decoration:none" href="javascript:;" title="前台显示控制" onClick="gAsk.isDisplay('+id+')"><i class="Hui-iconfont">&#xe64f;</i></a>&nbsp;';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gAsk.del('+id+')" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+		
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(id) {
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Answer',method:'delete',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function() {
+		var ids = $("#dataTable").getSelectedAll();
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Answer',method:'delete',id:ids});
+	}
+
+	//编辑
+	this.edit = function(id){
+		self.openEditWID('编辑问答', 'ask-detail.html?type=update&id=' + id,'820','500');
+	}
+	
+	//批量显示
+	this.isDisplayBatch = function() {
+		var ids = $("#dataTable").getSelectedAll(true);
+		var idsObj = ids.split(',');
+		layer.confirm('是否将当前的问答都设为前台可见？',function(index){	
+			self.cmd(gHttp,{controller:'Ask',method:'setDisplay', id:ids, isdisplay:1},function(ret){
+				if(ret.statu){
+					for (var i in idsObj) {
+						var $obj=$('span#display_'+idsObj[i]);
+						$obj.html('显示').removeClass('label-default').addClass('label-success');
+						$obj.attr('data', 1);
+					}
+					layer.close(index);
+				}
+			});
+		});	
+		
+	}
+	
+	//是否显示
+	this.isDisplay = function(id) {
+		var $obj=$('span#display_'+id);
+		var flag = $obj.attr('data');
+		var isdisplay = flag == 0 ? 1 : 0;
+		var flagStr = flag == 0 ? '可见' : '不可见';
+		
+		layer.confirm('是否将当前的问答设为前台'+flagStr+'？',function(index){	
+			self.cmd(gHttp,{controller:'Ask',method:'setDisplay', id:id, isdisplay:isdisplay},function(ret){
+				if(ret.statu){
+					if (isdisplay) {
+						$obj.html('显示').removeClass('label-default').addClass('label-success');
+					} else {
+						$obj.html('不显示').removeClass('label-success').addClass('label-default');
+					}
+					
+					$obj.attr('data', isdisplay);
+					layer.close(index);
+				}
+			});
+		});	
+	}
+	
+	// {{{ function save()
+	
+	/**
+	 * 保存问题回答
+	 * */
+	this.save = function(type, para){
+		if (type == 'reply') {
+			var url = {controller:'Answer',method:'save',askID:para};
+		} else {
+			var url = {controller:'AskAddto',method:'addtoDoc',askID:para,ansID:$("input[name='answer_id']").val(),mode:0};
+		}
+		$('#formEdit').frmPost(url,function(result){
+			if(result.statu){
+				if (type == 'reply') {
+					var url=parent.location.href;
+					parent.location.replace(url);
+					parent.layer.alert('问题回答成功!',{icon: 1});	
+					layer_close();					
+				} else {
+					self.askGetAddTo(result.data.ansID);
+					$("[name='info']").val('');
+				}
+				
+			}else{
+				parent.layer.alert(result.msg);
+			}
+			
+			return false;
+		});
+	}
+	
+	// }}}
+}

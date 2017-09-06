@@ -1,0 +1,13 @@
+/* CSS Document */
+
+
+
+#body{width:100%;text-align:left;}
+#body h2{font-size:18px;height:50px;line-height:50px;}
+.results{width:94%;margin:0 auto;background:#f4f4f4;border:1px solid #d7d7d7;border-radius:8px;-moz-border-radius:8px; /* Old Firefox */ padding:8px;}
+.results p{font-size:14px;line-height:25px;text-indent:2em;}
+.results p span{color:#0694cb;}
+
+.advisevtbox{width:96%;margin:10px auto;font-size:14px;background:#fff9f3;border:1px solid #fcd17a;border-radius:8px;-moz-border-radius:8px; /* Old Firefox */ paddind:8px;}
+.advisevtbox p{line-height:25px;padding:6px;text-align:left;}
+.advisevtbox a{display:block;height:35px;line-height:35px;color:#FFFFFF;font-size:16px;border:1px solid #fc9232;border-radius:6px;-moz-border-radius:6px; /* Old Firefox */ background:#fc9232;width:30%;margin:0 auto;text-align:center;margin-top:10px;margin-bottom:10px;}

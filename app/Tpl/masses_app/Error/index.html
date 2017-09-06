@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>404_{{$seo->title}}</title>
+<meta name="keywords" content="{{$seo->keywords}}" />
+<meta name="description" content="{{$seo->description}}" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+{{include file="Common/common.html"}}
+
+</head>
+
+
+<body>
+<!-- header -->
+{{include file="Common/header.html"}}
+<div class="main w320">
+  <div class="active">
+  {{foreach $mobileAd as $v}}
+        <a href="{{$contact.swt_link}}" target="_blank" title="在线咨询">
+        <img src="{{$v->src}}" >
+        </a> 
+  {{/foreach}}
+    
+  </div>
+  
+ <!-- 主要内容-->
+  <div class="content"> 
+  
+  
+  <!-- 第一部分-->
+    <div class="part1">
+      <div class="part_til">ERROR</div>
+      <div class="part_p w300">
+			{{$errorPage->content}}
+                
+      <div class="cle"></div>
+      </div>
+    </div>
+  <!-- 第一部分结束-->  
+  
+
+ 
+ 
+  
+   
+  
+ <!--第十一部分-->
+ <div class="part11">
+   <div class="part_til">{{$mobileNav['data']->subject}}</div>
+   <div class="learn">
+     <ul>
+        {{foreach from=$mobileNav['ParNav'] item=value  name=name}}
+        {{if $smarty.foreach.name.iteration lt 8}}
+        <li class="learn{{$smarty.foreach.name.iteration}}"><a href="{{$value->url}}" target="_self">{{$value->subject}}</a></li>
+        {{/if}}
+        {{/foreach}}
+     </ul>
+    <div class="cle"></div>
+   </div>
+      <div class="lianxi">
+        <a href="{{$contact.swt_link}}" target="_blank">
+        <img src="{{$RESOURCE}}/images/p45-1.jpg" width="112" height="32" /></a>
+        <a href="tel:{{$contact.tel}}">
+        <img src="{{$RESOURCE}}/images/p45.jpg" width="112" height="32" /></a> 
+      </div>
+ </div>
+<!--第十一部分结束-->  
+  
+  
+  </div>
+ 
+
+
+
+</div>
+
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</body>
+
+
+</html>

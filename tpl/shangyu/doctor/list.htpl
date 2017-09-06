@@ -1,0 +1,186 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<script type="text/javascript">
+function getdoctor(dep1,dep2){
+	if(dep1 != ''){
+		$('#dep1').html(dep2+'<i class="icon icon-times"></i>');
+	}
+ 	$('#doctors').empty();
+ 	$("#doc_count").empty();
+ 	$.ajax({
+ 		type:'GET',
+			url:"/controller?controller=Doctor&method=query&department_id="+dep1,
+			dataType: 'json',
+			success: function(result){
+					//console.log(result.rows);
+					var html = '';
+					for(var p in result.rows){
+						 // var str = v[0].description;
+						//  str = str.substring(0,151);
+						  html += '<li class="col-xs-12 col-sm-12 col-md-6" style="height:230px;">';
+				          html += '<div class="pull-left col-xs-12 col-sm-4">';
+				          html += '<a href="/doctor/'+result.rows[p].id+'.html" target="_blank"><img src="/public/'+result.rows[p].pic+'"></a></div>';
+				          html += '<div class="pull-left col-xs-12 col-sm-8">';
+			              html += '<h4><a href="/doctor/'+result.rows[p].id+'.html" target="_blank">'+result.rows[p].name+'</a></h4>';
+			              html += '<h5><span>科室：'+result.rows[p].department_name+'</span><span>职称：'+result.rows[p].position+'</span></h5>';
+			              html += '<p>个人简介：'+result.rows[p].description+'<a href="/doctor/'+result.rows[p].id+'.html" target="_blank"><详情></a></p>'; 
+			              html += '</div></li> ';
+					}
+					$("#doctors").html(html);
+					$("#doc_count").html("共"+result.ttl+"名医生");
+			}
+ 	})
+ 	
+ }
+ 
+ function removes(obj){
+	 obj = '#'+obj;
+	 $(obj).empty();
+	 $(obj).attr('value','');
+	 $("#doctors").empty();
+ }
+ 
+ //搜索医生
+
+ function searchdoc(){
+	 var doc = $("#search_doc").val();
+	 if(doc == ''){
+		 alert('搜索字段不能为空!');
+	 }else{
+		 $.ajax({
+		 		type:'GET',
+					url:"/controller?controller=Doctor&method=query&name="+doc,
+					dataType: 'json',
+					success: function(result){
+							//console.log(result.rows);
+							var html = '';
+							for(var p in result.rows){
+								html += '<li class="col-xs-12 col-sm-12 col-md-6" style="height:230px;">';
+						          html += '<div class="pull-left col-xs-12 col-sm-4">';
+						          html += '<a href="/doctor/'+result.rows[p].id+'.html" target="_blank"><img src="/public/'+result.rows[p].pic+'"></a></div>';
+						          html += '<div class="pull-left col-xs-12 col-sm-8">';
+					              html += '<h4><a href="/doctor/'+result.rows[p].id+'.html" target="_blank">'+result.rows[p].name+'</a></h4>';
+					              html += '<h5><span>科室：'+result.rows[p].department_name+'</span><span>职称：'+result.rows[p].position+'</span></h5>';
+					              html += '<p>个人简介：'+result.rows[p].description+'<a href="/doctor/'+result.rows[p].id+'.html" target="_blank"><详情></a></p>'; 
+					              html += '</div></li> ';
+							}
+							if(result.ttl == 0){
+								html = "未找到您要搜索的医生！";
+							}
+							$("#doctors").empty();
+							$("#doctors").html(html);
+					}
+		 	})
+	 }
+ } 
+ 
+ 
+ window.onload=function(){
+	 $.ajax({
+	 		type:'GET',
+				url:"/controller?controller=Doctor&method=query",
+				dataType: 'json',
+				success: function(result){
+						//console.log(result.rows);
+						var html = '';
+						for(var p in result.rows){
+							html += '<li class="col-xs-12 col-sm-12 col-md-6" style="height:230px;">';
+					          html += '<div class="pull-left col-xs-12 col-sm-4">';
+					          html += '<a href="/doctor/'+result.rows[p].id+'.html" target="_blank"><img src="/public/'+result.rows[p].pic+'"></a></div>';
+					          html += '<div class="pull-left col-xs-12 col-sm-8">';
+				              html += '<h4><a href="/doctor/'+result.rows[p].id+'.html" target="_blank">'+result.rows[p].name+'</a></h4>';
+				              html += '<h5><span>科室：'+result.rows[p].department_name+'</span><span>职称：'+result.rows[p].position+'</span></h5>';
+				              html += '<p>个人简介：'+result.rows[p].description+'<a href="/doctor/'+result.rows[p].id+'.html" target="_blank"><详情></a></p>'; 
+				              html += '</div></li> ';
+						}
+						if(result.ttl == 0){
+							html = "未找到您要搜索的医生！";
+						}
+						$("#doctors").empty();
+						$("#doctors").html(html);
+				}
+	 	})
+};
+</script>
+<div class="main_pat container">
+	<div class="mpat_tit">
+	  <h5>您已经选择：</h5>
+	  <a href="javascript:void(0);" value='' id='dep1'  onclick="removes($(this).attr('id'))"></a>
+	  <span class="pull-right" id='doc_count'></span>
+	</div>
+    <dl>
+    	<dd class="main_three mpat_one">
+        	<h4>门诊科室：</h4>
+        	<div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+    	 {{deptlist page="1" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="javascript:void(0);" value="[field:id/]" value2="[diseases:name/]" onclick="getdoctor($(this).attr('value'),$(this).attr('value2'))">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+    </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+                {{deptlist page="2" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="javascript:void(0);" value="[field:id/]" value2="[diseases:name/]" onclick="getdoctor($(this).attr('value'),$(this).attr('value2'))">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+                {{deptlist page="3" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="javascript:void(0);" value="[field:id/]" value2="[diseases:name/]" onclick="getdoctor($(this).attr('value'),$(this).attr('value2'))"">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi bord_none">
+                {{deptlist page="4" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="javascript:void(0);" value="[field:id/]" value2="[diseases:name/]" onclick="getdoctor($(this).attr('value'),$(this).attr('value2'))">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+            </div>
+        </dd>
+    </dl>
+</div>
+
+<div class="main_pat2 container main_doc">
+	<div class="main_tit">
+    	<strong class="pull-left"><a>医师信息</a></strong>
+        <div class="col-xs-8 col-sm-5 pull-right input-group">
+          <form class="" role="search">
+            <input name="keyword"  id="search_doc" value="" class="form-control" placeholder="搜索医生姓名" type="text">
+            <span class="input-group-addon">
+            <button type="button" class="" onclick="searchdoc();">搜索</button>
+            </span>
+          </form>
+        </div>
+    </div>
+	<ul class="mpat2 row"  id="doctors">
+<!-- 	    {{doctorlist sort="id desc" pagesize="6"}}
+    	<li class="col-xs-12 col-sm-12 col-md-6"   style="height:230px">
+            	<div class="pull-left col-xs-12 col-sm-4"><a href="[field:url/]" target="_blank"><img src="[field:pic/]"></a></div>
+                <div class="pull-left col-xs-12 col-sm-8">
+                	<h4><a href="[field:url/]" target="_blank">[field:name/]</a></h4>
+                	<h5><span>科室：{{deptinfo name_or_id=$department_in}}[field:name/]{{/deptinfo}}</span><span>职称：[field:position/]</span></h5>
+                    <p>个人简介：[field:description/]<a href="[field:url/]" target="_blank"><详情></a></p>
+                </div>
+        </li>
+        {{/doctorlist}}
+ -->    </ul>
+     <footer style="text-align:right;">
+    <!-- {{doctorpagehtml}} -->
+      </footer>
+</div>
+{{/block}}

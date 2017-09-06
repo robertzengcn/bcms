@@ -1,0 +1,383 @@
+/**
+ * 个性频道
+ * */
+var tplListUploader = null;
+var tplDetailUploader= null;
+function Channel() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				self.cmd(gHttp,{controller:'Channel',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						var tplurl = $.trim(result1.data.tplurl);
+						var detailtplurl = $.trim(result1.data.detailtplurl);
+						
+						if(result1.data.is_use_tpl == 1){
+							$('div.tempbox').hide();
+						}
+						if(tplurl != ''){
+							$('#span_fileupload_list').html('已上传模版文件,模版路径：'+tplurl);
+                            $('#fileupload_list').val(tplurl);
+						}
+						if(detailtplurl != ''){
+							$('#span_fileupload_detail').html('已上传模版文件,模版路径：'+detailtplurl);
+                            $('#fileupload_detail').val(detailtplurl);
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			
+			
+			
+			$('[name=name]').change(function(){
+				var me = $(this);
+				var val = me.val();
+				self.cmd(gHttp,{controller:'Pingyin',method:'conversion',data:val}, function(ret){
+					$('[name=shortname]').val(ret.data);
+				});
+			});
+			
+			$('.skin-minimal input').iCheck({
+				checkboxClass: 'icheckbox-blue',
+				radioClass: 'iradio-blue',
+				increaseArea: '20%'
+			});
+			
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0")
+			
+			self.initCheckTplDir();
+			
+			$('.tabBar span').click(function(){
+				var tabIndex = $(this).index();
+				if (tabIndex == '1') {
+					var url = document.getElementById('shortname').value;
+			        if(url ==='') {
+			        	self.initCheckTplDir();
+			        } else {
+			        	self.initListUploader();
+						self.initDetailUploader();
+			        }
+				}
+			});
+			
+			//保存
+			$("#save").click(function(){
+				self.save();
+			});
+			
+			//使用模板方式改变时
+			$('input.is_use_tpl').click(function(){										 
+				if( $(this).val() == 1 ){
+					$('div.tempbox').hide();
+					$('input.input_temp').val('');
+				} else {
+					$('div.tempbox').show();
+				}	
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+
+	
+	// }}}
+	// {{{ function checkTplDir()
+	
+	/**
+	 * 检查模板上传目录
+	 * */
+	this.initCheckTplDir = function() {
+		$('.btns-list').html('<div id="picker_list" class="webuploader-pick"><i class="Hui-iconfont">&#xe626;</i>&nbsp;选择模版</div>');
+		$('.btns-detail').html('<div id="picker_detail" class="webuploader-pick"><i class="Hui-iconfont">&#xe626;</i>&nbsp;选择模版</div>');
+		$('#picker_list').click(function() {
+			var url = document.getElementById('shortname').value;
+	        if(url===''){
+	            layer.alert('请先输入文件保存目录!', function(index){
+	            	$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+	            	layer.close(index);
+	            });
+	        }
+		});
+		$('#picker_detail').click(function() {
+			var url = document.getElementById('shortname').value;
+	        if(url===''){
+	            layer.alert('请先输入文件保存目录!', function(index){
+	            	$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+	            	layer.close(index);
+	            });
+	        }
+		});
+		
+		
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para : {controller:'Channel',method:'query'},
+			aoColumnDefs : [
+							{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'name' },
+			            { data: 'shortname',},
+			            { data: 'is_use_tpl',
+			              render : function(value, type, row) {return (value==1)?'<span class="label label-primary radius">默认模板</span>':'<span class="label label-default radius">自定义模板</span>';}	
+			            },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" class="ml-5" onclick="gChannel.openAdd(\'该频道资讯列表\',\'channelArticles.html?id='+id+'\');" href="javascript:;"  title="查看资讯列表"><i class="Hui-iconfont">&#xe681;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gChannel.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gChannel.del('+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(id) {
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Channel',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function() {
+		var ids = $("#dataTable").getSelectedAll();
+		if(ids.length<=0){
+			layer.msg('请选择要删除的项目！',{icon:2});
+		}else{
+			var obj=$("#dataTable").dataTable();
+			self.openDel(obj,{controller:'Channel',method:'del',id:ids});
+		}
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEditWID('编辑个性频道','channel.html?id=' + id,'700','500');
+	}
+	
+	//保存
+	this.save = function() {
+		var post = {controller:'Channel',method:'save'};
+		var id = $("#id").val();
+		if ( id != '') {
+			post = {controller:'Channel',method:'update',id:id};
+		}
+		var formObj=$('#formEdit').checkAndSubmit('save', post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		if(!formObj.check('false','#seo_title')||!formObj.check('false','#seo_desc')){			
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","2");
+		}
+		if(!formObj.check('false','#name')||!formObj.check('false','#shortname')){			
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+		}
+		$('#formEdit').submit();
+	}
+	
+    this.filedelete = function (tpl){
+    	$('#fileupload_' + tpl).val('');//清空表单
+        $('#a_filedelete_' + tpl).hide();//隐藏删除按钮
+        $('#span_fileupload_' + tpl).html('');//清空提示
+        if (tpl == 'list') {
+        	self.initListUploader();
+        } else {
+        	self.initDetailUploader();
+        }
+        layer.alert('删除成功!');
+        return false;
+    }
+    this.tplshow = function (){
+    	document.getElementById('uploadTpl').style.display = 'block';
+    	document.getElementById('uploadDetailTpl').style.display = 'block';
+    }
+    this.tplhide = function (){
+    	document.getElementById('fileupload_list').value = '';
+    	document.getElementById('a_filedelete_list').style.display = 'none';
+    	document.getElementById('span_fileupload_list').innerHTML = '';
+    	document.getElementById('btn_fileupload_list').setAttribute('src','./public/img/xzmb.jpg');
+    	document.getElementById('uploadTpl').style.display = 'none';
+    	
+    	document.getElementById('fileupload_detail').value = '';
+    	document.getElementById('a_filedelete_detail').style.display = 'none';
+    	document.getElementById('span_fileupload_detail').innerHTML = '';
+    	document.getElementById('btn_fileupload_detail').setAttribute('src','./public/img/xzmb.jpg');
+    	document.getElementById('uploadDetailTpl').style.display = 'none';
+    }
+	
+    // {{{ function initListUploader()
+	
+	/**
+	 * 初始化上传插件
+	 * */
+	this.initListUploader = function() {
+		$('.btns-list').html('<div id="picker_list"><i class="Hui-iconfont">&#xe626;</i>&nbsp;选择模版</div>');
+		tplListUploader = null;
+		tplListUploader = WebUploader.create({
+			auto:true,
+			swf:'/hcc/lib/webuploader/0.1.5/Uploader.swf',
+			pick:'#picker_list',
+			fileVal: 'Filedata',
+			resize:false,
+			accept: {
+				title: '模版文件',
+				extensions: 'htpl',
+				mimeTypes: 'application/htpl'
+			}
+		});
+		
+		$("#picker_list").unbind('click').bind('click',function(){
+			var url = document.getElementById('shortname').value;
+	        var fileupload = document.getElementById('fileupload_list').value;
+	        self.uploadListFile(url, fileupload);
+		});
+	}
+	
+	// }}}
+    // {{{ function uploadListFile()
+	
+	/**
+	 * 上传模版
+	 * */
+	this.uploadListFile = function(url, fileupload) {
+        tplListUploader.option('server','/controller/?controller=Upload&method=uploadHtpl&flag=channel&fileurl='+url+"&fileupload="+fileupload);
+        
+		// 文件上传过程中创建进度条实时显示。
+		tplListUploader.on( 'uploadSuccess', function( file, response ) {
+			if (response.statu) {
+				$("#fileupload_list").val(response.data);
+				$("#span_fileupload_list").html('已上传模版文件,模版路径：' + response.data);
+				$("#a_filedelete_list").show();
+				$("#picker_list").hide();
+			} else {
+				layer.alert(response.msg);
+			}
+	    });	    
+	    
+		tplListUploader.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert("文件格式不对，请上传.htpl文件",{icon:2});
+		     }
+		});
+	}
+	
+	// }}}
+    // {{{ function initDetailUploader()
+	
+	/**
+	 * 初始化上传插件
+	 * */
+	this.initDetailUploader = function() {
+		$('.btns-detail').html('<div id="picker_detail"><i class="Hui-iconfont">&#xe626;</i>&nbsp;选择模版</div>');
+		tplDetailUploader = null;
+		tplDetailUploader = WebUploader.create({
+			auto:true,
+			swf:'/hcc/lib/webuploader/0.1.5/Uploader.swf',
+			pick:'#picker_detail',
+			fileVal: 'Filedata',
+			resize:false,
+			accept: {
+				title: '模版文件',
+				extensions: 'htpl',
+				mimeTypes: 'application/htpl'
+			}
+		});
+		
+		$("#picker_detail").unbind('click').bind('click',function(){
+			var url = document.getElementById('shortname').value;
+	        var fileupload = document.getElementById('fileupload_detail').value;
+	        self.uploadDetailFile(url, fileupload);
+		});
+	}
+	
+	// }}}
+    // {{{ function uploadDetailFile()
+	
+	/**
+	 * 上传模版
+	 * */
+	this.uploadDetailFile = function(url, fileupload) {
+		tplDetailUploader.option('server','/controller/?controller=Upload&method=uploadHtpl&flag=channel&fileurl='+url+"&fileupload="+fileupload);
+        
+		// 文件上传过程中创建进度条实时显示。
+		tplDetailUploader.on( 'uploadSuccess', function( file, response ) {
+			if (response.statu) {
+				$("#fileupload_detail").val(response.data);
+				$("#span_fileupload_detail").html('已上传模版文件,模版路径：' + response.data);
+				$("#a_filedelete_detail").show();
+				$("#picker_detail").hide();
+			} else {
+				layer.alert(response.msg);
+			}
+	    });	    
+	    
+		tplDetailUploader.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert("文件格式不对，请上传.htpl文件",{icon:2});
+		     }
+		});
+	}
+	
+	// }}}
+}

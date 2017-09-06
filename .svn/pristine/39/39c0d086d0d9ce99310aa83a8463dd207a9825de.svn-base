@@ -1,0 +1,81 @@
+<?php
+
+/*
+ * 登陆页面模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", "0");
+include_once ABSPATH.'/mod/Mod.php';
+
+class Login extends Mod{
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 *
+	 *登录类方法
+	 */
+	public function index() {
+		
+	
+		$this->smarty->display( 'login/index'.SUBFIX);
+	}
+	
+	public function dologin(){
+		session_start();
+		if(!isset($_REQUEST['ckcode'])||strtolower($_SESSION['verify'])!=strtolower($_REQUEST['ckcode'])){
+			$array = array('status'=>false,'msg'=>'验证码错误','code'=>10001,'data'=>null);
+			$_SESSION['verify']=rand(1,100);//随机生成一个验证码覆盖原来的
+			echo json_encode($array);			
+			exit();
+		}
+		
+		if(!isset($_REQUEST['tmobile'])||!strlen($_REQUEST['tmobile'])>1){
+			$array = array('status'=>false,'msg'=>'缺少mobile参数','code'=>10003,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		if(!isset($_REQUEST['tmobile'])||!strlen($_REQUEST['tmobile'])>1){
+			$array = array('status'=>false,'msg'=>'缺少password参数','code'=>10004,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+		if(!preg_match("/^13[0-9]{1}[0-9]{8}$|15[0-9]{1}[0-9]{8}$|18[0-9]{1}[0-9]{8}$|17[0-9]{1}[0-9]{8}/",$_REQUEST['tmobile'])){
+			$array = array('status'=>false,'msg'=>'mobile格式错误','code'=>10003,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+		$memberser=new MemberService();
+		
+		$result=$memberser->docheck($_REQUEST['tmobile'],$_REQUEST['tpassword']);
+		
+		if($result->statu){
+			$array = array('status'=>true,'msg'=>null,'code'=>0,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}else{				
+			$array = array('status'=>false,'msg'=>$result->msg,'code'=>$result->code,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+	}
+	
+	public function gettoken(){
+		session_start();
+		$_SESSION['lotoken']=md5(time().rand(1,999));//产生一个随机数防止域外提交
+		$array = array('status'=>true,'msg'=>null,'code'=>null,'data'=>$_SESSION['lotoken']);
+		echo json_encode($array);
+		exit();
+	}
+	
+	
+}
+new Login();

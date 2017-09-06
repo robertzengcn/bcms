@@ -1,0 +1,115 @@
+function Welcome(){
+	BaseFunc.call(this);
+	
+	var self = this;
+	
+	this.init = function() {
+		$(function(){
+			//加入上次登录时间
+			self.lastLogin();
+			
+			//信息完整度检查
+			self.healthCheck();
+			
+			$('#PEIS').on('click',function(){
+				self.healthCheck();
+			});
+			
+			//显示饼图
+			self.showChart();
+			
+			//控制轮播图和新闻阅读数据填充，调用总控js实现，故需要在总控上修改样式
+		});
+	}
+	
+    // {{{ function latestLogin()
+	
+	/**
+	 * 上次登录时间
+	 * */
+	
+	this.lastLogin = function() {
+		self.cmd(gHttp,{controller:'WorkerLogHistory',method:'lastLogin'},function(date){
+			$('#loginDate').html(date);
+		});
+	}
+    
+	// }}}
+	// {{{ function healthCheck()
+	
+	/**
+	 * 信息完整度检查
+	 * */
+	this.healthCheck = function() {
+		var tableNames = '';
+        $('.leftinfo').find('ul a').each(function(){                 //遍历获取需要查询的path名
+        	var path = $(this).attr('path');
+        	if (path != undefined) {
+        		tableNames += ',' + path;
+        	}
+        });
+        
+        var para = {controller:'Home',method:'health',tableNames:tableNames};
+        self.cmd(gHttp,para,function(data){
+        	$.each(data,function(key,value){
+                if(value == '0'){
+                    $('#'+key+'Item').addClass('incorrectness');
+                }
+           })
+        });
+	}
+	
+	// }}}
+	// {{{ function showChart()
+	
+	/**
+	 * 显示饼图
+	 * */
+	this.showChart = function() {
+		$('#container').highcharts({
+	        chart: {
+	            plotBackgroundColor: null,
+	            plotBorderWidth: null,
+	            plotShadow: false
+	        },
+	        title: {
+	            text: ''
+	        },
+	        tooltip: {
+	    	    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	        },
+	        plotOptions: {
+	            pie: {
+	                allowPointSelect: true,
+	                cursor: 'pointer',
+	                dataLabels: {
+	                    enabled: true,
+	                    color: '#000000',
+	                    connectorColor: '#000000',
+	                    format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+	                }
+	            }
+	        },
+	        series: [{
+	            type: 'pie',
+	            name: 'Browser share',
+	            data: [
+	                ['Firefox',   45.0],
+	                ['IE',       26.8],
+	                {
+	                    name: 'Chrome',
+	                    y: 12.8,
+	                    sliced: true,
+	                    selected: true
+	                },
+	                ['Safari',    8.5],
+	                ['Opera',     6.2],
+	                ['Others',   0.7]
+	            ]
+	        }]
+	    });
+	}
+	
+	// }}}
+	
+}

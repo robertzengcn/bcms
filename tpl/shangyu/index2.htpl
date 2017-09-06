@@ -1,0 +1,369 @@
+﻿{{extends file='./common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="home_banner">
+  <div class="banner">
+    {{picbyflag flag="index"}}<img class="hidden-xs" src="[field:src/]">{{/picbyflag}}
+  </div>
+  <div class="nav_two">
+    <ul class="container">
+      {{navgroup flag="index_nav"}}
+      <li><a href="[field:url/]"  target="_blank"><span><img src="[field:pic/]"></span>
+        <p>[field:subject/]</p>
+        </a></li>
+      {{/navgroup}}
+    </ul>
+  </div>
+</div>
+<div class="main_top container">
+  <div class="col-xs-12 col-sm-12 col-md-8 maint_l">
+    <div class="white_bg">
+      <div class="col-xs-12 col-sm-6" style="padding:0;">
+        <div id="myNiceCarousel" class="carousel slide " data-ride="carousel"> 
+        {{scrollpicbyflag flag="scroll" assign="pic"}}{{/scrollpicbyflag}}
+          <!-- 圆点指示器 -->
+          <ol class="carousel-indicators">
+              {{foreach from=$pic item=v name=nava}}
+			   {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+               <li data-target="#myNiceCarousel" data-slide-to="{{$smarty.foreach.nava.iteration-1}}" class="{{$active}}"></li>
+              {{/foreach}}
+          </ol>
+          <!-- 轮播项目 -->
+          <div class="carousel-inner">
+            {{foreach from=$pic item=v name=nava}}
+            {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+            <div class="item {{$active}}"><img src="{{$v->pic}}"></div>
+            {{/foreach}}
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <ul class="news_tit">
+          <li class="active"><a href="/news/index.html">院内新闻</a></li>
+          <li><a href="/yuwugongkai/index.html">院务公开</a></li>
+          <li class="bg_none"><a href="#">媒体报道</a></li>
+        </ul>
+        <ul class="news_box">
+          <li>
+            {{newsbyrecommend recommend_name="首页头版头条"  limit="1"}}
+            <h2><a href="{{newsurl}}[field:id/].html">[field:subject/]</a></h2>
+            <p>[field:description|length:35/]</p>
+            {{/newsbyrecommend}}
+            <dl>
+              {{newslist pagesize="4" }}
+              <dd><a href="{{newsurl}}[field:id/].html" target="_blank">[field:subject|length:30/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+              {{/newslist}}
+            </dl>
+          </li>
+          <li style="display:none;">
+            {{channelarcsbyrecommend recommend_name="首页头版头条" name="院务公开"}}
+            <h2><a href="/yuanwugongkai/[field:id/].html">[field:subject/]</a></h2>
+            <p>[field:description|length:35/]</p>
+            {{/channelarcsbyrecommend}}
+            <dl>
+            {{channelarcsbyname name="院务公开" size="4" }}
+              <dd><a href="/yuanwugongkai/[field:id/].html" target="_blank">[field:subject|length:30/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+              {{/channelarcsbyname}}
+             </dl>
+          </li>
+          <li style="display:none;">
+            {{mediasbyrecommend recommend_name="首页头版头条"  pagesize="1"}}
+            <h2><a href="{{mediaurl}}[field:id/].html">[field:subject/]</a></h2>
+            <p>[field:description|length:35/]</p>
+            {{/mediasbyrecommend}}
+            <dl>
+              {{medialist pagesize="4" }}
+              <dd><a href="{{newsurl}}[field:id/].html" target="_blank">[field:subject|length:30/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+              {{/medialist}}
+            </dl>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-12 col-md-4 maint_r">
+    <div class="white_bg">
+      <ul class="notice_tit">
+        <li class="active"><a href="/yiyuangonggao">医院公告</a></li>
+        <li><a href="xueshuhuiyi">学术会议</a></li>
+        <li class="bg_none"><a href="zhaopinxinxi">招聘信息</a></li>
+      </ul>
+      <ul class="notice_box">
+        <li>
+          <dl>
+            {{channelarcsbyname name="医院公告" size="6" }}
+            <dd><a href="/yiyuangonggao/[field:id/].html" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+            {{/channelarcsbyname}}
+          </dl>
+        </li>
+        <li style="display:none;">
+          <dl>
+           {{channelarcsbyname name="学术会议" size="6" }}
+            <dd><a href="/xueshuhuiyi/[field:id/].html" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+            {{/channelarcsbyname}}
+          </dl>
+        </li>
+        <li style="display:none;">
+          <dl>
+           {{channelarcsbyname name="招聘信息" size="6" }}
+            <dd><a href="/zhaopinxinxi/[field:id/].html" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+            {{/channelarcsbyname}}
+          </dl>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+	$(function ()
+	{
+			$('.maint_l .news_tit li:not(.disabled)').hover(function() {
+					$(this).closest('.news_tit').find('li.active').removeClass('active');
+					$(this).addClass('active');
+					 $(".news_box li").css("display","none");//将main下所有的div都隐藏
+			 		$(".news_box li:eq(" + $(this).index() + ")").css("display","block"); //链接对应的div显示
+			});
+		
+	});  
+	
+	$(function ()
+	{
+			$('.maint_r .notice_tit li:not(.disabled)').hover(function() {
+					$(this).closest('.notice_tit').find('li.active').removeClass('active');
+					$(this).addClass('active');
+					 $(".notice_box li").css("display","none");//将main下所有的div都隐藏
+			 		$(".notice_box li:eq(" + $(this).index() + ")").css("display","block"); //链接对应的div显示
+			});
+		
+	}); 
+</script>
+
+<div class="main_two container">
+  <div class="col-xs-12 col-sm-12 col-md-8 mtwo_l">
+  	<div class="white_bg">
+    	<div class="main_tit">
+          <strong class="pull-left"><a href="{{doctorlisturl}}" target="_blank">医师介绍</a></strong>
+          <span class="pull-right"><a href="#myNiceCarousel1" data-slide="prev"><i class="icon icon-angle-left"></i></a> <a href="#myNiceCarousel1" data-slide="next"><i class="icon icon-angle-right"></i></a></span>
+        </div>
+        <div id="myNiceCarousel1" class="carousel slide " data-ride="carousel">
+          <!-- 轮播项目 -->
+          <div class="carousel-inner">
+              <div class="item active">
+              	<ul>
+              	    {{doctorlist page="1" pagesize="4"}}
+                	<li><a href="{{doctorlisturl}}[field:id/].html" target="_blank"> <img src="[field:pic/]"><span>[field:name/]</span></a></li>
+                    {{/doctorlist}}
+                </ul>
+              </div>
+              <div class="item">
+              	<ul>
+                	{{doctorlist page="2" pagesize="4"}}
+                	<li><a href="{{doctorlisturl}}[field:id/].html" target="_blank"> <img src="[field:pic/]"><span>[field:name/]</span></a></li>
+                    {{/doctorlist}}
+                </ul>
+              </div>
+              <div class="item">
+              	<ul>
+                	{{doctorlist page="3" pagesize="4"}}
+                	<li><a href="{{doctorlisturl}}[field:id/].html" target="_blank"> <img src="[field:pic/]"><span>[field:name/]</span></a></li>
+                    {{/doctorlist}}
+                </ul>
+              </div>
+          </div>
+         </div>
+    
+    </div>
+  </div>
+<div class="col-xs-12 col-sm-12 col-md-4 mtwo_r">
+  	<div class="white_bg">
+    	<div class="main_tit"><strong class="pull-left"><a href="#" target="_blank">门诊预约</a></strong></div>
+        <form class="form-horizontal" role="form" method="post">
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-3 control-label">个人信息：</label>
+            <div class="col-xs-4">
+              <input name="name" id="name" placeholder="姓名" class="form-control" type="text">
+            </div>
+            <div class="col-xs-5">
+              <input name="hometel" id="hometel" placeholder="电话" class="form-control" type="text">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-3 control-label"></label>
+            <div class="col-xs-4">
+              <select name="sex" id="sex" class="form-control">
+                <option value="">性别</option>
+                <option value="1">男</option>
+                <option value="0">女</option>
+              </select>
+            </div>
+            <div class="col-xs-5">
+              <input name="age" id="age" placeholder="年龄" class="form-control" type="text">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-3 control-label">选择科室：</label>
+            <div class="col-xs-9">
+              <select name="department" id="department_id" class="form-control" onchange="getDoctor(this.value);">
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-3 control-label">坐诊时间：</label>
+            <div class="col-xs-4">
+              <input id='date' name='date' onfocus="WdatePicker({minDate:'%y-%M-%d'})" placeholder="请输入日期" class="form-control" type="text">
+            </div>
+            <div class="col-xs-5">
+              <select name="appointment" id="appointment" class="form-control" onchange="getTime(this.value)">
+               <option value="">--请选择时间--</option>
+              </select>
+              <input type="hidden" id="time" name="time" value=''/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-3 control-label">选择医生：</label>
+            <div class="col-xs-4">
+              <select name="doctor_id" id="doctor_id" class="form-control" onchange="getReservation();">
+                <option value="">请选择医生</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-xs-12" style="text-align: center;">
+              <input id="button" class="btn btn-block" value="挂号" data-loading="稍候..." type="button" name="button">
+              <input name="type" id="type" value="article" type="hidden">
+              <input name="ill" id="iLL" value="kong" type="hidden">
+            </div>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div class="main_three container">
+	<div class="main_tit"><strong class="pull-left"><a href="#" target="_blank">科室介绍</a></strong></div>
+    <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+        {{deptlist page="1" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="[diseases:url/]" target="_blank">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+    	{{deptlist page="1" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="[diseases:url/]" target="_blank">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+    	{{deptlist page="1" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="[diseases:url/]" target="_blank">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi bord_none">
+    	{{deptlist page="1" pagesize="3" diseases=true}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul>
+            [diseases limit='9']
+            <li><a href="[diseases:url/]" target="_blank">[diseases:name/]</a></li>
+            [/diseases]
+        </ul>
+        {{/deptlist}} 
+    </div>
+</div>
+
+
+<div class="main_four container">
+	<div class="col-xs-12 col-sm-12 col-md-7 mfour_l">
+    	<div class="white_bg">
+        <div class="main_tit"><strong class="pull-left"><a>专题专栏</a></strong></div>
+        <ul class="mfour_zt row">
+        	<li class="col-xs-12 col-sm-6"><a href="#" target="_blank">
+        	{{picbyflag flag="zhuantizhuanlan1"}}<img src="[field:src]"><p>[field:name/]</p>{{/picbyflag}}</a></li>
+            <li class="col-xs-12 col-sm-6">
+            {{picbyflag flag="zhuantizhuanlan1"}}<img src="[field:src]"><p>[field:name/]</p>{{/picbyflag}}</a></li>
+        </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-5 mfour_r">
+    	<div class="white_bg">
+        <div class="main_tit"><strong class="pull-left"><a href="#" target="_blank">咨询预约</a></strong></div>
+        <ul class="mfour_zx row">
+            {{navgroup flag="index_yuyue"}}
+        	<li class="col-xs-12 col-sm-6"><a href="[field:url/]" target="_blank"><img src="[field:src/]"></a></li>
+            {{/navgroup}}
+        </ul>
+        </div>
+    </div>
+</div>
+
+{{/block}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

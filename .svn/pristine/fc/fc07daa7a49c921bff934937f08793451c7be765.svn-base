@@ -1,0 +1,51 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Topic extends Entity {
+
+    var $id;
+
+    var $subject;
+
+    var $pic;
+
+    var $link;
+
+    var $url;
+
+    var $content;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $is_tpl;
+
+    var $effect;
+
+    var $topiclistid;
+
+    var $disease_id;
+
+    var $tpl;
+
+
+
+    public function validate() {
+        if (strlen($this->subject) == 0) {
+            throw new ValidatorException(79);
+        }
+
+        if (strlen($this->link) == 0) {
+            throw new ValidatorException(88);
+        }
+
+        /*
+         * if (! $this->isUrl ( $this->url )) { throw new ValidatorException ( 120 ); }
+         */
+    }
+}

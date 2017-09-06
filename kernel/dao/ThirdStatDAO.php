@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * 视频DAO
+ *
+ * @author Administrator
+ *
+ */
+class ThirdStatDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_THIRDSTAT;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $array
+     */
+    public function query($where) {
+        DTExpression::eq('isuse', $where);
+        DTExpression::like('subject', $where);
+        DTExpression::page($where);
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+        
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $array
+     */
+    public function totalRows($where) {
+        DTExpression::eq('isuse', $where);
+        DTExpression::like('subject', $where);
+        $array = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+        return $array;
+    }
+
+    /**
+     * 获取第三方代码
+     *
+     * @param unknown $isuse
+     * @return multitype:ThirdStat
+     */
+    public function getThirdStats($isuse) {
+        $thirdStats = R::findAll($this->tableName, " isuse = '" . $isuse . "' ");
+        $thirdStatArray = array();
+        foreach ($thirdStats as $value) {
+            $thirdStat = new ThirdStat();
+            $thirdStat->generateFromRedBean($value);
+            $thirdStatArray[] = $thirdStat;
+        }
+
+        return $thirdStatArray;
+    }
+
+    /**
+     * 获取第三方代码
+     *
+     * @param unknown $isuse
+     * @return multitype:ThirdStat
+     */
+    public function getBySubject($subject) {
+        $thirdStats = R::findOne($this->tableName, " isuse = '1' and subject = '{$subject}' ");
+
+        $thirdStat = new ThirdStat();
+        $thirdStat->generateFromRedBean($thirdStats);
+
+        return $thirdStat;
+    }
+}

@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * 视频DAO
+ *
+ * @author Administrator
+ *
+ */
+class WorkerDAO extends DBBaseDAO {
+
+    public function __construct() {
+        $this->tableName = TABLENAME_WORKER;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::like('name', $where);
+        DTExpression::page($where);
+        DTOrder::asc('id');
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::like('name', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 判断用户
+     */
+    public function login() {
+        return R::findOne($this->tableName, 'name = ? and password = ?', array(
+            $_REQUEST['name'],
+            md5($_REQUEST['password'])
+        ));
+    }
+
+    /**
+     * 判断用户唯一
+     */
+    public function reg() {
+        return R::findOne($this->tableName, 'name = ?', array(
+            $_REQUEST['name']
+        ));
+    }
+}

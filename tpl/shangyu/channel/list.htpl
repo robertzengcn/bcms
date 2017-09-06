@@ -1,0 +1,20 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+
+<div class="container main_ps5">
+<ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      {{channelinfo}}<li class="active">[field:name/]</li>{{/channelinfo}}
+</ol>
+	<ul class="ps5_list">
+    	{{channelarcsbyid  channel_id=$id page=$cur pagesize=10}} 
+    	<li><a href="[field:url/]" target="_blank">[field:subject/]</a></li>
+        {{/channelarcsbyid}}
+    </ul>
+     <footer style="text-align:center;">
+                  {{channelarcspagehtml channel_id=$id dir=$dir}}   
+      </footer>
+</div>
+{{/block}}
+
+              	

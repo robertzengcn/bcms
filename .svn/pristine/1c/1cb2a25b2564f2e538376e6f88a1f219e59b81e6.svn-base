@@ -1,0 +1,178 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../../css/H-ui.admin.css">
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>患者管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 患者管理 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<div class="text-c"> 
+		姓名：<input type="text" name="" id="" placeholder=" 姓名" style="width:100px" class="input-text">
+		病历号：<input type="text" name="" id="" placeholder=" 病历号" style="width:100px" class="input-text">
+		电话：<input type="text" name="" id="" placeholder=" 电话" style="width:140px" class="input-text">
+		<span class="select-box inline">
+			<select name="" class="select">
+				<option value="0">欠费</option>
+				<option value="1">全部</option>
+				<option value="2">未欠费</option>				
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" class="select">
+				<option>病症</option>
+				<option value="1">病症一</option>
+				<option value="2">病症二</option>
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" class="select">
+				<option value="0">初诊</option>
+				<option value="1">复诊</option>				
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" class="select">
+				<option value="0">前台接待</option>
+				<option value="1">接待一</option>
+				<option value="2">接待二</option>
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" class="select">
+				<option value="0">约定复诊</option>
+				<option value="1">一天以内</option>
+				<option value="1">三天以内</option>
+				<option value="2">一周以内</option>
+				<option value="2">一月以内</option>
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" class="select">
+				<option value="0">主治医生</option>
+				<option value="1">医生一</option>
+				<option value="2">医生二</option>
+			</select>
+		</span>
+		
+		就诊日期：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time">	
+		
+		<button name="" id="" class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	</div>
+	<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a class="btn btn-success radius" onClick="patient_add('新增患者','addPatient.html','870','600')" href="javascript:;"><i class="Hui-iconfont">&#xe607;</i> 新增患者</a> <a class="btn btn-primary radius" onClick="article_add('统计报表','visit-stat.html')" href="javascript:;"><i class="Hui-iconfont">&#xe61e;</i> 统计报表</a> <a href="javascript:;" onClick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a>  <a class="btn btn-warning radius" onClick="open_newindow('修改密码','change-password.html','600','270')" href="javascript:;"> <i class="Hui-iconfont">&#xe63f;</i> 修改密码</a></span> <span class="r">共有数据：<strong></strong> 条</span> </div>
+	<div class="mt-20" id="grids">
+		<table class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>					
+					<th width="130">就诊日期</th>
+					<th width="80">姓名</th>
+					<th width="110">电话</th>
+					<th width="160">电子码</th>
+					<th width="75">余额（元）</th>
+					<th width="80">前台接诊</th>
+					<th width="80">主治医生</th>
+					<th width="120">病症分类</th>
+					<th width="130">约定复诊</th>
+					<th>回访（最后日期/次）</th>
+					<th width="80">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="text-c">
+					<td><input type="checkbox" value="" name=""></td>
+					<td>2015-12-05 下午</td>
+					<td>曾先生</td>
+					<td>15080026246</td>
+					<td><img src="../../../images/boyicms/temp/tiaoxinma.jpg" width="150px"></td>
+					<td>500</td>
+					<td>李明</td>
+					<td>黄淑婷</td>
+					<td>蛀牙</td>
+					<td>2015-10-25 下午</td>
+					<td>2015-10-25/3</td>
+					<td class="f-14 td-manage"><a style="text-decoration:none" onClick="open_newindow('患者新增就诊记录','add-newannal.html','870','600')" href="javascript:;" title="患者新增就诊记录"><i class="Hui-iconfont">&#xe604;</i></a> <a style="text-decoration:none" class="ml-5" onClick="open_newindow('查看详细就诊记录','detail-record.html','870','600')" href="javascript:;" title="查看详细就诊记录"><i class="Hui-iconfont">&#xe695;</i></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script>
+<script type="text/javascript">
+/*添加患者*/
+function patient_add(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+/*打开新窗口*/
+function open_newindow(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+/*资讯-添加*/
+function article_add(title,url,w,h){
+	var index = layer.open({
+		type: 2,
+		title: title,
+		content: url
+	});
+	layer.full(index);
+}
+/*资讯-编辑*/
+function article_edit(title,url,id,w,h){
+	var index = layer.open({
+		type: 2,
+		title: title,
+		content: url
+	});
+	layer.full(index);
+}
+/*资讯-删除*/
+function article_del(obj,id){
+	layer.confirm('确认要删除吗？',function(index){
+		$(obj).parents("tr").remove();
+		layer.msg('已删除!',1);
+	});
+}
+/*上传图片*/
+function upload_img(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+
+
+</script> 
+<script type="text/javascript" src="../../../js/boyicms/now.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/hospital.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	result.goMenu('news');
+});
+</script>
+</body>
+</html>

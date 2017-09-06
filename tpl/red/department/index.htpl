@@ -1,0 +1,114 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/layout.css">
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/disease.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您的位置：
+  <a target="_blank" href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> >
+  <a target="_blank">{{$department->name}}</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="w700">
+    <div class="top-left">
+      <!--img-->
+        <div class="flash">
+            <div id="flash-box">
+                <ul id="flash-comtent">
+                    {{$listPic = $PicManagerTag->getScroll('listPic')}}
+                    {{foreach $listPic as $value}}
+                    <li><img width="270" height="200" src="{{$value->pic}}" /><div class="flash_title"><h4><a target="_blank" href="{{$value->url}}">{{$value->text}}</a></h4></div></li>
+                    {{/foreach}}
+                </ul>
+            </div>
+            <script type="text/javascript">
+                new Marquee(
+                        {
+                            MSClassID : "flash-box",
+                            ContentID : "flash-comtent",
+                            Direction : 2,
+                            Step	  : 0.3,
+                            Width	  : 270,
+                            Height	  : 200,
+                            Timer	  : 20,
+                            DelayTime : 2000,
+                            WaitTime  : 0,
+                            ScrollStep: 310,
+                            SwitchType: 1,
+                            AutoStart : 1
+                        })
+            </script>
+        </div>
+      <!--doctorr-->
+      <div  class="w235 w260 top8">
+          {{include file="../common/right/common/dep_doctor.htpl"}}
+      </div>
+    </div>
+    <!--news-->
+    <div class="top-news bk">
+      <div class="top-news-tab"><h3>最新文章</h3></div>
+        {{articlesInDepartment departmentId=$department_id limit="13" assign="articles"}}
+        {{recommendArticles positionName="科室头版头条" departmentId=$department_id size=2}}
+        {{foreach from=$recommendArticles item=v}}
+        {{disease id=$v->disease_id assign="disease"}}
+        <h4><a target="_blank" href="{{$disease->url}}/{{$v->id}}.html">{{$v->subject}}</a></h4>
+        <p>{{$v->description|truncate:50}}...<a target="_blank" href="{{$disease->url}}/{{$v->id}}.html">[详细]</a></p>
+        {{/foreach}}
+        <ul>
+        {{recommendArticles positionName="科室头版列表" departmentId=$department_id size=10}}
+        {{foreach $recommendArticles as $v}}
+        {{department id=$v->department_id assign="department"}}
+        {{disease id=$v->disease_id assign="disease"}}
+        <li>·<a target="_blank" href="{{$smarty.const.NETADDRESS}}/{{$department->url}}/{{$disease->url}}/{{$v->id}}.html">
+                {{$v->subject|truncate:"12"}}</a></li>
+        {{/foreach}}
+        </ul>
+    </div>
+    <div class="clear"></div>
+    <!--article1-->
+      {{$diseases = $DiseaseTag->getByDeparment($department->name,2)}}
+      {{assign var=i value=1}}
+      {{foreach from=$diseases item=disease}}
+      <div class="article bk">
+          <div class="article-tab">
+              {{foreach from=$disease key=key item=val name=name}}
+              {{if $smarty.foreach.name.first}}
+              <h3 id="class{{$i}}_btn1" onmouseover="showtab(1,'class{{$i}}',2)" class="current"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$val->url}}/index.html">{{$val->name}}</a></strong></h3>
+              {{else}}
+              <h3 id="class{{$i}}_btn2" onmouseover="showtab(2,'class{{$i}}',2)"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$val->url}}/index.html">{{$val->name}}</a></strong></h3>
+              {{/if}}
+              {{/foreach}}
+          </div>
+          {{foreach from=$disease key=key item=val name=name}}
+          {{if $smarty.foreach.name.first}}
+          <div id="class{{$i}}_sub1">
+          {{else}}
+          <div id="class{{$i}}_sub2" class="hide">
+          {{/if}}
+              <div class="article-list">
+                  {{recommendArticles positionName="科室疾病图文" diseaseId=$val->id size=1}}
+                  {{foreach $recommendArticles as $v}}
+                  <img src="{{$UPLOAD}}/{{$v->pic}}" /><h6><a target="_blank" href="{{$val->url}}/{{$v->id}}.html">{{$v->subject|truncate:"10"}}</a></h6>
+                  <p>{{$v->description|truncate:"30"}}...<a target="_blank" href="{{$val->url}}/{{$v->id}}.html">[详细]</a></p>
+                  <ul>
+                      {{recommendArticles positionName="科室疾病列表" diseaseName="{{$val->name}}" size=5}}
+                      {{foreach from=$recommendArticles name=article item=v}}
+                      <li>・<a target="_blank" href="{{$val->url}}/{{$v->id}}.html">{{$v->subject|truncate:"10"}}</a></li>
+                      {{/foreach}}
+                  </ul>
+                  {{/foreach}}
+              </div>
+          </div>
+          {{/foreach}}
+      </div>
+      {{$i=$i+1}}
+      {{/foreach}}
+
+    <!--article end-->
+    <div class="clear"></div>
+  </div>
+  <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

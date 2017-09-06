@@ -1,0 +1,371 @@
+<?php
+
+class TopicController extends Controller {
+
+    private $service;
+
+    private $recommendpoditionService;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        $this->service = new TopicService();
+        $this->recommendpoditionService = new RecommendPositionService();
+        require_once GENERATEPATH . 'lib/plugin/pclzip-2-8-2/pclzip.lib.php'; // .引入PclPHP插件
+        require_once GENERATEPATH . 'lib/io.php';
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$FILERPLUSHTIME);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+            $topics = $_REQUEST['id'];
+        } else {
+            $topics = array(
+                $_REQUEST['id']
+            );
+        }
+        $result = $this->service->deleteBatch($topics);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+        $result = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得单笔
+     */
+    public function get() {
+        $this->blindParams($topic = new Topic());
+        $result = $this->service->get($topic);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取select与checkbox 相关数据
+     */
+    public function getAssociatedData() {
+        $recommendposition = $this->recommendpoditionService->getList();
+        $array = array();
+        $array['recommendposition'] = $recommendposition;
+        echo json_encode(new Result(true, 0, '', $array));
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+        $this->blindParams($topic = new Topic());
+        $result = $this->service->update($topic);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+        $this->blindParams($topic = new Topic());
+        $result = $this->service->save($topic);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 定制动态类添加
+     */
+    public function addCustom() {
+        $this->blindParams($topic = new Topic());
+        $result = $this->service->addCustom($topic);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取预置专题列表
+     *
+     * @return Result
+     */
+    public function getTopic() {
+        // config.json
+        $configFile = ABSPATH . '/tpl/static/config.json';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+
+            $result = new Result(true, 0, '', $config);
+        } else {
+            $result = new Result(false, 33, ErrorMsgs::get(33), Null);
+        }
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取用户自建字段
+     */
+    public function getVar() {
+        $result = $this->service->getVar();
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 状态状态编辑
+     */
+    public function editCustom() {
+        $this->blindParams($topic = new Topic());
+        $result = $this->service->editCustom($topic);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取预置特效列表
+     */
+    public function getEffect() {
+        $array = $this->service->getEffect();
+        $result = new Result(true, 0, '', $array);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 保存修改模版文件测试版本
+     */
+    public function saveTplTest() {
+        $topicInfo = $this->service->getOne(1, 1);
+        // 文件夹是否存在
+        if (! is_dir(ABSPATH . '/' . $topicInfo->url)) {
+            mkdir(ABSPATH . '/' . $topicInfo->url);
+        }
+        // 生成html文件
+        $htmlPath = ABSPATH . '/' . $topicInfo->url . '/' . $topicInfo->link;
+        file_put_contents($htmlPath, stripslashes($_REQUEST['html']));
+        die(json_encode(new Result(true, 0, '', null)));
+    }
+
+    /**
+     * 保存修改模板
+     */
+    public function saveTpl() {
+        $topic = $this->service->getOne(1, 1);
+
+        // 拼装html
+        $html = str_replace('\\"', '"', $_REQUEST['html']);
+
+        $file = GENERATEPATH . $topic->url . '/' . $topic->link;
+        if (! file_exists($file)) {
+            $file = ABSPATH . $topic->tpl;
+        }
+        $content = file_get_contents($file);
+        // header
+        $match = '/<!DOCTYPE(.*)<body>/isU';
+        preg_match($match, $content, $header);
+        // title
+        $match = '/<title>(.*)<\/title>/isU';
+        preg_match($match, $header[0], $title);
+        $header = str_replace($title[0], "<title>" . $topic->title . "</title>", $header[0]);
+        // keywords
+        $match = '/<meta name=\"keywords\"(.*)\/>/isU';
+        preg_match($match, $header, $keywords);
+        $header = str_replace($keywords[0], '<meta name="keywords" content="' . $topic->keywords . '" />', $header);
+        // description
+        $match = '/<meta name=\"description\"(.*)\/>/isU';
+        preg_match($match, $header, $description);
+        $header = str_replace($description[0], '<meta name="description" content="' . $topic->description . '" />', $header);
+        // footer
+        $match = '/<\/body>\s+<\/html>/isU';
+        preg_match($match, $content, $footer);
+
+        // effect
+        $match = '/<div id=\"effect_div\">(.*)<br id=\"end_effect\" \/>(\s*)<\/div>(\s*)<\/body>/isU';
+        preg_match($match, $html, $effect);
+        if (isset($effect)) {
+            if (isset($effect[0]) && $effect[0] != '') {
+                $html = str_replace($effect[0], '</body>', $html);
+            }
+        }
+
+        $topic = $this->service->getOne(1, 1);
+        $result = explode(',', $topic->effect);
+        $effect = '<div id="effect_div">';
+        foreach ($result as $value) {
+            if ($value != '') {
+                $configFile = ABSPATH . '/tpl/effect/' . $value . '.html';
+                if (file_exists($configFile)) {
+                    $content = file_get_contents($configFile);
+                    $effect .= $content;
+                }
+            }
+        }
+        $effect .= '<br id="end_effect" /></div>';
+        // 保存html
+        $file = GENERATEPATH . 'topic/' . $topic->url . '/';
+        if (! file_exists($file)) {
+            mkdir($file, 0777);
+        }
+        $size = file_put_contents($file . $topic->link, $header . $html . $effect . $footer[0]);
+
+        if ($size > 0) {
+            $result = new Result(true, 0, '', NULL);
+        } else {
+            $result = new Result(false, 49, ErrorMsgs::get(49), NULL);
+        }
+
+        if (isset($_REQUEST['op']) && $_REQUEST['op'] == 'save') {
+            echo '<script>alert("生成成功");window.close();</script>';
+        } else {
+            echo json_encode($result);
+        }
+    }
+
+    /**
+     * 编辑静态模板
+     */
+    public function editStaticTpl() {
+        $file = GENERATEPATH . 'topic/' . $_REQUEST['url'] . '/' . $_REQUEST['link'];
+        if (! file_exists($file)) {
+            $file = ABSPATH . $_REQUEST['tpl'];
+        }
+        $content = file_get_contents($file);
+
+        // effect
+        $match = '/<div id=\"effect_div\">(.*)<br id=\"end_effect\" \/>(\s*)<\/div>(\s*)<\/body>/isU';
+        preg_match($match, $content, $effect);
+        if (isset($effect)) {
+            if (isset($effect[0]) && $effect[0] != '') {
+                $content = str_replace($effect[0], '</body>', $content);
+            }
+        }
+
+        $content = str_replace('<body>', '<body><div contenteditable="true" id="content">', $content);
+        $content = str_replace('</body>', '', $content);
+        $content = str_replace('</html>', '', $content);
+        $content .= '</div>';
+
+        // include ABSPATH . '/tpl/static/index.php';
+        include ABSPATH . '/tpl/static/index2.php';
+    }
+
+    /**
+     * 选择特效
+     */
+    public function changeEffect() {
+        $result = $this->service->getEffect();
+        foreach ($result as $key => $value) {
+            $configFile = ABSPATH . '/tpl/effect/' . $value->flag . '.html';
+            if (file_exists($configFile)) {
+                $content = file_get_contents($configFile);
+                $result[$key]->html = $content;
+            }
+        }
+
+        include ABSPATH . '/tpl/effect/index.php';
+    }
+
+    /**
+     *
+     * 获取专题模板列表
+     */
+    public function getpicList(){
+        $result = $this->service->getpicList();
+        echo json_encode(new Result(true, 0, '', $result));
+    }
+    
+    /**
+     * 获取本地专题模版列表
+     */
+    public function getLocalRemoteTopicList(){
+    	$topicList = array();
+    	//取模版列表
+    	$result = $this->service->getpicList();
+    	if( count( $result ) >= 1 ){
+    		foreach ( $result as $key => $value ) {
+    			//取模版xml
+    			$xml = GENERATEPATH . dirname($value['url']) . '/config.xml';
+    			if( file_exists( $xml ) ) {
+    				$xmlConfig   = Io::configXmlAnalytical( $xml );
+    				$xmlConfig->Face = UPLOAD . 'topic/' . $xmlConfig->Name . '/Face.png';
+    				$xmlConfig->ID   = $value['id'];
+    				$topicList[] = $xmlConfig;
+    			}
+    		}
+    		echo json_encode(new Result(true, 0, '', $topicList ));
+    	}else{
+    		echo json_encode(new Result(true, 0, '', $result));
+    	}
+    }
+
+    /**
+     * 删除本地专题模版
+     */
+    public function deleteLocalRemoteTopicList(){
+    	$id = $_REQUEST['id'];
+    	$result = $this->service->gethtml( $id );
+    	$topUrl = GENERATEPATH . dirname( $result );
+    	//文件删除
+    	if( Io::DirDelete( $topUrl ) ) {
+    		//数据删除
+    		$this->service->deleteHtml( $id );
+    	}
+    	echo json_encode(new Result(true, 0, '', $result));
+    }
+    
+    /**
+     *
+     * 获取模板
+     *
+     */
+    public function gethtml(){
+        $topicid = $_REQUEST['topicid'];
+        $src =  $this->service->gethtml($topicid);
+        $src =  GENERATEPATH.$src;
+        if( $_REQUEST['from'] == 'select' ){
+        	if(file_exists($src)){
+	            die( json_encode( new Result(true, 0, '',  file_get_contents( $src ) ) ) );
+	        }else{
+	            die( json_encode( new Result(false, 0, '模版文件不存在', null) ) );
+	        }
+        }else{
+	        if(file_exists($src)){
+	            $src = GENERATEPATH . 'topic/'.$_REQUEST['url'].'/'.basename($src);
+	            die( json_encode( new Result(true, 0, '', $src) ) );
+	        }else{
+	            die( json_encode( new Result(false, 0, '模版文件不存在', null) ) );
+	        }
+        }
+    }
+
+}
+

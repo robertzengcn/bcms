@@ -1,0 +1,246 @@
+/**
+ * 疾病设置
+ * */
+function Disease() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//form验证
+			$("#formEdit").Validform({
+				tiptype:2,
+				callback:function(form){
+					form[0].submit();
+					var index = parent.layer.getFrameIndex(window.name);
+					parent.$('.btn-refresh').click();
+					parent.layer.close(index);
+				}
+			});
+			
+			//导航切换
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			
+			//加载科室信息
+			self.fillDepartment();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);
+				
+				self.cmd(gHttp,{controller:'Disease',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						
+						editor.ready(function(){
+							editor.setContent(result1.data.content);
+						});
+						
+						var tplurl = $.trim(result1.data.tplurl);
+                        if(tplurl != ''){
+                            $('#disease_temp').html('已上传模版文件,模版路径：'+tplurl);
+                        }
+                        
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							self.setImgSize('diseasesize', '#thumbnail');
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			$('[name=name]').change(function(){
+				var me = $(this);
+				var val = me.val();
+				self.cmd(gHttp,{controller:'Pingyin',method:'conversion',data:val}, function(ret){
+					$('#url').val(ret.data);
+				});
+			});
+			
+			//科室的变化
+			PageInit();
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	// {{{ function fillDepartment()
+	
+	/**
+	 * 加载科室信息
+	 * */
+	this.fillDepartment = function() {
+		self.cmd(gHttp,{controller:'Department',method:'getDepartments'},function(ret){
+			if(ret.statu){
+				var str='<option value="0">&nbsp;请选择科室&nbsp;</option>';
+				var selected='';
+				for (var i=0;i<ret.data.length;i++)
+				{
+					str +='<option value="'+ret.data[i].id+'" '+selected+'>'+ret.data[i].name+'</option>';
+				}
+				$('#department_id').html(str);
+			}else{
+				layer.alert(ret.msg);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function onloadCss()
+	
+	this.onloadCss = function() {
+		$('.skin-minimal input').iCheck({
+			checkboxClass: 'icheckbox-blue',
+			radioClass: 'iradio-blue',
+			increaseArea: '20%'
+		});
+		
+			/*缩略图操作*/
+		$('div.thumbnailbox').on('mouseenter',function(){
+			$(this).find('div.img-btn').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.img-btn').stop().animate({height:"0px"});
+		});
+		$('div.img-btn').find('span').on('mouseenter',function(){
+			$(this).stop().css("background-position","-46px 0px");
+		}).on('mouseleave',function(){
+			$(this).stop().css("background-position","-46px -22px");
+		});
+		var defaultsrc=$('div.thumbnailbox img').attr('flag');
+		$('span#delete-thisimg').on('click',function(){
+			$thumbnail_img=$(this);
+			layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+				$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+				layer.msg('已删除!',1);
+			});
+		});
+		/*缩略图操作完结*/
+		
+		
+		
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para : {controller:'Disease',method:'query'},
+			aoColumnDefs : [
+							{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[7]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'name' },
+			            { data: 'url'},
+			            { data: 'description',render:function(value){return value.substr(0,60)+'...';}},
+			            { data: 'department_name' },
+			            { data: 'disease_name' },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" target="_blank" href="/controller/?controller=ViewHtml&method=disease&op=disease&id='+id+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>'; 
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gDisease.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gDisease.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+		
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'Disease',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Disease',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEditWID('编辑科室','edit.html?id=' + id,'800','600');
+	}
+	
+	//保存
+	this.save = function(){
+		
+		var department_id = $('select[name="department_id"]').val()*1;
+		var layer_0       = $('#layer_0').val()*1;	
+		//科室必须选择
+		if(department_id==0){layer.alert('请选择关联科室!');return false;}
+		
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Disease',method:'add'};
+		} else {
+			post = {controller:'Disease',method:'edit',id:id};
+		}
+
+		$('#formEdit').frmPost(post,function(ret){
+			if(ret.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();			
+				
+			}else{
+				parent.layer.alert(ret.msg,{icon:2});
+			}
+
+			return false;
+		});
+		
+	}
+	
+}

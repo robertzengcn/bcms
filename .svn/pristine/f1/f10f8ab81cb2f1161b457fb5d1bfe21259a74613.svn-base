@@ -1,0 +1,59 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+{{$article=$ArticleTag->get($id)}}
+<title>{{$article->title}}</title>
+<meta name="keywords" content="{{$article->keywords}}" />
+<meta name="description" content="{{$article->description}}" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/docdetail.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+{{include file="Common/common.html"}}
+</head>
+<body>
+<!-- header -->
+{{include file="Common/header.html"}}
+
+
+<div class="w320"> 
+{{$department=$DepartmentTag->get($departmentId)}}
+{{$disease=$DiseaseTag->get($diseaseId)}}
+    
+    <div class="content mt10">
+        <div class="content1">
+          
+    	<div style="padding:4px 17px 0 15px;">
+		<h1><span class="position"><a href='{{$MOBILE}}'>主页</a> > <a href='{{$MOBILE}}/department.php?method=index&id={{$department->id}}'>{{$department->name}}</a> > <a href='{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$disease->id}}'>{{$disease->name}}</a> >资讯详情 </span></h1>
+	   </div>   
+       
+     
+            <div class="h10"></div>
+            <div class="cont1">
+            	
+                <div class="zjjs pdlr16 mt10">
+                    <p class="zw" style="margin-bottom:20px;">{{$article->subject}}</p>
+                    <p class="english">{{$article->content}}</p>
+                    
+                </div>
+            </div>
+        </div>
+        <!--content1   end-->
+
+       
+    </div>
+  
+
+
+
+</div>
+
+
+
+
+
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</body>
+</html>

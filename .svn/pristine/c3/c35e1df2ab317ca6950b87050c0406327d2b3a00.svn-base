@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{$voteinfo->title}}</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="description" content="">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/jquery-weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/style.css?time={{$smarty.now}}">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/color/{{$color}}.css?time={{$smarty.now}}">
+<script type="text/javascript" src="{{$COMMON}}Vote/Public/js/jquery-2.1.4.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Vote/Public/js/jquery-Slider.js"></script>
+</head>
+<body ontouchstart>
+<div class="home_top">
+  <ul>
+	    {{foreach from=$piclist  item=vo}}
+	<li><img src="{{$vo}}"></li>
+		{{/foreach}}
+  </ul>
+  <script type="text/javascript">
+	$(".home_top").yxMobileSlider({during:5000,height:360});
+ </script>  
+</div>
+{{if $voteinfo->gonggao neq ''}}
+<div class="weui_panel home_tz">
+  <div class="weui_panel_bd">
+    <div class="weui_media_box weui_media_small_appmsg">
+      <div class="weui_cells weui_cells_access">
+        <a class="weui_cell" href="javascript:;">
+          <div class="weui_cell_hd"><img src="{{$COMMON}}Vote/Public/images/{{$color}}/icon_tz.png" height="24"></div>
+          <div class="weui_cell_bd weui_cell_primary">
+            <p><marquee scrollamount=4>{{$voteinfo->gonggao}}</marquee></p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{{/if}}
+<div class="home_num">
+	<ul class="num_box">
+    	<li><span class="text">已报名</span><span>{{$vicount}}</span></li>
+        <li><span class="text">累积投票</span><span>{{$totalvotes}}</span></li>
+        <li><span class="text">访问量</span><span>{{$totalcheck}}</span></li>
+    </ul>
+    <div class="num_time">
+        <div class="day">活动结束倒计时</div>
+        <strong id="day_show">0天</strong>
+        <strong id="hour_show"><s id="h"></s>0时</strong>
+        <strong id="minute_show"><s></s>00分</strong>
+        <strong id="second_show"><s></s>00秒</strong>
+    </div>
+	<input type="hidden" id="id" value="{{$id}}"/>
+	<input type="hidden" id="wxgz" value="{{$wxgz}}"/>
+	<input type="hidden" id="remtime" value="{{$remtime}}"/>
+	<input type="hidden" id="openid" value="{{$openid}}"/>
+	<input type="hidden" id="ktcs" value="{{$voteinfo->ktcs}}"/>
+	<input type="hidden" id="mcsl" value="{{$voteinfo->mcsl}}"/>
+    <a class="num_btn" href="./vote.php?method=cansai&id={{$id}}">我要报名</a>
+    <div class="num_search">
+    	<input value="" name="" id="search" placeholder="请输入编号或姓名" class="inputtxt" type="text">
+        <span class="search" id='show-alert' onclick="">搜&nbsp;索</span>
+    </div>
+</div>
+<div class="home_player">
+	<div class="player_title"><a href="javascript:;">票数榜</a></div>
+    <div class="type_box">
+	  <div class="size" id="dataload">
+	    <div class="bor_r by selected " data-type="1">最热榜</div>
+	    <div class="bor_r by"  data-type="2">排行榜</div>
+	    <div class="bor_r by" data-type="3">最新榜</div>
+	  </div>
+	</div>
+<div id="boyicms" class="wrapper">
+			{{foreach from=$plist key=k item=value}}
+    <div class="item player_box">
+        <div class="outline">
+			<div class="pic">
+				<i class="number">{{$value->id}}号</i>
+				<a href="./vote.php?method=xiangqing&id={{$value->vid}}&vid={{$value->id}}"><img src="{{$value->startpicurl1}}"></a>
+				<p id="itid{{$value->id}}">{{$value->vcount}}票</p>
+			</div>
+           <div class="vote">
+				<p>{{$value->item}}</p><a href="javascript:;" data-itid="{{$value->id}}">投票</a>
+            </div>
+		</div>
+    </div>
+			{{/foreach}}
+
+</div>	
+
+     <div class="weui-infinite-scroll">
+		<a class="num_btn" id="bycms" href="javascript:;" style="display:;">查看更多</a>
+	</div>
+</div>
+		<div style="width:100%;height:20px;clear:both;"></div>
+<div class="home_info">
+	<div class="info_title">
+    	<i></i>
+    	<div class="tit">{{$voteinfo->shumat}}</div>
+    </div>
+    <div class="info_box">
+    	<p>{{$voteinfo->shuma}}</p>
+    </div>
+<!-- 	<div class="info_title">
+    	<i></i>
+    	<div class="tit">{{$voteinfo->shumbt}}</div>
+    </div>
+    <div class="info_box">
+    	<p>{{$voteinfo->shumb}}</p>
+    </div> 
+    <div class="info_title">
+    	<i></i>
+    	<div class="tit">{{$voteinfo->shumct}}</div>
+    </div>
+    <div class="info_box">
+    	<p>{{$voteinfo->shumc}}</p>
+    </div>-->
+</div>
+
+<div class="pd-40"></div>
+
+<div class="weui_tabbar home_footer" id="home_footer">
+    <a href="javascript:;" class="weui_tabbar_item weui_bar_item_on">
+      <div class="weui_tabbar_icon weui_bar_item_on">
+		<div class="tabbar_icon1"></div>
+      </div>
+      <p class="weui_tabbar_label">首页</p>
+    </a>
+    <a href="./vote.php?method=cansai&id={{$id}}" class="weui_tabbar_item">
+      <div class="weui_tabbar_icon">
+		<div class="tabbar_icon2"></div>
+      </div>
+      <p class="weui_tabbar_label">参赛</p>
+    </a>
+    <a href="./vote.php?method=jiangpin&id={{$id}}" class="weui_tabbar_item">
+      <div class="weui_tabbar_icon">
+		<div class="tabbar_icon4"></div>
+      </div>
+      <p class="weui_tabbar_label">奖品</p>
+    </a>
+    <a href="./vote.php?method=paiming&id={{$id}}" class="weui_tabbar_item">
+      <div class="weui_tabbar_icon">
+		<div class="tabbar_icon5"></div>
+      </div>
+      <p class="weui_tabbar_label">排名</p>
+    </a>
+</div>
+<section>
+    <div class="pop" id="guanzhu" style="display:none;">
+        <div class="mengceng"></div>
+        <div class="pop_up">
+                        <p class="tit_p">如何参与活动</p> <!-- 引导关注标题 -->
+            <p class="tit_txt">请关注公众号后台再投票，点击下面的链接快速关注！</p>
+            <a href="./vote.php?method=wxyd&id={{$id}}" class="gz_btn">详细了解参与方法</a>
+        </div>
+    </div>
+</section>
+ <div id="pageDialogBG" class="pageDialogBG"><div class="Prompt"></div></div>
+<script src="{{$COMMON}}Vote/Public/js/fastclick.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/jquery-weui.min.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/vote.js?time={{$smarty.now}}"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Vote/Public/js/jquery.masonry.min.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Vote/Public/js/imagesloaded.min.js"></script>
+<script type="text/javascript">
+	$(function () {
+        var loadUrl = "./vote.php?method=index&id={{$id}}";
+        var type = $('.selected').attr('data-type');
+eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)d[e(c)]=k[c]||e(c);k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1;};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p;}('B d$=["\\u\\p\\j\\k\\l\\i\\g\\b","\\m\\l\\f\\a\\g","\\u\\p\\k\\i\\g\\b","\\1q\\1c\\Z\\1k\\V\\Q\\1j\\m\\m\\m","","\\u\\p\\k\\i\\g\\b","\\u\\p\\k\\i\\g\\b","\\1m\\1l\\W\\X\\1g\\1d\\1f","\\u\\p\\k\\i\\g\\b","\\e\\a\\b\\f\\n\\j\\k","\\m\\l\\f\\a\\g","\\c\\o\\o\\a\\q\\e\\a\\e","\\u\\p\\k\\i\\g\\b","\\1i\\1h\\V\\Q\\W\\X\\m\\m\\m","\\u\\e\\c\\f\\c\\h\\j\\c\\e \\m\\p\\k","\\b\\a\\h\\a\\i\\f\\a\\e","\\m\\b\\a\\h\\a\\i\\f\\a\\e","\\b\\a\\h\\a\\i\\f\\a\\e","\\e\\c\\f\\c\\L\\f\\k\\o\\a","\\m\\t\\n\\j\\I\\o\\h\\j\\c\\e \\m\\p\\k","\\e\\c\\f\\c\\L\\f\\k\\o\\a","\\b\\a\\h\\a\\i\\f\\a\\e","","\\m\\t\\n\\j\\I\\o\\h\\j\\c\\e","\\m\\b\\a\\h\\a\\i\\f\\a\\e","\\b\\a\\h\\a\\i\\f\\a\\e","\\b\\a\\h\\a\\i\\f\\a\\e","\\e\\c\\f\\c\\L\\f\\k\\o\\a","\\u\\p\\k\\i\\g\\b"];B D;B s=$(d$[0]);s["\\l\\g\\c\\t\\a\\b\\M\\j\\c\\e\\a\\e"](r(){s["\\g\\c\\b\\j\\q\\n\\k"]({S:d$[1]})});B w=R;B A=v;r z(Y){G(A==v){A=x;1a(r(){A=v},1b);w++;$(d$[2])["\\J\\f\\g\\h"](d$[3]);$["\\t\\a\\f"](1e,{\'\\o\\c\\t\\a\':w,\'\\f\\k\\o\\a\':U,\'\\t\\n\\j\\I\\o\\b\':D},r(O){G(O==d$[4]){$(d$[5])["\\I\\q\\p\\l\\q\\e"]();$(d$[6])["\\J\\f\\g\\h"](d$[7]);A=v;P};E=$(O);G(Y===x){$(d$[8])["\\i\\h\\l\\i\\F"](r(){z(v)});s["\\J\\f\\g\\h"](E);s["\\g\\c\\b\\j\\q\\n\\k"](d$[9]);s["\\l\\g\\c\\t\\a\\b\\M\\j\\c\\e\\a\\e"](r(){s["\\g\\c\\b\\j\\q\\n\\k"]({S:d$[10]})})}1n{s["\\c\\o\\o\\a\\q\\e"](E);H=E["\\i\\b\\b"]({T:K});H["\\l\\g\\c\\t\\a\\b\\M\\j\\c\\e\\a\\e"](r(){s["\\g\\c\\b\\j\\q\\n\\k"](d$[11],H,x);H["\\c\\q\\l\\g\\c\\f\\a"]({T:R})})};$(d$[12])["\\J\\f\\g\\h"](d$[13]);A=v})}};$(d$[14])["\\i\\h\\l\\i\\F"](r(){$(y)["\\c\\e\\e\\C\\h\\c\\b\\b"](d$[15])["\\b\\l\\p\\h\\l\\q\\t\\b"](d$[16])["\\n\\a\\g\\j\\N\\a\\C\\h\\c\\b\\b"](d$[17]);U=$(y)["\\c\\f\\f\\n"](d$[18]);w=K;z(x)});$(d$[19])["\\i\\h\\l\\i\\F"](r(){G(D==$(y)["\\c\\f\\f\\n"](d$[1r])){$(y)["\\n\\a\\g\\j\\N\\a\\C\\h\\c\\b\\b"](d$[1s]);D=d$[1v];w=K;z(x);P v};$(d$[1o])["\\1p\\l\\q\\e"](d$[1x])["\\n\\a\\g\\j\\N\\a\\C\\h\\c\\b\\b"](d$[1y]);$(y)["\\c\\e\\e\\C\\h\\c\\b\\b"](d$[1w]);D=$(y)["\\c\\f\\f\\n"](d$[1t]);w=K;z(x)});$(d$[1u])["\\i\\h\\l\\i\\F"](r(){z(v)});',62,97,'||||||||||x65|x73|x61|v1|x64|x74|x6d|x6c|x63|x6f|x79|x69|x2e|x72|x70|x62|x6e|function|F3|x67|x23|false|eHUOVe4|true|this|boyicmsce115|QIPzWVO5|var|x43|slkK2|result|x6b|if|newElems|x75|x68|0x0|x2d|x4c|x76|OqQG7|return|u8f7d|0x1|itemSelector|opacity|type|u52a0|u66f4|u591a|NIGMHHj6|u52aa|||||||||||setTimeout|0x3e8|u5728|u5bb9|loadUrl|u4e86|u5185|u51fb|u70b9|u4e2d|u529b|u6709|u6ca1|else|23|x66|u6b63|20|21|27|28|22|26|24|25'.split('|'),0,{}))
+	});
+</script>
+<script type="text/javascript">
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: '{{$signPackage.appId}}', // 必填，公众号的唯一标识
+        timestamp: "{{$signPackage.timestamp}}", // 必填，生成签名的时间戳
+        nonceStr: '{{$signPackage.nonceStr}}', // 必填，生成签名的随机串
+        signature: '{{$signPackage.signature}}',// 必填，签名，见附录1
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+
+    wx.ready(function(){
+        wx.error(function(res){
+            console.log(res);
+        });
+        //朋友圈
+        wx.onMenuShareTimeline({
+            title: "{{$voteinfo->title}}", // 分享标题
+            link: "{{$voteinfo->url}}", // 分享链接
+            imgUrl: "{{$voteinfo->src}}", // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+            title: "{{$voteinfo->title}}", // 分享标题
+            desc: "{{$voteinfo->fxms}}", // 分享描述
+            link: "{{$voteinfo->url}}", // 分享链接
+            imgUrl: "{{$voteinfo->src}}", // 分享图标
+            type: '', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    });
+</script>
+</body>
+</html>

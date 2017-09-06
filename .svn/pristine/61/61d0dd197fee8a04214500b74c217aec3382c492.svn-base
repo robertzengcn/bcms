@@ -1,0 +1,156 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>全站流量统计</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 网站Stat管理 <span class="c-gray en">&gt;</span> 全站流量统计 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+		<div id="tab-system" class="HuiTab">
+			<div class="tabBar cl"><span>综合统计</span><span>流量趋势</span><span>访客分析</span><span>来源统计</span><span>受访统计</span><span>竞价统计</span></div>
+			<div class="tabCon">
+			    <form class="form form-horizontal" id="frm_post">
+				<div class="text-c">
+					<br/> 		
+					IP地址：<input type="text" name="ip" id="ip" placeholder="" style="width:250px" class="input-text">  访客标识：<input type="text" name="sessionid" id="sessionid" placeholder="" style="width:250px" class="input-text">
+					&nbsp;受访时间：
+					<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end_time\')||\'%y-%M-%d\'}'})" id="start_time" class="input-text Wdate" style="width:120px;" name="start_time">
+					-
+					<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start_time\')}',maxDate:'%y-%M-%d'})" id="end_time" class="input-text Wdate" style="width:120px;" name="end_time">
+					&nbsp;<button class="btn btn-success" type="button" id="qry"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+				</div>
+				</form>
+				<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onClick="gStat.delBatch();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-warning radius" onClick="gStat.clearAll();" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 清空数据</a></span></div>
+				<div class="mt-20" id="grid">
+					<table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+						<thead>
+							<tr class="text-c">
+								<th width="25"><input type="checkbox" name="" value=""></th>
+								<th width="60">序号</th>								
+								<th width="100">来源IP</th>
+								<th width="130">访问时间</th>
+								<th width="160">访客标识</th>	
+								<th>来源链接</th>
+								<th>受访链接</th>	
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+			<!--流量趋势统计-->
+			<div class="tabCon" id="iptrend">
+				<div class="text-c pd-20">
+					统计日期：
+					<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'iptrend_end\')||\'%y-%M-%d\'}'})" id="iptrend_start" class="input-text Wdate" style="width:120px;" name="iptrend_start">
+					-
+					<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'iptrend_start\')}',maxDate:'%y-%M-%d'})" id="iptrend_end" class="input-text Wdate" style="width:120px;" name="iptrend_end">
+					&nbsp;<button class="btn btn-success" type="button" id="iptrend_qry"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+				</div>
+				<div class="pd-10 col-11">
+					<div id="container" style="min-width:700px;height:400px"></div>				
+				</div>
+			</div>
+			<!--访客分析-->
+			<div class="tabCon"  id="visitors">
+				<div class="text-c pd-20">
+					统计日期：
+					<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'visitors_end\')||\'%y-%M-%d\'}'})" id="visitors_start" class="input-text Wdate" style="width:120px;" name="visitors_start">
+					-
+					<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'visitors_start\')}',maxDate:'%y-%M-%d'})" id="visitors_end" class="input-text Wdate" style="width:120px;" name="visitors_end">
+					&nbsp;<button id="visitors_qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+				</div>
+				<div class="cl col-12 pd-10">
+					<div class="cl col-5 l" id="visitors_date"  style="min-width:500px;height:400px"></div>
+					<div class="cl col-5 l" id="visitors_ratio"  style="min-width:500px;height:400px"></div>				
+				</div>
+			</div>
+			<!--来源统计-->
+			<div class="tabCon" id="visitorfrom">
+				<div class="cl col-12 pd-10">
+					<div class="cl col-5 l">
+						<table id="visitorData" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">	
+								    <th width="60">排序</th>							
+									<th>来源</th>
+									<th width="120">来访次数</th>								
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="cl col-5 l" id="visitorfrom_ratio"  style="min-width:500px;height:400px"></div>				
+				</div>
+			</div>
+			<!--受访统计-->
+			<div class="tabCon" id="visitorto" >
+				<div class="cl col-12 pd-10">
+					<div class="cl col-5 l">
+						<table id="visitortoDataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">								
+									<th width="60">排序</th>							
+									<th>受访域名</th>
+									<th width="120">受访次数</th>								
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="cl col-5 l" id="visitorto_ratio"  style="min-width:500px;height:400px"></div>				
+				</div>
+			</div>
+			<!--竞价统计-->
+			<div class="tabCon" id="bidding">
+			<div style="width:100%;height:20px;clear:both"></div>
+				<table id="biddingDataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">								
+									<th width="60">ID</th>								
+									<th width="200">文章标题</th>
+									<th>简介</th>
+									<th width="160">发布日期</th>	
+									<th width="30">操作</th>								
+								</tr>
+							</thead>
+						</table>
+			</div>
+		</div>
+	
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../lib/Highcharts/4.1.7/js/highcharts.js"></script>
+<script type="text/javascript" src="../lib/Highcharts/4.1.7/js/modules/exporting.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/stat.js"></script>
+<script type="text/javascript">
+var gStat = new Stat();
+gStat.setThisName('gStat');
+gStat.initSiteTraffic();
+
+</script> 
+</body>
+</html>

@@ -1,0 +1,697 @@
+/**
+ * 手机营销-apk应用生成
+ * */
+var uploader = null;
+var uploader2 = null;
+var uploader3 = null;
+function Apk() {
+	BaseFunc.call(this);
+	var self = this;
+	
+    // {{{ function initApk()
+	
+	/**
+	 * 初始化APK生成界面
+	 * */
+	this.initApk = function() {
+		$(function(){
+			//隐藏APK在线生成代码
+			
+			//隐藏APK在线生成代码
+			//self.initCreateApk();
+			self.initDownloadManage();
+			$(".tabBar span").click(function(){
+				var index = $(this).index();
+				switch(index) {
+					case 0:
+						//apk生成
+						$("#createDiv").show();
+						$("div[id^='downloadDiv']").hide();
+						self.initCreateApk();
+						break;
+					case 1:
+						//下载管理
+						self.initDownloadManage();
+						break;
+				}
+			});
+			
+			$(".btns_app_logo").on('mouseenter',function(){
+				var msg='<img src="'+$(this).attr('info')+'"/>';											 
+				layer.tips(msg, $(this), {
+					tips: [3,'#78BA32'],
+					area: ['220px', '360px'],
+					time:3000
+				});	
+			});	
+			$("#app_name").on('click',function(){
+				var msg='<img src="'+$(this).attr('info')+'"/>';											 
+				layer.tips(msg, $(this), {
+					tips: [2,'#78BA32'],
+					area: ['220px', '360px'],
+					time:3000
+				});
+			});
+			$(".btns_logo").on('mouseenter',function(){
+				var msg='<img src="'+$(this).attr('info')+'"/>';											 
+				layer.tips(msg, $(this), {
+					tips: [3,'#78BA32'],
+					area: ['220px', '410px'],
+					time:3000
+				});	
+			});	
+			self.onloadCss();
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+		});
+	}
+	
+	// }}}
+	// {{{ function initDownloadManage()
+	
+	/**
+	 * 初始化下载管理
+	 * */
+	this.initDownloadManage = function () {
+		//加载域名
+		self.getDomain();
+		
+		self.uploadQr('app','download','');
+	}
+	
+	// }}}
+	// {{{ function initCreateApk()
+	
+	/**
+	 * 初始化apk生成
+	 * */
+	this.initCreateApk = function() {
+		//加载域名
+		self.getDomain();
+		
+		//获取apk类型
+		self.getApkType();
+		
+		//初始化应用图标上传
+		self.initUploadAppLogo();
+		
+		//apk改变事件
+		$('#apk_type').change(function(){
+			var apk_type = $(this).val();
+			self.apkChange(apk_type);
+		});
+		
+		//生成apk
+		$('#save').click(function(){
+			self.createApk();
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function getDomain()
+	
+	/**
+	 * 加载域名
+	 * */
+	this.getDomain = function() {
+		self.cmd(gHttp,{controller:'Mobile',method:'getDomain'},function(ret){
+			if(ret.statu){
+				var data=ret.data
+				$('#domainshow').html(data.domain);
+				$('#domain').val(data.domain);
+			}else{
+				layer.alert(ret.msg);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function getApkType()
+	
+	/**
+	 * 获取apk类型
+	 * */
+	this.getApkType = function() {
+		//获取apk类型
+		self.cmd(gHttp,{controller:'Mobile',method:'getApkType'},function(ret){
+			var html = '';
+			if(ret.statu){
+				var apktype = ret.data;
+				html = '<option value="">全部</option>';
+				for(var key in apktype){
+				    html += '<option value="'+key+'">'+apktype[key]+'</option>';
+				}
+				$('#apk_type').html(html);
+			}else{
+				layer.alert(ret.msg);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function apkChange()
+	
+	/**
+	 * apk改变时事件
+	 * */
+	this.apkChange = function(apk_type) {
+		//获取apk版本(不可删除，以后可能需要开启)，暂时不显示版本，默认最新版本
+		/*
+		self.cmd(gHttp,{controller:'Mobile',method:'getVersion',type:apk_type},function(ret){
+			var version=ret.data;
+			html = '<option value="">全部</option>';
+			for(var key in version){
+			    html += '<option value="'+key+'">'+version[key]+'</option>';
+			}
+			$('#version').html(html);
+		});
+		*/
+		
+		$("#createDiv").show();
+		$("div[id^='downloadDiv']").hide();
+		$("#btnDiv").html('');
+		$("#make_right").html('');
+		
+		//判断所选APP的存在状态
+		var domainvalue=$('#domainshow').html();
+		self.cmd(gHttp,{controller:'Mobile',method:'getApkExist',apk_type:apk_type,domain:domainvalue},function(ret){
+			switch(apk_type){
+				case 'hma':
+					if(ret.home){
+						var homeresult="总控已生成";
+					}
+					$("span#statecheck").html('*'+ret.hma);break;
+				case 'hm':$("span#statecheck").html('*'+ret.hm);break;
+				default:$("span#statecheck").html('');
+			}
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function createApk()
+	
+	/**
+	 * 生成apk
+	 * */
+	this.createApk = function() {
+		var apktypeval=$('#apk_type option:selected').val();
+		var apktypetext=$('#apk_type option:selected').text();
+		var dominval=$('#domainshow').html();		
+		$('#formEdit').checkAndSubmit('save',{controller:'Mobile',method:'getDownload'},function(result1){
+			if(result1.status){
+				if(result1.msg==0){
+					$('#downloadDiv2').hide();
+					var content='';
+					content+='<div class="pd-10"><div class="addweixin-btbox">';					
+					content+='<div class="l btn-success radius bt-box"  info="将生成的APK安装包自动由我公司服务器回传到本服务器的APK文件夹中，但该过程对网络通讯要求高，网络不佳时容易失败...">';
+					content+='<div onclick="gApk.downloadbutton(\''+result1.url+'\');"><i class="Hui-iconfont" style="font-size:55px;">&#xe62e;</i><br/>';
+					content+='<span style="font-size:16px;font-weight:bold;">自动下载</span></div></div>';
+					content+='<div class="l btn-secondary radius bt-box"  info="从我公司官网下载为您生成好的APK安装包到您的电脑上，下载后需要您在第二步生成二维码功能中手动上传，适用于网络通讯不佳时...">';
+					content+='<div onclick="gApk.downurl(\''+result1.url+'\');"><i class="Hui-iconfont" style="font-size:55px;">&#xe653;</i><br/>';
+					content+='<span style="font-size:16px;font-weight:bold;">手动下载</span></div></div></div></div>';
+					
+					var index=layer.open({
+						  type: 1,
+						  title:'apk生成成功,请下载...',
+						  area: ['400px', '220px'],
+						  fix: false, //不固定
+						  maxmin: true,
+						  content: content,
+						  success: function(layero, index){
+							$('.bt-box').on('mouseenter',function(){
+								var msg=$(this).attr('info');
+								layer.tips(msg, $(this), {
+									tips: [3, '#78BA32'],
+									area: ['240px', '90px'],
+									time:9000
+								});
+							});
+						  }
+						});
+					
+				}else{
+					self.timedCount();
+					$("#btnDiv").html('');
+					msgs='APK生成指令发送成功...';
+					layer.msg(msgs, {icon: 1});					
+					setTimeout('nextstep()',2000);
+					self.startcheck(apktypeval,dominval);//apk类型，当前域名
+				}
+				
+			}else{
+				layer.alert(result1.msg);
+			}
+		});	
+		
+		$('#formEdit').submit();
+	}
+	
+	// }}}
+	// {{{ function timedCount()
+	
+	/**
+	 * 生成进度
+	 * */
+	this.timedCount = function () {
+		var temptextmin = '';
+		hour = parseInt(c / 3600);// 小时数
+		min = parseInt(c / 60);// 分钟数
+		if(min>=60){
+			min=min%60
+		}
+		lastsecs = c % 60;
+		temptextmin = "执行耗时：" + hour + " 时 " + min + " 分 " + lastsecs + " 秒";
+		$('#time').html( temptextmin );
+		c = c + 1;
+		t = setTimeout(function(self){return function(){self.timedCount();}}(this),1000);	
+	}
+	
+	// }}}
+	// {{{ function timedEnd()
+	
+	/**
+	 * 生成结束
+	 * */
+	this.timedEnd = function (){
+		c = 0;
+		clearTimeout(t);
+	}
+	
+	// }}}
+	// {{{ function startcheck()
+	
+	this.startcheck = function (apktypeval,dominval){
+		self.setIntervalX(function () {
+		   self.checkapk(apktypeval,dominval);
+		}, 5000, 8,function(){
+		    self.endall();
+			$("#makehtml_loading").css("width", "0px");
+			var content='';
+			content+='<div class="pd-10"><div class="row cl"><layer class="form-label col-12 pd-5 text-c">APK生成失败，请重试!</layer>';
+			content+='<div class="btn-success radius rp-bt"><div id="xml" onclick="gApk.createApk();layer.closeAll(\'page\');"><i class="Hui-iconfont"  style="font-size:55px;">&#xe68f;</i><br/><span style="font-size:16px;font-weight:bold;">重&nbsp;&nbsp;试</span></div></div>';
+			content+='</div></div>';			
+			
+			var index=layer.open({
+			  type: 1,
+			  title:'apk生成超时',
+			  area: ['300px', '220px'],
+			  fix: false, //不固定
+			  maxmin: true,
+			  content: content			  
+			});			
+		});
+	}
+	
+	// }}}
+	// {{{ function checkapk()
+	
+	this.checkapk = function (apktypeval,dominval){
+		var data = {controller: 'Mobile',method: 'checkapk',apk_type: apktypeval,domain: dominval}
+		self.cmd(gHttp,data, function(ret){
+			if (ret.status) {
+				self.endall();
+				$('#downloadDiv2').hide();
+				var content='';
+				content+='<div class="pd-10"><div class="addweixin-btbox">';					
+				content+='<div class="l btn-success radius bt-box"  info="将生成的APK安装包自动由我公司服务器回传到本服务器的APK文件夹中，但该过程对网络通讯要求高，网络不佳时容易失败...">';
+				content+='<div onclick="gApk.downloadbutton(\''+ret.url+'\');"><i class="Hui-iconfont" style="font-size:55px;">&#xe62e;</i><br/>';
+				content+='<span style="font-size:16px;font-weight:bold;">自动下载</span></div></div>';
+				content+='<div class="l btn-secondary radius bt-box"  info="从我公司官网下载为您生成好的APK安装包到您的电脑上，下载后需要您在第二步生成二维码功能中手动上传，适用于网络通讯不佳时...">';
+				content+='<div onclick="gApk.downurl(\''+ret.url+'\');"><i class="Hui-iconfont" style="font-size:55px;">&#xe653;</i><br/>';
+				content+='<span style="font-size:16px;font-weight:bold;">手动下载</span></div></div></div></div>';
+				
+				var index=layer.open({
+				  type: 1,
+				  title:'apk生成成功,请下载...',
+				  area: ['400px', '220px'],
+				  fix: false, //不固定
+				  maxmin: true,
+				  content: content,
+				  success: function(layero, index){
+					$('.bt-box').on('mouseenter',function(){
+						var msg=$(this).attr('info');
+						layer.tips(msg, $(this), {
+							tips: [3, '#78BA32'],
+							area: ['240px', '90px'],
+							time:9000
+						});
+					});
+				  }
+				});				
+				
+			}else {
+				$('#downloadDiv2').show();
+				var o = document.getElementById('makehtml_loading');
+				var	swd = getDefaultStyle(o, 'width');
+				var swval=parseInt(swd);
+				var swvals=swval+30;
+				$("#makehtml_loading").css("width", swvals+'px');
+		    }
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function endall()
+	
+	this.endall = function (){
+		$("#makehtml_loading").css("width", "100%");
+		self.timedEnd();
+		window.clearInterval(intervalID);	
+	}
+	
+	// }}}
+	// {{{ function setIntervalX
+	this.setIntervalX = function (callback, delay, repetitions,aftercallback) {
+	    var x = 0;
+	    intervalID = window.setInterval(function () {
+	       if (++x === repetitions) {
+	           window.clearInterval(intervalID);
+			   aftercallback();
+	       }else{
+		   	   callback();
+		   }
+	    }, delay);
+	}
+	
+	// }}}
+	// {{{ function downloadbutton()
+	
+	/**
+	 * 自动下载
+	 * */
+	this.downloadbutton = function(apkurl) {
+		self.confirmDownload(apkurl,'.apk文件','apk','下载');
+	}
+	
+	// }}}
+    // {{{ function downurl()
+	
+	/**
+	 * 手动下载
+	 * */
+	this.downurl = function(url) {
+		window.open(url);
+	}
+	
+	// }}}
+	// {{{ function confirmDownload()
+	
+	this.confirmDownload = function (product_url,product_name,product_dir,mode){
+		layer.confirm('确定要下载到您的服务器吗?', function(index){
+			layer.close(index);
+			var url = '/hcc/mobile/apk/download.php?apkFile='+product_url+'&name='+product_name+'&dir='+product_dir;
+			layer.open({
+				title : '正在下载...',
+				type : 2,
+				area : ['500px', '200px'],
+				content : url
+			});
+		});
+	}
+	
+	// }}}
+    // {{{ function uploadQr()
+	
+	/*移动端：二维码生成与上传*/
+	this.uploadQr = function(func,manager,newFile){
+		//切换到下载管理界面
+		$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","1");
+		
+		var tempName = new Array();
+		var apkname ='';
+		if(newFile!=""){
+			tempName = newFile.split('/');
+			apkname = tempName[tempName.length-1]
+		}
+		
+		//上传apk
+		self.initUploader();
+		
+		//上传中间图标
+		self.initUploadLogo();
+		
+		//获取医院域名
+		self.checkStute(apkname);
+		
+		//判断本地apk文件是否存在
+		self.cmd(gHttp,{controller:'Mobile',method:'getApkExist'},function(ret){
+			$("#ex1").html('&nbsp;&nbsp;【'+ret.hma+'】');
+			$("#ex2").html('&nbsp;&nbsp;【'+ret.hm+'】');				
+		});
+	}
+	
+	// }}}
+   // {{{ function initUploadAppLogo()
+	
+	/**
+	 * 上传应用图标-即二维码图片
+	 * */
+	this.initUploadAppLogo = function() {
+		uploader3 = null;
+		$(".btns_app_logo").html('<div id="picker3"><i class="Hui-iconfont">&#xe600;</i> 上传图片</div>');
+		
+		uploader3 = WebUploader.create({
+			auto:true,
+			swf:'../../lib/webuploader/0.1.5/Uploader.swf',
+			server:'/controller/?controller=Upload&method=uploadPic&dir=apk',
+			pick:'#picker3',
+			fileVal: 'file',
+			fileSingleSizeLimit:2*1024*1024,
+			resize:false,
+			accept: {
+				title: '图片',
+				extensions: 'png',
+				mimeTypes: 'image/*'
+			}
+		});
+		
+		$("#picker3").unbind('click').bind('click',function(){
+			self.uploadAppLogo();
+		});
+		
+		
+	}
+	
+	
+	// }}}
+    // {{{ function uploadAppLogo()
+	
+	/**
+	 * 上传应用图标-即二维码图片
+	 * */
+	this.uploadAppLogo = function() {
+		// 文件上传过程中创建进度条实时显示。
+		uploader3.on( 'uploadProgress', function( file, percentage ) {
+		    uploader3.on( 'uploadSuccess', function( file, response ) {
+		        layer.msg('上传成功',{icon:1});
+				if(response.result){
+					$('#img').attr('src',response.path);
+					$("#pic").val(response.url);
+				}else{
+					layer.alert(response.mes,{icon:2});
+				}
+		    });
+
+		    uploader3.on( 'uploadError', function( file ) {
+		    	layer.alert('上传失败',{icon:2});
+		    });
+		});
+		uploader3.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert('只能上传png格式图片',{icon:2});
+		     }else if(type=="F_EXCEED_SIZE"){
+		    	 layer.alert('只能上传小于2M的图片',{icon:2});
+		     }
+
+			});	
+	}
+	
+	// }}}
+	// {{{ function initUploadLogo()
+	
+	/**
+	 * 初始化二维码的中间图标
+	 * */
+	this.initUploadLogo = function() {
+		uploader2 = null;
+		$(".btns_logo").html('<div id="picker2"><i class="Hui-iconfont">&#xe600;</i> 上传图片</div>');
+		
+		uploader2 = WebUploader.create({
+			auto:true,
+			swf:'lib/webuploader/0.1.5/Uploader.swf',
+			server:'/controller/?controller=Upload&method=uploadQr&dir=logo',
+			pick:'#picker2',
+			fileVal: 'Filedata',
+			resize:false,
+			fileSingleSizeLimit:2*1024*1024,
+			accept: {
+				title: '图片',
+				extensions: 'png',
+				mimeTypes: 'image/*'
+			}
+		});
+		
+		$("#picker2").unbind('click').bind('click',function(){
+			self.uploadLogo();
+		});
+	}
+	
+	
+	// }}}
+    // {{{ function uploadLogo()
+	
+	/**
+	 * 上传二维码的中间logo
+	 * */
+	this.uploadLogo = function() {
+		// 文件上传过程中创建进度条实时显示。
+		uploader2.on( 'uploadProgress', function( file, percentage ) {
+		    uploader2.on( 'uploadSuccess', function( file, response ) {
+		        layer.msg('已上传');
+				if(response.result){
+					$('#logo_img').attr('src',response.path);
+					$("#explan_qr").html(response.path);
+				}else{
+					layer.alert(response.mes);
+				}
+		    });
+
+		    uploader2.on( 'uploadError', function( file ) {
+		    	layer.alert('上传出错');
+		    });
+		});
+		uploader2.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert('只能上传png格式图片',{icon:2});
+		     }else if(type=="F_EXCEED_SIZE"){
+		    	 layer.alert('只能上传小于2M的图片',{icon:2});
+		     }
+
+			});	
+	}
+	
+	// }}}
+	// {{{ function checkStute()
+	
+	/**
+	 * 检查状态
+	 * */
+	this.checkStute = function (apkname){
+		self.cmd(gHttp,{controller:'Mobile',method:'getDomain'},function(ret){
+			if(ret.statu){
+				var data=ret.data;
+				if(apkname != "" ){
+					$("#makeCode").html('<a href="./qrcode.php?url=http://'+data.domain+'/apk/'+apkname+'" class="btn btn-success radius" target="_blank"><i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a><label class="explanation" id="explan"></label>');
+				    $('#explan').html('（apk文件路径：http://'+data.domain+'/apk/'+apkname+'）');
+	
+					var url1 = 'http://'+data.domain+'/apk/hma_1.0.apk';
+					var url2 = 'http://'+data.domain+'/apk/hm_1.0.apk';
+					var h1='<a href="./qrcode.php?url=http://'+data.domain+'/apk/hma_1.0.apk" class="btn btn-success radius" target="_blank">'										
+					+'<i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a></a>';						
+					
+					var h2 ='<a href="./qrcode.php?url=http://'+data.domain+'/apk/hm_1.0.apk" class="btn btn-success radius" target="_blank">'										
+					+'<i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a></a>';	
+					
+					$("#url1").html(url1);
+					$("#url2").html(url2);
+					$("#step1").html(h1);
+					$("#step2").html(h2);
+				}else{
+					
+					var url1 = 'http://'+data.domain+'/apk/hma_1.0.apk';
+					var url2 = 'http://'+data.domain+'/apk/hm_1.0.apk';
+					var h1='<a href="./qrcode.php?url=http://'+data.domain+'/apk/hma_1.0.apk" class="btn btn-success radius" target="_blank">'										
+					+'<i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a></a>';						
+					
+					var h2 ='<a href="./qrcode.php?url=http://'+data.domain+'/apk/hm_1.0.apk" class="btn btn-success radius" target="_blank">'										
+					+'<i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a></a>';						
+					$("#url1").html(url1);
+					$("#url2").html(url2);
+					$("#step1").html(h1);
+					$("#step2").html(h2);
+				}
+				
+			}else{
+				layer.alert(ret.msg);
+			}
+			return false;
+		});
+    }
+	// }}}
+    // {{{ function initUploader()
+	
+	/**
+	 * 初始化上传插件
+	 * */
+	this.initUploader = function() {
+		uploader = null;
+		$(".btns").html('<div id="picker"><i class="Hui-iconfont">&#xe642;</i> 开始上传</div>');
+		
+		uploader = WebUploader.create({
+			auto:true,
+			swf:'../../lib/webuploader/0.1.5/Uploader.swf',
+			server:'/controller/?controller=Mobile&method=LocalUpload',
+			pick:'#picker',
+			fileVal: 'Filedata',
+			resize:false,
+			accept: {
+				title: '应用安装包',
+				extensions: 'apk',
+				mimeTypes: 'application/vnd.android'
+			}
+		});
+		
+		$("#picker").unbind('click').bind('click',function(){
+			self.uploadApk();
+		});
+	}
+	
+	// }}}
+    // {{{ function uploadApk()
+	
+	/**
+	 * 上传apk
+	 * */
+	this.uploadApk = function() {
+		// 文件上传过程中创建进度条实时显示。
+		uploader.on( 'uploadProgress', function( file, percentage ) {
+		    uploader.on( 'uploadSuccess', function( file, response ) {
+		        layer.msg('已上传');
+				if(response.statu){
+					$("#apkUrl").html(response.data.apk);
+					$('#apk_upload_url').val( response.data.apk );
+				}else{
+					layer.alert(response.msg);
+				}
+		    });
+
+		    uploader.on( 'uploadError', function( file ) {
+		    	layer.alert('上传出错');
+		    });
+		});
+		uploader.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert('只能上传安卓应用安装包',{icon:2});
+		     }
+
+			});
+	}
+	
+	// }}}
+}
+
+// {{{ function nextstep()
+function nextstep (){	
+	layer.msg('APK生成中，请耐心等待...', {icon: 16});	
+}
+
+// }}}
+// {{{ function getDefaultStyle()
+function getDefaultStyle(obj,attribute){ 
+    return obj.currentStyle?obj.currentStyle[attribute]:document.defaultView.getComputedStyle(obj,false)[attribute];   
+}
+
+// }}}
+

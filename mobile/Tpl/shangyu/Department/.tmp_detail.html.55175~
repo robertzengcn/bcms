@@ -1,0 +1,19 @@
+{{include file="Common/header.html"}}
+<!--开始 栏目-->
+{{$department=$DepartmentTag->get($departmentId)}}
+{{$disease=$DiseaseTag->get($diseaseId)}}
+<div id="title">
+	<div>
+		<h1><span class="position"><a href='{{$MOBILE}}'>主页</a> > <a href='{{$MOBILE}}/department.php?method=index&id={{$department->id}}'>{{$department->name}}</a> > <a href='{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$disease->id}}'>{{$disease->name}}</a> > </span></h1>
+	</div>
+</div>
+<div id="content3">
+	{{$article=$ArticleTag->get($id)}}
+	<h2>{{$article->subject}}</h2>
+	<div class="arccontent">
+		{{$article->content}}
+	</div>
+</div>
+<!--结束 栏目-->
+﻿<!--开始 尾部-->
+﻿{{include file="Common/footer.html"}}

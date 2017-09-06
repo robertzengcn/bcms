@@ -1,0 +1,73 @@
+<?php
+/**
+ * 视频标签
+ * */
+require_once 'common.php';
+
+/** 
+ * 根据页码获取对应的数据
+ * 
+ * 对应function标签中的{movies}
+ */
+function smarty_block_movielist($params, $content, $template, &$repeat) {
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $sort = isset($params['sort']) ? $params['sort'] : true;
+    $current = $template->getTemplateVars('cur');
+    $current = $current == '' ? 1 : $current;
+    
+    if (!$repeat) {
+        $ser = new MovieTag();
+        $data = $ser->getList($current, $pagesize, $sort);
+        foreach ($data as $key=>$movieinfo) {
+            if ($movieinfo->pic&&strpos($movieinfo->pic, NETADDRESS) === false) {
+                $data[$key]->pic = UPLOAD . $movieinfo->pic;
+            }
+            $data[$key]->url = NETADDRESS . "/hospital/movie/" . $movieinfo->id . ".html";
+        }
+        
+        $template->assign('cur', $current);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据唯一id获取该id的详细信息
+ * 
+ * 对应function标签中的{movie}
+ */
+function smarty_block_movieinfo( $params, $content, $template, &$repeat ) {
+    $id = isset($params['id']) ? $params['id'] : ($template->getTemplateVars('id'));
+    
+    if (!$repeat) {
+        $ser = new MovieTag();
+        $data = $ser->get($id);
+        if ($data->pic&&strpos($data->pic, NETADDRESS) === false) {
+            $data->pic = UPLOAD . $data->pic;
+        }
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取最新
+ */
+function smarty_block_latestmovie( $params, $content, $template, &$repeat ) {
+    $limit = isset($params['limit']) ? $params['limit'] : '';
+    
+    if (!$repeat) {
+        $ser = new MovieTag();
+        $data = $ser->getNewest($limit);
+        foreach ($data as $key=>$movieinfo) {
+            if ($movieinfo->pic&&strpos($movieinfo->pic, NETADDRESS) === false) {
+                $data[$key]->pic = UPLOAD . $movieinfo->pic;
+            }
+            $data[$key]->url = NETADDRESS . "/hospital/movie/" . $movieinfo->id . ".html";
+        }
+        return formatReturnData($data, $content);
+    }
+}
+

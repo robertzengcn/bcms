@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body>   
+    <section id="body">
+    	<a href=""><article class="dmenu">
+        <img src="{{$UPLOAD}}{{$data->pic}}">
+		
+        <b><h1><a>{{$data->subject}}</a></h1><h2></h2></b>	
+        </article></a>
+        <p class="Title">详情</p>
+        <article class="xiangqing">
+        <!-- <p>  {{$data->content|strip_tags:false}}</p> -->		 <p>  {{$data->content}}</p> 
+        </article>
+        
+           
+    </section>
+    
+
+    
+</body>
+</html>

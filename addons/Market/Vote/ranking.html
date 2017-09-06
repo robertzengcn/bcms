@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>排名</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="description" content="">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/jquery-weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/style.css?time={{$smarty.now}}">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/color/{{$color}}.css?time={{$smarty.now}}">
+<script type="text/javascript" src="{{$COMMON}}Vote/public/js/jquery-2.1.4.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Vote/public/js/jquery-Slider.js"></script>
+</head>
+<body ontouchstart>
+<div class="home_top">
+  <ul>
+	    {{foreach from=$piclist  item=vo}}
+	<li><img src="{{$vo}}"></li>
+		{{/foreach}}
+  </ul>
+    <script type="text/javascript">
+	$(".home_top").yxMobileSlider({during:5000,height:360});
+ </script>
+</div>
+<div class="home_num">
+    <div class="num_time">
+        <div class="day">活动结束倒计时</div>
+        <strong id="day_show">0天</strong>
+        <strong id="hour_show"><s id="h"></s>0时</strong>
+        <strong id="minute_show"><s></s>00分</strong>
+        <strong id="second_show"><s></s>00秒</strong>
+    </div>
+    <a class="ranking_btn" href="javascript:;">票数榜</a>
+</div>
+	<input type="hidden" id="remtime" value="{{$remtime}}"/>
+	<input type="hidden" id="id" value="{{$id}}"/>
+<div class="ranking_box">
+				{{foreach from=$plist key=k item=value}}
+	<div class="ranking_list">
+    	<a href="./vote.php?method=xiangqing&id={{$id}}&vid={{$value['id']}}">
+        	<div class="player_pic"><img src="{{$value['startpicurl1']}}"></div>
+            <div class="ranking_info">
+            	<font>{{$value['item']}} &nbsp;{{$value['id']}}号</font>
+                <span>票数 &nbsp;{{$value['vcount']}}</span>
+                <p>{{$value['intro']}}</p>
+            </div>
+            <div class="ranking">{{$k|operation:1}}</div>
+        </a>
+    </div>
+				{{/foreach}} 
+</div>
+
+<div class="pd-40"></div>
+
+<div class="weui_tabbar home_footer" id="home_footer">
+    <a href="./vote.php?method=index&id={{$id}}" class="weui_tabbar_item">
+      <div class="weui_tabbar_icon">
+		<div class="tabbar_icon1"></div>
+      </div>
+      <p class="weui_tabbar_label">首页</p>
+    </a>
+    <a href="./vote.php?method=cansai&id={{$id}}" class="weui_tabbar_item">
+      <div class="weui_tabbar_icon">
+		<div class="tabbar_icon2"></div>
+      </div>
+      <p class="weui_tabbar_label">参赛</p>
+    </a>
+    <a href="./vote.php?method=jiangpin&id={{$id}}" class="weui_tabbar_item">
+      <div class="weui_tabbar_icon">
+		<div class="tabbar_icon4"></div>
+      </div>
+      <p class="weui_tabbar_label">奖品</p>
+    </a>
+    <a href="./vote.php?method=paiming&id={{$id}}" class="weui_tabbar_item weui_bar_item_on">
+      <div class="weui_tabbar_icon weui_bar_item_on">
+		<div class="tabbar_icon5"></div>
+      </div>
+      <p class="weui_tabbar_label">排名</p>
+    </a>
+</div>
+
+<script src="{{$COMMON}}Vote/public/js/fastclick.js"></script>
+<script src="{{$COMMON}}Vote/public/js/jquery-weui.min.js"></script>
+<script src="{{$COMMON}}Vote/public/js/ranking.js?time={{$smarty.now}}"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script type="text/javascript">
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: '{{$signPackage.appId}}', // 必填，公众号的唯一标识
+        timestamp: "{{$signPackage.timestamp}}", // 必填，生成签名的时间戳
+        nonceStr: '{{$signPackage.nonceStr}}', // 必填，生成签名的随机串
+        signature: '{{$signPackage.signature}}',// 必填，签名，见附录1
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+
+    wx.ready(function(){
+        wx.error(function(res){
+            console.log(res);
+        });
+        //朋友圈
+        wx.onMenuShareTimeline({
+            title: "{{$voteinfo->title}}", // 分享标题
+            link: "{{$voteinfo->url}}", // 分享链接
+            imgUrl: "{{$voteinfo->src}}", // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+            title: "{{$voteinfo->title}}", // 分享标题
+            desc: "{{$voteinfo->fxms}}", // 分享描述
+            link: "{{$voteinfo->url}}", // 分享链接
+            imgUrl: "{{$voteinfo->src}}", // 分享图标
+            type: '', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    });
+</script>
+</body>
+</html>

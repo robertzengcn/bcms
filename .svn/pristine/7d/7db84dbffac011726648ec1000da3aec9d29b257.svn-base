@@ -1,0 +1,31 @@
+{{include file="Common/header.html"}}
+<link href="{{$RESOURCE}}/css/yangshi.css" rel="stylesheet" type="text/css">
+</div>
+<!--栏目开始 -->
+<div class="crumb">当前位置：<a href="{{$MOBILE}}">主页</a>&gt; <a href="{{$MOBILE}}/introduce.php?method=getInfo">医院简介</a></div>
+
+<div class="content">
+    <div class="contentall">
+        <div class="content4">
+            <h1 style="width: 100%;text-align: center;color: #0000ff">{{$data->subject}}</h1>
+            <p>
+                {{$data->content}}
+            </p>
+            <br>
+            <br>
+            <div>已有<font color="#ff0000">
+                <script src="/plus/count.php?view=yes&aid=560&mid=1" type='text/javascript' language="javascript"></script>
+            </font>患者看完本文章后<a target="_self"  href="{{$contact.swt_link}}" style="color:#F00;">参与咨询</a></div>
+        </div>
+    </div>
+</div>
+<div class="fenye">
+    <ul class="ullist">
+        <li><span class="pageinfo">共 <strong>1</strong>页<strong>1</strong>条记录</span></li>
+    </ul>
+</div>
+<!--常见疾病 -->
+{{include file="Common/bootom_news.html"}}
+{{include file="Common/index_footer.html"}}
+
+

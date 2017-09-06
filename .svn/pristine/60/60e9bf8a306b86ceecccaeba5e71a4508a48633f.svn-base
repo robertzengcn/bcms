@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>{{$seo->title}}</title>
+<meta name="keywords" content="{{$seo->keywords}}" />
+<meta name="description" content="{{$seo->description}}" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+{{include file="Common/common.html"}}
+</head>
+<body>
+<!-- header -->
+{{include file="Common/header.html"}}
+<div class="top5 list22" >
+<a style="background: url('{{$RESOURCE}}/images/home_dh.gif') no-repeat scroll 0% 0% transparent; width: 30px; display: inline-block; height: 30px; float: left;"></a>
+<a href="{{$MOBILE}}">首页</a> > <a href="{{$MOBILE}}/device.php">先进设备</a>
+</div>
+<div class="main w320">
+    <!--第五部分-->
+    <div class="part5">
+      <div class="part_til">先进设备</div>
+      <div class="part5_p w300">
+      {{foreach $list as $k=>$v}}
+       {{$c='mr11'}} 
+       {{if ($k+1)%3==0}} {{$c=""}} {{/if}}
+        <dl class="{{$c}}"><dt> <a href='{{$MOBILE}}/device.php?method=get&id={{$v->id}}' target="_blank"><img src="{{$smarty.const.UPLOAD}}{{$v->pic}}" width="89" height="71" /></a></dt><dd><a href='{{$MOBILE}}/device.php?method=get&id={{$v->id}}' target="_blank">{{$v->subject|truncate:8}}</a></dd></dl>
+       {{/foreach}} 
+      <div class="cle"></div>
+      </div>
+   <!-- page -->
+   {{include file="Common/page.html"}}      
+  
+    </div>
+   <!--第五部分结束--> 
+
+</div>
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</body>
+</html>

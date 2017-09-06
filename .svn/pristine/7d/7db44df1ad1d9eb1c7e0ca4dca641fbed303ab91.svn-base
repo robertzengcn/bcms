@@ -1,0 +1,189 @@
+<?php
+
+class SuccessService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new SuccessDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $successArray = $this->dao->getBatch($ids);
+        $recommendListDAO = new RecommendListDAO();
+        $files = array();
+        $this->dao->beginTrans();
+        try {
+            foreach ($successArray as $success) {
+                $filename = GENERATEPATH . 'success/' . $success->id . '.html';
+                if ($success->id == 0) {
+                    throw new ValidatorException(78);
+                }
+                $files[] = $filename;
+                $recommendListDAO->deleteById('success_id', $success->id);
+            }
+
+            foreach ($files as $file) {
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+
+            $this->dao->deleteBeans($successArray);
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param unknown $success
+     * @return Result
+     */
+    public function save($success) {
+        $success->plushtime = time();
+        $success->updatetime = time();
+        $success->validate();
+        $success->click_count = rand(30, 1000);
+        $success->worker_id = $_SESSION['id'];
+        $this->dao->beginTrans();
+        try {
+            $tagService = new TagService();
+            $tagService->tagsSave($success->plushtime);
+
+            $result = $this->dao->save($success);
+            
+            $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+            if (! empty($_REQUEST['recommendposition'])) {
+                $recommendList = new RecommendListService();
+                foreach ($_REQUEST['recommendposition'] as $value) {
+                    $recommend = new RecommendList();
+                    $recommend->is_top = $success->is_top;
+                    $recommend->recommendposition_id = $value;
+                    $recommend->success_id = $result->id;
+                    $recommend->is_tomobile = $is_tomobile;
+                    $recommendList->save($recommend);
+                }
+            }
+            $this->dao->commitTrans();
+            return $this->success();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $successArray = $this->dao->query($where);
+
+        foreach ($successArray as $value) {
+            $value->plushtime = date('Y-m-d', $value->plushtime);
+        }
+
+        return $this->success($successArray);
+    }
+
+    /**
+     * 获取单条数据
+     *
+     * @param unknown $success
+     * @return Result
+     */
+    public function get($success) {
+        $this->dao->get($success->id, $success);
+        if ($success->pic1) {
+            $success->src1 = UPLOAD . $success->pic1;
+        }
+        if ($success->pic2) {
+            $success->src2 = UPLOAD . $success->pic2;
+        }
+
+        $tagService = new TagService();
+        $success->tags = $tagService->getTags($success->plushtime);
+        $recommend = new RecommendListService();
+        $result = $recommend->getById('success_id', $success->id);
+        $success->recommend = $result;
+        return $this->success($success);
+    }
+
+    /**
+     * 更改数据
+     *
+     * @param unknown $success
+     * @return Result
+     */
+    public function update($success) {
+        $success->updatetime = time();
+        $success->validate();
+        $success->worker_id = $_SESSION['id'];
+        $tagService = new TagService();
+        $tagService->tagsClear($success->plushtime);
+        $tagService->tagsSave($success->plushtime);
+
+        $recommendList = new RecommendListDAO();
+        $recommendList->deleteById('success_id', $success->id);
+
+        if (isset($_REQUEST['recommendposition'])) {
+            $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->is_top = $success->is_top;
+                $recommend->recommendposition_id = $value;
+                $recommend->success_id = $success->id;
+                $recommend->is_tomobile = $is_tomobile;
+                $recommendList->save($recommend);
+            }
+        }
+        return $this->dao->update($success);
+    }
+
+    /**
+     * 根据id数组获取数据
+     *
+     * @return Result
+     */
+    public function getByIds() {
+        $successes = $this->dao->getByIds();
+
+        $departmentsDao = new DepartmentDAO();
+        $diseaseDao = new DiseaseDAO();
+        $workerService = new WorkerService();
+        foreach ($successes as $key => $value) {
+            $value->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+            $departments = new Department();
+            $departments->id = $value->department_id;
+            $departmentsDao->getDepartmentByID($departments);
+            $value->department = $departments->name;
+            $value->disease = $diseaseDao->getDiseaseById($value->disease_id);
+
+            $worker = new Worker();
+            $worker->id = $value->worker_id;
+            $result = $workerService->get($worker);
+            $value->author = $result->data->name;
+        }
+        return $this->success($successes);
+    }
+
+}
+?>

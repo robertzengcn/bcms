@@ -1,0 +1,487 @@
+/**
+ * 生成静态页
+ * */
+function Static() {
+	BaseFunc.call(this);
+	
+	var self = this;
+	
+	this.initList = function() {
+		$(function(){
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			self.getOpenState("manualupdate", 0);    
+			$('.tabBar span').click(function(){
+				var index = $(this).index();
+				switch(index) {
+					case 0:
+						self.getOpenState("manualupdate", index);
+						break;
+					case 1:
+						self.getOpenState("autoupdate", index);
+						break;
+					case 2:
+						self.getOpenState("dynamic", index);
+						break;
+					default:
+						break;
+			    }
+			});
+			//生成首页
+			$('#generate_index').click(function(){
+				self.loadingFirm('index');
+			});
+			//生成异常页面
+			$('#generate_error').click(function(){
+				self.loadingFirm('error');
+			});
+            //生成在线预约
+            $('#generate_reservation').click(function(){
+            	self.loadingFirm('reservation');
+            })
+            //生成搜索页面
+            $('#generate_search').click(function(){
+            	self.loadingFirm('search');
+            })
+			//生成医院简介
+			$('#generate_introduce').click(function(){
+				self.loadingFirm('introduce');
+			});
+			//生成医院动态
+			$('#generate_news').click(function(){
+				self.loadingFirm('news');
+			});
+			//生成媒体报道
+			$('#generate_mediaport').click(function(){
+				self.loadingFirm('mediaReport');
+			});
+			//生成视频
+			$('#generate_movie').click(function(){
+				self.loadingFirm('movie');
+			});
+			//生成联系方式
+			$('#generate_contacts').click(function(){
+				self.loadingFirm('contact');
+			});
+			//生成医院荣誉
+			$('#generate_honor').click(function(){
+				self.loadingFirm('honor');
+			});
+			//生成医院环境
+			$('#generate_enviorment').click(function(){
+				self.loadingFirm('environment');
+			});
+			//生成先进设备
+			$('#generate_devices').click(function(){
+				self.loadingFirm('device');
+			});
+			//生成科室信息
+			$('#generate_departments').click(function(){
+				self.loadingFirm('department');
+			});
+			//生成疾病信息
+			$('#generate_disease').click(function(){
+				self.loadingFirm('disease');
+			});
+			//生成医生信息
+			$('#generate_doctors').click(function(){
+				self.loadingFirm('doctor');
+			});
+			//生成在线问答
+			$('#generate_asks').click(function(){
+				self.loadingFirm('ask');
+			});
+			//生成网站地图
+			$('#generate_sitemap').click(function(){
+				self.loadingFirm('sitemap');
+			});
+			//生成专题
+			$('#generate_topic').click(function(){
+				self.loadingFirm('topic');
+			});
+			//生成案例信息
+			$('#generate_success').click(function(){
+				self.loadingFirm('success');
+			});
+			//生成特色技术
+			$('#generate_technology').click(function(){
+				self.loadingFirm('technology');
+			});
+			//生成自定义频道
+			$('#generate_channel').click(function(){
+				self.loadingFirm('channel');
+			});
+			//生成自定义频道文章
+			$('#generate_channelArticle').click(function(){
+				self.loadingFirm('channelArticle');
+			});
+			
+			//生成资讯
+			$('#generate_article').click(function(){
+				//检测是否需要进行续传
+				self.createHtml(gHttp,{controller:'MakeHtml',method:'get_article_break'},function(ret){
+					//if( ret.statu === true ){
+					if( false ){
+						$('.generate_article_break').show(600);
+					}else{
+						self.loadingFirm('article','all');
+					}
+				})
+			});
+			//生成资讯[全部]
+			$('#generate_article_break_2').click(function(){
+				self.loadingFirm('article','all');
+			})
+			//生成资讯[当日最新]
+			$('#generate_article_new').click(function(){
+				self.loadingFirm('article','new');
+			});
+			//生成资讯[续传操作]
+			$('#generate_article_break').click(function(){
+				self.loadingFirm('article','break');
+			});
+			//生成资讯[部分操作]
+			$('#generate_article_part').click(function(){
+				//获取科室信息
+				self.createHtml(gHttp,{controller:'Department',method:'getDepartments'},function(ret){
+					var html = '';
+					if(ret.statu){
+						departments = ret.data;
+						html = '<option value="0">全部</option>';
+						$.each(ret.data,function(i,obj){
+							html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+						});
+						var select = "";
+						select += "请选择科室：<select id='generate_de' onChange='gStatic.changeArticlePart(this.value);'>"+html+"</select>&nbsp;<select id='generate_di' style='display:none;'><option value='0'>全部</option></select>";
+						layer.open({
+							title: '选择科室信息',
+						    content:select,
+						    yes: function (index, layero) {
+								var val = $('#generate_de').val();//获取科室ID
+								var dis = $('#generate_di').val();//获取疾病ID
+								if( val == '0' ){
+									alert('请选择需要生成的文章科室分类!');
+								}else{
+									var type = 'disease';
+									if( val != '0' && dis == '0' ){
+										type = 'deparment';
+										self.loadingFirm('article',type,val);
+									}else{
+										self.loadingFirm('article',type,val,dis);
+									}
+								}
+						    }
+						});
+					}else{
+						layer.alert(ret.msg);
+					}
+				});
+			})
+		});
+	}
+	
+	// {{{ function makeHtml()
+	
+	/**
+	 * 统一提交(适用于除了文章)
+	 * */
+	this.makeHtml = function() {
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+		var op = para.op;
+		var type = para.type;
+		var data = {};
+		if (op != undefined) {
+			if (op == 'article') {
+				//资讯单独处理
+				var did = para.did;
+				var dis = para.dis;
+				if (dis == undefined) {
+					if (did == undefined) {
+						data = {controller:'MakeHtml',method:op,op:op,type:type};
+					} else {
+						data = {controller:'MakeHtml',method:op,op:op,type:type,did:did};
+					}
+				} else {
+					data = {controller:'MakeHtml',method:op,op:op,type:type,did:did,dis:dis};
+				}
+				
+			} else {
+				data = {controller:'MakeHtml',method:op,op:op};
+			}
+		}
+		
+		self.timedCount();
+		self.createHtml(gHttp,data,function(ret){
+			switch(data.method){
+				case "index":
+					m = "首页";break;		
+				case "error":
+					m = "异常页面";break;
+				case "reservation":
+					m = "在线预约";break;				
+				case "search":
+					m = "搜索页";break;
+				case "introduce":
+					m = "医院简介";break;
+				case "news":
+					m = "医院动态";break;
+				case "mediaReport":
+					m = "媒体报道";break;	
+				case "movie":
+					m = "视频";break;	
+				case "contact":
+					m = "联系方式";break;					
+				case "honor":
+					m = "医院荣誉";break;
+				case "environment":
+					m = "医院环境";break;					
+				case "device":
+					m = "先进设备";break;	
+				case "department":
+					m = "科室主页";break;
+				case "disease":
+					m = "疾病主页";break;				
+				case "doctor":
+					m = "医生信息";break;	
+				case "ask":
+					m = "在线问答";break;					
+				case "sitemap":
+					m = "网站地图";break;	
+				case "article":
+					m = "资讯";break;				
+				case "topic":
+					m = "专题";break;
+				case "success":
+					m = "案例";break;				
+				case "technology":
+					m = "特色技术";break;
+				case "channel":
+					m = "个性频道";break;
+				case "channelArticle":
+					m = "个性频道文章";break;				
+				default:
+					m = "页面";break;	
+			}
+			
+			if(ret.statu){
+				if(ret.code == 88){//进入详细进度条模式
+					var len = ret.data.list.length - 1;
+					$("#make_right").html("准备生成列表页...");
+					self.makeHtmlList(ret.data.list,0,len,ret.data.detail);
+				}else{
+					$("#make_right").html( m+ "生成已完成!");
+					$("#makehtml_loading").css("width","100%");
+					self.timedEnd();
+				}
+			}else{
+				var msg = "<span style='color:red;'>" + ret.msg + "</span>";
+				$("#make_right").html('该模板不支持'+m+'这项功能' + '<br/>' + msg);
+				self.timedEnd();
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function makeHtmlList()
+	
+	/**
+	 * 生成列表页循环(其他)
+	 * */
+	this.makeHtmlList = function(data,i,len,data_detail) {
+		if( i > len ){
+			$("#make_right").html("列表页生成已完成,正在生成详细页...");
+			$("#makehtml_loading").css("width","0%");
+			self.makeHtmlDetail(data_detail,0,data_detail.length-1);
+			return true;
+		}
+		var pars = {
+				controller:'ViewHtml',
+				method:data[i].op,
+				op:data[i].op,
+				id:data[i].id,
+				debug:'signle',
+				list:'list',
+				i:data[i].i,
+				pageCount:data[i].pageCount,
+				pageSize:data[i].pageSize,
+				html:data[i].html
+		};
+		self.createHtml(gHttp,pars,function(ret2){
+			if(ret2.statu){
+				$("#make_right").html("正在生成第："+ (i+1) + "页/共"+(len+1)+"页");
+				width = i / len * 100;
+				$("#makehtml_loading").css("width",width+"%");
+				i = i + 1;
+				self.makeHtmlList(data,i,len,data_detail);
+			}else{
+				$("#make_right").html(ret2.msg);
+				self.timedEnd();
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function makeHtmlDetail()
+	
+	/**
+	 * 生成详细页循环(其他)
+	 * */
+	this.makeHtmlDetail = function(data,i,len) {
+		if( makeStop ){
+			return false;
+		}
+		publicMakeData = data;
+		publicMakeI    = i;
+		publicMakeIen  = len;
+		if( i > len ){
+			$("#make_right").html( m+ "生成已完成!");
+			$("#makehtml_loading").css("width","100%");
+			self.timedEnd();
+			return true;
+		}
+		
+		//如果生成记录中能找到本次ID，证明已生成过。
+		makeArticleId = makeArticleId + data[i].id + ',';
+		self.createHtml(gHttp,{controller:'ViewHtml',method:data[i].op,op:data[i].op,id:data[i].id,debug:'signle',html:data[i].html,makeArticleId:makeArticleId},function(ret2){
+			$("#long_time").fadeIn(500);
+			if(ret2.statu){
+				$("#make_right").html("正在生成内容详细页面：" + (i+1) + "/" + (len+1));
+				width = i / len * 100;
+				$("#makehtml_loading").css("width",width+"%");
+				i = i + 1;
+				self.makeHtmlDetail(data,i,len);
+			}else{
+				$("#make_right").html(ret2.msg);
+				self.timedEnd();
+			}
+		});
+	}
+	
+	// }}}
+	
+	//开始生成
+	// {{{ function timedCount()
+	
+	/**
+	 * 生成进度
+	 * */
+	this.timedCount = function () {
+		var temptextmin = '';
+		hour = parseInt(c / 3600);// 小时数
+		min = parseInt(c / 60);// 分钟数
+		if(min>=60){
+			min=min%60
+		}
+		lastsecs = c % 60;
+		temptextmin = "执行耗时：" + hour + " 时 " + min + " 分 " + lastsecs + " 秒";
+		$('#time').html( temptextmin );
+		c = c + 1;
+		t = setTimeout(function(self){return function(){self.timedCount();}}(this),1000);	
+	}
+	
+	// }}}
+	// {{{ function timedEnd()
+	
+	/**
+	 * 生成结束
+	 * */
+	this.timedEnd = function (){
+		c = 0;
+		clearTimeout(t);
+	}
+	
+	// }}}
+	// {{{ function loadingFirm()
+	
+	/**
+	 * 加载进度条
+	 * */
+	this.loadingFirm = function (op,type,did,dis){
+		//关闭之前的选择弹窗
+		layer.closeAll();
+		
+		makeStop = false;
+		var url = 'process.html?op=' + op;
+		if (type != undefined) {
+			url += '&type=' + type;
+		}
+		if (did != undefined) {
+			url += '&did=' + did;
+		}
+		if (dis != undefined) {
+			url += '&dis=' + dis;
+		}
+		var option = {type:2,
+				title:'生成进度展示',
+				content: url,
+				area:'500px',
+				cancel:function(index){
+					makeStop = true;
+					layer.close(index);
+				}};
+	    layer.open(option);
+	}
+	
+	// }}}
+	// {{{ function changeArticlePart()
+	
+	/**
+	 * 生成资讯
+	 * */
+	this.changeArticlePart = function (id){
+		self.createHtml(gHttp,{controller:'Disease',method:'getByDepartmentID',department_id:id},function(ret){
+			var html = '';
+			if(ret.statu){
+				html = '';
+				$.each(ret.data,function(i,obj){
+					html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+				});
+				if( html == '' ){
+					$("#generate_di").empty().hide().html( "<option value='0'>全部</option>" );
+				}else{
+					$("#generate_di").empty().show().html( html );
+				}
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function clickMakeBreak()
+	
+	/**
+	 * 取消生成
+	 * */
+	function clickMakeBreak(){
+		self.makeHtmlDetail(publicMakeData,publicMakeI,publicMakeIen);
+	}
+	
+	// }}}
+	/**
+	 * 开启网站状态(手动/自动/动态)
+	 * */
+	this.openHtmlType = function(type){
+		self.cmd(gHttp,{controller:'ViewHtml',method:'openHtmlType',typename:type},function(result1){
+			layer.alert(result1.msg,function(index){
+				layer.close(index);
+			});
+			if(result1.statu){
+				$('#tab-category .tabCon').eq(result1.data).find("div:last").html('<span class="btn btn-secondary radius" type="button"><i class="Hui-iconfont">&#xe60e;</i> 已开启功能</span>');
+			}
+		});
+	}
+
+	/**
+	 * 开启状态
+	 * */
+	this.getOpenState = function(typename,i){
+		self.cmd(gHttp,{controller:'ViewHtml',method:'getOpenState', typename:typename, i:i},function(result1){
+			if(result1.statu){
+				$('#tab-category .tabCon').eq(result1.data).find("div:last").html('<span class="btn btn-secondary radius" type="button"><i class="Hui-iconfont">&#xe60e;</i> 已开启功能</span>');
+			}else{
+				$('#tab-category .tabCon').eq(result1.data).find("div:last").html("<a href=\"javascript:;\" onClick=\"gStatic.openHtmlType('"+result1.msg+"');\" class=\"btn btn-danger radius\" type=\"button\"><i class=\"Hui-iconfont\">&#xe605;</i> 开启功能</a>");
+			}
+		});
+		
+	}
+	
+}

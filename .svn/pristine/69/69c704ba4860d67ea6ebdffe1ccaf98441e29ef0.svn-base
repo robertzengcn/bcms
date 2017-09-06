@@ -1,0 +1,427 @@
+<?php
+/**
+ *
+ * 静态页面生成控制器
+ * @author Administrator
+ *
+ */
+require_once './HtmlBase.php';
+class MakeHtmlController extends Html {
+
+    /**
+     * 构造方法
+     */
+    public function __construct() {
+        parent::__construct();
+        if( ! in_array( $this->option , $this->noMake) ) {
+        	$this->makeOnce();
+        }
+    }
+    
+    /**
+     * 首页静态生成
+     */
+    public function index($flag = true) {
+        $this->dirMake('index');
+		$this->setSinglePageSeo($this->config['key']);
+        $this->tagDisplay(GENERATEPATH . 'index' . $this->htmlSuffix, $this->tagFetch($this->config['tpl']), $flag);
+    }
+
+    /**
+     * 生成网站地图html
+     */
+    public function setmapHtml($flag = true) {
+        $this->dirMake('sitemap');
+        $this->tagDisplay(GENERATEPATH . 'sitemap' . $this->htmlSuffix, $this->tagFetch($this->config['html_tpl']), $flag);
+    }
+    
+    /**
+     * 生成搜索页
+     */
+    public function search($flag = true) {
+    	$this->dirMake('search');
+    	$this->tagDisplay(GENERATEPATH . 'search' . $this->htmlSuffix, $this->tagFetch($this->config['html_tpl']), $flag);
+    }
+
+    /**
+     * 生成网站地图xml
+     */
+    public function setmapXml($flag = true) {
+        $this->dirMake('sitemap');
+        $XmlBaidu = $this->tagFetch($this->config['baidu_tpl']);
+        if ($XmlBaidu != '') {
+            file_put_contents(GENERATEPATH . 'sitemap_baidu.xml', $XmlBaidu);
+        }
+        $Xml360 = $this->tagFetch($this->config['360_tpl']);
+        if ($Xml360 != '') {
+            file_put_contents(GENERATEPATH . 'sitemap_360.xml', $Xml360);
+        }
+        if ($flag) {
+            die(json_encode(new Result(true, 0, '', NULL)));
+        }
+    }
+
+    /**
+     * 生成网站地图 .
+     * ..
+     */
+    public function sitemap() {
+        $this->setmapXml(false);
+        $this->setmapHtml(true);
+    }
+    
+    /**
+     * 在线预约生成
+     */
+    public function reservation($flag = true) {
+    	#.生成预约表单页面(reservation目录)
+        $htmlDir = $this->dirMake('reservation');
+        $this->tagDisplay($htmlDir . 'reservation' . $this->htmlSuffix, $this->tagFetch($this->config['detail_tpl']), false);
+        #.生成预约表单页面(根目录)
+        $this->tagDisplay(GENERATEPATH . 'reservation' . $this->htmlSuffix, $this->tagFetch($this->config['detail_tpl']), false);
+        #.生成预约医生列表页面(列表页)
+        $this->setListHtml(new DoctorManagerService(), new DoctorManagerTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('reservationDir'), true,'detail');
+    }
+
+    /**
+     * 医院简介静态生成
+     */
+    public function introduce($flag = true) {
+        $htmlDir = $this->dirMake('introduce');
+				$params = array( "id" => 1);
+				$sql = $this->getInfoSql($this->config['key'],$params);
+				$service= new IntroduceService();
+				$info = $service->getRowTag($sql);
+				if($info->pic) $info->pic = UPLOAD . $info->pic;
+				if($info->content){
+					$info->content = stripslashes($info->content);
+				}
+				// 注入文章id与文章信息
+				$this->smarty->assign($this->config['key'], $info);
+				$this->smarty->assign("id", $info->id);
+			//注入位置导航
+			$params = array();
+			$params['key'] = $this->config['key'];
+			$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+			$this->smarty->assign('POSITION',$this->position($params));	
+		$this->setSinglePageSeo($this->config['key']);
+        $this->tagDisplay($htmlDir . 'introduce' . $this->htmlSuffix, $this->tagFetch($this->config['tpl']), $flag);
+    }
+
+    /**
+     * 联系方式静态生成
+     */
+    public function contact($flag = true) {
+        $this->dirMake('contact');
+		$params['key'] = 'contact';
+		$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+		$this->smarty->assign('POSITION',$this->position($params));
+		$this->setSinglePageSeo($this->config['key']);
+        $this->tagDisplay(GENERATEPATH . 'contact' . $this->htmlSuffix, $this->tagFetch($this->config['tpl']), $flag);
+    }
+
+    /**
+     * 医院动态静态生成
+     */
+    public function news($flag = true) {
+        $this->dirMake('news');
+        $this->setListHtml(new NewsService(), new NewsTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('newsDir'), $flag);
+    }
+
+    /**
+     * 医院视频静态生成
+     */
+    public function movie($flag = true) {
+        $this->dirMake('movie');
+        $this->setListHtml(new MovieService(), new MovieTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('movieDir'), $flag);
+    }
+
+    /**
+     * 媒体报道生成
+     */
+    public function mediaReport($flag = true) {
+        $this->dirMake('mediareport');
+        $this->setListHtml(new MediaReportService(), new MediaReportTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('mediareportDir'), $flag);
+    }
+
+    /**
+     * 医院荣誉静态生成
+     */
+    public function honor($flag = true) {
+        $this->dirMake('honor');
+        $this->setListHtml(new HonorService(), new HonorTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('honorDir'), $flag);
+    }
+
+    /**
+     * 医院环境静态生成
+     */
+    public function environment($flag = true) {
+        $this->dirMake('environment');
+        $this->setListHtml(new EnvironmentService(), new EnvironmentTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('environmentDir'), $flag);
+    }
+
+    /**
+     * 医院设备静态生成
+     */
+    public function device($flag = true) {
+        $this->dirMake('device');
+        $this->setListHtml(new DeviceService(), new DeviceTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('deviceDir'), $flag);
+    }
+
+    /**
+     * 医院成功案例静态生成
+     */
+    public function success($flag = true) {
+        $this->dirMake('success');
+        $this->setListHtml(new SuccessService(), new SuccessTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('successDir'), $flag);
+    }
+
+    /**
+     * 医生相关静态生成
+     */
+    public function doctor($flag = true) {
+        $this->dirMake('doctor');
+        $this->setListHtml(new DoctorService(), new DoctorTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('doctorDir'), $flag);
+    }
+
+    /**
+     * 特色技术静态生成
+     */
+    public function technology($flag = true) {
+        $this->dirMake('technology');
+        $this->setListHtml(new TechnologyService(), new TechnologyTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('technologyDir'), $flag);
+    }
+
+    /**
+     * 在线问答相关静态生成
+     */
+    public function ask($flag = true) {
+        $this->dirMake('ask');
+        $this->setListHtml(new AskService(), new AskTag(), $this->config['list_tpl'], $this->config['detail_tpl'], $this->dirMake('askDir'), $flag);
+    }
+
+    /**
+     * 异常页静态生成
+     */
+    public function error($flag = true) {
+        $htmlDir = $this->dirMake('error');
+        $errorServices = new ErrorPageService();
+        $result = $errorServices->getListAll()->data;
+        $listIds = array();
+        $detailCount = 0;
+        foreach ($result as $key => $value) {
+            // 错误页地址
+            $listIds[$detailCount]['id'] = $value->id;
+            $listIds[$detailCount]['html'] = $htmlDir . $value->page;
+            $listIds[$detailCount]['op'] = $this->option;
+            $listIds[$detailCount]['subject'] = $value->subject;
+            $detailCount ++;
+        }
+        die(json_encode(new Result(true, 88, '', array(
+            'list' => $listIds,
+            'detail' => array()
+        ))));
+    }
+
+    /**
+     * 科室目录以及科室目录下首页生成
+     */
+    public function department($flag = true) {
+			//初始化
+	    $departmentD = new DepartmentDAO();
+	    $depIds = $departmentD->getAllDepartmentId();
+		
+        $listIds = array();
+        $detailCount = 0;
+        foreach ($depIds as $key => $value) {
+            // 科室目录路径生成
+            $listIds[$detailCount]['id'] = $value['id'];
+            $listIds[$detailCount]['op'] = $this->option;
+            $detailCount ++;
+        }
+        die(json_encode(new Result(true, 88, '', array(
+            'list' => $listIds,
+            'detail' => array()
+        ))));
+    }
+
+    /**
+     * 疾病目录以及疾病目录下首页生成
+     */
+    public function disease($flag = true) {
+
+	    $diseaseD = new DiseaseDAO();
+	    $disIds = $diseaseD->getAllDiseaseId();		
+        $listIds = array();
+        $detailCount = 0;		
+		 $articleDao = new ArticleDAO();
+		 $pageSize = empty($this->config['pageSize']) ?  6 : $this->config['pageSize'];	
+	 
+        // 遍历疾病分组
+        foreach ($disIds as $key => $value) {
+		   $where['1'] =1;
+		   $where['disease_id'] = $value['id'];
+		   $articleCount = $articleDao->totalRows($where);
+		   $pageCount = ceil($articleCount / $pageSize);	
+		   for ($i = 1; $i <= $pageCount; $i ++) {
+				$listIds[$detailCount]['id'] = $value['id'];
+				$listIds[$detailCount]['op'] = $this->option;
+				$listIds[$detailCount]['i'] = $i;
+				$listIds[$detailCount]['articleCount'] = $articleCount;
+				$detailCount ++;
+		   }
+        }
+        die(json_encode(new Result(true, 88, '', array(
+            'list' => $listIds,
+            'detail' => array()
+        ))));
+    }
+    
+    public function get_article_break(){
+     if( isset( $_SESSION['article_count'] ) && isset( $_SESSION['article_id'] ) ){
+        $article_count = $_SESSION['article_count'];	
+        $article_id    = $_SESSION['article_id'];
+        if( $article_count <= 0 ){
+        	die( json_encode( new Result(false, 0, 'fail', null) ) );
+        }else{
+        	die( json_encode( new Result(true, 0, 'success', null) ) );
+        }
+      }else{
+      	die( json_encode( new Result(false, 0, 'fail', null) ) );
+      }
+    }
+    
+    /**
+     * 文章数据预处理功能
+     */
+    public function article_Pretreatment(){
+    	// 删除当前已存在的数据json文件
+    	@unlink( COMPILEDIR . 'article_departmentArray.json' );
+    	@unlink( COMPILEDIR . 'article_diseaseArray.json' );
+    	@unlink( COMPILEDIR . 'article_articleArrays.json' );
+        // 实例化
+        $departmentService = new DepartmentService();
+        $diseaseService    = new DiseaseService();
+        $articleService    = new ArticleService();
+        // 获取相关数据
+        $departmentArray = $departmentService->getListAll()->data;
+        $diseaseArray    = $diseaseService->query(array())->data;
+        $articleArrays   = $articleService->query(array(), 'makehtml')->data;
+        // 存入相关数据
+        file_put_contents(COMPILEDIR . 'article_departmentArray.json', json_encode($departmentArray));
+        file_put_contents(COMPILEDIR . 'article_diseaseArray.json',    json_encode($diseaseArray));
+        file_put_contents(COMPILEDIR . 'article_articleArrays.json',   json_encode($articleArrays));
+    }
+
+    /**
+     * 文章静态生成(全部)
+     */
+    public function article($flag = true) {
+        // 定义变量
+        $detailIds = array();
+        $detailCount = 0;
+        // 遍历所有文章
+		$articledao = new ArticleDAO();
+		$where['did'] = empty($_REQUEST['did']) ? '' : intval($_REQUEST['did']);
+		$where['dis'] = empty($_REQUEST['dis']) ? '' : intval($_REQUEST['dis']);
+		$type = isset( $_REQUEST['type'] ) ? $_REQUEST['type'] : 'all';
+		if($type == 'new'){
+			$where['begin_time'] = strtotime( date('Y-m-d 00:00:00') );
+			$where['end_time']   = strtotime( date('Y-m-d 23:59:59') );
+		}elseif($type == 'break'){
+            $where['id']   = $_SESSION['article_id'];		
+		}
+		$artIds   = $articledao->getAllArticleId($where);
+        foreach ($artIds as $key => $value) {
+                $detailIds[$detailCount]['id'] = $value['id'];
+                $detailIds[$detailCount]['op'] = $this->option;
+                $detailCount ++;
+        }
+        // 记录相关数据,用于执行断点续生成工作
+        $_SESSION['article_count'] = $detailCount;
+        $_SESSION['article_id']    = 0;
+        // 判断需要更新的条数
+        if ($detailCount > $this->limit) {
+            die(json_encode(new Result(true, 88, '', array(
+                'list' => array(),
+                'detail' => $detailIds
+            ))));
+        }
+        die(json_encode(new Result(true, 0, '', NULL)));
+    }
+    
+    /**
+     * 生成自定义频道文章列表...
+     */
+    public function channel() {
+        // 查询出所有的id
+        $obj = new ChannelDAO();
+        $ids = $obj->getAllChanneId();
+        $listIds = array();
+		 $channelarticleDao = new ChannelArticleDAO();
+		 $pageSize = empty($this->config['pageSize']) ?  6 : $this->config['pageSize'];	
+        $detailCount = 0;
+        foreach ($ids as $value) {
+		   $where['1'] =1;
+		   $where['channel_id'] = $value['id'];
+		   
+		   $channelarticleCount = $channelarticleDao->totalRows($where);
+		   $pageCount = ceil($channelarticleCount / $pageSize);	
+		   for ($i = 1; $i <= $pageCount; $i ++) {
+				$listIds[$detailCount]['id']  = $value['id'];
+				$listIds[$detailCount]['op']  = $this->option;
+				$listIds[$detailCount]['i'] = $i;
+				$listIds[$detailCount]['channelarticleCount'] = $channelarticleCount;
+				$detailCount ++;
+		   }
+
+        }
+        die(json_encode(new Result(true, 88, '', array(
+            'list' => $listIds,
+            'detail' => array()
+        ))));
+    }
+
+    /**
+     * 生成自定义频道文章
+     */
+    public function channelArticle() {
+		
+        // 查询出所有的文章
+        $obj = new ChannelArticleDAO();
+        $ids = $obj->getAllChanneArticleId();
+        $detailIds = array();
+        $detailCount = 0;
+        foreach ($ids as $value) {
+			$detailIds[$detailCount]['id']      = $value['id'];
+			$detailIds[$detailCount]['op']      = $this->option;
+			$detailCount ++;
+        }
+        die(json_encode(new Result(true, 88, '', array(
+            'list' => array(),
+            'detail' => $detailIds
+        ))));
+    }
+    
+    /**
+     * 专题生成
+     */
+	public function topic() {
+		$topicService = new TopicService();
+		$topicList = $topicService->query( array() );
+		$topicList = $topicList->data;
+        $listIds = array();
+        $detailCount = 0;
+		foreach( $topicList as $value ) {
+            $listIds[$detailCount]['id']      = $value->topiclistid;
+            $listIds[$detailCount]['html']    = $value->url."|".$value->link."|".$value->id;
+            $listIds[$detailCount]['op']      = $this->option;
+            $listIds[$detailCount]['subject'] = $value->subject;
+            $detailCount ++;
+		}
+        die(json_encode(new Result(true, 88, '', array(
+            'list' => $listIds,
+            'detail' => array()
+        ))));
+	}
+}

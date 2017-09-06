@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>报名成功</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="description" content="">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/jquery-weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/style.css?time={{$smarty.now}}">
+<link rel="stylesheet" href="{{$COMMON}}Vote/public/css/color/{{$color}}.css?time={{$smarty.now}}">
+</head>
+<body ontouchstart>
+<div class="weui_msg succeed">
+  <div class="weui_icon_area"><i class="weui_icon_success weui_icon_msg"></i></div>
+  <div class="weui_text_area">
+    <h2 class="weui_msg_title">恭喜您，报名成功</h2>
+    <p class="weui_msg_desc">谢谢您的参与，请耐心等待工作人员审核！</p>
+  </div>
+  <div class="weui_opr_area">
+    <p class="weui_btn_area">
+      <a href="{{$url}}" class="weui_btn weui_btn_warn">确定</a>
+    </p>
+  </div>
+  <div class="weui_extra_area">
+    <a href="./vote.php?method=jiangpin&id={{$id}}">查看活动详情</a>
+  </div>
+</div>
+<script src="{{$COMMON}}Vote/public/js/jquery-2.1.4.js"></script>
+<script src="{{$COMMON}}Vote/public/js/fastclick.js"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>关注人管理</title>
+<style type="text/css">
+	.groupList{list-style:none;margin:0px;padding:0px;}
+	.groupList li{list-style:none;float:left;padding:0px 4px;line-height:30px;}
+	.groupList li span{padding:4px 8px; cursor:pointer;}
+	.groupList li span:hover{background:#5a98de;}
+	.listbox,.icobox,.checkbox{height:300px;scroll:auto;}	
+	.listbox,.checkbox{border:1px solid #d5d5d5;}	
+	
+	.personList li,.selectList li{font-size:14px;height:30px;line-height:30px;text-indent:8px;}
+	.selectList li{width:96%;margin:2px auto;}
+	.selectList li span.r{display:none;}
+	.personList li:hover{background:#f5fafe;}
+	.selectList li:hover{border:1px solid #d5d5d5;padding:2px;background:#f5fafe;}
+	
+	#groupBox .formControls{position:relative;}
+	.cancel{position:absolute;right:16px;top:2px;}
+	
+</style>
+</head>
+<body>
+<div class="pd-20">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>选择人员</span><span>新增人员</span></div>
+			<div class="tabCon">				
+				<div class="mt-5">
+					<ul class="groupList" id="groupList"></ul>
+				</div>
+				<div style="width:100%;height:1px;clear:both;"></div>
+				<div class="mt-5">
+					<div class="col-78 fl listbox">
+						<ul class="personList" id="personList"></ul>
+					</div>
+					<div class="col-77 fl icobox text-c"><i class="Hui-iconfont" style="font-size:24px;margin:131px auto;display:block;">&#xe67a;</i></div>
+					<div class="col-78 fl checkbox"><ul class="selectList"></ul></div>
+				</div>
+				<div style="width:100%;height:50px;clear:both;"></div>				
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">					
+					<button onClick="gClients.saveRelationship();" class="btn btn-success radius  bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存人员</button>	
+				</div>
+			</div>
+			<!--医生列表-->
+			<div class="tabCon">
+				<div class="pd-5">
+				  <form action="" method="post" class="form form-horizontal" id="formEdit">
+					<div class="row cl">
+					    <label class="form-label col-2"><span class="c-red">*</span>用户名称：</label>
+						<div class="formControls col-7">
+							<input type="hidden" id="id" name="id" value="">
+							<input type="hidden" name="group" id="group" value="2">
+							<input type="hidden" name="purview" id="purview" value="">
+							<input type="hidden" name="acls" id="acls" value="">
+							<input type="hidden" name="plushtime" id="plushtime" value="">
+							<input type="text" class="input-text" value="" placeholder="" id="name" name="name" datatype="*4-16" nullmsg="账号不能为空">
+						</div><div class="col-3"></div>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>密码：</label>
+						<div class="formControls col-7">				
+							<input type="password" placeholder="密码" autocomplete="off" value="" class="input-text" datatype="LimitNumLetter" nullmsg="密码不能为空" id="pwd" name="password" errormsg="请输入6-12个数字或字母"/>
+						</div><div class="col-3"></div>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>重复密码：</label>
+						<div class="formControls col-7">				
+							<input type="password" placeholder="确认新密码" autocomplete="off" class="input-text" errormsg="两次输入的密码不一致！" datatype="*" nullmsg="请再输入一次新密码！" recheck="password" id="pass" name="pass"/>
+						</div><div class="col-3"></div>
+					</div>
+					<div class="row cl" id="groupBox">
+					  <label class="form-label col-2">分组：</label>
+					  <div class="formControls col-2"> <span class="select-box">
+						<select datatype="*" nullmsg="请选择分组" name="belonggroups" id="groupSelect" class="select" onChange="gClients.changeGroup(this.value)">
+							<option value="">请选择</option>
+							<option value="0"><b>+</b>新增分组</option>
+						</select>
+						</span>
+					  </div><div class="col-2"></div>
+					</div>
+					<input type="hidden" value="" id="groupBoxVal"/>
+					<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+							<button id="save" class="btn btn-primary radius  bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存新项</button>	
+					</div>
+				  </form>
+				</div>
+			</div>
+			<!--新增医生-->
+			
+		</div><!--HuiTab over-->
+
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/jquery.md5.js"></script>
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/clients.js"></script>
+<script type="text/javascript">
+var gClients = new gClients();
+gClients.setThisName('gClients');
+gClients.editorGroup();
+</script>
+</body>
+</html>

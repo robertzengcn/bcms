@@ -1,0 +1,311 @@
+var upfile = null;
+function Backups(){
+    BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			$.Huitab("#" +
+					"tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			//$("#error").removeClass();
+			self.sqlup();
+			self.zipup();
+			//$("#error").addClass('tabCon');
+			//重要文件备份
+			var tem = 'SysFile';
+			self.filltable(tem);
+			
+			$(".tabBar span").click(function(){
+				var index = $(this).index();
+				switch(index) {
+					case 0:
+						var tem = 'SysFile';
+						self.filltable(tem);
+						break;
+					case 1:
+						var tem = 'Backups';
+						self.filltable(tem);
+						break;
+				}
+			});
+			
+		});	
+	}
+		//	self.sqlup();
+	
+
+    /**
+	 * 加载数据表
+	 * */
+	this.filltable = function(tem) {
+		var datatable = "#"+tem;
+		$(datatable).grid({
+			para:{controller: tem, method:'query'},
+			bserverside:false,
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]}
+							],
+			field : [
+                        { data: 'name', 
+                            render : function (pathway, type, row){
+                            	if(row.type == 'Backups'){
+                                    return "<img src='../images/boyicms/buttonbg/htm.gif' border=0 width=16 height=16 align=absmiddle />"+row.name;
+                            	}else{
+                                    return "<img src='../images/boyicms/buttonbg/zip.png' border=0 width=16 height=16 align=absmiddle />"+row.name;
+                            	}
+                            }
+                        },
+                        { data: 'size' ,
+		            	 　　 render:function(type,name,row){
+		            		  if(row.type == 'Backups'){
+		            			  return row.size+"　Kb";
+		            		  }else{
+		            			  return row.size+"　M";
+		            		  }
+                        	
+                        　　　　　　　　　　　　}		
+			            },
+			            { data: 'plushtime'},
+			            {
+						  data : 'name',
+						  render : function(pathway, type, row){
+							  var str = '';
+				              str += '　<a style="text-decoration:none" class="ml-5" onClick=gBackups.restore("'+row.pathway+'","'+row.type+'"); href="javascript:;" title="还原"><i class="Hui-iconfont">&#xe6f7;</i></a>';
+					    	  str += '　<a style="text-decoration:none" class="ml-5" onClick=gBackups.downfile("'+row.pathway+'","'+row.name+'","'+row.type+'"); href="javascript:;" title="下载"><i class="Hui-iconfont">&#xe640;</i></a>'
+				              str += '　<a style="text-decoration:none" class="ml-5" onClick=gBackups.delfile("'+row.pathway+'","'+row.type+'"); href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+		
+	}
+
+    /**
+     *备份
+     */
+	this.backups = function(){
+		var html = '';
+		html = $("#aaa .current").attr('value');
+		layer.msg('正在备份,请等待...',{icon:16});
+		self.cmd(gHttp,{controller : html, method : 'backups'}, function(){
+				gBackups.filltable(html);
+				layer.msg('数据备份成功!',{icon:1});	
+				layer_close();
+		});
+	}
+
+    /**
+     * 还原
+     */
+    this.restore = function(pathway,type,times){
+    	if(undefined == times){
+    		layer.msg('正在还原,请等待...',{icon:16});
+    	}
+    	self.cmd(gHttp,{controller : type,method : 'restore', times :times, pathway : pathway}, function(result1){
+    		if(result1.statu){
+    			if(! result1.data.error){
+    				if(result1.data.times == 'success'){
+        				layer.msg('还原操作成功!',{icon:1});	
+        				layer_close();
+        				$("#uploaderDiv").hide(1500);
+        			}else{
+        					self.restore(result1.data.name, result1.data.type, result1.data.times);
+        					//console.log(result1.data.times);
+        			}
+    			}else{
+    				layer.alert(result1.data.error,{icon:2});
+    			}
+    		}else{
+    			layer.alert('该文件包不存在！',{icon:2});
+    		}
+			
+	});
+    }
+    
+    /**
+     * 删除
+     */
+    this.delfile = function(pathway,type){
+    	self.cmd(gHttp,{controller : type, method : 'removefile',pathway : pathway}, function(){
+    		gBackups.filltable(type);
+    		//gBackups.initList();
+    		parent.layer.msg('删除成功!',{icon:1});	
+			layer_close();
+			$("#uploaderDiv").hide(1500);
+			$("#uploaderDiv").empty();
+    	})
+    }
+    
+    /**
+     * 下载
+     */
+    this.downfile = function(pathway,name,type){
+    	if(type == 'Backups'){
+    		self.cmd(gHttp,{controller : 'Backups',method : 'downfile',pathway : pathway,filename : name}, function(result1){
+        		if(result1.statu){
+        			location.replace('../../../template_c/'+result1.data+'.zip');
+        		}
+        		//parent.layer.msg('下载成功!',{icon:1});	
+    			//layer_close();
+        	})
+    	}else{
+    		location.replace('../../'+pathway);
+    	}
+    	
+    }
+    
+    /**
+     * 上传数据包
+     */
+    this.sqlup = function(){
+    	var upfile = null;
+    	var maxsize='';
+        upfile = WebUploader.create({
+    		auto: true,   //选择文件后自动上传
+    		swf:'lib/webuploader/0.1.5/Uploader.swf',
+    		server: '/controller/?controller=Backups&method=sqlupload',  //文件接收器
+    		//pick: '#picker',  //选择文件按钮
+    		pick: {
+    			id: '#picker',
+                innerHTML: '<label ><i class="Hui-iconfont">&#xe644;</i> 上传数据包</label>'
+    		},
+    		fileVal: 'Filedata',   //设置文件上传域的name
+    		fileSingleSizeLimit:maxsize*1024*1024,   //检验单个文件最大值
+    		resize:false,
+    		accept: {
+				title: '数据包',
+				extensions: 'sql,txt',
+				mimeTypes: 'application/*'
+			}
+    	});
+        
+        $("#picker").unbind('click').bind('click',function(){
+           // $("#uploaderDiv").show();
+	       // $("#progressDiv").hide();
+			self.uploadTemp(upfile);
+		});
+    }
+    
+    this.uploadTemp = function(upfile) {
+    	// 文件开始上传提示消息（只显示一次）
+        upfile.on( 'startUpload', function() {			
+        	layer.msg('正在努力上传，请等待...', {icon: 16, time: 50000});
+		});	
+        //文件上传过程中创建进度条实时显示。
+		upfile.on( 'uploadProgress', function( file, percentage ) {			
+			//layer.msg('正在努力上传，请等待...', {icon: 16});
+		});
+		upfile.on( 'uploadError', function( file) {
+			layer.alert('当前网络状况不佳，上传失败，请重试',{icon:2}); 
+	    });
+	    upfile.on( 'uploadComplete', function( file ) {
+	       // layer.msg('安装包上传成功!');
+	    });
+		// 文件上传成功回调函数   
+		upfile.on( 'uploadSuccess', function( file, response ) {		
+	        //layer.msg('数据包上传成功!');				
+			if(response.statu){
+				layer.confirm('数据包上传成功！', {
+					  btn: ['导入','删除'] //按钮
+					}, function(){
+						gBackups.restore(response.data.sql,response.data.type);
+					}, function(){
+						gBackups.delfile(response.data.sql,response.data.type);
+					});
+			}else{
+				self.LocalUpload(false,'',response.msg);
+			}
+		//	upfile.reset();
+	    });	    
+	    // 文件大小
+		upfile.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert('请上传正确的数据包，数据包必须是sql或txt格式',{icon:2});
+		     }else if(type=="F_EXCEED_SIZE"){
+		    	 layer.alert('上传文件大小超过了PHP的限制：'+maxsize,{icon:2});
+	        }
+			});
+	}
+    
+    /**
+     * 上传压缩包（文件）
+     */
+    this.zipup = function(){
+    	var upfilezip = null;
+    	var maxsize='';
+        upfilezip = WebUploader.create({
+    		auto: true,   //选择文件后自动上传
+    		swf:'lib/webuploader/0.1.5/Uploader.swf',
+    		server: '/controller/?controller=SysFile&method=sqlupload',  //文件接收器
+    		pick: '#picker2',  //选择文件按钮
+    		fileVal: 'Filedataa',   //设置文件上传域的name
+    		fileSingleSizeLimit:maxsize*1024*1024,   //检验单个文件最大值
+    		resize:false,
+    		accept: {
+				title: '数据包',
+				extensions: 'zip',
+				mimeTypes: 'application/*'
+			}
+    	});
+        $("#picker2").unbind('click').bind('click',function(){
+			self.uploadZip(upfilezip);
+		});
+    }
+    
+    this.uploadZip = function(upfilezip) {
+		// 文件开始上传提示消息（只显示一次）
+        upfilezip.on( 'startUpload', function() {			
+        	layer.msg('正在努力上传，请等待...', {icon: 16, time: 30000});
+		});
+        //文件上传过程实时进度
+		upfilezip.on( 'uploadProgress', function( file, percentage ) {			
+			//console.log(percentage);
+		});
+		upfilezip.on( 'uploadError', function( file) {
+			layer.alert('当前网络状况不佳，上传失败，请重试',{icon:2}); 
+	    });
+	    upfilezip.on( 'uploadComplete', function( file ) {
+	       // layer.msg('安装包上传成功!');
+	    });
+		// 文件上传成功回调函数   
+		upfilezip.on( 'uploadSuccess', function( file, response ) {		
+	        //layer.msg('数据包上传成功!');				
+			if(response.statu){
+				layer.confirm('压缩包上传成功！', {
+					  btn: ['导入','删除'] //按钮
+					}, function(){
+						gBackups.restore(response.data.sql,response.data.type);
+					}, function(){
+						gBackups.delfile(response.data.sql,response.data.type);
+					});
+			}else{
+				layer.msg('上传失败!');
+			}
+	    });	    
+	    // 文件大小
+		upfilezip.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert('请上传正确的数据包，数据包必须是zip格式',{icon:2});
+		     }else if(type=="F_EXCEED_SIZE"){
+		    	 layer.alert('上传文件大小超过了PHP的限制：'+maxsize,{icon:2});
+	        }
+
+			});
+	}
+    
+}
+
+
+
+
+
+
+
+
+
+

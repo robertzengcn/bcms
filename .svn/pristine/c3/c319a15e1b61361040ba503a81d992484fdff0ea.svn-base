@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>预约到诊统计</title>
+<style type="text/css">
+/*菜单收缩展开*/
+    .Huifold .item{ position:relative}
+    .Huifold .item h4{margin:0;font-weight:bold;position:relative;border-top: 1px solid #fff;font-size:15px;line-height:22px;padding:7px 10px;background-color:#eee;cursor:pointer;padding-right:30px}
+    .Huifold .item h4 b{position:absolute;display: block; cursor:pointer;right:10px;top:7px;width:16px;height:16px; text-align:center; color:#666}
+    .Huifold .item .info{display:none;padding:10px}
+	
+/*滚动*/
+.carousel_container{height: auto !important;position:relative;left:0px;	top:0px; }
+.carousel_inner {padding:0px 40px;height: auto !important;}
+.left_scroll{background: #45b0e6 url(i/leftbg.jpg) no-repeat scroll center center;cursor: pointer;height: 100%;position: absolute;width: 40px;left:0px;opacity:0.3;}
+.left_scroll:hover{ opacity:0.7;}
+.right_scroll {background: #45b0e6 url(i/rightbg.jpg) no-repeat scroll center center;cursor: pointer;height: 100%;position: absolute;right: 1px;top: 0;width: 40px;opacity:0.3;}
+.right_scroll:hover{ opacity:0.7;}
+
+/*表格样式*/
+#listAll1 tbody tr td{text-align:center;}
+#listAll2 tbody tr td{text-align:center;}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 患者管理 <span class="c-gray en">&gt;</span> 数据统计 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form id="frm_post">
+	<div class="text-c"> 
+		统计日期：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end\')||\'%y-%M-%d\'}'})" id="start" class="input-text Wdate" style="width:120px;" name="start">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start\')}'})" id="end" class="input-text Wdate" style="width:120px;" name="end">
+		<span class="select-box inline">
+			<select name="" id="type" class="select">
+				<option value="">统计类型</option>
+				<option value="1" selected>来源统计</option>
+				<option value="2">咨询人员</option>
+				<option value="3">科室疾病</option>				
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" id="showType" class="select">
+				<option value="">图表类型</option>
+				<option value="line" selected="selected">线型图</option>
+				<option value="pie">饼状图</option>
+				<option value="bar">柱状图</option>
+			</select>
+		</span>
+		<button name="" id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 查看统计</button>
+	</div>
+	</form>
+	<div class="mt-10">
+		    <ul id="Huifold1" class="Huifold">
+		      	<li class="item" id="li_stat_1">
+				<h4>咨询来源统计<b>+</b></h4>
+				<div class="info"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div flag="false" class="left_scroll"></div>							
+								<table id="listAll1" class="table table-border table-bordered table-bg table-hover table-sort table-striped" style="max-width:800px;">
+									<thead></thead>
+									<tbody></tbody>
+								</table>							
+							<div flag="false" class="right_scroll"></div>	
+						</div>							
+					</div>
+					<div id="statImg1"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_1_day" style="display:none;">
+				<h4>来源时间曲线<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg1_2">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_2" style="display:none;">
+				<h4>咨询人员综合统计<b>+</b></h4>
+				<div class="info"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div flag="false" class="left_scroll"></div>							
+								<table id="listAll2" class="table table-border table-bordered table-bg table-hover table-sort table-striped" style="max-width:800px;">
+									<thead></thead>
+									<tbody></tbody>
+								</table>							
+							<div flag="false" class="right_scroll"></div>	
+						</div>							
+					</div>
+					<div id="statImg2"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_2_day" style="display:none;">
+				<h4>咨询人员按天统计<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg2_2">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_3" style="display:none;">
+				<h4>科室统计<b>+</b></h4>
+				<div class="info"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div flag="false" class="left_scroll"></div>							
+								<table id="listAll3" class="table table-border table-bordered table-bg table-hover table-sort table-striped" style="max-width:800px;">
+									<thead></thead>
+									<tbody></tbody>
+								</table>							
+							<div flag="false" class="right_scroll"></div>	
+						</div>							
+					</div>
+					<div id="statImg3"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_3_day" style="display:none;">
+				<h4>科室咨询量按天统计<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg3_2">
+					</div>
+				</div>
+			  </li>
+			  
+			</ul>
+	</div>	
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../lib/Highcharts/4.1.7/js/highcharts.js"></script>
+<script type="text/javascript" src="../lib/Highcharts/4.1.7/js/modules/exporting.js"></script>
+<script type="text/javascript" src="../js/boyicms/Highcharts.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/clients.js"></script>
+
+<script type="text/javascript">
+var gClients = new gClients();
+gClients.setThisName('gClients');
+gClients.initStat();
+</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+function Doctormanager(){
+	BaseFunc.call(this);
+	var self = this;
+
+
+    //医生管理
+	this.doctor_manager = function(para){
+        var self = this;
+		
+		this.checkdate();
+		
+				var departtable=$("#doctormanagertable").DataTable({
+			
+			bStateSave:false,
+			serverSide: false,
+			processing: true,
+			searching: true,
+			//data:retd.rows,
+			ajax:{
+				'url':'/controller/?controller=DoctorManager&method=query',
+				//'dataSrc': 'data',
+				'type':'POST',				
+				'dataType':'json',
+				'dataSrc': function(json){
+					
+					return json.data;
+					
+				}
+				
+			},
+			order: [[ 1, "desc" ]],
+
+
+columns: [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	},
+				            	name: 'xuanze',
+				            	orderable:false
+				            },
+                            { data: 'id',name:'id' },
+				            { data: 'name',name:'name' },
+				            { data: 'pic',name:'pic',
+				            	render:function(id, type, row){
+				            		if(id!=""){
+				            		var picth='';
+				            		picth +='<img width="90px" src="/upload/'+row.pic+'" />';
+				            		return picth;
+				            		}else{
+				            			return null;
+				            		}
+				            	},
+				            	orderable:false
+				            	},
+							{ data: 'department_name',name:'department_name' },	
+				            { data: 'content',name:'content',
+				            	render:function(id, type, row){
+				            		var contents=id.substring(0,30);
+				            		return contents;
+				            	}
+				            	},
+							{ data: 'plushtime',name:'plushtime' },	
+							{ data: 'resernum',name:'resernum' },
+							{ data: 'mark',name:'mark' },
+				            { data : 'id',
+							  render : function(id, type, row){
+								
+								  var str = '';
+								  str += '<a class="ml-5" title="编辑" href="javascript:;" onclick="" style="text-decoration:none"><i class="Hui-iconfont"></i></a><a title="删除" class="ml-5 deldo" dataid="'+row.id+'" style="text-decoration:none"><i class="Hui-iconfont"></i></a>';
+						    	  return str;
+							  },
+							  orderable:false
+							 }
+				        ]
+
+
+		
+		});
+		
+		
+		  	$('body').on('click','#submitbutton', function () {
+			var table = $('#doctormanagertable').DataTable();
+			var name=$.trim($('#searchkey').val());
+			 table.columns(2).search(name).draw();			
+		});
+		
+			$('body').on('click', '#datadel',function() {
+			//chooseall('reservationtable');
+			var data = chooseall('#doctormanagertable');
+			var ids = [];
+			//console.log(data);
+			if(data.length <= 0){
+				layer.msg('请选择需要删除的选项!', function(){					
+				}); 
+			}else{
+				
+				layer.confirm('真的要删除么？', {icon: 3, title:'提示'}, function(index){
+				  
+					$.each(data,function(i,obj){
+						ids[i] = obj.value;
+					});	
+				    layer.close(index);
+				
+
+
+
+					self.cmd(gHttp,{controller:'DoctorManager',method:'del',id:ids},function(ret){
+						if(ret.statu){
+							
+							layer.msg('删除成功!', function(){					
+							}); 
+							troad('#doctormanagertable');
+							$('.firstone').attr('checked', false);
+
+						}else{
+							
+							layer.msg(ret.msg, function(){					
+							}); 
+							
+						}
+					});
+				});
+				
+			}
+			return false; 
+			
+
+			 
+			});
+			
+			
+		
+		
+		$('#searchkey').on( 'keyup click', function () {   // for text boxes
+			var table = $('#doctormanagertable').DataTable();
+		    var v =$(this).val();  // getting search input value
+		    table.columns(2).search(v).draw();
+		});
+		
+		$('body').on('click','#adddoctor',function(){
+						layer.open({
+				type:2,	
+				area: ['900px', '500px'],
+			    content: 'edit-doctor.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			       // $(window.frames["iframeSon"].document).find(":text");
+			        //console.log(body.html());
+			      iframeWin.editdoctor.adddoctorframe();//这里
+			    }
+			});
+		});
+		
+		
+		
+		  }
+
+	this.checkdate=function(){
+				self.cmd(gHttp,{controller:'DoctorManager',method:'checkdate'},function(ret){
+			if(ret.stutes){
+
+				$('#exp').show();
+				$('#imp').hide();
+
+			}else{
+				$('#imp').show();
+				$('#exp').hide();
+			
+			}
+		});
+	}
+	
+	this.adddoctorframe=function(para){
+		
+	}
+
+	
+	
+	
+};

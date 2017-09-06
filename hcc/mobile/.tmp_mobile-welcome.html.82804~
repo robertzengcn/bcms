@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>观迎辞-手机营销</title>
+</head>
+<body>
+<div class="pd-20 form form-horizontal">	
+		<div class="row cl">
+			<label class="form-label col-2"><b>功能说明：</b></label>
+			<div class="formControls mt-3 col-10"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="badge badge-success  radius">1</span></label>						
+			<div class="formControls mt-3 col-10 ">手机营销可供用户自动生成手机网站、安卓手机应用和微站。三个手机营销站点目录是分开的，即您可以为三个站配置不同的界面风格，各个配置间不会相互影响。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="badge badge-success  radius">2</span></label>						
+			<div class="formControls mt-3 col-10 ">三个手机端共同的配置为：模板配置，单图管理，轮播管理和导航管理。安卓APP会多一个应用生成和二维码生成。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-91"><span class="badge badge-default  radius">a</span></label>						
+			<div class="formControls mt-3 col-9 ">模板管理是第一步需要配置的内容，与PC端的模板功能相同，它管控手机端的前端显示风格，我们提供了少量的手机端模板供您下载安装使用。您也可以根据我们的开发手册自行学习制作手机模板。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-91"><span class="badge badge-default  radius">b</span></label>						
+			<div class="formControls mt-3 col-9 ">配置好模板后就需要进入单图管理，轮播管理进行细化的配置，模板是一个通用性的主体风格配置，它决定了手机网页的界面风格和布局，里面的图片可能不适用于您的需求，比如站点的LOGO和轮播滚动图片。这时您就可以在单图管理中找到对应的图片，将自己满意的图片上传上来替换掉模板的初始图片。轮播图片也是一样处理。经过这两个配置，您满意的手机端界面己基本成型。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-91"><span class="badge badge-default  radius">c</span></label>						
+			<div class="formControls mt-3 col-9 ">最后您需要进行导航条的配置，每个医院开设的科室不同，因此首页想展现的导航也会不同，包括导航用的图片也不尽想同。导航管理则可由您随意配置手机网站前台界面的导航条内容，包括文字、图片、链接以及顺序。导航配置的内容取决于您当前使用模板提供的基本框架。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="badge badge-success  radius">3</span></label>						
+			<div class="formControls mt-3 col-10 ">以上配置完成后，您即可访问前台界面查看效果，如果是PC端浏览，记得打开浏览器的自适应功能。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="badge badge-success  radius">4</span></label>						
+			<div class="formControls mt-3 col-10 ">手机端的数据都是动态自动调取的，和PC端的数据是同步的，因此不需要额外的生成功能。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="badge badge-success  radius">5</span></label>						
+			<div class="formControls mt-3 col-10 ">安卓应用在您完成基本配置后即可用APK生成功能，生成一个可安装在手机上使用的原生应用。需要注意的是我们提供的安卓应用有两个，一个称为“医院营销APK”，一个称为“医院管理APK”。前一个是由您的配置决定界面外观，是推荐给医院的患者安装使用的。而后者不需要配置，是供医院内部管理使用的。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span><span class="badge badge-success  radius">6</span></label>						
+			<div class="formControls mt-3 col-10 ">微站的配置完成后，您可以在营销功能管理<span class="c-gray en">&gt;</span>更多功能中安装微信管理插件配合使用。可以更便捷的管理您的微信公众号。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span><span class="badge badge-success  radius">7</span></label>						
+			<div class="formControls mt-3 col-10 ">手机网页的访问地址：您当前后台的主域名+moble，如：http://www.zzckyy.com/mobile，如果您需要用二级域名访问手机网站，如：4g.abc.com等，您需要自行在服务器上进行配置。</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span><span class="badge badge-success  radius">8</span></label>						
+			<div class="formControls mt-3 col-10 ">微站的访问地址：您当前后台的主域名+wechat，如：http://www.zzckyy.com/wechat。</div>			
+		</div>
+		
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+/*上传图片*/
+function upload_img(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+		/*缩略图操作*/
+	$('div.thumbnailbox').on('mouseenter',function(){
+		$(this).find('div.img-btn').stop().animate({height:"30px"});
+	}).on('mouseleave', function() {
+		$(this).find('div.img-btn').stop().animate({height:"0px"});
+	});
+	$('div.img-btn').find('span').on('mouseenter',function(){
+		$(this).stop().css("background-position","-46px 0px");
+	}).on('mouseleave',function(){
+		$(this).stop().css("background-position","-46px -22px");
+	});
+	var defaultsrc=$('div.thumbnailbox img').attr('flag');
+	$('span#delete-thisimg').on('click',function(){
+		$thumbnail_img=$(this);
+		layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+			$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+			layer.msg('已删除!',1);
+		});
+	});
+	/*缩略图操作完结*/
+	
+	
+
+	
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>在线问答_{{$data->subject}}_{{$data->title}}</title>
+<meta name="keywords" content="{{$data->keywords}}" />
+<meta name="description" content="{{$data->description}}" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+{{include file="Common/common.html"}}
+</head>
+<body>
+<!-- header -->
+{{include file="Common/header.html"}}
+<div class="top5 list22" >
+<a style="background: url('{{$RESOURCE}}/images/home_dh.gif') no-repeat scroll 0% 0% transparent; width: 30px; display: inline-block; height: 30px; float: left;"></a>
+<a href="{{$MOBILE}}">首页</a> > <a href="{{$MOBILE}}/ask.php">在线问答</a> > 在线问答详情
+</div>
+<div class="mid art">
+<div class="artcon2">
+<p style="text-align: center"><font style="font-family:微软雅黑;font-size:1.2em;color:#891ea0">{{$data->subject}}</font></p>
+<div style='border: 1px dashed #a5a5a5;margin: 10px auto 10px'>
+用户：{{$data->name}}&nbsp;&nbsp;&nbsp;
+提问于：{{date('Y-m-d',$data->plushtime)}}
+</div>
+<div class="cle"></div>
+<p class='question'>问题描述:</p>{{$data->description}}
+{{if $data->isanswer==1}}
+<p class='question'>回答:</p>
+{{$data->content}}
+
+<div style='float:right;border: 1px dashed #a5a5a5;margin: 10px auto 10px'>
+{{$WEBTITLE}}&nbsp;&nbsp;&nbsp;
+回答于：{{date('Y-m-d',$data->answertime)}}
+</div>
+{{/if}}
+</div>
+
+</div>
+
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</body>
+</html>

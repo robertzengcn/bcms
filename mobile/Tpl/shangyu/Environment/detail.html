@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<title>{{$data->subject}}_环境展示_{{$WEBTITLE}}</title>
+<meta name="keywords" content="{{$data->keywords}}" />
+<meta name="description" content="{{$data->description}}" />
+<!-- style -->
+{{include file="Common/style.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/article.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<a name="top"></a>
+<div class="main" id="main_id">
+<div id="scroller">
+<!-- header -->
+{{include file="Common/header.html"}}
+<!-- nav -->
+{{include file="Common/top_nav.html"}}
+<div class="txtList">
+	  <p><a href='{{$MOBILE}}'>首页</a> > <a href='{{$MOBILE}}/environment.php'>环境展示</a> > </p>
+</div>
+<div class="article">
+	  <h2>{{$data->subject}}</h2>
+	  <p class="word">时间：{{$data->plushtime|date_format:'%Y-%m-%d %H:%M:%S'}}  来源：{{$WEBTITLE}}</p>
+      <div class="text1">{{$data->content}}</div>
+</div>
+<!-- last pre -->
+{{include file="Common/next_pre.html"}}
+<!-- recomend -->
+{{include file="Common/recomend.html"}}
+<!-- foot_nav -->
+{{include file="Common/foot_nav.html"}}
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</div>
+</div>
+<!-- bootom_ph -->
+{{include file="Common/bootom_ph.html"}}
+</body>
+</html>

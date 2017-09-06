@@ -1,0 +1,117 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/disease.css">
+  {{/block}}
+  {{block name="js"}}
+  <script type="text/javascript" src="{{$RESOURCE}}/js/showtab.js"></script>
+  {{/block}}
+  {{block name="body"}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/index.html">{{$department->name}}</a>><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/index.html" class="current">{{$disease.name}}</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <!--左-->
+  <div class="w700">
+    <h2>{{$disease.name}}</h2>
+    <div class="about bk nonetop">
+      {{recommendArticles positionName="疾病头条" diseaseId=$id size="1"}}
+      {{foreach $recommendArticles as $value}}
+      <a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->id}}.html"><img src="{{$UPLOAD}}/{{$value->pic}}" alt="#" /></a>
+      <h1><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->id}}.html">{{$value->subject}}</a></h1>
+      <p>{{$value->description|truncate:100}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->id}}.html">[详细]</a></p>
+      {{/foreach}}
+    </div>
+    <div class="clear"></div>
+    {{$suns = $DiseaseTag->getByParentId($id)}}
+    {{foreach $suns as $value}}
+    <!--article1-->
+    <div class="article bk">
+      <div class="article-tab">
+        <h3 class="current"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->url}}/index.html">{{$value->name}}</a></strong></h3>
+      </div>
+      <!--内容-->
+      {{recommendArticles positionName="疾病图文" diseaseId=$value->id size="1"}}
+      {{foreach $recommendArticles as $v}}
+      <div class="article-list"> <img src="{{$UPLOAD}}{{$v->pic}}" />
+        <h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->url}}/{{$v->id}}.html">{{$v->subject|truncate:12}}</a></h6>
+        <p>{{$v->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->url}}/{{$v->id}}.html">{详细}</a></p>
+        {{/foreach}}
+        <ul class="disease-list">
+          {{recommendArticles positionName="疾病列表" diseaseId=$value->id size="10"}}
+          {{foreach $recommendArticles as $v}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/{{$value->url}}/{{$v->id}}.html">{{$v->subject|truncate:10}}</a></li>
+          {{/foreach}}
+        </ul>
+      </div>
+    </div>
+	{{/foreach}}
+    <!--article end-->
+    <div class="clear"></div>
+  </div>
+  <!--right-->
+  <div class="w225">
+    <!--技术-->
+    <div class="par-technology bk nonebottom">
+      <h4 class="technology-h4"><a target="_blank" href="{{$WEBSITE}}/technology/index.html">先进技术</a></h4>
+      <ul>
+        {{technologys limit=3}}
+          {{foreach name="technology" from=$technologys item=value}}
+          {{if $smarty.foreach.technology.last}}
+          <li class="nonebottom">・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+          {{else}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+          {{/if}}
+          {{/foreach}}
+      </ul>
+    </div>
+    <!--医生-->
+    <div class="par-doctor bk">
+        <h4><a target="_blank" href="{{$WEBSITE}}/doctor/index.html">专家在线</a></h4>
+        {{$doctorToday = $DoctorTag->getDoctorToday()}}
+        <a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html"><img src="{{$UPLOAD}}{{$doctorToday->pic}}" alt="{{$doctorToday->name}}" class="img"/></a>
+        <div>
+          <h5><a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html">{{$doctorToday->name}}</a></h5>
+          <p>{{$doctorToday->description|truncate:20}}...<a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html">[详细]</a></p>
+          <a target="_blank" href="javascript:Layout.openWindow('chat')" class="mr5"><img src="{{$RESOURCE}}/images/zx.gif" alt="#" /></a></div>
+      </div>
+    <!--预约-->
+    <div class="par-reserve bk top8">
+      <h4><a target="_blank" href="{{$WEBSITE}}/reservation/index.html">预约成功</a></h4>
+      <ul id="reserve-box">
+          <li><span>赵女士</span><span>牙齿缺失</span><span class="dress">28</span></li>
+          <li><span>钱女士</span><span>牙齿缺失</span><span class="dress">25</span></li>
+          <li><span>孙先生</span><span>氟斑牙</span><span class="dress">34</span></li>
+          <li><span>李女士</span><span>个别牙齿缺失</span><span class="dress">50</span></li>
+          <li><span>周先生</span><span>牙错位</span><span class="dress">22</span></li>
+          <li><span>吴先生</span><span>牙错位</span><span class="dress">60</span></li>
+          <li><span>郑女士</span><span>前牙开合</span><span class="dress">36</span></li>
+          <li><span>王先生</span><span>龅牙</span><span class="dress">40</span></li>
+          <li><span>冯先生</span><span>牙周炎</span><span class="dress">45</span></li>
+          <li><span>陈女士</span><span>牙龈出血</span><span class="dress">27</span></li>
+        </ul>
+      <script> 
+new Marquee(["reserve-box"],0,0.1,220,175,22,2000,2000,0,3);
+</script>
+      <div><a target="_blank" href="{{$RESOURCE}}/reservation/index.html"><img src="{{$RESOURCE}}/images/reserve-ask.gif" alt="#" /></a></div>
+    </div>
+    <!--专家答疑-->
+    <div class="par-sense bk top8 nonebottom">
+        <h4><a target="_blank" href="{{$WEBSITE}}/ask/index.html">专家答疑</a></h4>
+        {{$img = $PicManagerTag->getPic('right_bottom')}}
+        <div class="sense-img"><img src="{{$UPLOAD}}{{$img->img}}" />
+          <div>
+            {{foreach $AskTag->getList(1,1) as $value}}
+            {{$askInfo = $AskTag->get($value->id)}}
+            <h5><a target="_blank" href="{{$WEBSITE}}/ask/{{$value->id}}.html">{{$askInfo->subject|truncate:15}}</a></h5>
+            {{/foreach}}
+          </div>
+        </div>
+        <ul>
+          {{foreach $AskTag->getList(1) as $vo}}
+          {{if $vo@iteration <= 5 }}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/ask/{{$vo->id}}.html">{{$vo->subject|truncate:"10"}}</a></li>
+		  {{/if}}
+		  {{/foreach}}
+        </ul>
+      </div>
+  </div>
+  {{/block}}

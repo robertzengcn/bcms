@@ -1,0 +1,14 @@
+<a href="{{$contact.swt_link}}" style="cursor:pointer;width:318px;margin:0 auto;">
+    <div class="yyzj">
+        <div class="yyzjk">
+            <div class="yyzjbox" style="width:318px;margin:0 auto;">
+                <h4>网络预约、免排队、优先就诊</h4>
+                <p><img src="{{$RESOURCE}}/images/dzx.gif"></p>
+                <span>网络值班时间：8:00-23:00(节假日不休息)</span>
+                <div class="xnl"><img src="{{$RESOURCE}}/images/xan.gif"></div>
+            </div>
+        </div>
+    </div>
+</a>
+
+

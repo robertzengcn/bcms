@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class CommodityCategoriesDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_COMMODITYCATEGORIES;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+    	
+        DTExpression::ge('types', $where, 'types');
+//         DTExpression::le('end_time', $where, 'end_time');
+//         DTExpression::eq('isbidding', $where);
+//         DTExpression::like('subject', $where);
+        
+//         DTExpression::eq('status', $where);
+//         DTExpression::eq('exchange', $where);
+//         DTExpression::page($where);
+//         DTOrder::desc('plushtime');
+//         DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('start_time', $where, 'start_time');
+        DTExpression::le('end_time', $where, 'end_time');
+        DTExpression::eq('isbidding', $where);
+        DTExpression::like('subject', $where);
+        DTExpression::eq('shelf', $where);
+        //DTExpression::eq('pattern', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+}
+

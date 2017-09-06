@@ -1,0 +1,294 @@
+﻿function gClients() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	this.init=function(){
+		
+		
+		
+		self.onloadCss();
+		}
+	
+	
+	
+	//新增咨询记录
+	this.addClients=function(){
+		self.openEditWID('添加新的预约记录','add-newclient.html','800','540');		
+		}
+	
+	
+	this.editorclient=function(){
+		$('.client-tab-con').find('a').click(function(){			
+			var str=$('.client-tab-cur').html()+">"+$(this).html();			
+			$('input#place').val(str);
+			$('div.client-subcat').hide();
+		});
+		
+		$('.client-tab-box').find('a').click(function(){			
+			var str=$('.client-tab-cur').html()+">"+$('.client-cur').html()+">"+$(this).html();
+			$('input#place').val(str);
+			$('div.client-subcat').hide();
+		});
+		
+		
+		
+		
+		
+		$('#save').click(function(){
+			self.saveClient();			
+		});
+		$('#addnews').click(function(){			
+			self.addnews();			
+		});
+		
+		self.onloadCss();
+		
+		}
+
+
+	this.addnews=function(){
+		var i=0;
+		var str='';
+		i=$('div.news').length+1;
+		str+='<div class="row cl news"><label class="form-label col-2">咨询记录：</label><div class="formControls col-10">';
+		str+='<textarea nullmsg="咨询记录不能为空！" style="width:100%;height:400px;" id="editor'+i+'" name="" datatype="*"></textarea></div><div class="col-2"></div></div>';
+		$('div.news:last').after(str);		
+		UE.getEditor($('textarea:last').attr('id'),{
+			toolbars: [
+			[   
+				'source', //源代码
+				'|',
+				'undo', //撤销
+				'redo', //重做  
+				'cleardoc', //清空文档 
+				'removeformat', //清除格式
+				'searchreplace', //查询替换
+				'|',
+				'time', //时间
+				'date', //日期 
+				'spechars', //特殊字符		
+				'|', 
+				'simpleupload', //单图上传  
+				'snapscreen', //截图 
+				'insertimage', //多图上传		
+				'|',           
+				'justifyleft', //居左对齐
+				'justifyright', //居右对齐
+				'justifycenter', //居中对齐
+				'justifyjustify', //两端对齐 
+				'autotypeset', //自动排版
+				'|',	
+				'fontsize', //字号
+				'paragraph', //段落格式	
+				'|',
+				'fullscreen', //全屏  
+			]
+			]
+		});
+		
+	}	
+
+	this.editorGroup=function(){
+		$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");		
+		
+		
+		
+		
+		
+		
+		
+	}
+	//选取关注人列表
+	this.selectThis=function(obj){
+		var bt_str='<span class="r" style="padding:0px 10px;"><a href="javascript:;" style="text-decoration:none;" onclick="gClients.removeli(this,\''+$(obj).html()+'\')"><i class="Hui-iconfont">&#xe60b;</i></a></span>';
+		$('.selectList').append('<li pid="'+$(obj).attr('pid')+'" pname="'+$(obj).html()+'" onmouseover="gClients.showbt(this);" onmouseout="gClients.hidebt(this);">'+$(obj).html()+bt_str+'</li>');
+		$(obj).remove();	
+		
+	}
+	
+	//保存相关干系人到记录界面
+	this.saveRelationship=function(){
+		var listNum=$('ul.selectList').find('li').length;		
+		if(listNum==0){
+			layer.alert('请最少选取一个传阅人',{icon:2});
+			return false;
+		}
+		else{
+			var str='';
+			$('ul.selectList li').each(function(){
+				str+='<div class="check-box col-2" style="overflow:hidden;height:25px;line-height:25px;" info="'+$(this).attr('pname')+'"><input type="checkbox" id="pid_items_' + $(this).attr('pid') + '" name="examine_items[]" value="' + $(this).attr('pid') + '" checked/><label>' + $(this).attr('pname') + '</label></div>';
+				
+			});			
+			$(window.parent.document).find("#relation_ship").html(str);	
+			parent.gClients.onloadCss();			
+			var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+			parent.layer.close(index); 
+			
+		}
+		
+		
+	}
+	
+	
+	//分组选项切换
+	this.changeGroup=function(value){
+		switch(value){
+			case '0':self.addNewGroup();break;
+			
+		}
+		
+	}
+	
+	this.showbt=function(obj){		
+		$(obj).find('span').show();
+		
+	}
+	
+	this.hidebt=function(obj){		
+		$(obj).find('span').hide();
+	}
+
+	this.removeli=function(obj,str){		
+		var liObj=$(obj).parent().parent();
+		$('.personList').append('<li onclick="gClients.selectThis(this);">'+str+'</li>');
+		$(liObj).remove();
+		
+	}
+
+	//新增分组
+	this.addNewGroup=function(){		
+		var selectstr=$('#groupBox').html();
+		$('#groupBoxVal').val(selectstr);
+		var inputstr='<label class="form-label col-2">分组：</label><div class="formControls col-4">';
+		inputstr+='<span class="cancel"><a href="javascript:;" title="取消添加分组" style="text-decoration:none;" onclick="gClients.removeinput(this)"><i class="Hui-iconfont">&#xe66b;</i></a></span>';
+	    inputstr+='<input type="text" class="input-text" value="" placeholder="" id="" name="" datatype="*2-16" nullmsg="分组名称不能为空" errormsg="限2-16个字" >';
+		inputstr+='</div><div class="col-2"></div>';
+		$('#groupBox').html(inputstr);		
+	}
+
+	//取消添加分组
+	this.removeinput=function(){
+		var str=$('#groupBoxVal').val();
+		$('#groupBox').html(str);
+		
+	}
+
+	
+	//保存新的预约关系
+	this.saveClient=function(){
+		var url = {controller:'',method:''};
+		$('#formEdit').checkAndSubmit('save',url,function(result1){											   
+			if(result1.statu){
+				
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon: 2});
+			}
+		});
+		$('#formEdit').submit();
+	}	
+
+
+	//地区编辑
+	this.editorplace=function(){
+		
+		
+		
+	}
+	//新增顶级地区
+	this.addfatherinfo=function(){
+		var i=1;
+		i=$('.firstTD').length+1;
+		var str='<tr class="firstTD" id="TD-'+i+'"><td><input type="text" class="input-text" value="" placeholder="请输入地区名称..."/></td>';
+		str+='<td class="text-c"><a style="text-decoration:none;" onClick="gClients.addsoninfo('+i+',\'firstTD\');" href="javascript:;"><i class="Hui-iconfont">&#xe604;</i></a>';
+		str+='<a style="text-decoration:none;" onClick="gClients.delthisplace('+i+',\'firstTD\');" href="javascript:;" class="ml-5"><i class="Hui-iconfont">&#xe609;</i></a></td></tr>';
+		$('tr.addbtbox').before(str);
+	}
+	
+	//新增子级地区
+	this.addsoninfo=function(i,type){
+		var num=0;		
+		if(type=='firstTD'){
+			num=$('tr.secondTD[id^="TD-'+i+'"]').length;
+			if(num==0){
+				var str='<tr class="secondTD" id="TD-'+i+'-0"><td>&nbsp;&nbsp;|——<input type="text" class="input-text" value="" placeholder="请输入地区名称..."/></td>';
+				str+='<td class="text-c"><a style="text-decoration:none;" onClick="gClients.addsoninfo(\''+i+'-0\',\'secondTD\');" href="javascript:;"><i class="Hui-iconfont">&#xe604;</i></a>';
+				str+='<a style="text-decoration:none;" onClick="gClients.delthisplace(\''+i+'-0\',\'secondTD\');" href="javascript:;" class="ml-5"><i class="Hui-iconfont">&#xe609;</i></a></td></tr>';				
+				$('tr[id^="TD-'+i+'"]').after(str);
+			}
+			else{							
+				var j=$('tr.secondTD[id^="TD-'+i+'"]:last').attr('id');				
+				var arr=j.split('-');				
+				j=parseInt(arr[2])+1;				
+				var str='<tr class="secondTD" id="TD-'+i+'-'+j+'"><td>&nbsp;&nbsp;|——<input type="text" class="input-text" value="" placeholder="请输入地区名称..."/></td>';
+				str+='<td class="text-c"><a style="text-decoration:none;" onClick="gClients.addsoninfo(\''+i+'-'+j+'\',\'secondTD\');" href="javascript:;"><i class="Hui-iconfont">&#xe604;</i></a>';
+				str+='<a style="text-decoration:none;" onClick="gClients.delthisplace(\''+i+'-'+j+'\',\'secondTD\');" href="javascript:;" class="ml-5"><i class="Hui-iconfont">&#xe609;</i></a></td></tr>';
+				$('tr.secondTD[id^="TD-'+i+'"]:last').after(str);
+				
+			}
+		}
+		else{
+			//子级的子级
+			num=$('tr.thirdTD[id^="TD-'+i+'"]').length;
+			if(num==0){
+				var str='<tr class="thirdTD" id="TD-'+i+'-'+0+'"><td>&nbsp;&nbsp;&nbsp;&nbsp;|——<input type="text" class="input-text" value="" placeholder="请输入地区名称..."/></td>';
+				str+='<td class="text-c"><a style="text-decoration:none;" onClick="gClients.delthisplace(\''+i+'-'+0+'\',\'secondTD\');" href="javascript:;"><i class="Hui-iconfont">&#xe609;</i></a></td></tr>';								
+				$('tr[id^="TD-'+i+'"]').after(str);
+			}
+			else{							
+				var j=$('tr.thirdTD[id^="TD-'+i+'"]:last').attr('id');				
+				var arr=j.split('-');				
+				j=parseInt(arr[3])+1;				
+				var str='<tr class="thirdTD" id="TD-'+i+'-'+j+'"><td>&nbsp;&nbsp;&nbsp;&nbsp;|——<input type="text" class="input-text" value="" placeholder="请输入地区名称..."/></td>';
+				str+='<td class="text-c"><a style="text-decoration:none;" onClick="gClients.delthisplace(\''+i+'-'+j+'\',\'secondTD\');" href="javascript:;"><i class="Hui-iconfont">&#xe609;</i></a></td></tr>';				
+				$('tr.thirdTD[id^="TD-'+i+'"]:last').after(str);
+				
+			}
+		}	
+	}
+	
+	
+	//删除地区
+	this.delthisplace=function(i,type){			
+		layer.confirm('是否删除此项？若此项有子地区会一起删除', {
+		  icon: 3, title:'提醒',	
+		  btn: ['确定', '取消'] //可以无限个按钮
+		  ,
+		}, function(index, layero){
+		  //按钮【按钮一】的回调			  
+			  $('tr[id^="TD-'+i+'"]').remove();
+			  layer.close(index);
+		}, function(index){
+		  //按钮【按钮二】的回调
+			  layer.close(index);
+		});	
+		
+	}
+
+	//展示地区列表
+	this.showplacelist=function(){
+		$('.client-subcat').show();
+		
+	}
+	
+	//隐藏地区列表
+	this.hideplacelist=function(){
+		//$('.client-subcat').hide();		
+	}
+	
+	//患者来源管理
+	this.editorsource=function(){
+		$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+		
+		
+	}
+
+	//年龄和生日联动
+	this.changeAge=function(){}
+
+
+
+
+}

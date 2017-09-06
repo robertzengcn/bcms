@@ -1,0 +1,13 @@
+<!--right-->
+
+<div class="w235">
+        <!--医院介绍-->
+        {{include file=$right_introduce}}
+        <!--特色技术-->
+        {{include file=$right_technology}}
+        <!--预约-->
+    	{{include file=$right_reservation}}
+        <!--答疑-->
+    	{{include file=$right_ask}}
+</div>
+<!--right end-->

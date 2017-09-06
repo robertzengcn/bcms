@@ -1,0 +1,118 @@
+<?php
+
+class SeoService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new SeoDAO();
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function delete($seo) {
+        if (! $seo->id) {
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($seo->id, $seo);
+        if ($seo->id == 0) {
+            throw new ValidatorException(16);
+        }
+        if ($seo->is_retain == 1) {
+            throw new ValidatorException(18);
+        }
+
+        $this->dao->delete($seo->id);
+
+        return $this->success();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $array(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        return $this->dao->deleteBatch($ids);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $seo
+     * @return Result
+     */
+    public function get($seo) {
+        $this->dao->get($seo->id, $seo);
+
+        return $this->success($seo);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $seos = $this->dao->query($where);
+        return $this->success($seos);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $seo
+     * @return Result
+     */
+    public function save($seo) {
+        $seo->validate();
+        // 获取class对象并插入数据
+        $this->dao->save($seo);
+
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $seo
+     * @return Result
+     */
+    public function update($seo) {
+        $seo->validate();
+
+        return $this->dao->update($seo);
+    }
+
+    /**
+     * 获取站点地图数据
+     *
+     * @return Result
+     */
+    public function getMap() {
+        $array = array();
+        $array['nav'] = "nav list";
+        $array['doctors'] = "doctors list";
+
+        return $this->success($array);
+    }
+    
+    /*
+     * get flag
+     * */
+    public function getflag($arr){
+    	$result=$this->dao->getflag($arr);
+    	return $this->success($result);
+    	
+    }
+}

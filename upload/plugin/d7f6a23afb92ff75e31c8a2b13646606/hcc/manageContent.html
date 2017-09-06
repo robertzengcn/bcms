@@ -1,0 +1,49 @@
+<style type="text/css">
+	.editor_main{margin:0 auto;width:800px;}
+	.form_box ul li span.editor_title{float:left;line-height: 30px;text-align: right;width: 60px;font-weight:border;}
+	.form_box ul li span.editor_info{float: left;line-height: 30px;margin-left:6px;text-align:left;width: 700px;color:#A5A5A5;}
+	.form_box{width:98%;margin:0 auto;}
+	.form_box ul li{font-family: Arial,sans-serif;font-size: 14px;margin: 0;padding: 0;line-height:25px;padding:6px 8px;}
+	
+</style>
+
+<div class="editor_main">
+<form id="information" class="pageForm required-validate">
+	<div class="form_box">
+		<ul>
+			<li>
+				<span class="editor_title">医院名称：</span>
+				<span class="editor_info" id="span_hospital"></span>
+				<div style='clear:both;'></div>
+			</li>			
+			<li>
+				<span class="editor_title">类型：</span>
+				<span class="editor_info">
+			        <input type="radio" name="type" id="type_1" value="1" checked/> 自定义头
+					&nbsp;
+					<input type="radio" name="type" id="type_2" value="2"/> 自定义尾
+					&nbsp;
+					<input type="radio" name="type" id="type_3" value="3"/> 自定义标题
+					&nbsp;
+				</span>
+				<div style='clear:both;'></div>
+			</li>
+			<li>
+				<span class="editor_title">内容：</span>
+				<span class="editor_info">
+				
+				<textarea  class="ckeditor" cols="80" id="chk_content" name="content"></textarea>
+				 <div style="clear:both;"></div>
+				</span>
+				
+			</li>
+		</ul>
+		<input type="hidden" name="addtime" id="addtime" value="">
+		<input type="hidden" name="id" id="id" value="">
+		<input type="hidden" name="website_id" id="website_id" value="">
+		<input type="hidden" name="action" id="action" value="add">
+	</div>
+
+</form>
+</div>
+<div id="message"></div>

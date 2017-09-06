@@ -1,0 +1,25 @@
+﻿<div class="toask">
+        <div class="ask_form">
+		<h4>快速提问</h4>
+            <form id="ask_form" name="addcontent" action="/controller" method="get">
+
+                <p>姓名：<input type="text" class="ask-input1" name="name" value=""></p>
+                <p>年龄：<input type="text" class="ask-input3" name="age" value="">&nbsp;&nbsp;岁</p>
+                <p>性别：<input type="radio" name="gender" value="1" checked="checked" class="inputradio"/>男 <input type="radio" name="gender" value="0"  class="inputradio"/>女
+                </p>
+                <p>问题：<input type="text" class="ask-input2" name="subject" value=""></p>
+                <p>
+                    科室：<select name="departmentID"></select>&nbsp;&nbsp;&nbsp;
+				</p>
+				<p>
+                    疾病：<select name="diseaseID"></select>
+                </p>
+
+                <div class="content">
+                    内容：<textarea name="description"></textarea>
+                </div>
+
+                <p><span id="ask_submit"><img src="{{$RESOURCE}}/images/ask/save.jpg" width="60"  /></span>&nbsp;&nbsp;<span id="ask_reset"><img src="{{$RESOURCE}}/images/ask/replay.jpg" width="60"  /></span></p>
+            </form>
+   		</div>
+     	</div>

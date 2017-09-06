@@ -1,0 +1,288 @@
+<?php
+
+class MemberController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        parent::__construct();
+        $this->service = new MemberService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$FILERPLUSHTIME);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除单笔数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+        	
+            $commoditys= $_REQUEST['id'];
+        } else {
+        	$arr = explode(',',$_REQUEST['id']);
+        	
+            $commoditys = $arr;
+        }
+        
+       
+        $result = $this->service->deleteBatch($commoditys);
+
+        echo json_encode($result);
+    }
+    
+    /*
+     * 清空数据
+     * */
+    public function delall(){
+    	$rs=$this->service->delall();
+    	echo json_encode($rs);
+    	
+    }
+    
+    /*
+     * 获取会员积分记录
+    * */
+    
+    public function get_memberscorelog(){
+    	 $memberscorelog=new MemberScorelogService();
+    	 $result =$memberscorelog->query($_REQUEST);
+    	 
+    	$totalRows = $memberscorelog->totalRows($_REQUEST);
+    	echo json_encode(array(
+    			'rows' => $result->data,
+    			'ttl' => $totalRows->data[0]->num
+    	));
+    }
+    
+    /*
+     * 检查用户数据是否存在
+    * */
+    public function checkmemberdate(){
+    	
+    	$thedate=$this->service->checkdate();
+    	if(empty($thedate)){
+    		$array=array('statu'=>false,'code'=>180, 'msg'=>'用户数据不存在','data'=>null);
+    	}else{
+    		$array=array('statu'=>true,'code'=>0, 'msg'=>null,'data'=>null);
+    	}
+    	echo json_encode($array);
+    }
+    
+    
+    /*
+     * 检查数据是否存在
+     * */
+    public function checkscoredate(){
+    	$memberscorelog=new MemberScorelogService();
+    	$thedate=$memberscorelog->checkdate();
+    	if(empty($thedate)){
+    		$array=array('statu'=>false,'code'=>180, 'msg'=>'数据不存在','data'=>null);
+    	}else{
+    		$array=array('statu'=>true,'code'=>0, 'msg'=>null,'data'=>null);
+    	}
+    	echo json_encode($array);
+    }
+    /*
+     * 导出用户数据
+     * */
+    public function exportmemberscoredate(){
+    	$memberscorelog=new MemberScorelogService();
+    	$thedate=$memberscorelog->checkdate();
+    	
+    	if(empty($thedate)){
+    		throw new ValidatorException(180);
+    	}else{
+    		
+    		$str = "用户id,用户名,联系电话,获取途径,获得个数,日期\n";
+    		$alldate=$memberscorelog->query($_REQUEST);
+
+    		
+    		while(list($key, $value)=each($alldate->data)){
+    			$str .= $value->id.",".$value->username.",".$value->telephone.",".$value->name.",".$value->score.",".$value->date."\n";
+    		
+    		}
+    		
+    		$filename = date('Ymdhis').rand(1000,9999).'.csv';
+    		$csv_url = ABSPATH."/upload/". $filename;
+    		$myfile = @fopen( $csv_url, "w") or die("Unable to open file!");
+    		$strdate =iconv('utf-8','GB2312//IGNORE',$str);
+    		
+    		@fwrite($myfile, $strdate);
+    		
+    		@fclose($myfile);
+    		$files=NETADDRESS."/upload/".$filename;
+    		echo json_encode(array('stutes'=>true,'url'=>$files));
+    		
+    		
+    	}
+  	
+    }
+    
+    
+    
+    
+    /*
+     * 导出用户积分日志数据
+    * */
+    public function exportdate(){
+    	$thedate=$this->service->checkdate();
+    	if(empty($thedate)){
+    		throw new ValidatorException(180);
+    	}else{
+    
+    		$str = "用户id,用户名,联系电话,消费积分,消费现金,现有积分(个),最后登录\n";
+    		$alldate=$this->service->query($_REQUEST);
+    		 
+    
+    		while(list($key, $value)=each($alldate->data)){
+    			$str .= $value->id.",".$value->username.",".$value->telephone.",".$value->score.",".$value->cash.",".$value->ownscore.",".$value->last_log."\n";
+    
+    		}
+    
+    		$filename = date('Ymdhis').rand(1000,9999).'.csv';
+    		$csv_url = ABSPATH."/upload/". $filename;
+    		$myfile = @fopen( $csv_url, "w") or die("Unable to open file!");
+    		$strdate =iconv('utf-8','GB2312//IGNORE',$str);
+    
+    		@fwrite($myfile, $strdate);
+    
+    		@fclose($myfile);
+    		$files=NETADDRESS."/upload/".$filename;
+    		echo json_encode(array('stutes'=>true,'url'=>$files));
+    
+    
+    	}
+    	 
+    }
+    
+
+    
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+  
+        $result = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+       
+     
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data[0]->num
+        ));
+    }
+
+    /**
+     * 获得单笔动态数据
+     */
+    public function get() {
+        $this->blindParams($scorerule = new CommodityRule());
+        $result = $this->service->get($scorerule);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+
+        $this->blindParams($scorerule = new CommodityRule());
+//         print_r($commodity);
+//         exit();
+        $result = $this->service->update($scorerule);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+    	
+        if(isset($_REQUEST['type'])&&$_REQUEST['type']!=null){//检查type是否已经存在
+        	
+        	$array=$this->service->getbytype((int)$_REQUEST['type']);
+        
+        	if(!empty($array->data)){
+        		throw new ValidatorException(179);
+        	}else{
+
+        		$this->blindParams($scorerule = new CommodityRule());
+        		$result = $this->service->save($scorerule);
+        		
+        		echo json_encode($result);
+        	}
+        	
+        }else{
+        	throw new ValidatorException(160);
+        }
+        
+
+    }
+    
+    /*
+     * 
+     * 批量删除用户积分日志
+     * */
+    public function delmemberscorelog(){
+    	if (is_array($_REQUEST['id'])) {
+    		 
+    		$members= $_REQUEST['id'];
+    	} else {
+    		$arr = explode(',',$_REQUEST['id']);
+    		 
+    		$members = $arr;
+    	}
+    	
+    	$memberscorelog=new MemberScorelogService();
+    	$result = $memberscorelog->deleteBatch($members);
+    	
+    	echo json_encode($result);
+    }
+    
+    
+    /*
+     * 获取用户行为统计
+     * */
+    public function getlog(){
+    	$memberscorelog=new MemberScorelogService();
+    	$thedate=$memberscorelog->checkdate();
+    	 
+    	if(empty($thedate)){
+    		throw new ValidatorException(180);
+    	}else{
+    		$result = $memberscorelog->getdate();
+    		
+    		echo json_encode($result);
+    	}
+    }
+    
+    /*
+     * 获取所有用户
+     * */
+    public function getallmember(){
+    	$result=$this->service->getallmember();
+    	echo json_encode($result);
+    }
+
+}

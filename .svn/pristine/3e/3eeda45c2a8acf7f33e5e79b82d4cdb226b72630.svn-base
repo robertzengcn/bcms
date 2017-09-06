@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no" />
+<title>先进设备_{{$WEBTITLE}}</title>
+<meta name="keywords" content="先进设备" />
+<meta name="description" content="先进设备" />
+<!-- style -->
+{{include file="Common/style.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/list.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<a name="top"></a>
+<div class="main" id="main_id">
+<div id="scroller">
+<!-- header -->
+{{include file="Common/header.html"}}
+<!-- nav -->
+{{include file="Common/top_nav.html"}}
+<div class="txtList">
+<p><a href='{{$MOBILE}}'>首页</a> > <a href='{{$MOBILE}}/device.php'>先进设备</a> > </p>
+</div>
+<ul class="list" id="listId1">
+	{{foreach $list as $v}}
+		<li><a href="{{$MOBILE}}/device.php?method=get&id={{$v->id}}">{{$v->subject}}</a></li>
+	{{/foreach}}
+</ul>
+<!-- page -->
+{{include file="Common/page.html"}}
+<!-- foot_nav -->
+{{include file="Common/foot_nav.html"}}
+<!-- footer -->
+{{include file="Common/index_footer.html"}}
+</div>
+</div>
+<!-- bootom_ph -->
+{{include file="Common/bootom_ph.html"}}
+</body>
+</html>

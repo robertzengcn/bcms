@@ -1,0 +1,37 @@
+{{extends file='../common/layout/dep.htpl'}}
+{{block name=body}}}
+<div class="main_wd5 container main_hos2">
+	<div class="main_tit"><strong class="pull-left"><a href="#" target="_blank">医师介绍</a></strong>
+      <ol class="breadcrumb pull-right">您的位置：
+        <li><a href="#"></a></li>
+        <li class="active">检查及流程</li>
+      </ol></div>
+      <ul>
+          <li><a href="#" target="_blank">妇产科检查</a><span>2016-07-05</span></li>
+          <li><a href="#" target="_blank">妇产科检查</a><span>2016-07-05</span></li>
+      </ul>
+</div>
+
+<script type="text/javascript">
+window.onload=function(){
+	 var url = location.search;
+	 if (url.indexOf('?') != -1){
+		 var str = url.substr(1);
+		 $.ajax({
+			   type:"GET",
+			   url:"/controller?controller=Article&method=getByDepartmentID&"+str,
+			   dataType: "json",
+			   success:function(ret){
+				  console.log(ret.data);
+				  if(ret.statu == true){
+					  //$("#doc_content").html(ret.data.content);
+				  }
+			   }
+		   }); 
+	 }
+};
+
+</script>
+
+
+{{/block}}

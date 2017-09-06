@@ -1,0 +1,155 @@
+<?php
+
+class CommodityOrderService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new CommodityOrderDAO();
+    }
+		//查询用户订单记录
+	public function query($where){
+		$orders = $this->dao->query($where);
+		return $this->success($orders);		
+	}
+	//获取订单列表app
+	public function getOrderList($where){
+		$buygoods = $this->dao->query($where);
+		$array =array();
+		$detail =array();
+		$info = array();
+		foreach($buygoods as $key => $value){
+			$array[$key]->id = $value->id;
+			$array[$key]->member_id = $value->uid;
+			$array[$key]->order_num = $value->orders;
+			$array[$key]->qrcode = $value->qrcode;
+				if(isset($where['order_stute'])&&strlen($where['order_stute'])>0){
+					$info[$key]['status'] = $where['order_stute'];					
+				}
+				$info[$key]['orders'] = $value->orders;
+				$info[$key]['uid'] = $value->uid;
+		     $commoditylogDAO = new CommodityLogDAO();	
+			$buylist = $commoditylogDAO->query($info[$key]);
+			if(count($buylist)>0){
+				foreach($buylist as $k => $val){
+					 $commodityDAO = new CommodityDAO();	
+					 $commodity = $commodityDAO->getInfoById(array('id'=>$val->gid));
+					 $detail[$key][$k]->id =  $commodity->id;
+					 $detail[$key][$k]->member_id =  $val->uid;
+					 $detail[$key][$k]->commodity_name =  $commodity->subject;
+					 $detail[$key][$k]->subtitle =  $commodity->subtitle;
+					 if($commodity->exchange ==1){
+						$detail[$key][$k]->final_price =  0;					
+					 }else{
+						$detail[$key][$k]->final_price =  $commodity->price - $commodity->discount;					
+					 }
+					 $detail[$key][$k]->commodity_price =  $commodity->price;
+					 $detail[$key][$k]->final_score =  $commodity->score;
+					 $detail[$key][$k]->commodity_score =  $commodity->score;
+					 $detail[$key][$k]->commodity_quantity =  $val->num;						 
+					 $detail[$key][$k]->pic =  $commodity->pic;
+						$array[$key]->total_price+=$val->totalcash;
+						$array[$key]->total_score+=$val->totalscore;
+						$array[$key]->date = $val->taketime ? date('Y-m-d',$val->taketime) : date('Y-m-d',$val->buytime);
+						$array[$key]->order_stute =$val->status;
+					unset($val);
+				}
+			}
+					unset($value);
+				$array[$key]->detail = $detail[$key] ? $detail[$key] : array();
+		}
+			$arr =array();
+			$y = 0;
+			foreach($array as $val){
+				if(strlen($val->order_stute)>0){
+					$arr[$y] = $val;
+					$y++;
+				}
+			}		
+		return $this->success($arr);
+	}
+	//获取订单详情app  ---通过id
+	public function getOrderDetail($where){
+		$orders = $this->dao->query($where);
+		$array =array();
+		$detail =array();
+		foreach($orders as  $value){
+			$array['id'] = $value->id;
+			$array['member_id'] = $value->uid;
+			$array['order_num'] = $value->orders;
+			$array['qrcode'] = $value->qrcode;
+				$info['orders'] = $value->orders;
+				$info['uid'] = $value->uid;
+		     $commoditylogDAO = new CommodityLogDAO();	
+			$buylist = $commoditylogDAO->query($info);
+				foreach($buylist as $k => $val){
+					 $commodityDAO = new CommodityDAO();	
+					 $commodity = $commodityDAO->getInfoById(array('id'=>$val->gid));
+					 $detail[$k]->id =  $commodity->id;
+					 $detail[$k]->member_id =  $val->uid;
+					 $detail[$k]->commodity_name =  $commodity->subject;
+					 $detail[$k]->subtitle =  $commodity->subtitle;
+					 if($commodity->exchange ==1){
+						$detail[$k]->final_price =  0;					
+					 }else{
+						$detail[$k]->final_price =  $commodity->price - $commodity->discount;					
+					 }
+					 $detail[$k]->commodity_price =  $commodity->price;
+					 $detail[$k]->final_score =  $commodity->score;
+					 $detail[$k]->commodity_score =  $commodity->score;
+					 $detail[$k]->commodity_quantity =  $val->num;						 
+					 $detail[$k]->pic =  $commodity->pic;
+						$array['total_price']+=$val->totalcash;
+						$array['total_score']+=$val->totalscore;
+						$array['date'] = $val->taketime ? date('Y-m-d',$val->taketime) : date('Y-m-d',$val->buytime);
+						$array['order_stute'] =$val->status;
+				}					
+	
+			$array['detail'] = $detail;		
+		}		
+		return $this->success($array);	
+	}
+		//获取订单详情app  ---通过订单orders
+	public function getOrderDetailByOrder($where){
+		$orders = $this->dao->getOrderDetailByOrder($where);
+		$array =array();
+		if($orders){
+		$detail =array();
+			$array['id'] = $orders['id'];
+			$array['member_id'] = $orders['uid'];
+			$array['order_num'] = $orders['orders'];
+			$array['qrcode'] =    $orders['qrcode'];
+				$info['orders'] = $orders['orders'];
+				$info['uid'] = $orders['uid'];
+		     $commoditylogDAO = new CommodityLogDAO();	
+			$buylist = $commoditylogDAO->query($info);
+				foreach($buylist as $k => $val){
+					 $commodityDAO = new CommodityDAO();	
+					 $commodity = $commodityDAO->getInfoById(array('id'=>$val->gid));
+					 $detail[$k]->id =  $commodity->id;
+					 $detail[$k]->member_id =  $val->uid;
+					 $detail[$k]->commodity_name =  $commodity->subject;
+					 $detail[$k]->subtitle =  $commodity->subtitle;
+					 if($commodity->exchange ==1){
+						$detail[$k]->final_price =  0;					
+					 }else{
+						$detail[$k]->final_price =  $commodity->price - $commodity->discount;					
+					 }
+					 $detail[$k]->commodity_price =  $commodity->price;
+					 $detail[$k]->final_score =  $commodity->score;
+					 $detail[$k]->commodity_score =  $commodity->score;
+					 $detail[$k]->commodity_quantity =  $val->num;						 
+					 $detail[$k]->pic =  $commodity->pic;
+						$array['total_price']+=$val->totalcash;
+						$array['total_score']+=$val->totalscore;
+						$array['date'] = $val->taketime ? date('Y-m-d',$val->taketime) : date('Y-m-d',$val->buytime);
+						$array['order_stute'] =$val->status;
+				}					
+	
+			$array['detail'] = $detail;		
+		}		
+		return $this->success($array);			
+	}
+}
+

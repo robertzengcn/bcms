@@ -1,0 +1,133 @@
+<?php
+
+class DrawlogService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new DrawlogDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $commodityArray = $this->dao->getBatch($ids);
+      
+        return $this->dao->deleteBeans($commodityArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($draw) {
+        $this->dao->get($draw->id, $draw);
+        
+     
+        if($draw->start_time){
+        	$draw->start_time=date('Y-m-d',$draw->start_time);
+        }
+        if($draw->end_time){
+        	$draw->end_time=date('Y-m-d',$draw->end_time);
+        }
+        
+ //       $commodity->tags = $tagsService->getTags($commodity->plushtime);
+//         $recommend = new RecommendListService();
+//         $result = $recommend->getById('commodity_id', $commodity->id);
+//         $commodity->recommend = $result; 
+        return $this->success($draw);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+    	
+        $commodityArray = $this->dao->query($where);
+        
+        foreach ($commodityArray as $key => $value) {
+            //$value->plushtime = date('Y-m-d', $value->plushtime);
+            $value->start_time=date('Y-m-d',$value->start_time);
+            $value->end_time=date('Y-m-d',$value->end_time);
+        }
+
+        return $this->success($commodityArray);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($draw) {
+    	
+         $draw->validate();        
+        // 获取class对象并插入数据
+        $rs=$this->dao->save($draw);
+        
+
+        return $this->success($rs);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($commodity) {
+    //    $commodity->updatetime = time();
+    	
+        $commodity->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($commodity);
+    }
+    
+    /*
+     * 前台页面添加抽奖记录
+     * */
+    public function adddrawlog($arr){
+    	$drawlog=new Drawlog();
+    	
+    	$drawlog->member_id=$arr['member_id'];
+    	$drawlog->draw_id=$arr['draw_id'];
+    	$drawlog->result=$arr['result'];
+    	$drawlog->date=time();
+    
+    	$drawlog->validate();
+    	$result=$this->dao->save($drawlog);
+
+    	return $this->success();
+    }
+    
+    /*
+     * 获取用户今日抽奖数
+     * @param $memberid 
+     * */
+    public function getdrawcount($memberid){
+    	$t = time();
+    	$start = mktime(0,0,0,date("m",$t),date("d",$t),date("Y",$t));
+    	$end = mktime(23,59,59,date("m",$t),date("d",$t),date("Y",$t));
+    	$arr=array('member_id'=>$memberid['member_id'],'start'=>$start,'end'=>$end,'draw_id'=>$memberid['draw_id']);
+    	
+    	$result=$this->dao->getdrawcount($arr);
+    	return $this->success($result);
+    }
+
+
+}
+

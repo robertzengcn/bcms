@@ -1,0 +1,27 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+{{environment id=$id assign="environment"}}
+<div id="breadcrumb"><span>您当前的位置:</span><a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> > <a href="{{$WEBSITE}}{{$HTMLURL}}">医院环境</a> > <a href="####" onclick="return false;">{{$environment->subject}}</a></div>
+<div class="clear"></div>
+<div class="main">
+    <div class="par-main">
+        <h2><span>环境介绍</span></h2>
+        <div class="device_par">
+            <h3>{{$environment->subject}}</h3>
+            <div><img width="200" height="200" src="{{$UPLOAD}}/{{$environment->pic}}"></div>
+        </div>
+        <div class="device_par_content">
+            {{$environment->content}}
+        </div>
+    </div>
+  <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+  <!--right end--> 
+</div>
+<div class="main-bottom"></div>
+
+
+{{/block}}

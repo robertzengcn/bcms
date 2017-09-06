@@ -1,0 +1,89 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>科室设置</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 医疗资讯管理 <span class="c-gray en">&gt;</span> 科室设置 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<div class="text-c"> 
+		科室名称：<input type="text" name="" id="" placeholder=" 请输入关键词..." style="width:250px" class="input-text">&nbsp;&nbsp;
+		文件保存目录：<input type="text" name="" id="" placeholder="" style="width:100px;" class="input-text">
+		<button name="" id="" class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	</div>
+	<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onClick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" onClick="category_add('新增科室','edit.html','800','600')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 新增科室</a></span> </div>
+	<div class="mt-20" id="grid">
+		<table class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th width="80">序号</th>
+					<th width="280">科室名称</th>
+					<th>科室简介</th>
+					<th width="120">文件保存目录</th>					
+					<th width="120">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="text-c">
+					<td><input type="checkbox" value="" name=""></td>
+					<td>1</td>
+					<td class="text-l">精品妇科</td>
+					<td class="text-l">妇科是泉州南方医的权威科室之一，经过三代人四十年的不懈努力，目前己有博士生五十人，...</td><!--限40字-->
+					<td>jpfk</td>					
+					<td class="f-14 td-manage"> <a style="text-decoration:none" onClick="" href="javascript:;" title="预览"><i class="Hui-iconfont">&#xe695;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" onClick="category_add('本科室医生列表','department-doctor.html','600','400')" href="javascript:;" title="查看本科室医生"><i class="Hui-iconfont">&#xe611;</i></a> <a style="text-decoration:none" onClick="category_add('查看本科室病种','department-disease.html','600','400')" href="javascript:;" title="查看本科室病种"><i class="Hui-iconfont">&#xe627;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+				</tr>
+				<tr class="text-c">
+					<td><input type="checkbox" value="" name=""></td>
+					<td>1</td>
+					<td class="text-l">精品妇科</td>
+					<td class="text-l">妇科是泉州南方医的权威科室之一，经过三代人四十年的不懈努力，目前己有博士生五十人，...</td><!--限40字-->
+					<td>jpfk</td>					
+					<td class="f-14 td-manage"> <a style="text-decoration:none" onClick="" href="javascript:;" title="预览"><i class="Hui-iconfont">&#xe695;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" onClick="category_add('本科室医生列表','department-doctor.html','600','400')" href="javascript:;" title="查看本科室医生"><i class="Hui-iconfont">&#xe611;</i></a> <a style="text-decoration:none" onClick="category_add('查看本科室病种','department-disease.html','600','400')" href="javascript:;" title="查看本科室病种"><i class="Hui-iconfont">&#xe627;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript">
+
+/*添加栏目*/
+function category_add(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+</script> 
+<script type="text/javascript" src="../js/boyicms/now.js"></script>
+<script type="text/javascript" src="../js/boyicms/hospital.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	result.goMenu('news');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body>   
+    <section id="body">
+    	{{$zinav=$NavigationTag->getMobileGroup(news_nav,app)}}
+		{{foreach $zinav as $key=>$val}}
+    	<a href="{{$val->url}}"><article class="menu">
+        <p>{{$val->subject}}</p>
+        <span></span>	
+        </article></a>
+        {{/foreach}}
+  
+        
+        <li></li>     
+		 {{include file="Common/page.html"}}   
+
+    </section>
+
+    
+</body>
+</html>

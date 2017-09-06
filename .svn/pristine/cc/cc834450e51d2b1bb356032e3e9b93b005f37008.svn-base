@@ -1,0 +1,164 @@
+function Cloudysync() {
+	BaseFunc.call(this);
+	var self = this;
+	var count=60;
+	this.init = function() {//初始化页面
+		$(function(){
+			
+			$('body').on('click','#registerpage,#loginpage',function(){
+				var index = parent.layer.getFrameIndex(window.name);
+				parent.layer.iframeAuto(index);
+			});
+
+			//导航切换
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			
+			$('body').on('click','#getcode',function(){
+				if(count<60){
+					return false;
+				}
+				var mobile=$('#phone').val();
+				if(mobile==""){
+					layer.msg('请输入手机号码',{icon:2}); 
+					return false;
+				}
+				
+				 var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+				 if (!reg.test(mobile)) {
+					 layer.msg('手机号码不正确',{icon:2});
+				      return false;
+				 };
+
+				self.cmd(gHttp,{controller:'BoyiManager',method:'getmsg',mobile:mobile},function(ret){
+					if(ret.stute){
+						$("#getcode").attr('disabled', true);
+						$("#getcode").removeClass('btn-success');
+						$("#getcode").addClass('btn-default');
+						
+						$('#getcode').html('<i class="Hui-iconfont"></i>稍等'+count+'秒重新获取');
+						var int=setInterval(function(){
+							
+							
+							count=count-1;
+							
+							if(count>0){
+							$('#getcode').html('<i class="Hui-iconfont"></i>稍等'+count+'秒重新获取');
+							//console.log(count);
+							}else{
+								window.clearInterval(int);
+								count=60;
+								$('#getcode').html('<i class="Hui-iconfont"></i> 获取验证码');
+								$("#getcode").removeClass('btn-default');
+								$("#getcode").addClass('btn-success');
+							}						
+						},1000);
+						
+						//setInterval(function(){console.log("Hello")},3000); 
+
+					}else{							
+						layer.msg(ret.msg,{icon:2}); 							
+					}
+				});
+			});
+			
+//			$("#registerform").Validform({
+//				tiptype:2,
+//				ajaxPost:true,
+//				url:'',
+//			});
+			//var post={controller:'BoyiManager',method:'submitform'};
+			$('#registerform').checkAndSubmit('save',{controller:'BoyiManager',method:'submitform'},function(ret){
+				if(ret.stute){
+					var laymsg =layer.msg('注册成功，正在验证网站所有权限');
+					self.cmd(gHttp,{controller:'BoyiManager',method:'getremote',username:ret.data.username},function(rey){
+						if(rey.stute){
+							layer.close(laymsg);
+							layer.open({
+								  content: '已完成注册，现在可以登录'
+								  ,btn: ['确定', '取消']
+								  ,yes: function(index, layero){
+								    //按钮【按钮一】的回调
+									  layer.close(index);
+									  $("#loginpage").trigger("click");
+								  },cancel: function(){ 
+								    //右上角关闭回调
+									  
+								  }
+								});
+						}else{
+							//layer.alert(rey.msg,{icon: 2});
+							layer.close(laymsg);
+							//这里需添加一段改变界面的函数
+							
+							layer.open({
+								  content: '<p>认证失败，请手动下载认证文件，并上传到网站根目录进行认证<a href="'+rey.data+'">下载</a></p>'
+								  ,btn: ['确定']
+								  ,yes: function(index, layero){
+								    //按钮【按钮一】的回调
+									  layer.close(index);
+									  //$("#loginpage").trigger("click");
+								  }
+								});
+						}
+					});
+					
+					
+			//$('#tab-category').html('<p>注册成功,点击确认验证成为网站做所有者!<input id="yanzheng" type="button" value="验证"><input type="hidden" id="usenamecheck" value="'+ret.data.username+'"></p>');
+            
+					
+				}else{
+					layer.alert(ret.msg,{icon: 2});
+				}
+
+			});
+			
+			$('body').on('click','#yanzheng',function(){
+				var username=$('#usenamecheck').val();
+				self.cmd(gHttp,{controller:'BoyiManager',method:'getmsg',username:username},function(ret){
+					
+				});
+			});
+			
+			$('#loginform').checkAndSubmit('loginbtn',{controller:'BoyiManager',method:'accoutcheck','type':1},function(rel){
+				if(rel.stute){
+					url='http://www.7zm.com/v1/oauth/nopwd/authorize?token='+rel.data.token+'&mobile='+rel.data.mobile;
+					var index = parent.layer.getFrameIndex(window.name);
+					parent.layer.full(index);
+					parent.layer.iframeSrc(index, url);
+					
+					//parent.layer.iframeAuto(index);
+				}else{
+					layer.msg(rel.msg,{icon:2}); 
+				}				
+			});
+			
+			$('body').on('click','#kanbuq,verifyimg',function(){
+				self.verify();
+			})
+			
+			
+			
+			
+			
+			
+		});
+	}
+	this.reducecount=function(){
+		
+		count=count-1;
+		
+//		if(count>0){
+//		$('#getcode').html('<i class="Hui-iconfont"></i>'+count);
+//		console.log(count);
+//		}else{
+//			window.clearInterval(int);
+//		}
+	}
+	this.verify=function(){
+		$('#verifyimg').attr('src', '../public/img/verify.php?' + Math.random());
+	}
+	
+	
+	
+	
+}

@@ -1,0 +1,211 @@
+<?php
+define('TABLENAME_ARTICLE', 'article');
+define('TABLENAME_ASK', 'ask');
+define('TABLENAME_ANSWER', 'answer');
+define('TABLENAME_ASKDESC', 'askdesc');
+define('TABLENAME_ASKASSAY', 'askassay');
+define('TABLENAME_ASKADDTO', 'askaddto');
+define('TABLENAME_BUISNESS', 'buisness');
+define('TABLENAME_CHANNEL', 'channel');
+define('TABLENAME_CHANNELARTICLE', 'channelarticle');
+define('TABLENAME_CONTACT', 'contact');
+define('TABLENAME_CATEGORY', 'category');
+define('TABLENAME_DEPARTMENT', 'department');
+define('TABLENAME_DEPARTMENTMANAGER', 'departmentmanager');
+define('TABLENAME_DEVICE', 'device');
+define('TABLENAME_DISEASE', 'disease');
+define('TABLENAME_ZMDATA', 'zmdata');
+define('TABLENAME_DOCTOR', 'doctor');
+define('TABLENAME_COUNTERHISTORY', 'counterhistory');
+define('TABLENAME_MARKHISTORY', 'markhistory');
+define('TABLENAME_DOCTORMANAGER', 'doctormanager');
+define('TABLENAME_DOCTORTODISEASE', 'doctortodisease');
+define('TABLENAME_ENVIORMENT', 'environment');
+define('TABLENAME_ERRORPAGE', 'errorpage');
+define('TABLENAME_HONOR', 'honor');
+define('TABLENAME_INSPECTION', 'inspection');
+define('TABLENAME_INSPECTIONITEM', 'inspectionitem');
+define('TABLENAME_INTRODUCE', 'introduce');
+define('TABLENAME_LINK', 'link');
+define('TABLENAME_MEDIAREPORT', 'mediareport');
+define('TABLENAME_MOVIE', 'movie');
+define('TABLENAME_NAVIGATION', 'navigation');
+define('TABLENAME_NAVGROUP', 'navgroup');
+define('TABLENAME_NEWS', 'news');
+define('TABLENAME_PICMANAGER', 'picmanager');
+define('TABLENAME_PIC', 'pic');
+define('TABLENAME_RECOMMENDLIST', 'recommendlist');
+define('TABLENAME_RECOMMENDPOSITION', 'recommendposition');
+define('TABLENAME_SEO', 'seo');
+define('TABLENAME_STATISTICSLOG', 'statisticslog');
+define('TABLENAME_SUCCESS', 'success');
+define('TABLENAME_TAG', 'tag');
+define('TABLENAME_TECHNOLOGY', 'technology');
+define('TABLENAME_THIRDSTAT', 'thirdstat');
+define('TABLENAME_TOPIC', 'topic');
+define('TABLENAME_WORKER', 'worker');
+define('TABLENAME_WORKER_LOG_HISTORY', 'workerloghistory');
+define('TABLENAME_WORKHISTORY', 'workhistory');
+define('TABLENAME_USERVAR', 'uservar');
+define('TABLENAME_NETWORKPIC', 'networkpic');
+define('TABLENAME_RESERVATION', 'reservation');
+define('TABLENAME_RESERVATIONDETAIL', 'reservationdetail');
+define('TABLENAME_RESERTEMPLATE', 'resertemplate');
+define('TABLENAME_RESERTEMPLATEDETAIL', 'resertemplatedetail');
+define('TABLENAME_SPITEIP', 'spiteip');
+define('TABLENAME_MOBILENAVIGATION','mobilenavigation');
+define('TABLENAME_MOBILEPICMANAGER','mobilepicmanager');
+define('TABLENAME_LIBRARY','library');
+define('TABLENAME_COMMODITY','commodity');
+define('TABLENAME_COMMODITYCATEGORIES','commoditycategories');
+define('TABLENAME_COMMODITYDESCRIPT','commoditydescript');
+define('TABLENAME_SCORERULE','scorerule');
+define('TABLENAME_SCORETITLE','scoretitle');
+define('TABLENAME_MEMBER','member');
+define('TABLENAME_DRAW','draw');
+
+class ORMMap {
+
+    /**
+     * R::getAll( 'SELECT * FROM page WHERE title = :title', [':title' => 'home'] );
+     * sql语句映射
+     */
+    static $sqlMap = Array(
+        // StatisticsLogDAO selFrom()
+        'selFrom' => 'SELECT `fromurl`,count(`fromurl`) as num FROM statisticslog WHERE 1=1  group by `fromurl` having count(`fromurl`)>0 order by num desc limit 10',
+        // StatisticsLogDAO selTo()
+        'selTo' => 'SELECT `url`,count(`url`) as num FROM statisticslog WHERE 1=1  group by `url` having count(`url`)>0 order by num desc limit 10',
+        // StatisticsLogDAO distributed()
+        'getOldIP' => 'select count(distinct(ip)) as count from statisticslog where visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO distributed()
+        'getNewIP' => 'select distinct(ip) as ip from statisticslog where visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO distributed()
+        'getIPByTime' => 'select id from statisticslog where ip = :ip and visittime < :star_time ',
+        // StatisticsLogDAO trend()
+        'fwnum' => 'select count(id) as count from statisticslog where visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO trend()
+        'ipnum' => 'select count(distinct(ip)) as count from statisticslog where visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO trend()
+        'dlnum' => 'select count(distinct(sessionid)) as count from statisticslog where visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO trend()
+        'fwnumu' => 'select count(id) as count from statisticslog where url = :url and visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO trend()
+        'ipnumu' => 'select count(distinct(ip)) as count from statisticslog where url = :url and visittime >= :star_time and visittime < :end_time ',
+        // StatisticsLogDAO trend()
+        'dlnumu' => 'select count(distinct(sessionid)) as count from statisticslog where url = :url and visittime >= :star_time and visittime < :end_time ',
+        // NavigationDAO getDepartments()
+        'navDepartments' => 'SELECT id,name,url FROM department ',
+        // NavigationDAO getDisease()
+        'navDisease' => 'SELECT department_id,name,url FROM disease ',
+        // NavigationDAO getNameByUrl()
+        'navNameByUrlDepartments' => 'SELECT name FROM department where url = :url ',
+        // NavigationDAO getNameByUrl()
+        'navNameByUrlDisease' => 'SELECT name FROM disease where url=:url ',
+        // ChannelDAO delete() deleteBatch()
+        'deleteChannelArticleByChannelId' => 'delete from channelarticle where channel_id = :channel_id ',
+        // 案列表
+        'success_relation' => 'SELECT success.*,disease.name as disease_name from success left join disease on success.disease_id = disease.id',
+        // 医生表
+        'doctor_relation' => 'select doctor.*,department.name as department_name from doctor left join department on doctor.department_id=department.id',
+        //医生管理表（新增）
+        'doctormanager_relation' => 'select doctormanager.*,departmentmanager.name as department_name from doctormanager left join departmentmanager on doctormanager.departmentmanager_id=departmentmanager.id',
+        // 疾病表
+        'disease_relation' => 'select disease.*,department.name as department_name from disease left join department on disease.department_id=department.id',
+        // 咨询表
+        'article_relation' => 'select article.*,worker.name as author,doctor.name as doctor_name,disease.name as disease_name,department.name as department_name from article left join worker on article.worker_id = worker.id left join doctor on article.doctor_id=doctor.id left join disease on article.disease_id=disease.id left join department on article.department_id=department.id',
+        // 咨询表(html)
+        'article_makehtml' => 'select id,subject,title,keywords,description,plushtime,updatetime,disease_id,department_id from article',
+        // 技术表
+        'technology_relation' => 'select technology.*,department.name as department_name from technology left join department on technology.department_id = department.id',
+        // 在线问答:回复(ask、askdesc、answer->content、askassay)
+        'ask_repeat' => 'select ask.*,askdesc.*,department.name as department_name,answer.id as answer_id,answer.doc_id as doctorID,answer.content as content,askassay.* from ask left join askdesc on ask.id = askdesc.ask_id left join department on department.id = ask.department_id left join answer on answer.ask_id = ask.id left join askassay on askassay.ask_id = ask.id',
+        // 在线问答:列表(ask、askdesc、department、disease)
+        'ask_list' => 'select askdesc.*,ask.*,department.name as department_name,disease.name as disease_name from ask left join askdesc on ask.id = askdesc.ask_id left join department on department.id = ask.department_id left join disease on disease.id = ask.disease_id',
+        'reservationjoin'=>'SELECT r. * , doctormanager.name AS doctor, de.name AS department FROM reservation AS r LEFT JOIN doctormanager ON r.doctor_id = doctormanager.id LEFT JOIN departmentmanager AS de ON de.id = r.department_id',
+        'resercount'=>'SELECT COUNT(r.id) as num FROM reservation AS r LEFT JOIN doctormanager ON r.doctor_id = doctormanager.id LEFT JOIN departmentmanager AS de ON de.id = r.department_id',
+        'resertemp'=>'SELECT r.*,de.name as department from resertemplate as r left join departmentmanager as de on r.department_id=de.id',
+        'resershow'=>'SELECT r.*, de.name as department, do.name as doctor from reservation as r LEFT JOIN departmentmanager AS de on r.department_id=de.id LEFT JOIN doctormanager AS do ON r.doctor_id = do.id',
+        'commoditycate'=>'SELECT * from commoditycategories',
+        'scorerole'=>'SELECT sr.*, st.name as name FROM scorerule as sr LEFT JOIN scoretitle as st ON sr.type=st.id',
+        'memberdetail'=>'SELECT m.*, mc.score as score, mc.cash as cash,ml.last_log FROM member as m LEFT JOIN consumptionlog AS mc ON m.id=mc.uid LEFT JOIN memberlog AS ml on ml.uid=m.id',
+        //条件查询数量
+        'memberdetailcount'=>'SELECT COUNT(*) as num FROM member as m LEFT JOIN memberlog AS ml on ml.uid=m.id',
+        'memberscorelog'=>'SELECT ms.*, m.username as username, m.telephone as telephone, st.name as name FROM memberscorelog as ms LEFT JOIN member AS m on ms.uid=m.id LEFT JOIN scoretitle AS st on ms.type=st.id',
+        //会员积分数量
+        'memberscorelogcount'=>'SELECT COUNT(*) as num FROM memberscorelog as ms LEFT JOIN member AS m on ms.uid=m.id LEFT JOIN scoretitle AS st on ms.type=st.id',
+        //取记录表里已存在的独特的type
+        'memberdistinctlog'=>'SELECT DISTINCT ml.type, st.name from memberscorelog as ml LEFT JOIN scoretitle as st on ml.type=st.id',
+        //抽奖活动查询
+        'drawactivity'=>'select d.*, p.id as num from draw as d LEFT JOIN prize as p on d.id=p.drawid'
+       
+        
+        
+    );
+
+    /**
+     * 数据库表映射实体类
+     *
+     * @var unknown
+     */
+    static $classes = Array(
+        TABLENAME_ARTICLE => 'Article',
+        TABLENAME_ASK => 'Ask',
+        TABLENAME_ANSWER => 'Answer',
+        TABLENAME_ASKDESC => 'AskDesc',
+        TABLENAME_ASKASSAY => 'AskAssay',
+        TABLENAME_ASKADDTO => 'AskAddto',
+        TABLENAME_BUISNESS => 'Business',
+        TABLENAME_CHANNEL => 'Channel',
+        TABLENAME_CHANNELARTICLE => 'ChannelArticle',
+        TABLENAME_CONTACT => 'Contact',
+        TABLENAME_CATEGORY => 'Category',
+        TABLENAME_DEPARTMENT => 'Department',
+    	TABLENAME_DEPARTMENTMANAGER => 'Departmentmanager',
+        TABLENAME_DEVICE => 'Device',
+        TABLENAME_DISEASE => 'Disease',
+        TABLENAME_DOCTOR => 'Doctor',
+        TABLENAME_DOCTORTODISEASE => 'DoctorToDisease',
+        TABLENAME_ENVIORMENT => 'Environment',
+        TABLENAME_ERRORPAGE => 'ErrorPage',
+        TABLENAME_HONOR => 'Honor',
+        TABLENAME_INSPECTION => 'Inspection',
+        TABLENAME_INSPECTIONITEM => 'Inspectionitem',
+        TABLENAME_INTRODUCE => 'Introduce',
+        TABLENAME_LINK => 'Link',
+        TABLENAME_MEDIAREPORT => 'MediaReport',
+        TABLENAME_MOVIE => 'Movie',
+        TABLENAME_NAVIGATION => 'Navigation',
+        TABLENAME_NAVGROUP => 'Navgroup',
+        TABLENAME_NEWS => 'News',
+        TABLENAME_PICMANAGER => 'PicManager',
+        TABLENAME_PIC => 'Pic',
+        TABLENAME_RECOMMENDLIST => 'RecommendList',
+        TABLENAME_RECOMMENDPOSITION => 'RecommendPosition',
+        TABLENAME_RESERTEMPLATEDETAIL=>'ReserTemplateDetail',
+        TABLENAME_SEO => 'Seo',
+        TABLENAME_STATISTICSLOG => 'StatisticsLog',
+        TABLENAME_SUCCESS => 'Success',
+        TABLENAME_TAG => 'Tag',
+        TABLENAME_TECHNOLOGY => 'Technology',
+        TABLENAME_THIRDSTAT => 'ThirdStat',
+        TABLENAME_TOPIC => 'Topic',
+        TABLENAME_WORKER => 'Worker',
+        TABLENAME_WORKER_LOG_HISTORY => 'WorkerLogHistory',
+        TABLENAME_WORKHISTORY => 'WorkHistory',
+        TABLENAME_USERVAR => 'UserVar',
+        TABLENAME_NETWORKPIC => 'NetworkPic',
+        TABLENAME_RESERVATION => 'Reservation',
+        TABLENAME_SPITEIP => 'SpiteIP',
+        TABLENAME_MOBILENAVIGATION => 'MobileNavigation',
+    	TABLENAME_MOBILEPICMANAGER => 'MobilePicManager',
+    	TABLENAME_RESERTEMPLATE=>'ReserTemplate',
+    	TABLENAME_LIBRARY => 'Library',
+    	TABLENAME_RESERVATIONDETAIL => 'ReservationDetail',
+        TABLENAME_COMMODITY => 'Commodity',
+        TABLENAME_COMMODITYCATEGORIES => 'CommodityCategories',
+        TABLENAME_SCORERULE => 'ScoreRule',
+        TABLENAME_SCORETITLE=>'ScoreTitle',
+        TABLENAME_MEMBERSCORELOG=>'MemberScorelog',
+        TABLENAME_DRAW=>'Draw',
+    );
+}

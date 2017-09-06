@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+		<File>
+		   <item><source>/upload/icon3.png</source><whither>/upload/picmanager/appLogo.png</whither></item>
+			<item><source>/upload/7.png</source><whither>/upload/picmanager/appdoctor.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appkeshi.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appanli.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appmap.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appjishu.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/apphonor.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/apphuanjing.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appshebei.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appnews.png</whither></item>
+			<item><source>/upload/16.png</source><whither>/upload/picmanager/apptubiao.png</whither></item>
+			<item><source>/upload/10.png</source><whither>/upload/picmanager/appchannel.png</whither></item>
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	<Insert>
+	  <item>INSERT INTO `contact` (`name`,`val`,`is_retain`,`flag`) VALUES('门诊时间','8:00AM-21:00PM(无节假日医院)',1,'time'),
+	  ('手机电话','05726053605',1,'phone');</item>
+		<item>INSERT INTO `mobilepicmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`,`cate`) 
+		VALUES('app端LOGO', 'appLogo', 'picmanager/appLogo.png', '', 1, 1, NULL,2),
+		('医生头部图片', 'appdoctor', 'picmanager/appdoctor.png', '', 1, 1, NULL,2),
+		('科室头部图片', 'appkeshi', 'picmanager/appkeshi.png', '', 1, 1, NULL,2),
+		('案例头部图片', 'appanli', 'picmanager/appanli.png', '', 1, 1, NULL,2),
+		('技术头部图片', 'appjishu', 'picmanager/appjishu.png', '', 1, 1, NULL,2),
+		('荣誉头部图片', 'apphonor', 'picmanager/apphonor.png', '', 1, 1, NULL,2),
+		('环境头部图片', 'apphuanjing', 'picmanager/apphuanjing.png', '', 1, 1, NULL,2),
+		('新闻头部图片', 'appnews', 'picmanager/appnews.png', '', 1, 1, NULL,2),
+		('设备头部图片', 'appshebei', 'picmanager/appshebei.png', '', 1, 1, NULL,2),
+		('路线头部图片', 'appmap', 'picmanager/appmap.png', '', 1, 1, NULL,2),
+		('个性头部图片', 'appchannel', 'picmanager/appchannel.png', '', 1, 1, NULL,2),
+		('列表小图标', 'apptubiao', 'picmanager/apptubiao.png', '', 1, 1, NULL,2);</item>
+		<item>INSERT INTO `mobilenavigation` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, 
+
+`is_display`, `name`, `pic`) 
+		VALUES(1, 0, '首页导航', 'mobile_nav_app', NULL, NULL, NULL, NULL, 2, 1, NULL, NULL),
+		(0, 1, '简介', 'mobile_nav_app01', '', 0, 0, 1, 2, 1, 'mobile_nav_app01', ''),
+		(0, 1, '专家', 'mobile_nav_app02', '', 0, 0, 2, 2, 1, 'mobile_nav_app01', ''),
+		(0, 1, '技术', 'mobile_nav_app03', '', 0, 0, 3, 2, 1, 'mobile_nav_app01', ''),	
+		(0, 1, '资讯', 'mobile_nav_app04', '', 0, 0, 4, 2, 1, 'mobile_nav_app01', ''),
+		(0, 1, '优惠', 'mobile_nav_app05', '', 0, 0, 5, 2, 1, 'mobile_nav_app01', ''),
+		(0, 1, '路线', 'mobile_nav_app06', '', 0, 0, 6, 2, 1, 'mobile_nav_app01', '');
+		</item>
+	</Insert>
+	<Delete>
+		<item>{t:contact,f:flag,v:{"time"|"phone"}}</item>
+		<item>{t:mobilepicmanager,f:flag,v:{"appLogo"|"appdoctor"|"appkeshi"|"appanli"|"appjishu"|"apphonor"|"appchannel"|"apphuanjing"|"appnews"|"appshebei"|"appmap"|"apptubiao"}}</item>
+		<item_t>DELETE FROM mobilepicmanager WHERE flag="mobile_index_app" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app01" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app02" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app03" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app04" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app05" AND cate="2"</item_t>
+		<item_t>DELETE FROM mobilenavigation WHERE flag="mobile_nav_app06" AND cate="2"</item_t>
+
+	</Delete>		
+	<Parent>
+	    <item>
+			<get>{t:mobilenavigation,f:flag,g:id,v:mobile_nav_app}</get>
+			<set>{t:mobilenavigation,f:name,s:group_id,v:{"mobile_nav_app01"}}</set>
+		</item>
+		
+		
+	</Parent>			
+</body>

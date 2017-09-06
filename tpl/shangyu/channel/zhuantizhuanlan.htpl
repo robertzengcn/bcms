@@ -1,0 +1,13 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+
+<div class="main_spe container">
+	<ul class="row">
+	{{navgroup flag="index_nav"}}
+    	<li class="col-xs-12 col-sm-6 col-md-3"><a href="[field:url/]" target="_blank"><img src="[field:pic/]"><p>[field:subject/]</p></a></li>
+   {{/navgroup}}
+    </ul>
+</div>
+
+{{/block}}
+        

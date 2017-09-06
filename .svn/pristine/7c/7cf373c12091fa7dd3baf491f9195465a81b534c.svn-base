@@ -1,0 +1,211 @@
+/**
+ * 个性频道
+ * */
+function Channel() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				self.cmd(gHttp,{controller:'Channel',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						var tplurl = $.trim(result1.data.tplurl);
+						var detailtplurl = $.trim(result1.data.detailtplurl);
+						
+						if(result1.data.is_use_tpl == 1){
+							$('div.tempbox').hide();
+						}
+						if(tplurl != ''){
+							$('#span_list').html('已上传模版文件,模版路径：'+tplurl);
+						}
+						if(detailtplurl != ''){
+							$('#span_detail').html('已上传模版文件,模版路径：'+detailtplurl);
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			
+			
+			
+			$('[name=name]').change(function(){
+				var me = $(this);
+				var val = me.val();
+				self.cmd(gHttp,{controller:'Pingyin',method:'conversion',data:val}, function(ret){
+					$('[name=shortname]').val(ret.data);
+				});
+			});
+			
+			$('.skin-minimal input').iCheck({
+				checkboxClass: 'icheckbox-blue',
+				radioClass: 'iradio-blue',
+				increaseArea: '20%'
+			});
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0")
+			//保存
+			$("#save").click(function(){
+				self.save();
+			});
+			
+			//使用模板方式改变时
+			$('input.is_use_tpl').click(function(){										 
+				if( $(this).val() == 1 ){
+					$('div.tempbox').hide();
+					$('input.input_temp').val('');
+				} else {
+					$('div.tempbox').show();
+				}	
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para : {controller:'Channel',method:'query'},
+			aoColumnDefs : [
+							{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'name' },
+			            { data: 'shortname',},
+			            { data: 'is_use_tpl',
+			              render : function(value, type, row) {return (value==1)?'<span class="label label-primary radius">默认模板</span>':'<span class="label label-default radius">自定义模板</span>';}	
+			            },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" class="ml-5" onclick="gChannel.openAdd(\'该频道资讯列表\',\'channelArticles.html?id='+id+'\');" href="javascript:;"  title="查看资讯列表"><i class="Hui-iconfont">&#xe681;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gChannel.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gChannel.del('+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(id) {
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Channel',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function() {
+		var ids = $("#dataTable").getSelectedAll();
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Channel',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEditWID('编辑个性频道','channel.html?id=' + id,'700','500');
+	}
+	
+	//保存
+	this.save = function() {
+		var post = {controller:'Channel',method:'save'};
+		var id = $("#id").val();
+		if ( id != '') {
+			post = {controller:'Channel',method:'update',id:id};
+		}
+		$('#formEdit').checkAndSubmit('save', post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#formEdit').submit();
+	}
+	
+	this.fileupalod = function (tpl){
+        var url = document.getElementById('shortname').value;
+        var fileupload = document.getElementById('fileupload_'+tpl).value;
+        if(url===''){
+            layer.alert('请先输入文件保存目录!');return;
+        }else{
+            window.open('/hcc/hospital/fileup.php?flag=channel&fileurl='+url+"&tpl="+tpl+"&fileupload="+fileupload,'fileupload','status=no,location=no,width=500,height=50,top=150,left=400');
+        }
+    }
+    this.filedelete = function (tpl){
+        document.getElementById('fileupload_'+tpl).value = '';//清空表单
+        document.getElementById('a_filedelete_'+tpl).style.display = 'none';//隐藏删除按钮
+        document.getElementById('span_fileupload_'+tpl).innerHTML = '';//清空提示
+        document.getElementById('btn_fileupload_'+tpl).setAttribute('src','./public/img/xzmb.jpg');//重置按钮
+        layer.alert('删除成功!');
+    }
+    this.tplshow = function (){
+    	document.getElementById('uploadTpl').style.display = 'block';
+    	document.getElementById('uploadDetailTpl').style.display = 'block';
+    }
+    this.tplhide = function (){
+    	document.getElementById('fileupload_list').value = '';
+    	document.getElementById('a_filedelete_list').style.display = 'none';
+    	document.getElementById('span_fileupload_list').innerHTML = '';
+    	document.getElementById('btn_fileupload_list').setAttribute('src','./public/img/xzmb.jpg');
+    	document.getElementById('uploadTpl').style.display = 'none';
+    	
+    	document.getElementById('fileupload_detail').value = '';
+    	document.getElementById('a_filedelete_detail').style.display = 'none';
+    	document.getElementById('span_fileupload_detail').innerHTML = '';
+    	document.getElementById('btn_fileupload_detail').setAttribute('src','./public/img/xzmb.jpg');
+    	document.getElementById('uploadDetailTpl').style.display = 'none';
+    }
+	
+}

@@ -1,0 +1,188 @@
+<?php
+
+class MobilePicManagerController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        $this->service = new MobilePicManagerService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+            $picManagers = $_REQUEST['id'];
+        } else {
+            $picManagers = array(
+                $_REQUEST['id']
+            );
+        }
+
+        $result = $this->service->deleteBatch($picManagers);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+        $picManagers = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+        echo json_encode(array(
+            'rows' => $picManagers->data,
+            'ttl' => $totalRows->data
+        )
+        );
+    }
+
+    /**
+     * 获得单笔
+     */
+    public function get() {
+        $this->blindParams($picManager = new MobilePicManager());
+        $result = $this->service->get($picManager);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑广告
+     */
+    public function adEdit() {
+        $this->blindParams($picManager = new MobilePicManager());
+        $result = $this->service->adEdit($picManager);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 根据kind搜索
+     */
+    public function getOne() {
+        $result = $this->service->getOne();
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+        $this->blindParams($picManager = new MobilePicManager());
+        $result = $this->service->update($picManager);
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+        $this->blindParams($picManager = new MobilePicManager());        
+        $result = $this->service->save($picManager);
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加轮播组
+     */
+    public function installSlide() {
+        $result = $this->getInstall();
+        if ($result->statu) {
+            $result = $this->service->addSlide($result->data);
+            if ($result->statu) {
+                $result = $this->successInstall();
+            }
+        }
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获得广告图
+     */
+    public function getAd() {
+        $result = $this->service->getAd();
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取轮播配置
+     *
+     * @return Result
+     */
+    private function getInstall() {
+        $result = new Result(true, 0, '', Null);
+
+        $configFile = ABSPATH . '/tpl/slide/config.json';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+            unset($config[0]);
+            $result->data = $config;
+        } else {
+            $result = new Result(false, 33, ErrorMsgs::get(33), Null);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 更改安装状态
+     *
+     * @return Result
+     */
+    private function successInstall() {
+        $result = new Result(true, 0, '', Null);
+
+        $configFile = ABSPATH . '/tpl/slide/config.json';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+            $config[0]->name = true;
+
+            if (is_writable($configFile)) {
+                file_put_contents($configFile, json_encode($config));
+            } else {
+                $result = new Result(false, 33, ErrorMsgs::get(33), Null);
+            }
+        } else {
+            $result = new Result(false, 33, ErrorMsgs::get(33), Null);
+        }
+
+        return $result;
+    }
+    
+    /**
+     * 动态读取图片规格文件
+     * 
+     */
+    public function getConfigJson(){
+    	$url  = $_REQUEST['url'];
+    	$file = ABSPATH . $url;
+    	$content = trim(file_get_contents( $file ));
+    	die( $content );
+    }
+}
+

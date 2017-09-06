@@ -1,0 +1,468 @@
+$(function() {
+var regsiter_vy_time = null;  	//定义时间
+var is_lock_send_vy = false;	//解除锁定
+var left_rg_time = 0;			//开始时间
+function left_time_to_send_regvy(){
+	clearTimeout(regsiter_vy_time);
+	if(left_rg_time > 0){
+		regsiter_vy_time = setTimeout(left_time_to_send_regvy,1000);
+		$("#get_regsms_code").val(left_rg_time+"秒后重新获取验证码");
+		$("#get_regsms_code").addClass("btn_disable");
+		left_rg_time -- ;
+	}else{
+		is_lock_send_vy = false;
+		$("#get_regsms_code").removeClass("btn_disable");
+		$("#get_regsms_code").val("重新获取验证码");		
+		left_rg_time = 0;
+	}
+}
+	var addsuccess = function (dat){
+		$("#pageDialogBG .Prompt").text("");
+		var w=($(window).width()-255)/2,
+			h=($(window).height()-45)/2;
+		$("#pageDialogBG").css({top:h,left:w,opacity:0.8});
+		$("#pageDialogBG").stop().fadeIn(1000);
+		$("#pageDialogBG .Prompt").append('<s></s>'+dat);
+		$("#pageDialogBG").fadeOut(1000);
+	}
+	var getData = function(data,fun){
+			var http = '/app/login.php';
+			$.ajax({url:http,type:'post',data:data,async:true,dataType:'json',
+				success:function(re){
+					fun(re);
+				}
+			});
+	} 
+			
+    $(document).ready(function(){
+
+	//手机验证
+		$("#settings-mobile").focus(function(){
+		var obj=$(this).val();
+			if(obj=="请输入11位手机号"){
+				$(this).val("");
+		     }
+		  });
+	$("#settings-mobile").blur(function(){
+		   var obj=$(this).val();
+		   if(obj==""){
+				$(this).val("请输入11位手机号");
+				return false;
+		     }			
+			if(!$.checkMobilePhone(obj)||$.trim(obj).length == 0){
+				$("#get_regsms_code").addClass("btn_disable");
+				$.formError("#settings-mobile","手机号码格式错误，请重新输入");
+					return false;
+			}else{
+				$("#get_regsms_code").removeClass("btn_disable");
+				$.formSuccess();
+			}
+
+			var mobile = obj;
+		getData({method:'checkInfo',mobile:mobile},function(res){	
+			if(res.status==1){
+				$("#get_regsms_code").removeClass("btn_disable");
+				$.formSuccess();			
+			}else{
+				$("#get_regsms_code").addClass("btn_disable");
+				$.formError("#settings-mobile",res.info);
+				return false;				
+			}			
+		});				
+	});//end
+		  
+	//短信验证码
+		$("#sms-code").focus(function(){
+		var obj=$(this).val();
+			if(obj=="输入短信验证码"){
+				$(this).val("");
+		     }
+		  });
+
+	$("#sms-code").blur(function(){
+		   var obj=$(this).val();
+		   if(obj==""){
+				$(this).val("输入短信验证码");
+				return false;
+		     }			
+			if($.trim(obj).length == 0){
+				$.formError("#sms-code","验证码不能为空");
+					return false;
+			}else{
+				$.formSuccess();
+			}
+			var mobile = $("#settings-mobile").val();
+		getData({method:'checkMessageCode',mobile:mobile,code:obj},function(data){
+			if(data.status==1){
+				$("#get_regsms_code").removeClass("btn_disable");
+				$.formSuccess();						
+			}else{
+				$.formError("#sms-code",data.info);
+				return false;
+			}
+	    });	
+			
+	});//end	
+	//获取短信验证码
+	$("#get_regsms_code").click(function(){        
+			if(is_lock_send_vy || $(this).hasClass(".btn_disable")){
+				return false;
+			}
+			is_lock_send_vy = true;
+			
+			if($.trim($("#settings-mobile").val()).length == 0)
+			{	
+				is_lock_send_vy = false;
+				$.formError("#settings-mobile","手机号不能为空");
+				return false;
+			}else{
+				is_lock_send_vy = true;
+				$.formSuccess();
+			}
+			
+			if($.trim($("#settings-mobile").val()) == '请输入常用手机号码')
+			{
+				is_lock_send_vy = false;
+				$.formError("#settings-mobile","手机号不能为空");
+				return false;
+			}else{
+				is_lock_send_vy = true;
+				$.formSuccess();
+			}
+			
+			if(!$.maxLength($("#settings-mobile").val(),11))
+			{
+
+				is_lock_send_vy = false;
+				$.formError("#settings-mobile","手机号码不能超过11位");
+				return false;
+			}else{
+				is_lock_send_vy = true;
+				$.formSuccess();
+			}
+
+			if(!$.checkMobilePhone($("#settings-mobile").val()))
+			{
+
+				is_lock_send_vy = false;
+				$.formError("#settings-mobile","手机号码错误");	
+				return false;
+			}else{
+				is_lock_send_vy = true;
+				$.formSuccess();
+			}
+			var mobile =  $.trim($("#settings-mobile").val());
+			getData({method:'getRegisterVerifyCode',mobile:mobile},function(result){
+					if(result.status==1){
+						left_rg_time = 60;
+						left_time_to_send_regvy();
+						to_send_msg = true;
+						addsuccess(result.info);
+						$.formSuccess();
+					}else{	
+						is_lock_send_vy = false;
+						$.formError("#settings-mobile",result.info);
+						return false;
+					}
+			});	
+		}); //end
+		
+	//用户名验证	
+	$("#signup-membername").focus(function(){
+		var obj=$(this).val();
+			if(obj=="请输入真实姓名")
+			{
+				$(this).val("");
+				}
+		  })
+	$("#signup-membername").bind("blur",function(){
+            var obj=$(this).val();
+		   if(obj=="")
+			{
+				$(this).val("请输入真实姓名");
+				return false;
+		     }
+			if(!$.empty(obj,0,true))
+			{	
+				$.formError("#signup-membername","姓名不能为空");		
+				return false;
+			}else{
+				$.formSuccess();
+			}
+	
+			if(!$.minLength(obj,3))
+			{	
+				$.formError("#signup-membername","姓名格式错误，必须大于1个字");		
+				return false;
+			}else{
+				$.formSuccess();
+			}
+			
+			if(!$.maxLength(obj,8))
+			{
+				$.formError("#signup-membername","姓名格式错误，必须小于4个字");			
+				return false;
+			}else{
+				$.formSuccess();
+			}	
+			if(!$.checkName(obj))
+			{
+				$.formError("#signup-membername","姓名格式错误,请重新输入");			
+				return false;
+			}else{
+				$.formSuccess();
+			}			
+			var username = obj;
+		getData({method:'checkInfo',username:username},function(res){	
+			if(res.status==1){
+				$.formSuccess();			
+			}else{
+				$.formError("#signup-membername",res.info);
+				return false;				
+			}			
+		});	
+	}); //end
+		$('#signup-password').change(function(){
+			$(this).parent().find("input[name='td_pwdval']").val($(this).val());
+		});
+	$("#signup-password").focus(function(){
+		var obj=$(this).parent().find("input[name='td_pwdval']").val();
+			if(obj=="密码")
+			{
+				$(this).val("");
+				}
+		  })
+//密码验证
+	$("#signup-password").bind("blur",function(){
+		var pwd = $(this).val();
+        var obj=$(this).parent().find("input[name='td_pwdval']").val();
+		   if(pwd=="")
+			{
+				$(this).parent().find("input[name='td_pwdval']").val("密码");
+				return false;
+		     }
+		if(!$.empty(obj,0,true))
+			{	
+				addsuccess("#signup-password","密码不能为空");		
+				return false;
+			}else{
+				$.formSuccess();
+			}		
+		var name;
+		name=$.trim($("#signup-user-form #signup-password").val())
+		var reg=/^[a-zA-z0-9]{6,}$/;  
+		var regs=/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/;
+		if(reg.test(name)){	
+			if(regs.test(name)){	
+				$.formSuccess();
+			}
+			else{
+				$.formError($("#signup-user-form #signup-password"),"安全等级低，请用数字+字母");
+				return false;
+			}
+		}
+		else{
+			$.formError($("#signup-user-form #signup-password"),"密码格式错误");
+			return false;
+		}
+		if(!$.minLength($("#signup-user-form #signup-password").val(),6))
+		{
+			$.formError($("#signup-user-form #signup-password"),"密码格式错误");	
+			return false;
+		}else{
+			$.formSuccess();			
+		}		
+	});//end		
+
+//确认密码验证	
+$("#signup-user-form #signup-password-confirm").bind("blur",function(){
+		var obj = $(this);
+		var objp = obj;
+		if (!hasPlaceholderSupport()) {
+			objp = $(obj).parent();
+		}
+		if(obj.val()!==""){
+			if(obj.val() != objp.parent().parent().parent().find("#signup-password").val())
+			{
+				$.formError(obj,"密码确认失败");			
+				return false;
+			}
+		}
+		else{
+				$.formError(obj,"请输入确认密码");
+				return false;
+		}
+		objp.parent().find("#signup-password-confirm-ipt").val(obj.val());
+		$.formSuccess();
+	}); //end
+		
+//单击提交
+	$("#signup-mobile-submit").click(function(){		
+			var objform = $(this).parent().parent();
+			var check = checkRegsiter(objform);
+	if(check){
+			var mobile = $('#settings-mobile').val();
+			var username = $('#signup-membername').val();				
+			var user_pwd = $('#signup-password').val();
+			var sms_code = $('#sms-code').val();
+			getData({method:'checkReg',telephone:mobile,username:username,user_pwd:user_pwd,sms_code:sms_code},function(data){
+				if(data.status==1){
+					addsuccess(data.info);
+					window.open(data.jump,'_self');						
+				}else{	
+					addsuccess(data.info);
+					return false;
+				}
+			});			
+	}
+
+	});//end	
+})
+
+function checkRegsiter(obj){
+		/*xsz*/
+	if(!$.checkMobilePhone($("#settings-mobile").val()))
+		{		
+			addsuccess("手机号码格式错误，请重新输入");	
+			return false;
+		}	
+		if($.trim($("#settings-mobile").val()).length == 0 || $.trim($("#settings-mobile").val()) == "请输入11位手机号")
+		{
+			addsuccess("手机号码不能为空");
+			return false;
+		}
+	if($.trim($("#sms-code").val()) == "输入短信验证码"){
+			addsuccess("短信验证码格式错误，请重新输入");		
+		return false;	
+	}		
+	
+	if($.trim($("#signup-membername").val()) == "请输入真实姓名"){
+			addsuccess("姓名格式错误，请重新输入");		
+		return false;	
+	}	
+	if(!$.minLength($("#signup-membername").val(),3))
+	{
+		addsuccess("姓名格式错误，请重新输入");		
+		return false;
+	}
+	if(!$.maxLength($("#signup-membername").val(),16))
+	{
+		addsuccess("姓名格式错误，请重新输入");			
+		return false;
+	}
+	
+
+	if(!$.minLength($("#signup-password").val(),6))
+	{
+		addsuccess("密码格式错误，请重新输入");	
+		return false;
+	}
+	if($("#signup-password-confirm").val()!==""){
+		if($("#signup-password-confirm").val() != $("#signup-password").val())
+		{
+			addsuccess("密码确认失败");			
+			return false;
+		}
+	}
+	else{
+		addsuccess("请输入确认密码");			
+		return false;
+	}//密码
+							
+	
+/* 	if($("#J_agreement:checked").length == 0){
+		addsuccess("请先同意注册协议");
+		return false;
+	} */
+	
+	return true;
+}
+/*验证*/
+$.empty = function(value, length , isByte) {
+
+	var strLength = $.trim(value).length;
+	if(isByte)
+		strLength = $.getStringLength(value);
+		
+	return strLength != length;
+
+};
+$.minLength = function(value, length) {
+	var	strLength = $.getStringLength($.trim(value));
+		if(strLength >= length){
+			return true;
+		}else{
+			return false;
+		}
+};
+
+$.maxLength = function(value, length) {
+	var	strLength = $.getStringLength($.trim(value));
+		if(strLength <= length){
+			return true;
+		}else{
+			return false;
+		}	
+
+};
+$.getStringLength=function(str,mode)
+{
+	str = $.trim(str);
+	if(mode=="text")
+	{
+		str = str.replace(/<(?:img|embed).*?>/ig, 'K').replace(/\r\n|\n|\r/g, '').replace(/<\/?[^>]*>/g,'');
+	}	
+	
+	if(str=="")
+		return 0; 
+		
+	var length=0; 
+	for(var i=0;i <str.length;i++) 
+	{ 
+		if(str.charCodeAt(i)>255)
+			length+=2; 
+		else
+			length++; 
+	}
+	
+	return length;
+};
+
+//姓名验证
+$.checkName = function(val){
+		var reg = /^([\u4e00-\u9fa5]{2,6})$/; 
+	return reg.test(val);
+};
+//手机号码验证
+$.checkMobilePhone = function(value){
+	if($.trim(value)!='')
+		return /^(1[34578]\d{9})$/i.test($.trim(value));
+	else
+		return true;
+};
+$.showSuccess = function(str,func)
+{
+	$.weeboxs.open(str, {boxid:'fanwe_success_box',contentType:'text',showButton:true, showCancel:false, showOk:true,title:'提示',width:300,type:'wee',onclose:func});
+};
+$.formError = function(obj,msg)
+{	
+	if (!hasPlaceholderSupport()) {
+		obj = $(obj).parent();
+	}
+	obj = $(obj);
+	obj.parent().find(".pwd_grade").html("<span style='color:red;font-size: 14px;margin-left:80px;'>" +msg+"</span>");
+}
+$.formSuccess = function(){
+		$('.pwd_grade img').remove();
+		$('.pwd_grade span').remove();
+}
+ $.trim = function(value){
+　　return value.replace(/(^\s*)|(\s*$)/g, "");
+}
+function hasPlaceholderSupport(){
+	var attr = "placeholder";
+	var input = document.createElement("input");
+	return attr in input;
+}
+
+})

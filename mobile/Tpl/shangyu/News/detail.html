@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<title>{{$data->subject}}_新闻动态_{{$WEBTITLE}}</title>
+<meta name="keywords" content="{{$data->keywords}}" />
+<meta name="description" content="{{$data->description}}" />
+<!-- style -->
+{{include file="Common/common.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/article.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+{{include file="Common/header.html"}}
+<a name="top"></a>
+<div class="main" id="main_id">
+<div id="scroller">
+	<div class="crumb" >当前位置：<a href="{{$MOBILE}}" style="color: #fff;">主页</a>&gt; <a href="{{$MOBILE}}/news.php" >新闻动态</a>
+	&gt; <a href="{{$MOBILE}}/news.php" >详情</a>
+	</div>
+<div class="article" style="width:318px;margin:0 auto;"></br>
+	  <h3>{{$data->subject}}</h3></br>
+	  <p class="word">时间：{{$data->plushtime|date_format:'%Y-%m-%d %H:%M:%S'}}  来源：{{$WEBTITLE}}</p>
+      <div class="text1">{{$data->content}}</div>
+</div>
+<!-- last pre -->
+{{include file="Common/next_pre.html"}}
+<!-- recomend -->
+{{include file="Common/recomend.html"}}
+<!-- foot_nav -->
+{{include file="Common/foot_nav.html"}}
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</div>
+</div>
+
+</body>
+</html>

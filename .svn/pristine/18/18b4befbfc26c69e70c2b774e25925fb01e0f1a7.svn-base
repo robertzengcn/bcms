@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * 资讯(Article)DAO
+ *
+ * @author Administrator
+ *
+ */
+class BoyiManagerDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_BOYIMANAGER;        
+    }
+
+ 
+}

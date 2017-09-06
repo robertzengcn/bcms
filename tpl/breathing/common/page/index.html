@@ -1,0 +1,16 @@
+<p class="fenye">
+    总共<span> {{$pageCount}} </span>页,第<span>{{$current}}</span>页
+    <a href="../{{$dir}}/list_1.html" target="_self">首页</a>
+	<a href="../{{$dir}}/list_{{$pre}}.html" target="_self">上一页</a>	
+	<!-- start -->
+	{{for $var = $start to $end}}
+		{{if $var != $current}}
+			<a href="../{{$dir}}/list_{{$var}}.html" target="_self">{{$var}}</a>
+		{{else}}
+			<a href="javascript:;" class='ay'>{{$var}}</a>
+		{{/if}}
+	{{/for}}
+	<!-- end-->
+	<a href="../{{$dir}}/list_{{$next}}.html" target="_self">下一页</a>
+    <a href="../{{$dir}}/list_{{$pageCount}}.html" target="_self">末页</a>
+</p>

@@ -1,0 +1,66 @@
+<div class="footer">
+	<div class="container">
+    	<div class="col-xs-12 col-sm-4 foor_l">
+        	医院地址：{{contactlist  flag='address' }}[field:val/]{{/contactlist}}<br>
+            健康热线：{{contactlist  flag='tel' }}[field:val/]{{/contactlist}}<br>
+            QQ：{{contactlist  flag='qq' }}[field:val/]{{/contactlist}}<br>
+            {{contactlist  flag='icp' }}[field:val/]{{/contactlist}}
+        </div>
+        <div class="col-xs-12 col-sm-4 foor_m">
+        	 <form action="" method="get">
+		        <label></label>
+		        <select name="jumpMenu" id="jumpMenu" onchange="MM_jumpMenu(this.value)">
+				  {{footnavigation}}
+		          <option value="[field:url/]">[field:subject]</option>
+		          {{/footnavigation}}
+		        </select>
+		     </form>
+                <h4>分享本站:</h4>
+                <ul>
+                	<li><a href="javascript:void(0)" class="jiathis_button_qzone"><i class="icon icon-star"></i></a></li>
+                    <li><a href="javascript:void(0)" class="jiathis_button_tsina"><i class="icon icon-weibo"></i></a></li>
+                    <li><a href="javascript:void(0)" class="jiathis_button_weixin"><i class="icon icon-wechat"></i></a></li>
+                    <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1" charset="utf-8"></script>
+                </ul>
+        </div>
+        <div class="col-xs-12 col-sm-4 foor_r">
+        	<ul class="pull-left">
+            	<li>{{picbyflag flag='weixin'}}<img src="[field:src/]">{{/picbyflag}}<p>官方微信</p></li>
+                <li>{{picbyflag flag='weibo'}}<img src="[field:src/]">{{/picbyflag}}<p>官方微博</p></li>
+            </ul>
+            <ul class="pull-right">
+            	<li><a href="#" target="_blank">关于我们</a>|</li>
+                <li><a href="#" target="_blank">网站地图</a>|</li>
+                <li><a href="#" target="_blank">法律责任</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript"> 
+//尾部导航
+    function MM_jumpMenu(url){ //v3.0 
+    window.location.href=url; 
+    } 
+    </script>
+
+
+
+
+<!-- 弹窗  -->
+<!--  
+<div class="bar-center">
+{{$PicManagerTag->getSpecial('one')}}
+</div>
+<div class="bar-right">
+	{{$PicManagerTag->getSpecial('three')}}
+</div>
+<div class="bar-wrap" style="background-color: #731817;">
+	<div align="center">
+	{{$PicManagerTag->getSpecial('four')}}
+	</div>
+</div>
+-->
+<!-- <div style="display:none">
+	{{$ThirdTag->get('cnzz')}}
+</div> -->

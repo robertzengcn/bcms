@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<Name>织梦数据同步</Name>
+	<ByName>zhimeng</ByName>
+	<Discription>将您原有的织梦站点上有价值的数据无损的迁移到博医CMS的后台数据库中，将以前新站旧站数据迁移靠人工复制的工作大大简化。</Discription>
+	<Author>全球医院网</Author>
+	<ByVersion>v1.0</ByVersion>
+	<HccinletHtml>index</HccinletHtml>
+	<SqlFile>run.sql</SqlFile>
+	<UnInstall>ZhimengService:uninstall</UnInstall>
+	<Kernel>
+		<Controller>ZhimengController.php:controller/ZhimengController.php</Controller>
+		<Service>ZhimengService.php:kernel/ZhimengService.php</Service>
+		<Dao>ZhimengDAO.php:kernel/dao/ZhimengDAO.php</Dao>
+		<Entity>Zmdata.php:kernel/entity/Zmdata.php</Entity>
+	</Kernel>
+</plugin>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<title></title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+    <link rel="alternate icon" type="image/png" href="http://www.newtemp.com/upload/picmanager/Logo2.png">
+<!--<link href="fonts/1.1/iconfont.css" rel="stylesheet" type="text/css" />-->
+<link href="http://www.newtemp.com/public/boyicms/style.css" rel="stylesheet" type="text/css" />
+<link href="http://www.newtemp.com/public/css/zui.min.css" rel="stylesheet" type="text/css" />
+    
+<script type="text/javascript" src="http://www.newtemp.com/public/lib/jquery/jquery.js"></script><!--前置js 放在zui.js或zui.min.js之前-->
+<script type="text/javascript" src="http://www.newtemp.com/public/js/zui.min.js"></script>
+    
+</head>
+<body>
+
+    <!--head-->
+    <!--  
+中间弹窗 
+<div class="bar-center" id="bar_center">
+    
+</div>
+左侧弹窗
+<div class="bar-right" id="bar_right">
+    
+</div>
+底部弹窗
+<div class="bar-bottom" id="bar_bottom">
+    
+</div>
+ -->
+<div class="header">
+  <div class="container">
+        <div class="hidden-xs "> <img  style="padding:10px; width:400px;" src="http://www.newtemp.com/upload/picmanager/Logo.png">
+      <!-- <form class="navbar-form navbar-right hidden-sm" role="search" style="padding:26.5px 10px;">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="请输入关键字...">
+        </div>
+        <button type="submit" class="btn btn-default"><i class="icon icon-search"></i>&nbsp;搜索</button>
+      </form> -->
+      <!-- <ol class="breadcrumb pull-right">
+        <a href="your/url/">登录</a>&nbsp;&nbsp;
+        <li><a href="your/url/">注册</a></li>
+        <li><a href="your/url/">大众版</a></li>
+        <li><a href="your/url/">专业版</a></li>
+        <li class="visible-sm pull-right"><a href="your/url/"><i class="icon icon-search" style="font-size:20px"></i></a></li>
+      </ol> -->
+    </div>
+    <nav class="navbar navbar-inverse visible-xs top1" role="navigation">
+      <!-- <ol class="breadcrumb pull-left" style="padding:0; margin:0;">
+        <li><a href="your/url/"><i class="icon icon-search" style="font-size:20px"></i></a></li>
+        <li><a href="your/url/">大众版</a></li>
+        <li><a href="your/url/">专业版</a></li>
+      </ol> -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-example" id="navbar">
+        <ul class="nav navbar-nav">
+          
+                                                    <li class="active"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne1"><i class="icon-plus"></i>&nbsp;人流首页</a>
+            <ul id="collapseOne1" class="panel-collapse collapse fade">
+              
+                          </ul>
+          </li>
+                                                                        <li><a href="">&nbsp;&nbsp;&nbsp;医院概况</a></li>
+                                                                        <li><a href="">&nbsp;&nbsp;&nbsp;科室介绍</a></li>
+                                                                        <li class=""><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne1"><i class="icon-plus"></i>&nbsp;医院概况</a>
+            <ul id="collapseOne4" class="panel-collapse collapse fade">
+              
+                          </ul>
+          </li>
+                                                                        <li class=""><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne1"><i class="icon-plus"></i>&nbsp;科室介绍</a>
+            <ul id="collapseOne5" class="panel-collapse collapse fade">
+              
+                          </ul>
+          </li>
+                                                                        <li class=""><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne1"><i class="icon-plus"></i>&nbsp;人流新闻</a>
+            <ul id="collapseOne6" class="panel-collapse collapse fade">
+              
+                          </ul>
+          </li>
+                                                                        <li class=""><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne1"><i class="icon-plus"></i>&nbsp;新闻动态</a>
+            <ul id="collapseOne7" class="panel-collapse collapse fade">
+              
+                          </ul>
+          </li>
+                                      </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<a class="visible-xs" style="height:110px;" href=""><img class="center-block" height="93" src="http://www.newtemp.com/upload/picmanager/Logo3.png"></a>
+<div class="hidden-xs container nav_one" >
+  <ul class="nav nav-justified nav-pills ">
+    <li class="active"><a href="http://www.newtemp.com"><i class="icon-home"></i> 首页 </a></li>
+    
+                      <li><a class="dropdown-toggle" data-toggle="dropdown" href="###">人流首页<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        
+              </ul>
+                              <li><a href=""> 医院概况 </a></li>
+                              <li><a href=""> 科室介绍 </a></li>
+                              <li><a class="dropdown-toggle" data-toggle="dropdown" href="###">医院概况<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        
+              </ul>
+                              <li><a class="dropdown-toggle" data-toggle="dropdown" href="###">科室介绍<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        
+              </ul>
+                              <li><a class="dropdown-toggle" data-toggle="dropdown" href="###">人流新闻<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        
+              </ul>
+                              <li><a class="dropdown-toggle" data-toggle="dropdown" href="###">新闻动态<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        
+              </ul>
+              </ul>
+</div>
+<script>
+  $(function ()
+  {
+      $('.nav li:not(.disabled)').click(function() {
+          $(this).closest('.nav').find('li.active').removeClass('active');
+          $(this).addClass('active');
+      });
+  });
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- center -->
+    
+<!--专家出诊-->
+<div class="main">
+  <div class=" container">
+    <ol class="breadcrumb">
+      <i class="icon icon-home"></i>您所在的位置：&nbsp;
+      <li><a href="#">首页</a></li>
+      <li><a href="#">患者服务</a></li>
+      <li class="active">出诊查询</li>
+    </ol>
+    <div class="biaoge">
+      <div class="biaoge_title">
+        <ul>
+          <li class="biaoge_active" ><a href="###">专家出诊</a></li>
+          <li><a href="###">停诊信息</a></li>
+        </ul>
+        <span class="color_c80025 pull-right hidden-xs">注：时间如有变化，具体时间以当日挂号为准</span> <span class="pull-right"><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;副主任医师</span> <span class="pull-right"><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;主任医师</span> </div>
+      <div class="biaoge_cont">
+        <div class="biaoge_cont1 biaoge_qiehuan" >
+          <table class="table table-bordered" cellpadding="0" cellspacing="0">
+            <thead>
+              <tr>
+                <th > <div >科室</div>
+                </th>
+                <th > <div >时段</div>
+                </th>
+                <th > <div >星期一</div>
+                </th>
+                <th > <div >星期二</div>
+                </th>
+                <th > <div >星期三</div>
+                </th>
+                <th > <div >星期四</div>
+                </th>
+                <th > <div >星期五</div>
+                </th>
+                <th > <div >星期六</div>
+                </th>
+                <th > <div >星期日</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr >
+                <td class="vertical" rowspan="2"  ><a href="" target="_blank"> 血液内科 </a></td>
+                <td  width="65"> 上午 </td>
+                <td ><div > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;朱军</a> </div></td>
+                <td ></td>
+                <td ><div> <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;朱军</a> </div></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+              </tr>
+              <tr >
+                <td  width="65"> 下午 </td>
+                <td ></td>
+                <td ><div> <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;朱军</a> </div></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+              </tr>
+              <tr >
+                <td class="vertical" rowspan="2"  ><a href="" target="_blank"> 呼吸内科 </a></td>
+                <td class="table_hei" width="65"> 上午 </td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+                <td class></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+              </tr>
+              <tr >
+                <td  width="65"> 下午 </td>
+                <td ></td>
+                <td ><div> <a href=""><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;梁希军</a> </div></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+              </tr>
+              <tr >
+                <td class="vertical" rowspan="2"  ><a href="" target="_blank"> 胃肠(微创)外 </a></td>
+                <td  width="65"> 上午 </td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+                <td ><div > <a href=" "><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;刘明发</a> </div></td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+                <td ></td>
+                <td ><div > <a href=" "><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;刘明发</a> </div></td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+              </tr>
+              <tr >
+                <td  width="65"> 下午 </td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+                <td ><div > <a href=" "><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;刘明发</a> </div></td>
+                <td ><div  > <a href=" "><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李梅岭</a> </div></td>
+                <td ></td>
+                <td ></td>
+                <td ></td>
+              </tr>
+              <tr>
+                <td class="vertical" rowspan="2"  ><a href="" target="_blank"> 甲状腺外科 </a></td>
+                <td  width="65"> 上午 </td>
+                <td ><div  > <a href=""><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;李卫东</a> </div></td>
+                <td ><div  > <a href=""><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;周国庆</a> </div></td>
+                <td ><div> <a href=""><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;张曼丽</a> </div></td>
+                <td ><div  > <a href=""><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;陈信</a> </div></td>
+                <td ></td>
+                <td ></td>
+                <td ><div> <a href=""><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;张洪収</a> </div></td>
+              </tr>
+              <tr>
+                <td width="65"> 下午 </td>
+                <td ></td>
+                <td ><div  > <a href=""><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;周国庆</a> </div></td>
+                <td ><div> <a href=""><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;张曼丽</a> </div></td>
+                <td ><div  > <a href=""><i class="iconfont color_ff5c1f ">&#xe62b;</i>&nbsp;陈信</a> </div></td>
+                <td ></td>
+                <td ></td>
+                <td ><div> <a href=""><i class="iconfont color_118acf ">&#xe62c;</i>&nbsp;张洪収</a> </div></td>
+              </tr>
+            </tbody>
+          </table>
+                      
+        </div>
+        <div class="biaoge_cont2 biaoge_qiehuan" style="display:none;">
+        	<div class="segment" style='max-width: 1600px; width: inherit; padding:10px 0; background: #f5f5f5'>
+  <div id="dashboard" class="dashboard dashboard-draggable" data-height="300">
+    <header></header>
+    <section class='row'>
+      <div class="col-md-4 col-sm-12" data-id='1'>
+        <div class="panel" data-url=''>
+          <div class="panel-heading"><b>今日 2016年03月24日 星期四 停诊</b></div>
+          <div class="panel-body">
+          </div></div></div>
+          <div class="col-md-4 col-sm-6" data-id='1'>
+        <div class="panel" data-url=''>
+          <div class="panel-heading"><b>近期停诊</b></div>
+          <div class="panel-body">
+          </div></div></div>
+          <div class="col-md-4 col-sm-6" data-id='1'>
+        <div class="panel" data-url=''>
+          <div class="panel-heading"><b>长期停诊</b></div>
+          <div class="panel-body">
+          </div></div></div>
+          </section></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function ()
+  {
+      $('.biaoge_title li:not(.disabled)').click(function() {
+          $(this).closest('.biaoge_title').find('li.biaoge_active').removeClass('biaoge_active');
+          $(this).addClass('biaoge_active');
+      });
+	  $(".biaoge_title li").click(function(){//点击链接
+		   $(".biaoge_cont .biaoge_qiehuan").css("display","none");//将main下所有的div都隐藏
+		   $(".biaoge_cont .biaoge_qiehuan:eq(" + $(this).index() + ")").css("display","block"); //链接对应的div显示
+		  }); 
+  });
+  
+
+
+</script> 
+
+    <!-- footer -->
+    <div class="footer hidden-xs">
+	<p style="margin-bottom:8px;">
+	    	    	            <a href="">在线咨询</a><span>|</span>
+                	            <a href="">就诊指南</a><span>|</span>
+                	            <a href="">帮助信息</a><span>|</span>
+                	            <a href="">版权声明</a><span>|</span>
+                	            <a href="">关于我们</a><span>|</span>
+                	            <a href="">联系我们</a><span>|</span>
+                	            <a href="">友情链接</a><span>|</span>
+                	        	<a href="">特色医疗</a>
+    	            </p>
+    <p>Copyright(C)2004-2016　　</p>
+    <p><b>联系电话:</b> 　<b>急救电话：</b>市区拨打：120 各县市及外省市拨打 Email: 123456@qq.com </p>
+    <p>医院本部 地址:  电话：    本网站已被访问<strong>6337531</strong>次</p>
+ <p>技术支持：<a href="http://www.boyicms.com"><img height="18" src="http://www.newtemp.com/public/images/logo/logo1.png"></a></p>
+ <p><a href=""><img src="http://www.newtemp.com/upload/picmanager/tupian5.png"></a></p>
+</div>
+<div class="footer visible-xs">
+<p></p>
+<p></p>
+ <p>技术支持：<a href="http://www.boyicms.com"><img height="18" src="http://www.newtemp.com/public/images/logo/logo1.png"></a></p>
+ <p><a href=""><img src="http://www.newtemp.com/upload/picmanager/tupian5.png"></a></p>
+</div>
+
+</body>
+</html>
+<!-- <script language="javascript" src="" ></script> -->

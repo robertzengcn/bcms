@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../css/H-ui.min.css">
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>短信接口审核</title>
+
+
+</head>
+<body>
+
+
+<div class="pd-20 sms_rz" id="firstpage">
+	<div class="row">
+    	<div class="smsrz_tit"><span class="round l"><i class="Hui-iconfont Hui-iconfont-xuanzhong1"></i></span><strong class="l">开通说明</strong></div>
+        <div class="smsrz_js">
+        	<div class="smsrz_js_tit"><span class="round l"><i class="Hui-iconfont Hui-iconfont-news"></i></span><strong>服务介绍</strong></div>
+            <ul>
+            	<li><p>短信接口是联医与<a href="http://www.10690757.com/index.php" target="_blank">未来无线</a>的技术合作项目，旨在将短信业务便捷的接入到医院系统中方便医院的就诊服务。</p></li>
+                <li><p>短信的使用有严格的规定，因此开通短信接口需要院方提供详细的资质证明文档供电信部门申核 ，申核通过后才能继续接入。</p></li>
+                <li><p>我们与未来无线通过深入的技术合作，让院方可在以下场景使用短信通知业务：</p></li>
+                <li><p>&nbsp;&nbsp;1.发送短信验证码：患者注册或预约等需要验证真实手机号的时侯发送短信验证码以确认身份。</p></li>
+                <li><p>&nbsp;&nbsp;2.重要消息通知：向患者或院方工作人员群发重要通知类信息，如患者网上预约成功后将预约详情以短信的方式发送到患者预留的手机；患者离院后在家疗养关怀类短信的发送；患者预约‘咨询’到院接待等流程中重要事项提醒等。</p></li>
+				<li><p>&nbsp;&nbsp;3.当然我们也可以根据您的需求将短信业务应用到其它可能适用的场景，但必须遵守国家相关规定及法律条款。</p></li>
+            </ul>
+        </div>
+        <div class="smsrz_js">
+        	<div class="smsrz_js_tit"><span class="round l sjt2"><i class="Hui-iconfont Hui-iconfont-shenhe-weitongguo"></i></span><strong>注意事项</strong></div>
+            <ul>
+            	<li><p>1.国家对短信业务有严格的要求和规范，相关企业在使用前须仔细阅读相关条款。</p></li>
+                <li><p>2.群发短信的内容需要人工审核，不能随意发送。</p></li>
+                <li><p>3.短信业务不可免费使用，具体资费请查看价格表。</p></li>                
+            </ul>
+        </div>
+		
+    </div>
+	<div style="width:100%;height:60px;clear:both;"></div>
+	<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+		<div class="col-10 col-offset-1">
+			<button class="btn btn-primary radius bt-normal" type="button" id="nextstep" ><i class="Hui-iconfont">&#xe6e1;</i> 下一步</button>	
+		</div>
+	</div>
+</div>
+
+<div class="pd-20 sms_info hide" id="secpage">
+	<div class="smsrz_tit"><span class="round l"><i class="Hui-iconfont Hui-iconfont-xuanzhong1"></i></span><strong class="l">资料上传</strong></div>
+	<form action="" method="post" class="form form-horizontal" id="shengqingform">    	
+        <div class="row cl">
+            <label class="form-label col-2">医院营业执照：</label>
+            <div class="thumbnailbox">
+				<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_lisence" width="150px"><div class="img-btn" style="height: 0px;"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div>
+            <div class="formControls col-4 ml-5">            
+                <span class="btn-upload form-group">
+                 <a href="javascript:void();" class="btn btn-primary radius" onclick="layer_show('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=hospital&ipn=thumbnail_lisence','720','400')"><i class="Hui-iconfont">&#xe642;</i> 上传图片</a>                 
+                </span>                
+            </div>           
+        </div>
+		<div class="row cl">
+        	<label class="form-label col-2"></label>
+			<div class="formControls col-7"><input class="thumbnail_lisence" type="hidden" id="thumbnail_lisence" value="" name="thumbnail_lisence_value" datatype="*" nullmsg="营业执照不能为空！" errormsg="请上传医院的营业执照！" /></div><div class="col-3"></div>
+		</div>	
+        <div class="row cl">
+        	<label class="form-label col-2">医院名称：</label>
+            <div class="formControls col-7 sms_input">
+            	<input class="input-text domain" name="hospital_name" placeholder="如：华南中正口腔诊所" id="hospital_name" value="" type="text" datatype="*" errormsg="请输入医院名称！" nullmsg="医院名称不能为空！" />               
+            </div>
+            <div class="col-3"></div>
+        </div>
+       <div class="row cl">
+        	<label class="form-label col-2">营业执照编号：</label>
+            <div class="formControls col-7 sms_input">
+            	<input class="input-text domain" name="licencode" id="licencode" value="" type="text" datatype="*" errormsg="请输入营业执照编号！" nullmsg="营业执照编号不能为空！" />                
+            </div>
+            <div class="col-3"></div>
+        </div>
+        <div class="row cl">
+        	<label class="form-label col-2">短信签名：</label>
+            <div class="formControls col-7 sms_input">
+            	<input class="input-text domain" name="sign" id="sign" value="" type="text" datatype="*3-8" errormsg="请输入短信签名" nullmsg="短信签名不能为空！" />                
+            </div>
+            <div class="col-3"></div>
+        </div>
+        <div class="row cl">
+        	<label class="form-label col-2">邮箱：</label>
+            <div class="formControls col-7 sms_input">
+            	<input type="text" class="input-text" placeholder="zhongzhen@qq.com" name="email" id="email" datatype="e" nullmsg="请输入邮箱！" errormsg="邮箱格式错误"/>                
+            </div>
+            <div class="col-3"></div>
+        </div>
+		<div class="col-12 mt-20"><span class="col-2"></span><span class="c-red">*请写上能正常联系的邮箱，如申请通过会通过邮箱发送邮件给您！</span></div>        
+		<div class="row cl">
+			<label class="form-label col-2">医院简介：</label>
+			<div class="formControls col-8">
+				<textarea name="descript" id="descript"  class="textarea"  placeholder="请输入本资讯的内容简介..." datatype="*10-200" dragonfly="true" nullmsg="简介不能为空！" onKeyUp="textarealength(this,200)" errormsg="限10-200字" ></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			</div><div class="col-2"></div>
+		</div>	
+		
+		<div style="width:100%;height:60px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-1">
+				<button class="btn btn-primary radius bt-normal" type="button" id="laststep" ><i class="Hui-iconfont">&#xe66b;</i> 上一步</button>				
+				<button class="btn btn-success radius bt-normal" type="button" id="submitbtn"><i class="Hui-iconfont">&#xe603;</i> 提交审核</button>
+			</div>
+		</div>	
+		
+	</form>
+</div>
+
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/sms.js"></script>
+<script type="text/javascript">
+var duanxin = new Duanxin();
+duanxin.setThisName('Duanxin');
+duanxin.shengqing();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,member-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/common.css">
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增投票活动</title>
+<style type="text/css">
+	.pic_l{width:520px;overflow-x: hidden; overflow-y: auto; }
+	.pic_l img{max-width: 100%; height: auto;display: block;padding:2px;}
+
+	.pic_l li{ height:114px;width:164px;padding:1px; background-color:#fff; border:1px solid #efefef; overflow:hidden;float:left;border:1px solid #CECECE;}
+	.pic_l li .bg_pic:first-child{height:108px; width:100%;}
+	
+	.pic_l li:last-child{ border:1px dotted #999; text-align:center;}
+	.pic_l li:last-child:before{content: "\e600"; line-height:74px;font-family: "Hui-iconfont" !important;font-style: normal;-webkit-font-smoothing: antialiased;-webkit-text-stroke-width: 0.2px;-moz-osx-font-smoothing: grayscale; font-size:26px;}
+	.pic_l li:last-child:hover{border:1px dotted #CECECE; color:#CECECE;}
+	
+	div.appmsg_edit_mask{background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0 !important;bottom: 0;display: none;left: 0;position: absolute;right: 0;top:0px;height: 30px;line-height: 30px;}
+	.appmsg_edit_mask a {margin-left: 8px;margin-right: 8px;}
+	.maskWraper:hover .appmsg_edit_mask  {display: block;}
+	li.maskWraper{cursor:pointer;}
+	.img-btn-del {background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0 !important;height: 30px;left: 0;overflow: hidden;position: absolute;top: 0;width: 100%;display: none;}
+	.thumbnailbox:hover .img-btn-del{display: block;}
+</style>
+</head>
+<body>
+<div class="pd-20">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span id="voteactive">新增活动</span><span>选手设置</span><span id="setprize">奖品设置</span></div>
+				<form action="" method="post" class="form form-horizontal" id="formEdit">
+				<input type="hidden" id="id" name="id" value=""/>
+			<div class="tabCon">
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>活动标题：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="XXXXXX杯“晒幸福”赢大奖【XX系】" id="title" name="title" datatype="*2-30" nullmsg="活动标题不能为空" errormsg="限2-30个字">					
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>活动广告图片：</label>		
+					<div class="formControls col-8">
+						<div class="pic_l" id="img_list">
+							<ul class="pic_list">
+								<li class="maskWraper" id="list1">
+									<div class="bg_pic"><img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" width="160px" /></div>
+									<div class="appmsg_edit_mask">
+										<a class="js_other"  title="上传图片" onClick="layer_show('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=vote&ipn=list&type=piclist','720','420')" href="javascript:;"><i class="Hui-iconfont" style="font-size:22px;color:#FFFFFF;">&#xe642;</i></a>
+										<a class="js_delete"  title="删除" style="float:right;"><i class="Hui-iconfont" style="font-size:22px;color:#FFFFFF;">&#xe6e2;</i></a>
+									</div>
+									<input type="hidden" id="piclist1" name="piclist[]">						
+								</li>
+								<li class="maskWraper add"></li>
+							</ul>
+						</div> 
+					</div>
+					<input type="hidden" id="picnum" name="picnum" value="1">
+
+				</div><!--上传图片-->
+				<div class="row cl">
+					<label class="form-label col-2">微信分享描述：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="" id="fxms" name="fxms" datatype="*5-100" errormsg="限5-100个字">					
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">微信分享图标：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="layer_show('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=vote&ipn=thumbnail_fxtb','720','400')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox">
+						<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_fxtb" width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+					<input type="hidden" id="fxtb" name="fxtb" class="thumbnail_fxtb"/>
+				</div><!--上传图片-->
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>用户可投次数：</label>
+					<div class="formControls col-1">
+						<input type="text" class="input-text" value="1"  id="ktcs" name="ktcs" datatype="INTS" nullmsg="次数不能为空" errormsg="请输入正确的次数">					
+					</div>
+					<div class="col-5"><span class="c-red">每个微信用户每天可投次数</span></div>
+					<label class="form-label col-2">每次消耗(钻石)：</label>
+					<div class="formControls col-1">
+						<input type="text" class="input-text" value="1" placeholder="" id="mcsl" name="mcsl" datatype="INTS" errormsg="请输入正确的数量">				
+					</div>
+					<div class="col-3"> </div>
+				</div>			
+				<div class="row cl">
+					<label class="form-label col-2">引导关注链接：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="公众号后台素材管理里添加个引导关注素材，把素材链接填到这" id="gzyd" name="gzyd"  >					
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">关注二维码：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="layer_show('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=vote&ipn=thumbnail_gztb','720','400')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox">
+						<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_gztb" width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+					<input type="hidden" id="gztb" name="gztb" class="thumbnail_gztb"/>
+				</div><!--上传图片-->
+				
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>报名时间：</label>
+					<div class="formControls col-5">				
+						<input type="text" onFocus="WdatePicker()" id="bmksmin" class="input-text Wdate" style="width:120px;" name="start_time" nullmsg="请选择报名开始日期">
+						-
+						<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'bmmin\')}'})" id="bmjxmin" class="input-text Wdate" style="width:120px;" name="over_time" nullmsg="请选择报名结束日期">
+					</div>
+					<div class="col-3"> </div>					
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>投票时间：</label>
+					<div class="formControls col-5">				
+						<input type="text" onFocus="WdatePicker()" id="tpksmin" class="input-text Wdate" style="width:120px;" name="statdate" nullmsg="请选择投票开始日期">
+						-
+						<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'tpmin\')}'})" id="tpjxmin" class="input-text Wdate" style="width:120px;" name="enddate" nullmsg="请选择投票结束日期">
+					</div>
+					<div class="col-3"> </div>					
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">首页顶部公告：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="" id="gonggao" name="gonggao" datatype="*0-30" errormsg="限0-30个字">					
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">虚拟浏览量：</label>
+					<div class="formControls col-1">
+						<input type="text" class="input-text" value="0"  id="xncheck" name="xncheck" datatype="/0|[1-9]{1}[0-9]{0,1}/"  errormsg="请输入正确的浏览量">				
+					</div>
+					<div class="col-1"> </div>
+					<label class="form-label col-2">虚拟投票数：</label>
+					<div class="formControls col-1">
+						<input type="text" class="input-text" value="0"  id="xntps" name="xntps" datatype="/0|[1-9]{1}[0-9]{0,1}/"  errormsg="请输入正确的投票数">				
+					</div>
+					<div class="col-1"> </div>
+					<label class="form-label col-2">虚拟报名数：</label>
+					<div class="formControls col-1">
+						<input type="text" class="input-text" value="0"  id="xnbms" name="xnbms" datatype="/0|[1-9]{1}[0-9]{0,1}/"  errormsg="请输入正确的报名数">				
+					</div>
+					<div class="col-1"> </div>
+				</div>			
+
+		
+				<div class="row cl">
+					<label class="form-label col-2">是否需要审核：</label>
+					<div class="formControls col-2"> <span class="select-box">
+						<select name="is_sh" class="select" id="is_sh">
+							<option value="1">审核作品</option>
+							<option value="0">不审核作品</option>							
+						</select>
+						</span>
+					</div>
+				</div>
+				<div class="row cl">			
+					<label class="form-label col-2">审核通过通知：</label>
+					<div class="formControls col-92 skin-minimal"><!--add col-92 css-->
+						<div class="radio-box">
+							<input type="radio" id="is_sendsms" name="is_sendsms" datatype="*" nullmsg="" value="1"  checked="checked">
+							<label>是</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="is_sendsms" name="is_sendsms" value="0">
+							<label>否</label>
+						</div>
+					</div>
+				</div>
+			
+				<div class="row cl">
+					<label class="form-label col-2">无法在线报名帮助：</label>
+					<div class="formControls col-7">
+						<textarea name="wfbmbz" id="wfbmbz" cols="" rows="" class="textarea"  placeholder="" datatype="*0-200"  dragonfly="true"  onKeyUp="textarealength(this,200)" errormsg="请输入0-200个字">若在线报名失败，可以将报名信息：姓名+联系方式+描述+照片（1~3张，至少1张）发给我们：qq:[填写客服qq]</textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">58</em>/200</p>
+					</div>
+					<div class="col-3"></div>
+				</div>			
+				<div class="row cl">			
+					<label class="form-label col-2">活动启用：</label>
+					<div class="formControls col-92 skin-minimal"><!--add col-92 css-->
+						<div class="radio-box">
+							<input type="radio" id="status" name="status" datatype="*" nullmsg="" value="1"  checked="checked">
+							<label>是</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="status" name="status" value="0">
+							<label>否</label>
+						</div>
+					</div>
+				</div>	
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>【标题一】：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="活动介绍："  id="shumat" name="shumat" datatype="*2-10" nullmsg="标题一不能这空" errormsg="限2-10个字">				
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">【内容一】：</label>
+					<div class="formControls col-10"> 
+						<script id="editor1" name="shuma" type="text/plain" style="width:100%;height:400px;"></script> 
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>【标题二】：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="活动奖品："  id="shumbt" name="shumbt" datatype="*2-10" nullmsg="标题一不能这空" errormsg="限2-10个字">				
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">【内容二】：</label>
+					<div class="formControls col-10"> 
+						<script id="editor2" name="shumb" type="text/plain" style="width:100%;height:400px;"></script> 
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>【标题三】：</label>
+					<div class="formControls col-7">
+						<input type="text" class="input-text" value="活动规则："  id="shumct" name="shumct" datatype="*2-10" nullmsg="标题一不能这空" errormsg="限2-10个字">				
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">【内容三】：</label>
+					<div class="formControls col-10"> 
+						<script id="editor3" name="shumc" type="text/plain" style="width:100%;height:400px;"></script> 
+					</div>
+				</div>
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+					<div class="col-10 col-offset-1">
+						<button class="btn btn-primary radius bt-normal" type="button" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+						<button class="btn btn-default radius bt-normal" type="button" id="back">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+					</div>
+				</div>				
+			</div><!--活动规则-->
+				</form>
+			<div class="tabCon">
+				<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;" class="btn btn-danger radius" onclick="gVote.delPlayerBatch()"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" href="javascript:;" id="addplayer"><i class="Hui-iconfont">&#xe600;</i> 增加选手</a></span></div>
+				<div class="pd-10 mt-5">
+					<table class="table table-border table-bordered table-bg table-hover table-sort" id="voteitem">
+						<thead>
+							<tr class="text-c">
+								<th width="25"><input type="checkbox" name="" value=""></th>
+								<th width="50">序号</th>
+								<th width="120">姓名</th>	
+								<th width="100">票数</th>
+								<th width="100">点击量</th>
+								<th width="120">电话</th>
+								<th width="120">报名时间</th>									
+								<th width="120">审核状态</th>
+								<th width="100">操作</th>
+							</tr>
+						</thead>
+						<tbody class="text-c">
+							
+						</tbody>
+					</table>
+				</div>
+			</div><!--选手设置-->
+			<div class="tabCon">
+				<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;" class="btn btn-danger radius" onclick="gVote.delprizeBatch()"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" href="javascript:;" id="addprize"><i class="Hui-iconfont">&#xe600;</i> 新增奖品</a></span></div>
+				<div class="pd-10 mt-5">
+					<table class="table table-border table-bordered table-bg table-hover table-sort" id="prizeitem">
+						<thead>
+							<tr class="text-c">
+								<th width="25"><input type="checkbox" name="" value=""></th>
+								<th width="50">序号</th>
+								<th width="200">奖品名称</th>	
+								<th>总数（件）</th>	
+								<th width="90">领取方式</th>								
+								<th width="90">奖品名次</th>
+								<th width="100">操作</th>
+							</tr>
+						</thead>
+						<tbody class="text-c">
+							
+						</tbody>
+					</table>
+				</div>
+			</div><!--奖品设置-->			
+		</div>
+		<div style="width:100%;height:60px;clear:both;"></div>
+	
+
+</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/vote.js"></script>
+<script type="text/javascript">
+var editor1 = UE.getEditor('editor1');
+var editor2 = UE.getEditor('editor2');
+var editor3 = UE.getEditor('editor3');
+var gVote = new Vote();
+gVote.setThisName('gVote');
+gVote.addVote();
+</script>
+</body>
+</html>

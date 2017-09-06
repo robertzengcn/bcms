@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增积分规则-积分商城</title>
+</head>
+<body>
+<div class="pd-20">
+	<form class="form form-horizontal" id="scoreruleadd">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>规则类型：</label>	
+			<div class="formControls col-7"> 
+				<input type="text" class="input-text" value="" placeholder="请输入规则名称" id="scoretype" name="name" nullmsg="规则名称不能为空" datatype="*" /></div>
+			<div class="col-2"> </div>
+		</div><!--须加入重复验证，以免添加了两个一样的规则-->
+		<div class="row cl">
+			<label class="form-label col-2">规则说明：</label>
+			<div class="formControls col-7">
+				<textarea name="descript" id="descript" cols="" rows="" class="textarea"  placeholder="" datatype="*2-200" nullmsg="请输入该规则的备注说明" dragonfly="true"  onKeyUp="textarealength(this,200)" errormsg="请输入2-200个字"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			</div><div class="col-2"> </div>
+		</div>
+		<div class="row cl">			
+			<label class="form-label col-2">是否启用：</label>
+			<div class="formControls col-92 skin-minimal">
+				<div class="radio-box">
+					<input type="radio" id="stutesy" name="status"  value="1"  checked="checked">
+					<label>是</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="stutesn" name="status" value="0">
+					<label>否</label>
+				</div>
+			</div>
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">给予积分个数：</label>
+			<div class="formControls col-7"><input type="text" class="input-text" value="" placeholder="请输入达到规则条件时给予相应的积分数，限整数" id="score" name="score" nullmsg="给予积分不能为空" datatype="INTS" errormsg="请输入大于等于一的整数"/></div><div class="col-2"> </div>
+		</div>		
+		<div class="row cl" id="lastfield">
+			<label class="form-label col-2">每日上限：</label>
+			<div class="formControls col-7"><input type="text" class="input-text" value="" placeholder="请输入该规则每日上限的积分数，限整数" id="limit" name="limit" nullmsg="每日上限不能为空" datatype="/0|[1-9]{1}[0-9]{0,1}/" placeholder="请输入该规则每日给予的上限的积分数，一般与给予积分个数相等" errormsg="请输入大于等于零的整数"/></div><div class="col-2"> </div>
+		</div>		
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button id="save" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button class="btn btn-default radius bt-normal" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>		
+	</form>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/scorerule.js"></script>
+<script type="text/javascript">
+var scoreruleadd = new Scorerule();
+scoreruleadd.setThisName('scoreruleadd');
+scoreruleadd.addrule();
+$('.skin-minimal input').iCheck({
+	checkboxClass: 'icheckbox-blue',
+	radioClass: 'iradio-blue',
+	increaseArea: '20%'
+});
+</script>
+</body>
+</html>

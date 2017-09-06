@@ -1,0 +1,108 @@
+<?php
+
+class VotePrizeController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        parent::__construct();
+        $this->service = new VotePrizeService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        return $filterService->execute();
+    }
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+        $result = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+    /**
+     * 删除单笔数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+        	
+            $commoditys= $_REQUEST['id'];
+        } else {
+        	$arr = explode(',',$_REQUEST['id']);
+        	
+            $commoditys = $arr;
+        }
+        
+       
+        $result = $this->service->deleteBatch($commoditys);
+
+        echo json_encode($result);
+    }
+
+
+    /**
+     * 获得单笔动态数据
+     */
+    public function get() {
+    	
+        $this->blindParams($prize = new VotePrize());
+        $result = $this->service->get($prize);
+       
+        echo json_encode($result);
+    }
+    
+    
+    
+
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+
+        $this->blindParams($prize = new VotePrize());
+
+        $result = $this->service->update($prize);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+
+        $this->blindParams($prize = new VotePrize());
+        $result = $this->service->save($prize);
+        
+        echo json_encode($result);
+    }
+    
+    
+    /**
+     * 添加商品
+     */
+    public function addprize() {
+    
+    	$this->blindParams($prize = new DrawPrize());
+    	$prizeservice=new DrawPrizeService();
+    	$result = $prizeservice->save($prize);
+    
+    	echo json_encode($result);
+    }
+    
+}

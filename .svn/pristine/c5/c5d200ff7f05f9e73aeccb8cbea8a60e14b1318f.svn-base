@@ -1,0 +1,17 @@
+@charset "utf-8";
+/* CSS Document */
+ul, li, ol {list-style: none;}
+[class*="am-u-"] {padding-left:0rem;padding-right:0rem;}
+img{width:100%;}
+a:hover {color:#000000;}
+dt + dd {margin-top: 0;}
+.am-slider-default{margin-bottom: 0px;}
+.am-container > .am-g {margin-left: 0px;margin-right:0px ;}
+
+/*面板*/
+.am-panel-title{ line-height:20px; color:#333;}
+.am-panel-title span{ color:#F37B1D;}
+.barcode_cont{ font-size:14px;}
+.barcode_cont h4{ font-size:13px; font-weight:bold;}
+.barcode_cont h3{color:#F37B1D; font-size:16px; font-weight:bold; margin:5px auto;}
+.barcode_cont p{margin:5px auto; display:block; line-height:24px;}

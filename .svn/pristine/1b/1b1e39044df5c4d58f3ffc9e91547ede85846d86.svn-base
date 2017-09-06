@@ -1,0 +1,43 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class MediaReport extends Entity {
+
+    var $id;
+
+    var $subject;
+
+    var $pic;
+
+    var $source;
+
+    var $content;
+
+    var $click_count;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $updatetime;
+
+    public function validate() {
+        if (strlen($this->subject) == 0) {
+            throw new ValidatorException(6);
+        }
+
+        if (strlen($this->content) == 0) {
+            throw new ValidatorException(5);
+        }
+        if ($this->plushtime == '' || strlen($this->plushtime) == 0) {
+            $this->plushtime = time();
+        }
+        if ($this->updatetime == '' || strlen($this->updatetime) == 0) {
+            $this->updatetime = time();
+        }
+    }
+}

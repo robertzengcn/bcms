@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>挂号医生与形象展示医生关联-预约挂号</title>
+<style type="text/css">	
+	.cliinicitem_div h3{background-color: #efefef;padding: 5px 10px;font-size:16px;font-weight:bolder;height:30px;line-height:30px;}
+	.clinic_item{width:116px;float:left;overflow:hidden;height:30px;background:#FFFFFF;font-size:14px;}	
+</style>
+</head>
+<body>
+<div class="pd-20">
+    <input type="hidden" value="" id='id' >
+	<form action="" method="post" class="form form-horizontal" id="">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>使用说明</span><span id="newdoctor">关联医生</span></div>
+			<div class="tabCon">				
+				<div class="row">					
+					<div class="smsrz_js">
+						<div class="smsrz_js_tit"><span class="round l"><i class="Hui-iconfont Hui-iconfont-news"></i></span><strong>应用说明</strong></div>
+						<ul>
+							<li><p>医生关联是为了将实际的坐诊医生与网站包装的形象医生做精确的关联。以便前端的展示医生能精确调取医生实际的排班信息：</p></li>
+							<li><p>&nbsp;&nbsp;1.前端的医生数据表和预约挂号医生的数据表是分开的，因为前端展示医生的位置有限，往往只展示科室中部分资历出众的医生，而大部分普通的医生并没有展示，但这些医生在医院实际又有出诊，所以进行了分表处理。在这种情况下，按姓名关联这两张表的医生如果有重名，则会出BUG，因此需要手动关联。</p></li>	
+							<li><p>&nbsp;&nbsp;2.前端在PC网页/APP/微站上展示的医生归属科室与实际医生出诊的科室不符的情况，前端做展示的医生为了页面美观并没有按实际医院开设的科室分配所属科室，如某医生实际在医院的坐诊科室是“内科（一）”。但在对外宣传时为了浏览者第一时间能明白该医生的专长，往往分配的科室是诸如“内分泌失调”等虚拟科室。这样两个科室的医生无法自动对应，就必须手动做关联。</p></li>	
+							<li><p><span class="c-red">*</span><font color="red"><b>注</b></font>：不需要与前端展示医生关联的信息请关闭该窗口！</p></li> 
+						</ul>
+					</div>
+					<div class="smsrz_js">
+						<div class="smsrz_js_tit"><span class="round l sjt2"><i class="Hui-iconfont Hui-iconfont-shenhe-weitongguo"></i></span><strong>使用方法</strong></div>
+						<ul>
+							<li><p>1.点击本页“关联医生”按钮即可切换到功能界面；</p></li>
+							<li><p>2.功能界面会默认展示所有在“医疗资讯管理->医生管理”中添加的医生；</p></li>
+							<li><p>3.预约的医生要与哪位医生关联直接选中保存即可。</p></li>								
+						</ul>
+					</div>	
+				</div>				
+			</div>
+			<!--己有医生-->
+			<div class="tabCon">
+				<div class="pd-5">	
+					<div class="cl pd-5 bg-1 bk-gray">
+					   <span class="select-box inline">
+							<select name="department_id" id="department_id" class="select">
+								<option value="">所属科室</option>
+							</select>
+					   </span>
+					   <span class="r">医生名称：<input type="text" name="" id="keywords" placeholder=" 请输入关键词..." style="width:150px" class="input-text"> <button name="" id="searchbu" class="btn btn-success patientmanage" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+					   </span> 
+					</div>
+					<div class="cl mt-5 col-12">						
+						<div class="cliinicitem_div cl">						
+							<ul id="doctor_list" class="clinic-list col-12 skin-minimal pd-10"></ul>
+						</div>	
+					</div>			
+				</div>
+				<div style="width:100%;height:50px;clear:both;"></div>
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+					<button  class="btn btn-primary radius bt-normal" type="button" id="chooseitem"><i class="Hui-iconfont">&#xe632;</i> 保存关联</button>				
+				</div>
+			</div>
+			
+			<!--新增医生-->			
+		</div><!--HuiTab over-->		
+	</form>
+</div>
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation.js"></script>
+<script type="text/javascript">
+var relationDoc = new Reservation();
+relationDoc.setThisName('relationDoc');
+relationDoc.setDocRelationship();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<!--技术-->
+<div class="par-technology bk">
+    <h4><a target="_blank" href="{{$WEBSITE}}/technology">先进技术</a></h4>
+    {{$Technologys = $TechnologyTag->getList(1,7)}}
+    <ul>
+        {{foreach $Technologys as $value}}
+        <li>・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:"14"}}</a></li>
+        {{/foreach}}
+    </ul>
+</div>

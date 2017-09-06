@@ -1,0 +1,122 @@
+<?php
+/**
+ * 
+ * 医院动态tag标签
+ * @author Administrator
+ *
+ */
+class NewsTag extends CommonTag {
+	
+	/**
+	 * 
+	 * 构造方法
+	 */
+	function __construct() {
+		$this->service = new NewsService ();
+		parent::__construct( get_class() );
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取对应的数据
+	 * {{foreach $tagOb->getList($cur) as $v}}
+	 * {{/foreach}}
+	 * @param  int $current  当前页
+	 * @param  boolean $sort 排序规则,true为时间降序
+	 * @return array list
+	 */
+	public function getList($current=1,$limit='',$sort = true) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.分页数
+		$pageCount = ceil( $count / $this->tagConfig['pageSize']);
+		#.组合条件进行数据查询
+		$limit = $limit == '' ? $this->tagConfig['pageSize'] : $limit;
+		$limit = array ("page" => $current, "size" => $limit );
+		$field = '*';
+		$where = array ('1' => 1 );
+		$order = $sort === true ? "plushtime desc" : "plushtime asc";
+		$data = $this->service->getPage ( $field, $where, $limit, $order );
+		return $data;
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取分页html
+	 * {{$tagOb->getPageHtml($cur)}}
+	 * @param int $current 当前页
+	 */
+	public function getPageHtml($current) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.生成html信息
+		return $this->setPageHtml($current, $this->tagConfig['pageSize'] , $count , 'news' );
+	}
+	
+	/**
+	 * 
+	 * 根据唯一id获取该id的详细信息
+	 * {{$news = $tagOb->get($id)}}
+	 * @param int $id 唯一id
+	 */
+	public function get($id) {
+		$id = (int)$id <= 0 ? 0 : (int)$id;
+		$where = array( "id" => $id );
+		$result = $this->service->findOne( $where , '*' );
+		$news = new News();
+		$news->generateFromRedBean( $result );
+		return $news;
+	}
+	
+	/**
+	 * 
+	 * 相关文章推荐
+	 * @param int $limit 取多少条
+	 */
+	public function getResemble($limit = 10) {
+		return $this->service->getLimit ('id desc', $limit, array('1'=>1),'*');
+	}
+	
+	
+	/**  
+	 * 获取最新新闻
+     */
+	
+	public function getNewest($limit){
+	    $where = array();
+	    $where['page'] = 1;
+	    $where['size'] = $limit;
+	    $result = $this->service->query($where);
+	    return $result->data;
+	    
+	}
+	
+	
+	/**
+	 * 根据推荐位置获取 新闻 ...
+	 * @param unknown_type $recommend_id
+	 */
+	public function getByRecommend($recommend,$name='news_id'){
+	    if (!is_numeric($recommend)){
+	        $position = new RecommendPositionService();
+	        $result = $position->getByName($recommend);
+	        $recommend_id = $result->id;
+	    }else{
+	        $recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+	    }
+	    $recommendObj = new RecommendListService();
+	    $news = $recommendObj->getByRecommendID($recommend_id,$name);
+	    $resultArr = array();
+	    foreach ($news as $value){
+	        $newsatrs = new News();
+	        $newsatrs->id = $value->news_id;
+	        $resultArr[] = $this->service->get($newsatrs)->data;
+	    }
+	    return $resultArr;
+	}
+	
+}

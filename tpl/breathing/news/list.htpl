@@ -1,0 +1,23 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/list.css">
+  {{/block}}
+  {{block name="body"}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}/hospital/news/index.html">新闻列表</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <h2>新闻动态列表</h2>
+      {{foreach $NewsTag->getList($cur) as $v}}
+      <div><h4><a target="_blank" href="{{$WEBSITE}}/hospital/news/{{$v->id}}.html">{{$v->subject}}</a></h4>
+        <p>{{$v->description|truncate:"60"}}..<a target="_blank" href="{{$WEBSITE}}/hospital/news/{{$v->id}}.html">[详情]</a></p>
+      </div>
+      {{/foreach}}
+      <p class="fenye">{{$NewsTag->getPageHtml($cur)}}</p>
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  {{/block}}

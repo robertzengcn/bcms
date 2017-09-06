@@ -1,0 +1,94 @@
+<?php
+/*
+ * 用户操作模块
+* */
+
+
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", "0");
+include_once ABSPATH.'/mod/Mod.php';
+
+class Users  extends Mod{
+	
+	function __construct() {
+
+		parent::__construct();
+		$this->validuser();
+		$this->excute();
+	}
+	
+	/*
+	 * 预约体检方法
+	 * */
+	public function resertijian(){
+		if(!isset($_REQUEST['date'])||strlen($_REQUEST['date'])<1){
+			$this->msgPut(false,2,'预约时间为空，预约失败',null);
+		}
+		if(!isset($_REQUEST['name'])||strlen($_REQUEST['name'])<1){
+			$this->msgPut(false,3,'姓名为空，预约失败',null);
+		}
+		if(!$this->isDate($_REQUEST['date'])){
+			$this->msgPut(false,3,'预约时间格式错误，预约失败',null);
+		}
+		
+		$error_log = GENERATEPATH . 'log/tianjian_error.log';
+		try{
+		$physical=new Physicalexam();
+		$physical->maketime=time();
+		$physical->resertime=$_REQUEST['date'];
+		$physical->name=$_REQUEST['name'];
+		
+		$physical->member_id=$_SESSION['member_id'];
+		$member=new Member();
+		$memberser=new MemberService();//取用户电话
+		$member->id=$_SESSION['member_id'];
+		
+		$memberobj=$memberser->get($member);
+		fb($member);
+		
+		if($memberobj->data){
+			$physical->tel=$member->telephone;
+			fb($member,'member');
+		}
+		$physical->ischeck=0;
+		
+		$physicalser=new PhysicalexamService();
+		$physicalser->save($physical);
+		
+		if($physical->tel){//发送短信
+			
+			$contectser = new ContactService ();
+			$url = $contectser->getwuxianip()->val;
+			$cid = $contectser->getwuxianaccount()->val;
+			$pwd = $contectser->getwuxianpassword()->val;
+			if($url!=null||$cid!=null||$pwd!=null){
+				$wuxianser = new WuxianService ( $url, $cid, $pwd);
+				try{
+				$msgresult=$wuxianser->sendNormalMessage ( $physical->tel, '上虞第三医院提示您预约成功:'.$_REQUEST['name'].'，预约时间： '.$_REQUEST['date'].'上午');
+				}catch(Exception $e){
+					error_log(date('Y-m-d H:i:s') . ' message send error:'  . $e->getMessage() . PHP_EOL, 3, $error_log);
+				}
+				
+			}else{
+				error_log(date('Y-m-d H:i:s') . ' message send error: 缺少url,cid,pwd'  . PHP_EOL, 3, $error_log);
+			}
+		}
+	}catch(Exception $e){
+		error_log(date('Y-m-d H:i:s') . ' tijian error:' . $e->getMessage() . PHP_EOL, 3, $error_log);
+		$this->msgPut(false,10,'预约失败',null);
+	}
+	
+	
+		
+
+		$this->msgPut(true,0,'预约成功',null);
+	}
+	
+
+	
+}
+new Users();
+?>

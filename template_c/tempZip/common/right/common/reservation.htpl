@@ -1,0 +1,30 @@
+      <!--预约-->
+      <div class="par-reserve bk top8">
+        <h4>预约信息</h4>
+        <ul id="reserve-box">
+        {{assign var='i' value=0}}
+        {{assign var='listName' value='赵女士'}}
+        {{$departments = $DepartmentTag->getList(1,7)}}
+        {{foreach $departments as $value}}
+        {{$i=$i+1}}
+        {{if $i==2}}
+        {{$listName = '王先生'}}
+        {{elseif $i==3}}
+        {{$listName = '周女士'}}
+        {{elseif $i==4}}
+        {{$listName = '刘女士'}}
+        {{elseif $i==5}}
+        {{$listName = '李女士'}}
+        {{elseif $i==6}}
+        {{$listName = '柳先生'}}
+        {{elseif $i==7}}
+        {{$listName = '陈女士'}}
+        {{/if}}
+        <li><span>{{$listName}}</span><span>{{$value->name}}</span><span class="dress">预约成功</span></li>
+        {{/foreach}}
+        </ul>
+         <script>
+        new Marquee(["reserve-box"],0,0.1,235,175,22,2000,2000,0,3);
+        </script>
+        <div><a target="_blank" href="{{$WEBSITE}}/reservation.html"><img src="{{$RESOURCE}}/images/reserve-ask.gif" alt="#" /></a></div>
+      </div>

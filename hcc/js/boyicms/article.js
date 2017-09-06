@@ -1,0 +1,442 @@
+/**
+ * 疾病资讯
+ * */
+function Article() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//加载科室信息
+			$('#department_id').fillDepartment();
+			//科室的变化
+			$('#department_id').change(function(){
+				var val=$(this).val();
+				self.changeDepartment(val);
+			});
+			
+			//查询    关闭疾病关联医生(医生隶属科室）
+			/*$('#disease_id').change(function(){
+				var val=$(this).val();
+				self.changeDisease(val);
+			});*/
+			
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			self.fillRecommend();
+			
+			//加载科室信息
+			$('#department_id').fillDepartment();
+			
+			var post = {controller:'Article',method:'add'};
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//编辑
+				post = {controller:'Article',method:'edit',id:para.id};
+				self.cmd(gHttp,{controller:'Article',method:'get',id:para.id},function(result1){
+					if(result1.statu){						
+						$('#formEdit').frmFill('',result1.data);
+						$('#id').parent().append('<input type="hidden" id="old_title" name="_title" value="'+result1.data.subject+'">');						
+						self.fillShowPosition(result1.data.show_position);
+						
+						//设置责任编辑默认值
+						$('#doc').val(result1.data.doctor_id);
+						$('#recommendposition').find('input[name^=recommendposition]').each(function(){																							 
+							var checkbox = $(this);
+							$.each(result1.data.recommendlist,function(i,obj){
+								if(checkbox.val() == obj.recommendposition_id){
+									checkbox.attr('checked','checked');
+								}
+							});
+						});							
+						//动态更新疾病
+						getDepartSubTree( result1.data.department_id , result1.data.disease_id );
+						
+						editor.ready(function(){
+							editor.setContent(result1.data.content);
+						});
+						
+						var tplurl = $.trim(result1.data.tplurl);
+                        if(tplurl != ''){
+                            $('#article_temp').html('已上传模版文件,模版路径：'+tplurl);
+                        }
+                        if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);							
+						}
+                        
+					}else{
+						layer.alert(result1.msg,{icon:2});
+					}
+				});
+				
+			} else {
+				self.fillShowPosition();
+			}
+				self.checkwei();	
+			
+			
+			
+			self.onloadCss();			
+			
+			//科室的变化
+			$('#department_id').change(function(){
+				var val=$(this).val();
+				self.changeDepartment(val);
+			});
+			
+			//保存
+			$('#formEdit').checkAndSubmit('save', post,function(ret){
+				if(ret.statu){
+					var url=parent.location.href;
+					parent.location.replace(url);
+					parent.layer.msg('操作成功!',{icon: 1});	
+					layer_close();
+				}else{
+					parent.layer.alert(ret.msg,{icon:2});
+				}
+
+				return false;
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			//微博相关操作
+			$('body').on('click','#cancelwei',function(){//取消微博关联
+				self.cmd(gHttp,{controller:'Weibo',method:'cancelwei'},function(result2){
+					if(result2.stute){
+					self.checkwei();
+					}
+				});
+			});
+			$('body').on('click','#addwei',function(){
+				//open_newindow('设置微博关联','weibo_login.html','480','380');
+				
+				parent.layer.open({
+					type: 2,
+					area: ['480px', '380px'],
+					fix: false, //不固定
+					maxmin: true,
+					shade:0.4,
+					title: '设置微博关联',
+					content: 'weibo_login.html',
+					end:function(){
+						self.checkwei();
+					},
+				    success: function(layero, index){
+
+					  }
+				});
+				
+			});
+			
+			
+		});
+		
+	}
+	
+	
+	this.checkwei=function(){
+		$('#weicheckbox').html('<input type="checkbox" id="checkbox-moban" name="weibo"><label for="checkbox-moban">&nbsp;</label>');		
+		$('.weibtn').remove();
+		//检查新浪微博是否关联
+		self.cmd(gHttp,{controller:'Weibo',method:'checkaccess'},function(result1){			
+			if(result1.stute){				
+				$('#weidiv').append('<button id="cancelwei" class="btn btn-warning radius ml-10 weibtn"  type="button"><i class="Hui-iconfont">&#xe605;</i> 取消关联</button>');
+			}else{
+				$('#weidiv').append('<button id="addwei" class="btn btn-success radius ml-10 weibtn"  type="button"><i class="Hui-iconfont">&#xe60e;</i> 关联微博</button>');
+			}								
+		});
+		$('input').iCheck();
+	}
+	// {{{ function toRelationship()
+	
+	/**
+	 * 去添加相关资讯
+	 * */
+	
+	this.toRelationship = function() {
+		var department_id = $("#department_id").val();
+		var disease_id = $("#disease_id").val();
+		var doctor_id = $("#doctor_id").val();
+		var relation = $("#relation").val();
+		
+		var queryStr = 'op=add&department='+department_id+'&disease='+disease_id+'&doctor='+doctor_id + '&relation=' + relation;
+		self.openAdd('添加相关资讯','relationship-list.html?' + queryStr,'800','460');
+	}
+	
+	// }}}
+	// {{{ function addRelationship()
+	
+	/**
+	 * 初始化添加相关咨询
+	 * 
+	 */
+	this.addRelationship = function() {
+		$(function(){
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			var data = {controller:'Article',method:'query'};
+			data['department_id'] = para.department;
+			data['disease_id'] = para.disease;
+			data['doctor_id'] = para.doctor;
+			self.fillRelationship(data, para.relation);
+			
+			$("#qry").click(function(){
+				self.fillRelationship(data, para.relation);
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function fillRelationship()
+	
+	/**
+	 * 相关资讯列表
+	 * */
+	this.fillRelationship = function(data, relationData) {
+		$("#dataTable").grid({
+			para:data,
+			tableInfo:false,
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+			            { data: 'id' },
+			            { data: 'subject' },
+			            { data: 'department_name' },
+			            { data: 'disease_name' },
+			            { data: 'doctor_name' },
+			            { data: 'plushtime' }
+			        ]
+				
+		});
+		
+		var relation = relationData.split(',');
+		$.each(relation, function(i,n){
+			$("#tr_" + n).attr('checked', true);
+		});
+	}
+	
+	// }}}
+	// {{{ function saveRelationship()
+	
+	/**
+	 * 保存关联
+	 * */
+	this.saveRelationship = function() {
+		var ids = $("#dataTable").getSelectedAll(true);
+		if(ids.length<=0){
+			layer.msg('请选择相关文章',{icon:2});
+		}else{
+			window.parent.document.getElementById('relation').value = ids;
+			var len = ids.split(',').length;
+			window.parent.document.getElementById('selectName').innerHTML = '已经选择'+len+'篇';
+			layer_close();
+		}
+	}
+	
+	// }}}
+	// {{{ function changeDisease()
+	
+	/**
+	 * 改变疾病
+	 * */
+	this.changeDisease = function(val) {
+		if(val==''){
+			self.cmd(gHttp,{controller:'Article',method:'getAssociatedData'},function(ret){
+				if(ret.statu){
+					var doctor = '<option value="0">默认值</option>';
+					//关联医生
+					$.each(ret.data['doctors'],function(i,obj){
+						doctor += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#doctor_id').html(doctor);
+							
+				}else{
+					layer.alert(ret.msg);
+				}
+			});
+		}else{
+			self.cmd(gHttp,{controller:'Doctor',method:'getByDiseaseId',disease_id:val},function(ret){
+				if(ret.statu){
+					var doctor = '<option value="0">&nbsp;全部&nbsp;</option>';
+					//关联医生
+					$.each(ret.data['doctors'],function(i,obj){
+						doctor += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#doctor_id').html(doctor);
+							
+				}else{
+					layer.alert(ret.msg);
+				}
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function changeDepartment()
+	
+	/**
+	 * 改变department
+	 * */
+	this.changeDepartment = function(val) {
+		if(val==''){
+			self.cmd(gHttp,{controller:'Article',method:'getAssociatedData'},function(ret){
+				if(ret.statu){
+					var disease = '<option value="">全部</option>';
+					//关联疾病
+					$.each(ret.data['disease'],function(i,obj){
+						disease += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#disease_id').html(disease);
+					
+					var doctor = '<option value="0">全部</option>';
+					//关联医生
+					$.each(ret.data['doctors'],function(i,obj){
+						doctor += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#doctor_id').html(doctor);
+					
+				}else{
+					layer.alert(ret.msg);
+				}
+			});
+		}else{
+			self.cmd(gHttp,{controller:'Article',method:'getByDepartmentID',department_id:val},function(ret){
+				if(ret.statu){
+					var disease = '<option value="">全部</option>';
+					//关联疾病
+					$.each(ret.data['disease']['data'],function(i,obj){
+						disease += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#disease_id').html(disease);
+					
+					var doctor = '<option value="0">全部</option>';
+					//关联医生
+					$.each(ret.data['doctors']['data'],function(i,obj){
+						doctor += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#doctor_id').html(doctor);
+					
+				}else{
+					layer.alert(ret.msg);
+				}
+			});
+		}
+	}
+	
+	// }}}
+    // {{{ function fillRecommend()
+	
+	/**
+	 * 填充推荐位数据
+	 * */
+	this.fillRecommend = function() {
+		self.cmd(gHttp,{controller:'News',method:'getAll'},function(ret){
+			if(ret.statu){
+				//推荐位置
+				var position='';
+				$.each(ret.data.re,function(i,obj){
+					position += '<div class="check-box">';
+					position += '<input type="checkbox" id="checkbox-moban'+obj.id+'" name="recommendposition['+i+']" value="'+obj.id+'">';
+					position += '<label for="checkbox-moban'+obj.id+'">'+obj.name+'</label>';					
+				    position += '</div>';
+				});
+				$('#recommendposition').html(position);	
+			}
+		});	
+	}
+	
+	// }}}
+	
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Article',method:'query'},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[7]},{sClass:'text-c',aTargets:[8]},{sClass:'text-c',aTargets:[9]},{sClass:'text-c',aTargets:[10]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'subject' },
+			            { data: 'description',render:function(value){return value.substr(0,60)+'...';}},
+			            { data: 'department_name' },
+			            { data: 'disease_name' },
+			            { data: 'click_count' },
+			            { data: 'isbidding',render:function(value,rowData,rowIndex){return (value==0)?'<span class="label label-default radius">否</span>':'<span class="label label-warning radius">是</span>';} },
+			            { data: 'doctor_name' },
+			            { data: 'plushtime' },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" target="_blank" href="/controller/?controller=ViewHtml&method=article&op=article&id='+id+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>'; 
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gArticle.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gArticle.del('+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+				
+		});
+		
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(id) {
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Article',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function() {
+		var ids = $("#dataTable").getSelectedAll();
+		if(ids.length<=0){
+			layer.msg('请选择要删除的项目！',{icon:2});
+		}else{
+			var obj=$("#dataTable").dataTable();
+			self.openDel(obj,{controller:'Article',method:'del',id:ids});
+		}		
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEdit('编辑文章','edit.html?id=' + id);
+	}
+}

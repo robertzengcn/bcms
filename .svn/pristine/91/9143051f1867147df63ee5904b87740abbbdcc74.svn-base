@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>地区管理</title>
+</head>
+<style type="text/css">
+	#placelist input{width:90%;border:none;}
+
+</style>
+<body>
+	<div class="pd-10">
+		<table id="placelist" class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">					
+					<th>地区名称</th>
+					<th width="100">操作</th>	
+				</tr>
+			</thead>
+			<tbody class="placebody">			
+				<tr class="addbtbox">					
+					<td class="text-l" colspan="2">
+						<a class="btn btn-success radius bt-normal" id="" onClick="gClients.addfatherinfo()" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 新增地区</a>												
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div style="width:100%;height:50px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-1">
+				<button id="save" class="btn btn-primary radius bt-normal" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius bt-normal" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</div>
+	
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/clients.js"></script>
+<script type="text/javascript">
+var gClients = new gClients();
+gClients.setThisName('gClients');
+gClients.editorplace();
+</script>
+</body>
+</html>

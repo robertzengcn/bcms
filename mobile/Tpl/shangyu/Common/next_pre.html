@@ -1,0 +1,12 @@
+<div class="pageNum" style="width:318px;margin:0 auto;">
+  {{if isset($lastInfo->id)}}
+  <p>上一篇: <a href='{{$MOBILE}}/{{$url}}.php?method=get&id={{$lastInfo->id}}' title='{{$lastInfo->$titleField}}'>{{$lastInfo->$titleField}}</a></p>
+  {{else}}
+  <p>上一篇: <a href='javascript:;' title='没有了'>没有了</a></p>
+  {{/if}}
+  {{if isset($preInfo->id)}}
+  <p>下一篇: <a href='{{$MOBILE}}/{{$url}}.php?method=get&id={{$preInfo->id}}' title='{{$preInfo->$titleField}}'>{{$preInfo->$titleField}}</a></p>
+  {{else}}
+  <p>下一篇: <a href='javascript:;' title='没有了'>没有了</a></p>
+  {{/if}}
+</div>

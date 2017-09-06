@@ -1,0 +1,251 @@
+<?php
+/**
+ * 文章相关标签
+ * */
+require_once 'common.php';
+
+/**
+ * 获取推荐数据
+ * 对应function标签中的{articles}
+ */
+function smarty_block_recommendarcs($params, $content, $template, &$repeat) {
+    formatFuncParams($params,$order, $limit, $where, $field);
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getRecommend($order, $limit, $where, $field);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据页码获取对应的数据
+ */
+function smarty_block_arclist($params, $content, $template, &$repeat) {
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $sort = isset($params['sort']) ? $params['sort'] : true;
+    $current = $template->getTemplateVars('cur');
+    $current = $current == '' ? 1 : $current;
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getList($current, $sort, $pagesize);
+        
+        foreach ($data as $key=>$arcinfo) {
+            $url = $ser->getArticleUrl($arcinfo->id, false);
+            $data[$key]->url = $url;
+        }
+        
+        $template->assign('cur', $current);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        return formatReturnData($data, $content);
+    }
+    
+}
+
+/**
+ * 根据唯一id获取该id的详细信息
+ * 对应functon中的{article}
+ */
+function smarty_block_arcinfo($params, $content, $template, &$repeat) {
+    $id = isset($params['id']) ? $params['id'] : ($template->getTemplateVars('id'));
+    
+    $ser = new ArticleTag();
+    $data = $ser->get($id);
+    if ($repeat) {
+        //文章所属科室
+        $template->assign('department_in', $data->department_id);
+        //文章所属疾病
+        $template->assign('disease_in', $data->disease_id);
+        //文章所属医生
+        $template->assign('doctor_in', $data->doctor_id);
+    } else {
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据推荐位置获取文章列表 ...
+ * 
+ * 对应function标签中的{recommendArticles}
+ */
+function smarty_block_arcsbyrecommend($params, $content, $template, &$repeat){
+    $recommend = isset($params['recommend_name']) ? $params['recommend_name'] : '';
+    $department = isset($params['department']) ? $params['department'] : '';
+    $disease = isset($params['disease']) ? $params['disease'] : '';
+    $size = isset($params['size']) ? $params['size'] : 3;
+    $name = isset($params['name']) ? $params['name'] : 'article_id';
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getByRecommend($recommend, $disease, $department, $size, $name);
+        return formatReturnData($data, $content);
+    }
+}
+
+
+/**
+ * 获取置顶资讯
+ * 
+ * 对应function标签中的{topArticles}
+ */
+function smarty_block_toparcs($params, $content, $template, &$repeat){
+    $recommend = isset($params['recommend_id']) ? $params['recommend_id'] : '';
+    $department = isset($params['department']) ? $params['department'] : '';
+    $disease = isset($params['disease']) ? $params['disease'] : '';
+    $is_top = isset($params['is_top']) ? $params['is_top'] : 1;
+    $name = isset($params['name']) ? $params['name'] : 'article_id';
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getByTop($recommend,$disease,$department,$is_top,$name);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据科室获取文章
+ * 对应function标签中的{articlesInDepartment}
+ */
+function smarty_block_arcsbydept($params, $content, $template, &$repeat){
+    $page = $template->getTemplateVars('cur');
+    $page = $page == '' ? 1 : $page;
+    $department = isset($params['department']) ? $params['department'] : '';
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $order = isset($params['order']) ? $params['order'] : 'desc';
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getByDeparment($deparment, $page, $pagesize, $order);
+        $template->assign('cur', $page);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据疾病获取文章
+ * 对应function标签中的{articlesInDisease}
+ */
+function smarty_block_arcsbydisease($params, $content, $template, &$repeat){
+    $page = isset($params['page']) ? $params['page'] : 0;
+    $department = isset($params['department']) ? $params['department'] : '';
+    $disease = isset($params['disease']) ? $params['disease'] : '';
+    $limit = isset($params['limit']) ? $params['limit'] : '';
+
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getByDisease($department,$disease,$page,$limit);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据资讯id获取相关文章列表
+ */
+function smarty_block_relatedarcsbyid($params, $content, $template, &$repeat) {
+    $id = isset($params['id']) ? $params['id'] : ($template->getTemplateVars('id'));
+    $limit = isset($params['limit']) ? $params['limit'] : 0;
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getByRelation($id, $limit);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取最新文章
+ * 对应function标签中的{articlesInNewest}
+ */
+function smarty_block_latestarcs($params, $content, $template, &$repeat){
+    $offset = isset($params['from']) ? intval($params['from']) : 1;
+    $limit = isset($params['limit']) ? intval($params['limit']) : 10;
+    $limit = $limit + $offset -1;
+    $offset = $offset -1;
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getNewest($limit);
+        $data = array_slice($data, $offset, $limit);
+        foreach ($data as $key=>$arcinfo) {
+            $url = $ser->getArticleUrl($arcinfo->id, false);
+            $data[$key]->url = $url;
+        }
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取热点文章
+ */
+function smarty_block_arcbyclick($params, $content, $template, &$repeat){
+    $limit = isset($params['limit']) ? $params['limit'] : 0;
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getByClick($limit);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取文章所有id
+ * 
+ */
+function smarty_block_arcpage($params, $content, $template, &$repeat){
+    $department_id = isset($params['department_id']) ? $params['department_id'] : 0;
+    $article_id = isset($params['article_id']) ? $params['article_id'] : ($template->getTemplateVars('id'));
+    
+    $deptObj = $template->getTemplateVars('department');
+    if (isset($deptObj->id) && $deptObj->id) {
+        $department_id = $deptObj->id;
+    }
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        
+        //$data = array('currentA' =>76,'beforeA' =>483,'nextA' =>486);
+        $data = $ser->getArticleIds($department_id, $article_id);
+        
+        //特殊处理
+        //A为文章id，B为文章标题 ，C为文章链接
+        foreach ($data as $key => $arcid) {
+            $titleKey = str_replace('A', 'B', $key);
+            $linkKey = str_replace('A', 'C', $key);
+        	if ($arcid == '0') {
+        		$data[$titleKey] = '无';
+        		$data[$linkKey] = 'javascript:;';
+        	} else {
+        	    $arc = new ArticleTag();
+        	    $arcinfo = $arc->get($arcid);
+        	    
+        	    $url = $ser->getArticleUrl($arcid, false);
+        	    
+        	    $data[$titleKey] = $arcinfo->subject;
+        	    $data[$linkKey] = $url;
+        	}
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+
+/**
+ * 获取文章tag
+ * */
+function smarty_block_arcstags($params, $content, $template, &$repeat){
+    $plushtime = isset($params['plushtime']) ? $params['plushtime'] : 0;
+    
+    if (!$repeat) {
+        $ser = new ArticleTag();
+        $data = $ser->getArtTags($plushtime);
+        return formatReturnData($data, $content);
+    }
+}

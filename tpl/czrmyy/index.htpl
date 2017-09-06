@@ -1,0 +1,137 @@
+{{extends file='./common/layout/layout.htpl'}}
+{{block name=body}}
+<!-- 轮播 -->
+{{$lunbo=$PicManagerTag->getScroll(index)}}
+<div id="myNiceCarousel" class="carousel slide hidden-xs" data-ride="carousel"> 
+  <!-- 圆点指示器 -->
+  <ol class="carousel-indicators">
+    {{foreach from=$lunbo item=v name=pic}}
+    {{if $smarty.foreach.pic.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+    <li data-target="#myNiceCarousel" data-slide-to="{{$smarty.foreach.pic.iteration-1}}" class="{{$active}}"></li>
+    {{/foreach}}
+  </ol>
+  <!-- 轮播项目 -->
+  <div class="carousel-inner">
+    {{foreach from=$lunbo item=v name=pic}}
+    {{if $smarty.foreach.pic.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+    <div class="item {{$active}}"> <img alt="First slide" src="{{$v->pic}}">
+      <div class="carousel-caption">
+        <h3></h3>
+        <p></p>
+      </div>
+    </div>
+    {{/foreach}}
+  </div>
+  
+  <!-- 项目切换按钮 --> 
+  <a class="left carousel-control" href="#myNiceCarousel" data-slide="prev"> <span class="icon icon-chevron-left glyphicon-chevron-right"></span> </a> <a class="right carousel-control" href="#myNiceCarousel" data-slide="next"> <span class="icon icon-chevron-right glyphicon-chevron-right"></span> </a> </div>
+<div class="container center-block nav_two">
+  <ul>
+    {{$mynav=$NavigationTag->getNavgroup(mynav)}}
+    <li><a href="{{$mynav[0].url}}"><i class="icon icon-time"></i><br>{{$mynav[0].subject}}</a></li>
+    <li><a href="{{$mynav[1].url}}"><i class="icon icon-paste"></i><br>{{$mynav[1].subject}}</a></li>
+    <li class="last"><a href="{{$mynav[2].url}}"><i class="icon icon-group"></i><br>{{$mynav[2].subject}}</a></li>
+    <li><a href="{{$mynav[3].url}}"><i class="icon icon-calendar"></i><br>{{$mynav[3].subject}}</a></li>
+    <li><a href="{{$mynav[4].url}}"><i class="icon icon-sitemap"></i><br>{{$mynav[4].subject}}</a></li>
+    <li class="last"><a href="{{$mynav[5].url}}"><i class="icon icon-chat-dot"></i><br>{{$mynav[5].subject}}</a></li>
+    <li style="border-right: none;"><a href="{{$mynav[6].url}}"><i class="icon icon-leaf"></i><br>{{$mynav[6].subject}}</a></li>
+  </ul>
+</div>
+<!-- 背景图、个性频道图片 -->
+{{$tu1=$PicManagerTag->getPic(background)}}
+{{$tu2=$PicManagerTag->getPic(notice)}}
+{{$tu3=$PicManagerTag->getPic(health)}}
+{{$tu4=$PicManagerTag->getPic(yiliao)}}
+<div class="content_one" style="background:url('{{$tu1->src}}') no-repeat; height:635px; width:100%;margin-top: -15px;">
+  <div class="container">
+    <div class="segment" style='max-width: 1600px; width: inherit;'>
+      <section class='row'>
+        <div class="col-sm-4 col-xs-12">
+          <div class="panel-body">
+            <div class="titleBox titleBox_1" style="background:url('{{$tu2->src}}') no-repeat;"> <a href="{{$WEBSITE}}/{{$url->shortname}}" target="_blank">通知公告</a></div>
+            <ul class="listBox">
+              {{$chan=$ChannelArticleTag->getByChannelName('通知公告' ,1,4)}}
+					{{foreach from=$chan item=v}}
+					{{$url=$ChannelTag->get($v->channel_id)}} 
+              <li>
+                <h3><a href="{{$WEBSITE}}/{{$url->shortname}}/{{$v->id}}.html">{{$v->subject}}</a></h3>
+                <span class="text-muted">{{$v->plushtime}}</span>
+              </li>
+              {{/foreach}}
+            </ul>
+            <a class="more" target="_blank" href="{{$WEBSITE}}/{{$url->shortname}}">查看更多&nbsp;&nbsp;<i class="icon icon-chevron-right"></i></a> </div>
+        </div>
+        <div class="col-sm-4 col-xs-12">
+          <div class="panel-body">
+            <div class="titleBox titleBox_2" style="background:url('{{$tu3->src}}') no-repeat;"> <a href="{{$WEBSITE}}/{{$url->shortname}}" target="_blank">健康科普</a></div>
+            <ul class="listBox">
+               {{$chan=$ChannelArticleTag->getByChannelName('健康科普' ,1,4)}}
+					{{foreach from=$chan item=v}}
+					{{$url=$ChannelTag->get($v->channel_id)}} 
+              <li>
+                <h3><a href="{{$WEBSITE}}/{{$url->shortname}}/{{$v->id}}.html">{{$v->subject}}</a></h3>
+                <span class="text-muted">{{$v->plushtime}}</span>
+              </li>
+              {{/foreach}}
+            </ul>
+            <a class="more" target="_blank" href="{{$WEBSITE}}/{{$url->shortname}}/{{$v->id}}.html">查看更多&nbsp;&nbsp;<i class="icon icon-chevron-right"></i></a> </div>
+        </div>
+        <div class="col-sm-4 col-xs-12">
+          <div class="panel-body">
+            <div class="titleBox titleBox_3" style="background:url('{{$tu4->src}}') no-repeat;"> <a href="{{$WEBSITE}}/{{$url->shortname}}" target="_blank">医疗集团</a></div>
+            <ul class="listBox">
+               {{$chan=$ChannelArticleTag->getByChannelName('医疗集团' ,1,4)}}
+					{{foreach from=$chan item=v}}
+					{{$url=$ChannelTag->get($v->channel_id)}} 
+              <li>
+                <h3><a href="{{$WEBSITE}}/{{$url->shortname}}/{{$v->id}}.html">{{$v->subject}}</a></h3>
+                <span class="text-muted">{{$v->plushtime}}</span>
+              </li>
+              {{/foreach}}
+            </ul>
+            <a class="more" target="_blank" href="{{$WEBSITE}}/{{$url->shortname}}/{{$v->id}}.html">查看更多&nbsp;&nbsp;<i class="icon icon-chevron-right"></i></a> </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{{/block}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

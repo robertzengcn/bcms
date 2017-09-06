@@ -1,0 +1,146 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class MemberScorelogDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_MEMBERSCORELOG;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+    	//DTExpression::like('name', $where, $this->tableName);
+        DTEXPRESSION::like('username', $where,'m');
+        DTEXPRESSION::eq('type', $where,'ms');        
+        DTExpression::ge('date', $where, 'start_time','ms');
+        DTExpression::le('date', $where, 'end_time','ms');
+        DTExpression::page($where);
+
+        if (isset($where['order']) &&  $where['order']) {
+            DTOrder::$sql = $where['order'];
+        }
+        $sql=ORMMap::$sqlMap['memberscorelog']. ' where '.DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+
+
+      return $this->getjoin($sql);
+    }
+    
+    
+    
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTEXPRESSION::like('username', $where,'m');
+        DTEXPRESSION::eq('type', $where,'ms');
+        DTExpression::ge('date', $where, 'start_time','ms');
+        DTExpression::le('date', $where, 'end_time','ms');
+        DTExpression::page($where);
+        
+        $sql=ORMMap::$sqlMap['memberscorelogcount']. ' where '.DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+        return $this->getjoin($sql);
+       
+//         DTExpression::eq('isbidding', $where);
+//         DTExpression::like('subject', $where);
+        //DTExpression::eq('shelf', $where);
+        //DTExpression::eq('pattern', $where);
+
+        //return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+    
+    /*
+     * 根据type取值
+     * @param $arr
+     * */
+    public function getbytype($arr){
+    	$result=R::find($this->tableName,'type=:type',$arr);
+    	R::close();
+    	return $result;
+    	
+    }
+    
+    /*
+     * 检查数据是否存在
+     * */
+    public function getdate(){
+    	$member = R::findAll($this->tableName);
+    	
+    	$memberArray = array();
+    	foreach ($member as $key => $value) {
+    		$member = new MemberScorelog();
+    		$member->generateFromRedBean($value);
+    		$memberArray[] = $member;
+    	}
+    	R::close();
+    	
+    	return $memberArray;
+    }
+    
+    /*
+     *清空所有数据 
+     * */
+    
+    public function delall(){
+    	$member = R::findAll($this->tableName);
+    	$result=R::trashAll($member);
+    	R::close();
+    	return $result;
+    }
+    
+    /*
+     * 获取统计数据
+     * */
+    public function gettotal(){
+    	$result=R::count($this->tableName);
+    	return $result;
+    }
+    
+    /*
+     * 获取所有对象
+     * */
+    public function getall(){
+    	$member=R::find();
+    	R::close();
+    	return $member;
+    }
+    
+    /*
+     *取表里已有的type 
+     * */
+    public function getdistincttype(){
+    	//return R::$f->select('*');
+    	
+    	$sql=ORMMap::$sqlMap['memberdistinctlog'];
+    	$result=R::getAll($sql);
+    	R::close();
+    	return $result;
+    	//return $this->getjoin($sql);
+    
+    	
+    }
+    
+    
+    public function gettypenum($arr){
+    	$result=R::count($this->tableName,'type=:type',$arr);
+    	R::close();
+    	return $result;
+    }
+}
+

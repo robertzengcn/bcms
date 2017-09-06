@@ -1,0 +1,17 @@
+<div class="page">
+    <ul>
+    <li><a href="./list_1.html" target="_self">首页</a></li>
+	<li><a href="../{{$dir}}/list_{{$pre}}.html" target="_self">上一页</a></li>
+	<!-- start -->
+	{{for $var = $start to $end}}
+		{{if $var != $current}}
+			<li><a href="../{{$dir}}/list_{{$var}}.html" target="_self">{{$var}}</a></li>
+		{{else}}
+			<li><a href="javascript:;" class='ay'>{{$var}}</a></li>
+		{{/if}}
+	{{/for}}
+	<!-- end-->
+	<li><a href="../{{$dir}}/list_{{$next}}.html" target="_self">下一页</a></li>
+    <li><a href="../{{$dir}}/list_{{$pageCount}}.html" target="_self">末页</a></li>
+    </ul>
+</div>

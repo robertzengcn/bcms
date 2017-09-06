@@ -1,0 +1,19 @@
+/* CSS Document */
+
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;height:50px;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+#page header h1 a img{ vertical-align:middle;padding:0px 6px;}
+.homenav {float:right;padding:15px 6px;}
+
+#body{text-align:left;}
+
+
+.articlebox{width:100%;}
+.articlebox p {line-height:25px;font-size:14px;padding:8px 16px;text-indent:2em;}
+
+.advicebox{width:100%;}
+
+.advicebox a{display:block;height:30px;line-height:30px;background:#f0f0f0;border:1px solid #d8d8d8;border-radius:6px;-moz-border-radius:6px; /* Old Firefox */ font-size:14px;width:90%;margin:0 auto;text-align:center;}
+
+

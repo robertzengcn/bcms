@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/rs-temp.css">
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>排班模板管理</title>
+</head>
+<body>
+<div class="pd-10">
+	<form action="" method="post" class="form form-horizontal" id="">		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择科室：</label>	
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="" class="select" id="department_id"></select>
+				</span> </div>	
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>排班模式：</label>
+			<div class="formControls col-8 skin-minimal"><!--add col-91 css-->
+				<div class="radio-box">
+					<input type="radio" id="resr_7" class="radiotypes" name="resertype" checked="checked" value="7">
+					<label>每周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="resr_14" class="radiotypes" name="resertype" value="14">
+					<label>两周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="resr_31" class="radiotypes" name="resertype" value="31">
+					<label>每月循环</label>
+				</div>
+			</div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">模板名称：</label>
+			<div class="formControls col-6">
+				<input type="text" class="input-text keywords" placeholder="请给该模板一个名称，便于以后使用时识别及管理" id="templatename" name="">
+			</div><button class="btn btn-success radius" id="savetemps" onClick="savetemplate()" type="button"><i class="Hui-iconfont">&#xe623;</i> 生成模板</button>	
+		</div>
+		<div id="network_pic" style="display:none"></div>
+		<div class="row cl" id="tab"></div>	
+		
+		<div id="doctem" style="display:none">		
+		<div class="row cl">
+			<label style="text-align:left;" class="form-label col-5"><b>使用本模板生成医生排班表：</b></label>
+		</div>
+		
+		<div class="row cl">
+			<label class="form-label col-2">起止日期：</label>
+			<div class="formControls col-96">
+			<input type="text" onFocus="WdatePicker()" class="input-text Wdate" style="width:120px;" name="rel_start" id="rel_start">-<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'rel_start\')}'})" class="input-text Wdate" style="width:120px;" name="rel_end" id="rel_end">
+			</div><button  class="btn btn-success radius" id="sure" type="button"><i class="Hui-iconfont">&#xe6bf;</i> 开始排班</button>
+		</div>
+		<input id="temtype" type="hidden" value="">
+		<input id="temid" type="hidden" value="">
+		<input id="departmentid" type="hidden" value="">
+		<div class="row cl mt-5">
+			<div class="col-10 col-offset-1">
+				<!--<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>-->
+			</div>
+		</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/scheduling.js"></script>
+<script type="text/javascript">
+var resertemppage = new Schedule();
+resertemppage.setThisName('resertemppage');
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+});
+</script>
+	
+
+</body>
+</html>

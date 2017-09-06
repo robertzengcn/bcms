@@ -1,0 +1,18 @@
+.td-right{
+    width: 25%;
+    text-align: right;
+}
+.main-li{
+    height:45px;
+    _height:45px;
+}
+
+.template {cursor:pointer;padding:10px;margin-left:5px;}
+.template img {padding-top:3px;}
+.thumbnail:hover {border:1px solid #F0AD4E;opacity:0.3;}
+
+.template_select {border:1px solid #F0AD4E;opacity:0.3;}
+
+div#div_3 input.text {width:300px;border-radius:4px;border:1px solid #ccc;height:25px;line-height:25px;text-indent:3px;"}
+
+span.must_red{display:inline-block;color:red;padding:0px 3px;}

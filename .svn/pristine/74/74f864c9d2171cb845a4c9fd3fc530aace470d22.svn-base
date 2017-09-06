@@ -1,0 +1,130 @@
+<!doctype html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>提货条形码</title>
+
+<!-- Set render engine for 360 browser -->
+<meta name="renderer" content="webkit">
+
+<!-- No Baidu Siteapp-->
+<meta http-equiv="Cache-Control" content="no-siteapp"/>
+<link rel="icon" type="image/png" href="{{$LOGO[2]}}">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="192x192" href="{{$LOGO[1]}}">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="UI"/>
+<link rel="apple-touch-icon-precomposed" href="{{$LOGO[1]}}">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="{{$LOGO[1]}}">
+<meta name="msapplication-TileColor" content="#0e90d2">
+
+<!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+<!--  <link rel="canonical" href="">  -->
+
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/amazeui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/admin.css">
+
+<!--新增基础样式-->
+<link href="{{$COMMON}}Commodity/public/css/demo.css" rel="stylesheet" type="text/css" />
+<!--单页样式-->
+<link href="{{$COMMON}}Commodity/public/css/barcode-style.css" rel="stylesheet" type="text/css" />
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<!--<![endif]-->
+<script src="{{$COMMON}}Commodity/public/js/amazeui.min.js"></script>
+</head>
+<body>
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器 UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>  以获得更好的体验！</p>
+<![endif]--> 
+
+<!--[if lt IE 9]>
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/modernizr.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+
+<div class="hmtop">
+  <!--悬浮搜索框-->
+  <div class="nav white">
+    <div class="logo"><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></div>
+    <div class="logoBig">
+      <li><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></li>
+    </div>
+    <div class="search-bar pr"><a name="index_none_header_sysc" href="#"></a>
+      <form action="{{$COMMODITY}}" method="get">
+        <input  name="method" type="hidden" value="goodslist">
+        <input id="searchInput" name="keyword" placeholder="搜索" autocomplete="off" type="text">
+        <input id="ai-topsearch" class="submit am-btn" value="搜索" index="1" type="submit">
+      </form>
+    </div>
+  <div data-am-widget="menu" class="am-menu  am-menu-offcanvas1"  data-am-menu-offcanvas> 
+    <a href="javascript: void(0)" class="am-menu-toggle" style="right:0px;">
+          <i class="am-menu-toggle-icon am-icon-bars" style="font-size:25px;color:#F03726;"></i>
+    </a>
+    <div class="am-offcanvas" >
+      <div class="am-offcanvas-bar am-offcanvas-bar-flip">
+      <ul class="am-menu-nav am-avg-sm-1">
+		{{foreach from=$shopnav key=k item=value}}
+          <li><a href="{{$METHOD}}{{$k}}" style="font-size:14px;" >{{$value}}</a></li>
+        {{/foreach}} 
+      </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<div class="am-container mt-55">
+<section class="am-panel am-panel-default am-panel-warning">
+  <header class="am-panel-hd">
+    <h3 class="am-panel-title f-16">提货条形码<span class="am-fr f-12">请在提货时出示此条形码</span></h3>
+    
+  </header>
+  <div class="am-panel-bd">
+    <img src="{{$COMMON}}Commodity/barcode/code.php?text={{$buylist['orders']}}" style="width:">
+  </div>
+</section>
+<section class="am-panel am-panel-default am-panel-warning">
+  <header class="am-panel-hd">
+    <h3 class="am-panel-title f-16">订单商品<span class="am-fr f-13">{{if $buylist['taketime'] neq ''}}已自提{{else}}待自提{{/if}}</span></h3>
+    
+  </header>
+  <div class="am-panel-bd barcode_cont">
+    <h4>自提物品：<em style="float:right;font-size:12px;">{{$buylist['buytime']}}</em>	</h4>  
+	{{foreach from=$buylist['data'] item=vo}}	
+    <h3>{{$vo->subject}}<em style="float:right;">{{$vo->num}}件</em></h3>	
+	
+		<div style="margin:5px;">
+			<a href="{{$METHOD}}details&id={{$vo->gid}}" target="_blank"  >
+			<img src="{{$vo->pic}}" class="itempic J_ItemImg" style="width:100px;height:100px;"></a>
+			<em class="price-now" style="display: inline-block;color: #dd514c;">积分：{{$vo->totalscore}}{{if $vo->totalcash neq '0.00'}}<br/>现金：{{$vo->totalcash}}{{/if}}</em>
+		</div>
+	{{/foreach}}
+    <h4>自提地址：</h4>
+    <p class="f-16">地址：{{$contact.name}}自提点<br>电话：{{$contact.tel}}</p>
+  </div>
+</section>
+</div>
+<div class="clear "></div>
+<div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+          <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+  </div>
+</body>
+</html>

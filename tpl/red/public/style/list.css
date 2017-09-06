@@ -1,0 +1,6 @@
+@charset "utf-8";
+/* CSS Document */
+p a{color:#f43fa1;}
+.par-main .article-list{padding-bottom:10px;}
+.par-main .article-list h4{height:28px;line-height:28px;background:#F4F4F4;padding-left:12px;}
+.par-main .article-list p{text-indent:2em;height:48px;line-height:24px;color:#666;padding:8px 10px 0px 10px;}

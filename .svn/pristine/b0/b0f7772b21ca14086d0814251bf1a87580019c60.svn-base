@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>短信接口配置</title>
+</head>
+<body>
+<div class="pd-20">	
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span id="loginpage">接口设置</span></div>
+			
+				<form id="configform" method="post" class="form form-horizontal" action="/controller/">
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>对接IP：端口</label>
+						<div class="formControls col-7">							
+							<input type="text" class="input-text" value="" placeholder="AUTHCODE_URL" id="url" name="url" datatype="*" nullmsg="AUTHCODE_URL不能为空" errormsg="请填写正确的url"/>
+						</div>
+						<div class="col-3"> </div>
+					</div>
+
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>账户：</label>
+						<div class="formControls col-7">							
+							<input type="text" class="input-text" value="" placeholder="AUTHCODE_CID" id="cid" name="cid" datatype="*" nullmsg="AUTHCODE_CID不能为空" errormsg="AUTHCODE_CID不正确"/>
+						</div>
+						<div class="col-3"> </div>
+					</div>
+					
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>密码：</label>
+						<div class="formControls col-7">							
+							<input type="text" class="input-text" value="" placeholder="AUTHCODE_PWD" id="pwd" name="pwd" datatype="*" nullmsg="AUTHCODE_PWD不能为空" errormsg="AUTHCODE_PWD不正确"/>
+						</div>
+						<div class="col-3"> </div>
+					</div>
+					
+
+					
+
+					<div style="width:100%;height:10px;clear:both;"></div>
+					<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+						<div class="col-10 col-offset-1">
+							<button class="btn btn-primary radius bt-normal" type="button" id="configbtn"><i class="Hui-iconfont">&#xe632;</i> 更细配置</button>				
+							<button class="btn btn-default radius bt-normal" type="button" id="back">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+						</div>
+					</div>
+				</form>
+			
+			
+		</div><!--HuiTab over-->
+</div>
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script>  
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/jquery.md5.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/duanxin.js"></script>
+<script type="text/javascript">
+var gDuanxin = new Duanxin();
+gDuanxin.setThisName('gDuanxin');
+gDuanxin.setconfig();
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>积分规则管理-积分商城</title>
+<style type="text/css">
+	/*导航条*/
+    .mainnav{z-index:1;background-color:#222}/*导航条背景*/
+    .mainnav > ul{ font-size: 0; line-height: 0}
+    .mainnav > ul > li,.mainnav > ul > li > a{height:40px;line-height:40px}/*导航条高度*/
+    .mainnav > ul > li{display:inline-block;color:#fff;font-size:14px;font-weight:bold}/*设置字体*/
+    .mainnav > ul > li > a{display:inline-block;padding:0 20px;color:#fff;text-align:center}/*链接颜色*/
+    .mainnav > ul > li > a:hover,.mainnav > ul > li.current > a{color:#fff;text-decoration:none; background-color:#e74c3c;-webkit-transition: background-color 0.3s ease 0s; -moz-transition: background-color 0.3s ease 0s; -o-transition: background-color 0.3s ease 0s; -ms-transition: background-color 0.3s ease 0s;transition: background-color 0.3s ease 0s}/*交互颜色*/
+    .Hui-nav-toggle{ display:none; position:absolute; top:0px; right:15px; font-size: 20px; color:#999; padding:6px 11px; -moz-border-radius:4px;-webkit-border-radius:4px;-ms-border-radius:4px;border-radius:4px; background-color:rgba(0,0,0,0.5);color:#fff;}
+    .Hui-nav-toggle:hover{ text-decoration: none;}
+	
+	/*菜单折叠*/
+	.Huifold .item{ position:relative}
+    .Huifold .item h4{margin:0;font-weight:bold;position:relative;border-top: 1px solid #fff;font-size:15px;line-height:22px;padding:7px 10px;background-color:#eee;cursor:pointer;padding-right:30px}
+    .Huifold .item h4 b{position:absolute;display: block; cursor:pointer;right:10px;top:7px;width:16px;height:16px; text-align:center; color:#666}
+    .Huifold .item .info{display:none;padding:10px}
+	
+	
+	/*执行操作标识栏*/
+	.operation{height:30px;}
+	.operation a{margin-right:14px;margin-top:4px;display:block;height:auto;}
+	.operation a:hover{text-decoration:none;}
+	.operation_obj{line-height:30px;text-indent:10px;}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont" style="font-size:16px;">&#xe66a;</i> 积分商城 <span class="c-gray en">&gt;</span> 积分规则管理</nav>
+<div class="pd-20">		
+	<nav class="mainnav cl">
+    	<ul class="cl ifr_list">
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/activities/pointsmall/commodity-list.html" id="li_menu">商城商品管理</a></li>
+    		<li class="menulist current"><a href="javascript:;" _href="/hcc/activities/pointsmall/integral-rule.html">积分规则管理</a></li>
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/activities/pointsmall/user-data.html">用户数据管理</a></li>
+    	</ul>
+    </nav>
+	<div class="mt-20" id="grid">
+		<table class="table table-border table-bordered table-bg table-hover table-sort" id="dataTable">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th width="40">序号</th>
+					<th width="120">规则类型</th>					
+					<th>规则说明</th>
+					<th width="80">状态</th>
+					<th width="50">给予积分</th>
+					<th width="50">每日上限</th>
+					<th width="100">操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/scorerule.js"></script>
+
+<script type="text/javascript">
+var scorerule = new Scorerule();
+scorerule.setThisName('scorerule');
+scorerule.initList();
+
+</script>
+
+
+</body>
+</html>

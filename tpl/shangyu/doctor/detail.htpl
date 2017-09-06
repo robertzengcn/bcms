@@ -1,0 +1,186 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_pat container">
+    <ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a href="/yiyuangaikuang">医院概况</a></li>
+      <li class="active">医院文化</li>
+    </ol>
+    <dl>
+    	<dd class="main_three mpat_one">
+        	<h4>门诊科室：</h4>
+        	<div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+    	     {{deptlist page="1" pagesize="3" diseases=true}}
+		    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+		        <ul>
+		            [diseases limit='9']
+		            <li><a>[diseases:name/]</a></li>
+		            [/diseases]
+		        </ul>
+            {{/deptlist}} 
+            </div> 
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+             {{deptlist page="1" pagesize="3" diseases=true}}
+		    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+		        <ul>
+		            [diseases limit='9']
+		            <li><a>[diseases:name/]</a></li>
+		            [/diseases]
+		        </ul>
+            {{/deptlist}} 
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+               {{deptlist page="1" pagesize="3" diseases=true}}
+		    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+		        <ul>
+		            [diseases limit='9']
+		            <li><a>[diseases:name/]</a></li>
+		            [/diseases]
+		        </ul>
+            {{/deptlist}} 
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi bord_none">
+               {{deptlist page="1" pagesize="3" diseases=true}}
+		    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+		        <ul>
+		            [diseases limit='9']
+		            <li><a>[diseases:name/]</a></li>
+		            [/diseases]
+		        </ul>
+            {{/deptlist}} 
+            </div>
+        </dd>
+    </dl>
+</div>
+
+<div class="main_exp container">
+	<div class="row">
+    	<div class="col-xs-12 col-sm-12 col-md-6 mexp_l">
+        	<div class="white_bg">
+        	    {{doctorinfo}}
+            	<div class="main_tit"><strong class="pull-left"><a href="/doctors/index.html?id=[field:id/]" target="_blank">医师信息</a></strong></div>
+                <div class="pull-left col-xs-12 col-sm-4"><a href="/doctors/index.html?id=[field:id/]" target="_blank"><img src="[field:pic/]"></a><span>已关注：[field:click_count/]</span></div>
+                <div class="pull-left col-xs-12 col-sm-8">
+                    <h4><a href="/doctors/index.html?id=[field:id/]" target="_blank">[field:name/]</a></h4>
+                    <h5><span>科室：{{deptinfo name_or_id=$department_in}}[field:name/]{{/deptinfo}}</span><span>职称：[field:position/]</span></h5>
+                    <p id="overtexts">个人简介：[field:description/]</p>
+                </div>
+                {{/doctorinfo}}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 mexp_r">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a >在线问诊</a></strong></div>
+                <ul>
+                    {{navgroup flag="wenzhen"}}
+                	<li><a href="[field:url/]" target="_blank"><img src="[field:pic/]"></a></li>
+                    {{/navgroup}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="main_exp2 container">
+	<div class="row">
+    	<div class="col-xs-12 col-sm-12 col-md-5 mexp2_l">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a>预约挂号</a></strong></div>
+                <form class="form-horizontal" role="form" method="post">
+                  <div class="form-group">
+                    <label class="col-xs-3 col-sm-2 col-md-3 control-label">个人信息：</label>
+                    <div class="col-xs-4">
+                      <input name="name" id="name" placeholder="姓名" class="form-control" type="text">
+                    </div>
+                    <div class="col-xs-5">
+                      <input name="hometel" id="hometel" placeholder="电话" class="form-control" type="text">
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="col-xs-3 col-sm-2 col-md-3 control-label">选择科室：</label>
+                    <div class="col-xs-9 col-sm-10 col-md-9">
+                      <select name="department" id="department_id" class="form-control"onchange="getDoctor(this.value);">
+                      </select>
+                    </div>
+                  </div>
+		                  <div class="form-group">
+		            <label class="col-xs-3 col-sm-2 col-md-3 control-label">坐诊时间：</label>
+		            <div class="col-xs-4">
+		              <input id='date' name='date' onfocus="WdatePicker({minDate:'%y-%M-%d'})" placeholder="请输入日期" class="form-control" type="text">
+		            </div>
+		            <div class="col-xs-5">
+		              <select name="appointment" id="appointment" class="form-control" onchange="getTime(this.value)">
+		               <option value="">--请选择时间--</option>
+		              </select>
+		              <input type="hidden" id="time" name="time" value=''/>
+		              <input type="hidden" id="sex" name="sex" value='0'/>
+		              <input type="hidden" id="age" name="age" value='1'/>
+		            </div>
+		          </div>
+                  <div class="form-group">
+                    <label class="col-xs-3 col-sm-2 col-md-3 control-label">选择医生：</label>
+                    <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-3 control-label">选择医生：</label>
+            <div class="col-xs-4">
+              <select name="doctor_id" id="doctor_id" class="form-control" onchange="getReservation();">
+                <option value="">请选择医生</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-xs-12" style="text-align: center;">
+              <input id="button" class="btn btn-block" value="确定预约" data-loading="稍候..." type="button" name="button">
+              <input name="type" id="type" value="article" type="hidden">
+              <input name="ill" id="iLL" value="kong" type="hidden">
+            </div>
+          </div>
+                <!-- <p style="color:#ff0000; font-family:'宋体'; margin-bottom:0;">提醒：预约成功后会以短信形式发送到预留手机号通知的预约成功</p> -->
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-7 mexp2_r">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/doctor" target="_blank">推荐医师</a></strong></div>
+                {{doctorsbyrecommend recommend_name='首页头版头条'   assign="doc"}}{{/doctorsbyrecommend}}
+            	{{foreach from=$doc name=docs item=v}}
+            	{{if $smarty.foreach.docs.iteration lt 3}}
+                <div class="col-xs-12 col-sm-6">
+                	<div class="col-xs-12 col-sm-5"><a href="{{$v->url}}" target="_blank"><img src="{{$v->pic}}"></a></div>
+                	<div class="col-xs-12 col-sm-7">
+                    	<h4><a href="{{$v->url}}" target="_blank">{{$v->name}}</a></h4>
+                        <h5><span>科室：{{deptinfo name_or_id=$v->department_id}}[field:name/]{{/deptinfo}} </span><br><span>职称：{{$v->position}}</span></h5>
+                        <p>{{$v->description|truncate:39}}<a href="{{$v->url}}" target="_blank"><详情></a></p>
+                    </div>
+                </div>
+                {{/if}}
+                {{/foreach}}
+            </div>
+        </div>
+    </div>
+</div>
+        
+        
+        <div class="col-xs-12 col-sm-12 col-md-7 mexp2_r">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/doctor" target="_blank">推荐医师</a></strong></div>
+            	{{doctorsbyrecommend recommend_name='首页头版头条'   assign="doc"}}{{/doctorsbyrecommend}}
+            	{{foreach from=$doc name=docs item=v}}
+            	{{if $smarty.foreach.docs.iteration lt 3}}
+                <div class="col-xs-12 col-sm-6">
+                	<div class="col-xs-12 col-sm-5"><a href="{{$v->url}}" target="_blank"><img src="{{$v->pic}}"></a></div>
+                	<div class="col-xs-12 col-sm-7">
+                    	<h4><a href="{{$v->url}}" target="_blank">{{$v->name}}</a></h4>
+                        <h5><span>科室：{{deptinfo name_or_id=$v->department_id}}[field:name/]{{/deptinfo}}</span><br><span>职称：{{$v->position}}</span></h5>
+                        <p>个人简介：{{$v->description|truncate:39}}<a href="{{$v->url}}" target="_blank"><详情></a></p>
+                    </div>
+                </div>
+                {{/if}}
+                {{/foreach}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{/block}}

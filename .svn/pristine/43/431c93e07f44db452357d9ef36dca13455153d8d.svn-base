@@ -1,0 +1,214 @@
+<!doctype html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>挑选，筛选</title>
+
+<!-- Set render engine for 360 browser -->
+<meta name="renderer" content="webkit">
+
+<!-- No Baidu Siteapp-->
+<meta http-equiv="Cache-Control" content="no-siteapp"/>
+<link rel="icon" type="image/png" href="{{$LOGO[2]}}">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="192x192" href="{{$LOGO[1]}}">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="UI"/>
+<link rel="apple-touch-icon-precomposed" href="{{$LOGO[1]}}">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="{{$LOGO[1]}}">
+<meta name="msapplication-TileColor" content="#0e90d2">
+
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/amazeui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/admin.css">
+
+<!--新增基础样式-->
+<link href="{{$COMMON}}Commodity/public/css/demo.css" rel="stylesheet" type="text/css" />
+<!--单页样式-->
+<link href="{{$COMMON}}Commodity/public/css/search-style.css" rel="stylesheet" type="text/css" />
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<!--<![endif]-->
+<script src="{{$COMMON}}Commodity/public/js/amazeui.min.js"></script>
+<!--新增-->
+<script  src="{{$COMMON}}Commodity/public/js/jquery-1.7.min.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/script.js"></script>
+</head>
+<body>
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器 UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>  以获得更好的体验！</p>
+<![endif]--> 
+
+<!--[if lt IE 9]>
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/modernizr.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+<div class="hmtop"> 
+  <!--悬浮搜索框-->
+  <div class="nav white">
+    <div class="logo"><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></div>
+    <div class="logoBig">
+      <li><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></li>
+    </div>
+    <div class="search-bar pr"><a name="index_none_header_sysc" href="#"></a>
+      <form action="{{$COMMODITY}}" method="get">
+        <input  name="method" type="hidden" value="goodslist">
+        <input id="searchInput" name="keyword" placeholder="搜索" autocomplete="off" type="text">
+        <input id="ai-topsearch" class="submit am-btn" value="搜索" index="1" type="submit">
+      </form>
+    </div>
+  <div data-am-widget="menu" class="am-menu  am-menu-offcanvas1"  data-am-menu-offcanvas> 
+    <a href="javascript: void(0)" class="am-menu-toggle" style="right:0px;">
+          <i class="am-menu-toggle-icon am-icon-bars" style="font-size:25px;color:#F03726;"></i>
+    </a>
+    <div class="am-offcanvas" >
+      <div class="am-offcanvas-bar am-offcanvas-bar-flip">
+      <ul class="am-menu-nav am-avg-sm-1">
+		{{foreach from=$shopnav key=k item=value}}
+          <li><a href="{{$METHOD}}{{$k}}" style="font-size:14px;" >{{$value}}</a></li>
+        {{/foreach}} 
+      </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<div class="search">
+  <div class="search-list">
+    <div class="am-g am-g-fixed">
+      <div class="am-u-sm-12 am-u-md-12">
+        <div class="theme-popover">
+          
+          <ul class="select">
+            <p class="title font-normal"> <span class="fl">{{$info->keyword}}</span> <span class="total fl">搜索到<strong class="num">{{$dataCount}}</strong>件相关商品</span> </p>
+            <div class="clear"></div>
+            <li class="select-result" {{if $info->id}}style="display: list-item;"{{/if}}>
+              <dl>
+			    {{if $info->id}}
+					<dt>已选</dt>
+					<dd class="select-no" style="display: none;"></dd>
+					<p class="eliminateCriteria" style="display: block;">清除</p>
+					<dd id="selectA" class="selected"><a href="#">{{$info->name}}</a></dd>
+				{{/if}}
+              </dl>
+            </li>
+            <div class="clear"></div>
+            <li class="select-list">
+              <dl id="select1">
+                <dt class="am-badge am-round">品牌</dt>
+                <div class="dd-conent">
+                  <dd class="select-all {{if $info->name eq '全部'}}selected{{/if}}"><a href="{{$COMMODITY}}?method=goodslist&keyword={{$info->keyword}}">全部</a></dd>
+			    {{foreach from=$model  item=vo}}
+                  <dd class="{{if $info->name eq $vo->name}}selected{{/if}}"><a href="{{$COMMODITY}}?method=goodslist&keyword={{$info->keyword}}&id={{$vo->id}}">{{$vo->name}}</a></dd>
+				{{/foreach}}
+                </div>
+              </dl>
+            </li>
+<!--             <li class="select-list">
+              <dl id="select2">
+                <dt class="am-badge am-round">种类</dt>
+                <div class="dd-conent">
+                  <dd class="select-all selected"><a href="#">全部</a></dd>
+                  <dd><a href="#">种类1</a></dd>
+                  <dd><a href="#">种类2</a></dd>
+                  <dd><a href="#">种类3</a></dd>
+                  <dd><a href="#">种类4</a></dd>
+                </div>
+              </dl>
+            </li> 
+            <li class="select-list">
+              <dl id="select3">
+                <dt class="am-badge am-round">选购热点</dt>
+                <div class="dd-conent">
+                  <dd class="select-all selected"><a href="#">全部</a></dd>
+                  <dd><a href="#">热购1</a></dd>
+                  <dd><a href="#">热购2</a></dd>
+                  <dd><a href="#">热购3</a></dd>
+                  <dd><a href="#">热购4</a></dd>
+                </div>
+              </dl>
+            </li>-->
+          </ul>
+          <div class="clear"></div>
+        </div>
+        <div class="search-content">
+          <!--<div class="sort">
+            <li class="first"><a title="综合">综合排序</a></li>
+            <li><a title="销量">销量排序</a></li>
+            <li><a title="价格">价格优先</a></li>
+            <li class="big"><a title="评价" href="#">评价为主</a></li>
+          </div>
+          <div class="clear"></div>-->
+          <ul class="am-avg-sm-2 am-avg-md-3 am-avg-lg-4 boxes">
+    {{foreach from=$list key=k item=vo}}
+            <li>
+				<a href="{{$info->url}}{{$vo->id}}">
+              <div class="i-pic limit"> <img src="{{$vo->pic}}" />
+                <p class="title fl">{{$vo->subject}}</p>
+			{{if $vo->exchange eq 1}}                
+				<p class="price fl"> <strong>{{$vo->score}}分</strong> </p>
+				{{else}}
+                <p class="price fl"><em>¥</em><strong>{{$vo->price}}+{{$vo->score}}分</strong> </p>
+			{{/if}}
+                <p class="number fl"> 库存<span>{{$vo->quantity}}</span> </p>
+              </div>
+			  </a>
+            </li>
+	{{/foreach}}
+          </ul>
+        </div>
+        
+        <div class="clear"></div>
+        <!--分页 -->
+{{if $pageCount gt 1}}
+        <ul class="am-pagination" style="text-align:center;">
+          <li class="{{if $page eq 1}}am-disabled{{/if}}"><a href="{{$MOBILE}}/{{$url}}.php?method=goodslist&id={{$info->id}}&keyword={{$info->keyword}}&page={{$page-1}}{{$moreParam}}">&laquo;</a></li>
+			{{for $i=1 to $pageCount}}
+          <li class="{{if $i eq $info->page}}am-active{{/if}}"><a href="{{$MOBILE}}/{{$url}}.php?method=goodslist&id={{$info->id}}&keyword={{$info->keyword}}&page={{$i}}">{{$i}}</a></li>
+		  	{{/for}} 
+          <li class="{{if $page eq {{$pageCount}}}}am-disabled{{/if}}"><a href="{{$MOBILE}}/{{$url}}.php?method=goodslist&id={{$info->id}}&keyword={{$info->keyword}}&page={{$page+1}}{{$moreParam}}">&raquo;</a></li>
+        </ul>		
+{{/if}}
+{{if $dataCount eq 0}}
+<br/><div style="text-align:center;">暂无数据</div><br/>
+{{/if}}		
+      </div>
+    </div>
+<!-- <div class="footer mb-10  mt-10">
+  <div class="footer-hd ">
+    <p> <a href="{{$index}}">商城首页</a> <b>|</b> <a href="tel:{{$contact.tel}}">联系我们</a> <b>|</b> <a href="#">帮助信息</a> <b>|</b> <a href="#">{{$contact.name}}版权所有</a> </p>
+  </div>
+</div> -->
+  </div>
+</div>
+
+
+
+
+
+
+<div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+          <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+  </div>
+  
+  <div class="theme-popover-mask"></div>
+  
+</body>
+</html>

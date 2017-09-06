@@ -1,0 +1,7 @@
+<div class="gengduo2" style="width:318px;margin:0 auto;">
+    <ul>
+        {{foreach $recommend as  $v}}
+        <li><a href="{{$MOBILE}}/{{$url}}.php?method=get&id={{$v->id}}">{{$v->$titleField}}</a></li>
+        {{/foreach}}
+    </ul>
+</div>

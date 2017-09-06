@@ -1,0 +1,1458 @@
+﻿var incldue_page = {};
+var incldue_size = {};
+var incldue_para = {};
+var dd = {
+	async : true,
+	timeout : 80000, //10秒
+	http : '../../controller/',
+	remLoading : true,
+	cmd : function(para,fun){
+		$.ajax({
+			url : dd.http,
+			data : para,
+			async : dd.async,
+			cache : false,
+			type : 'post',
+			dataType : 'json',
+			timeout : dd.timeout,
+			error : function(obj,error){
+				if(error == 'timeout'){
+					$('#message').message('请求超时.');
+					$('#loading').removeClass('loading');
+				}
+			},
+			success : function(result){
+				if(result.code != undefined && result.code==25){
+					location.href = 'login.html';
+					return false;
+				}
+				fun(result);
+				if( dd.remLoading == true ){
+					$('#loading').removeClass('loading');
+				}
+			}
+		});
+	}
+}
+
+var json = {
+	getJosnMethod : function(url,func){
+		dd.cmd({controller:'PicManager',method:'getConfigJson',url:url},function(result){
+			func(result);
+		});
+	},
+	getImgSize : function(para){
+		json.getJosnMethod('/tpl/config.json', function( data ) {
+			var tpl = '';
+			if( data != null ) {
+				$.each( data, function( key, value ) {
+					tpl = value.currentUsed;
+				});
+			}
+            if(tpl=='' || tpl.length == '0'){
+            	json.getJosnMethod('/tpl/imgsize.json', function( imgsize ) {
+                    var imgsizeArr = new Array();
+                    $.each( imgsize, function( key, value ) {
+                        imgsizeArr[value.key] = value;
+                        if(value.key == para){
+                            $("#"+para).html(imgsizeArr[para]['width']+'px * '+imgsizeArr[para]['height']+"px");
+                            return false;
+                        }
+                    });
+                });
+            }else{
+            	json.getJosnMethod('/tpl/'+tpl+'/imgsize.json', function( imgsize ) {
+                    var imgsizeArr = new Array();
+                    $.each( imgsize, function( key, value ) {
+                        imgsizeArr[value.key] = value;
+                        if(value.key == para){
+                            $("#"+para).html(imgsizeArr[para]['width']+'px * '+imgsizeArr[para]['height']+"px");
+                            return false;
+                        }
+                    });
+                });
+            }
+
+		});
+	},
+	setImgSize : function(para,id){
+		if(!id){
+			id = "#img";
+		}
+		json.getJosnMethod('/tpl/config.json', function( data ) {
+			var tpl = '';
+            if( data != null ) {
+			$.each( data, function( key, value ) {
+				tpl = value.currentUsed;
+			});
+            }
+            if(tpl=='' || tpl.length == '0'){
+            	json.getJosnMethod('/tpl/imgsize.json', function( imgsize ) {
+                    var imgsizeArr = new Array();
+                    $.each( imgsize, function( key, value ) {
+                        imgsizeArr[value.key] = value;
+                        if(value.key == para){
+                            $(id).attr('width',imgsizeArr[para]['width']);
+                            $(id).attr('height',imgsizeArr[para]['height']);
+                            return false;
+                        }
+                    });
+                });
+            }else{
+            json.getJosnMethod('/tpl/'+tpl+'/imgsize.json', function( imgsize ) {
+				var imgsizeArr = new Array();
+				$.each( imgsize, function( key, value ) {
+					imgsizeArr[value.key] = value;
+					if(value.key == para){
+						$(id).attr('width',imgsizeArr[para]['width']);
+						$(id).attr('height',imgsizeArr[para]['height']);
+						return false;
+					}
+				});
+			});
+            }
+		});
+	},
+	getPicScroll : function(para){
+		$.getJSON('/tpl/slide/config.json', function( imgsize ) {
+			var slide = new Array();
+			var install = true;
+			$.each( imgsize, function( key, value ) {
+				if(key == 0){
+					install = value.name;
+					return false;
+				}
+			});
+			if(!install){
+				dd.cmd({controller:'PicManager',method:'installSlide'},function(result){
+					if(!result.statu){
+						$('#message').message(result.msg);
+					}else{
+						$('#grid').grid('reload');
+					}
+				});
+			}
+		});
+	}
+}
+
+$(function(){
+	$.fn.tpl = function(tpl,fun){
+		var http = './';
+		var obj = $(this);
+		$.ajax({
+			url : http+tpl+'.html',
+			dataType : 'html',
+			cache : false,
+			type : 'get',
+			success : function(result){
+				obj.html(result);
+				fun();
+			}
+		});
+	}
+
+	$.fn.ptpl = function(tpl,fun){
+		var http = '../plugin/';
+		var obj = $(this);
+		$.ajax({
+			url : http+tpl+'.html',
+			dataType : 'html',
+			type : 'get',
+			cache : false,
+			success : function(result){
+				obj.html(result);
+				fun();
+			}
+		});
+	}
+
+	//表单的验证
+	$.fn.frmVal = function(data){
+		var _me = $(this);
+		var check = true;
+		_me.find(':input[type!=button]').each(function(){
+			$(this).next('.error').remove();
+			var ck = $(this).attr('check');
+			var val = $.trim($(this).val());
+			var title = $(this).attr('title');
+			if(ck != undefined){
+				var arr = ck.split(' ');
+				var len = arr.length;
+				if(len == 1){
+					if(arr[0] == 'must'){
+						if(val == ''){
+							var html = '<div id="error_info"></div>';
+							$('body').append(html);
+							$('#error_info').message(title);
+							check = false;
+							return false; 
+
+						}
+					}else{
+						var str = arr[0].split('-');
+						//当有值时才进行判断
+						if(val.length > 0){
+							switch(str[0]){
+								case 'str' : 
+									if (str[1] > val.length || str[2] < val.length) {
+										var html = '<div id="error_info"></div>';
+										$('body').append(html);
+										$('#error_info').message(title);
+										check =  false;
+										return false;
+									}
+									break;
+								case 'num' : 
+									if(isNaN(val) || (!isNaN(val) && val < parseInt(str[1])) || (!isNaN(val) && val > parseInt(str[2])) ){
+										var html = '<div id="error_info"></div>';
+										$('body').append(html);
+										$('#error_info').message(title);
+										check =  false;
+										return false;
+									}
+									break;			
+							}
+						}
+						
+					}
+				}else{
+					var str = arr[1].split('-');
+					switch(str[0]){
+						case 'str' : 
+							if(str[1] > val.length || str[2] < val.length){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'num' : 
+							if(isNaN(val) || (!isNaN(val) && val < parseInt(str[1])) || (!isNaN(val) && val > parseInt(str[2])) ){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'compare' : 
+							var id = str[1];
+							var one = $.trim($('#'+id).val());
+							if(one != val){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'url' :
+							var strRegex = "^((https|http|ftp|rtsp|mms)?://)"  
+								  + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?"
+								        + "(([0-9]{1,3}\.){3}[0-9]{1,3}"
+								        + "|"
+								        + "([0-9a-z_!~*'()-]+\.)*"
+								        + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\."
+								        + "[a-z]{2,6})"
+								        + "(:[0-9]{1,4})?"
+								        + "((/?)|"
+								        + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
+							var re = new RegExp(strRegex);
+							if (!re.test(val)){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'movie' :
+							var pattern = /(.*?)\.(swf)$/i;
+							if(val.length == 0 || val.search(pattern) == -1){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+					}
+				}
+			}
+		});
+		
+		if(check){
+			$('#loading').addClass('loading');
+			//密码进行md5加密
+			_me.find(':input[type=password]').each(function(){
+				$(this).val($.md5($(this).val()));
+			});
+			var str = _me.serializeArray();
+			var s = data;
+			$.each(str,function(i,obj){
+				s[obj.name] = obj.value;
+			});
+			return s;
+		}else{
+			return false;
+		}
+	}
+	
+	//消息框
+	$.fn.message = function(con,fun){
+		var html = '<div class="dialogBackground" id="dialogBackground" style="display:block;"></div>';
+		$('body').append(html);
+		html = '';
+		html += '<div id="remind" style="z-index: 1000; height: 100px; width: 200px;" class="dialog">';
+		html += '<div class="dialogHeader">';
+		html += '<div class="dialogHeader_r">';
+		html += '<div class="dialogHeader_c">';
+		html += '<a href="javascript:void(0)" class="close">close</a>';
+		html += '<h1>提示</h1>';
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+		html += '<div class="dialogContent layoutBox unitBox" style="min-height: 30px;border-bottom:1px solid #B8D0D6">';
+		html += '<div class="pageHeader">';
+		html += con;
+		html += '</div>';
+		html += '<div style="text-align:center;margin-top:10px;margin-bottom:10px;">';
+		html += '<a href="javascript:void(0)" style="margin-left:60px;" class="close button"><span>确定</span></a>'
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+		$('body').append(html);		
+		if($.isFunction(fun)){
+			fun();
+		}
+	}
+
+	//表单赋值
+	$.fn.frmFill = function(name, data) {
+		var _me = $(this);
+		var new_name = '';
+		_me.find('input[type="text"],:password,textarea,:hidden').each(function() {
+			for (pro in data) {
+				if (name == '') {
+					new_name = pro;
+				} else {
+					new_name = name + '[' + pro + ']';
+				}
+				if ($(this).attr('name') == new_name) {
+					$(this).val(data[pro]);
+					break;
+				}
+			}
+		});
+
+
+        _me.find('img').each(function(){
+            for(pro in data){
+                if(name == ''){
+                    new_name = pro;
+                }else{
+                    new_name = name + '['+pro+']';
+                }
+
+                if($(this).attr('name') == new_name){
+                    $(this).attr('src',data[pro]);
+                    break;
+                }
+            }
+        });
+		
+		_me.find(':radio').each(function(){
+			for(pro in data){
+				if(name == ''){
+					new_name = pro;
+				}else{
+					new_name = name + '['+pro+']';
+				}
+
+				if($(this).attr('name') == new_name && $(this).val() == data[pro]){
+					$(this).attr('checked','checked');
+				}
+			}
+		});
+
+		_me.find('select').each(function() {
+			for (pro in data) {
+				if (name == '') {
+					new_name = pro;
+				} else {
+					new_name = name + '[' + pro + ']';
+				}
+				if ($(this).attr('name') == new_name) {
+					$(this).children('[value="' + data[pro] + '"]').attr('selected', 'selected');
+					break;
+				}
+
+			}
+		});
+
+		var title_seo = $('#seo_title').val();
+		if(title_seo != undefined){
+			var l = 50-title_seo.length;
+			$('#seo_title').next('font').html('您还可以输入<font color="#111111">'+l+'</font>字');
+		}
+
+		var desc_seo = $('#seo_desc').val();
+		if(desc_seo != undefined){
+			var l = 240-desc_seo.length;
+			$('#seo_desc').next('font').html('您还可以输入<font color="#111111">'+l+'</font>字');
+		}
+
+		return _me;
+	}
+
+	//表单的提交
+	$.fn.frmPost = function(data,fun){
+		var _me = $(this);
+		var data = _me.frmVal(data);
+		if(data){
+			dd.cmd(data,fun);
+		}
+	}
+
+	$('.back').click(function(){
+		history.back();
+	});
+
+	//相册拖拽
+	$.fn.picDrag = function(message){
+		var _me = $(this);
+		$(document).bind('dragenter',function(){
+			return false;	
+		}).bind('dragover',function(){
+			return false;
+		}).bind('dragover',function(){
+			return false;
+		}).bind('dragover',function(){
+			return false;
+		});
+		_me.bind('dragenter',function(e){
+			
+			$('#'+message).html('松开鼠标');
+			e.stopPropagation();
+			e.preventDefault();
+		}).bind('dragover',function(e){
+			$('#'+message).html('松开鼠标');
+			e.stopPropagation();
+			e.preventDefault();
+		}).bind('dragleave',function(e){
+			$('#'+message).html('拖拽上传');
+			e.stopPropagation();
+			e.preventDefault();
+		});	
+
+		_me[0].addEventListener('drop',function(e){
+			var files = e.dataTransfer.files;
+			var j = files.length;
+			var arr = [];
+			var k = 0;
+			for(var i=0;i<j;i++){
+				var file = files[i];
+				if(!file.type.match(/image/)){
+					continue;
+				}
+				arr[k] = file;
+				k++;
+				var reader = new FileReader();
+				reader.onload = function(e){
+				//	div1.append('<img src="'+e.target.result+'">');
+				}
+				reader.readAsDataURL(file);
+			}
+			if(arr.length == 0){
+				$('#'+message).html('不是上传的类型');
+				//div4.html('不是上传的类型');
+				e.stopPropagation();
+				e.preventDefault();
+				return false;
+			}
+			upload(arr);
+			
+			e.stopPropagation();
+			e.preventDefault();
+		},false);
+		
+		function upload(files){
+			var formData = new FormData();
+
+			for(var i=0;i<files.length;i++){
+				formData.append('files[]',files[i]);
+			}
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('post','../controller/index.php?controller=Upload&method=drag&dir=select');
+			xhr.onload = function(){
+				$('#'+message).html('上传完成');
+			}
+
+			xhr.onreadystatechange = function(){
+				if(xhr.readyState == 4){
+					if(xhr.status == 200){
+						var json = $.parseJSON(xhr.responseText);
+						var str = '';
+						$.each(json,function(key,val){
+							str+='<li class="piclist">';
+							str += '<a class="one_pic" flag="'+val.id+'" src="'+val.path+'" pic="'+val.url+'" href="javascript:void(0)"><img  src="'+val.path+'"></a>';
+							str += '</li>';
+							
+						});
+						$('#'+message).next('ul').prepend(str);
+					}
+					xhr = null;
+				}
+			}
+
+			xhr.upload.onprogress = function(e){
+				if(e.lengthComputable){
+					var percent = (e.loaded/e.total*100|0)+'%';
+					$('#'+message).html(percent);
+				}
+			}
+			xhr.send(formData);
+			
+		}
+		
+	}
+
+	//拖拽
+	$.fn.dragPic = function(div1,div2,div3,div4){
+		var _me = $(this);
+		div1 = $('#'+div1);
+		div2 = $('#'+div2);
+		div3 = $('#'+div3);
+		div4 = $('#'+div4);
+
+		var fun = function(){
+			_me.hide();
+			return false;
+		}
+
+		$('#close_pic_view').click(function(){
+				div3.hide();
+		});
+
+		$(document).bind('dragenter',function(){
+			div1.html('拖拽图片到这里');
+			_me.show();
+			return false;
+		}).bind('dragover',function(){
+			div1.html('拖拽图片到这里');
+			_me.show();
+			return false;
+		}).bind('dragleave',fun);
+
+		_me.bind('dragenter',function(e){
+			$(document).unbind('dragleave',fun);
+			_me.show();
+			div1.html('释放鼠标');
+			e.stopPropagation();
+			e.preventDefault();
+		}).bind('dragover',function(e){
+			$(document).unbind('dragleave',fun);
+			_me.show();
+			div1.html('释放鼠标');
+			e.stopPropagation();
+			e.preventDefault();
+		}).bind('dragleave',function(e){
+			$(document).bind('dragleave',fun);
+			_me.show();
+			div1.html('拖拽图片到这里');
+			e.stopPropagation();
+			e.preventDefault();
+		});
+
+		_me[0].addEventListener('drop',function(e){
+			_me.hide();
+			var files = e.dataTransfer.files;
+			var j = files.length;
+			div1.empty();
+			var arr = [];
+			var k = 0;
+			for(var i=0;i<j;i++){
+				var file = files[i];
+				if(!file.type.match(/image/)){
+					continue;
+				}
+				arr[k] = file;
+				k++;
+				var reader = new FileReader();
+				reader.onload = function(e){
+					div1.append('<img src="'+e.target.result+'">');
+				}
+				reader.readAsDataURL(file);
+			}
+			if(arr.length == 0){
+				div3.show();
+				div4.html('不是上传的类型');
+				e.stopPropagation();
+				e.preventDefault();
+				return false;
+			}
+			upload(arr);
+			
+			e.stopPropagation();
+			e.preventDefault();
+		},false);
+
+		function upload(files){
+			var formData = new FormData();
+
+			for(var i=0;i<files.length;i++){
+				formData.append('files[]',files[i]);
+			}
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('post','../controller/index.php?controller=Upload&method=drag&dir=select');
+			xhr.onload = function(){
+				div3.show();
+				div4.html('上传完成');
+			}
+
+			xhr.onreadystatechange = function(){
+				if(xhr.readyState == 4){
+					if(xhr.status == 200){
+						var json = $.parseJSON(xhr.responseText);
+						div2.empty();
+						$.each(json,function(key,val){
+							div2.append('<a href="javascript:void(0)"><img class="pic_view" src="'+val.path+'"></a>');
+						});
+					}
+					xhr = null;
+				}
+			}
+
+			xhr.upload.onprogress = function(e){
+				if(e.lengthComputable){
+					var percent = (e.loaded/e.total*100|0)+'%';
+					div4.html(percent);
+				}
+			}
+			xhr.send(formData);
+
+			div2.on('click','.pic_view',function(){
+				var url = $(this).attr('src');
+				var data = $('#editor').val();
+				data += '<p><img src="'+url+'"></p>';
+				$('#editor').val(data);
+			});
+		}
+	}
+
+});
+
+//图片相册框
+!function($){
+ 	var	pic_dialog = function(option,fun){
+		this.dir = option.dir == undefined ? undefined : option.dir;
+		this.modal = option.modal;
+		this.editor = option.editor == undefined ? undefined : option.editor; //编辑器对象
+		this.para = option.para;
+		this.nowPage = 1;
+		this.size = option.size == undefined ? 2 : option.size;
+		this.pageSize = 10;
+		this.img = option.img == undefined ? undefined : option.img; //图片对象
+		this.input = option.input == undefined ? undefined : option.input; //input对象
+		this.message = option.message == undefined  ? undefined : option.message; //message对象
+		this.flag = option.flag == undefined ? undefined : option.flag;
+		this.fun = fun;//回调函数	
+	}
+	
+	pic_dialog.prototype = {
+		constructor : pic_dialog
+		//请求
+		,request : function(id1,id2){
+			var self = this;
+			var str = '';
+			if(self.dir){
+				self.para.dir = self.dir;
+			}
+			self.para.size = self.size;
+		   	self.para.page = self.nowPage;	
+			dd.cmd(self.para,function(result){
+				$.each(result.rows,function(i,obj){	
+					str += '<li class="piclist">';
+					str += '<a class="one_pic" draggable="true" flag="'+obj.id+'" src="'+obj.src+'" pic="'+obj.pic+'" href="javascript:void(0)"><img src="'+obj.src+'"></a>';
+					str += '</li>';
+				});
+				
+				var page = result.ttl;
+
+				$('#'+id1).html(str);
+				var a = self.show(page);
+				$('#'+id2).html(a);
+
+				self.eventAdd(id1,id2);
+			});
+		}
+		//删除
+		,del : function(id){
+			var self = this;
+			dd.cmd({controller:'NetworkPic',method:'del',id:id},function(result){
+				if(result.statu){
+					$('.one_pic[flag="'+id+'"]').remove();
+				}
+			});
+		}
+		//事件添加
+		,eventAdd : function(id1,id2){
+			var self = this;
+			//页数点击
+			$('.j-num').click(function(){
+				var page = $(this).attr('flag');
+				self.nowPage = page;
+				self.request(id1,id2);
+			});
+
+			//下一页点击
+			$('a.next').click(function(){
+				var page = $(this).attr('flag');
+				self.nowPage = page;
+				self.request(id1,id2);
+			});
+
+			//上一页点击
+			$('a.previous').click(function(){
+				var page = $(this).attr('flag');
+				self.nowPage = page;
+				self.request(id1,id2);
+			});
+
+			//首页点击
+			$('a.first').click(function(){
+				var page = $(this).attr('flag');
+				self.nowPage = page;
+				self.request(id1,id2);
+			});
+
+			//末页点击
+			$('a.last').click(function(){
+				var page = $(this).attr('flag');
+				self.nowPage = page;
+				self.request(id1,id2);
+			});
+
+			$('#'+id1).on('click','.one_pic',function(){
+				var src = $(this).attr('src');
+				if(self.editor != undefined){//编辑器
+					CKEDITOR.instances.editor.insertHtml( '<p><img src="'+src+'"></p>' );
+				}else if(!self.img != undefined){//网络相册
+					$(self.img).prev('.del_div').remove();
+					var html = '<div class="del_div" style="margin-bottom:5px;">';
+					if(self.flag != undefined){
+						html += '<a class="del_pic" flag='+self.flag+' href="javascript:void(0)">删除图片</a>';
+					}else{
+						html += '<a class="del_pic" href="javascript:void(0)">删除图片</a>';
+					}
+						
+					html += '</div>';
+					$(self.img).before(html);
+					var pic = $(this).attr('pic');
+					$(self.img).attr('src',src);
+					$(self.input).val(pic);
+					if($.isFunction(self.fun)){
+						self.fun();
+					}
+				}
+			});
+
+			var fun = function(e){
+				var id = e.dataTransfer.getData('id');	
+				_dialog.del(id);
+				e.stopPropagation();
+				e.preventDefault();
+			}
+
+			document.addEventListener('drop',fun,false);
+			
+			$('a.close').click(function(){
+				document.removeEventListener('drop',fun,false);
+				self.modal.hide();
+				if( $.trim($(self.img).attr('src')) == '' ){
+					$(self.img).attr('width','0px');$(self.img).attr('height','0px');
+				}
+			});
+			
+			self.modal.on('dragstart','.one_pic',function(e){
+				var id = $(this).attr('flag');
+				e.originalEvent.dataTransfer.setData('id',id);
+			});
+		}
+		//页数 
+		,show : function(ttl){
+			var self = this;
+			//var html = '<div class="panelBar">';
+			var pageNum = Math.ceil(ttl/this.size);
+			//html += '<div class="pages">';
+			//html += '共'+ttl+'条</span>';
+			//html += '</div>';
+			//html += '<div class="pagination">';
+			//html += '<ul>';
+			var html='';
+			
+			
+			if(this.nowPage == 1){				
+				html += '<a href="javascript:void(0)" style="display:none;" class="paginate_button previous disabled previous" aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0" id="DataTables_Table_0_previous">上一页</a>';
+			
+			}else{				
+				html += '<a flag='+(parseInt(this.nowPage)-1)+' href="javascript:void(0)" style="display:none;" class="paginate_button previous disabled previous" aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0" id="DataTables_Table_0_previous">上一页</a>';
+			}
+			html += '<span>';
+			
+			var selected = '';
+			//页数的控制
+			var flag = this.nowPage - Math.ceil(self.pageSize/2);
+			if(pageNum > self.pageSize){
+				var pageFlag = self.pageSize;
+			}else{
+				var pageFlag = pageNum;
+			}
+
+			this.nowPage = parseInt(this.nowPage);
+			
+			if(flag <=0){
+				for(var i=1;i<=pageFlag;i++){
+					if(this.nowPage == i){
+						selected = 'selected';
+					}else{
+						selected = '';
+					}
+					
+					html += '<a class="paginate_button current" aria-controls="DataTables_Table_0" data-dt-idx="1" tabindex="0">'+i+'</a>';
+					
+				}
+			}else{
+				var start = this.nowPage-Math.ceil(self.pageSize/2)+1;
+				for(var j=start;j<=this.nowPage;j++){
+					if(this.nowPage == j){
+						selected = 'selected';
+					}else{
+						selected = '';
+					}
+					html += '<li flag="'+j+'" class="j-num '+selected+'">';
+					html += '<a href="javascript:void(0)">'+j+'</a>';
+					html += '</li>';
+				}
+				if(this.nowPage+Math.ceil(self.pageSize/2) > pageNum){
+					var foot = pageNum;
+				}else{
+					var foot = this.nowPage+Math.ceil(self.pageSize/2);
+				}
+				for(var j=this.nowPage+1;j<=foot;j++){
+					html += '<li flag="'+j+'" class="j-num">';
+					html += '<a href="javascript:void(0)">'+j+'</a>';
+					html += '</li>';
+				}	
+			}
+			if(pageNum == 0 || this.nowPage == pageNum){
+				html += '<li class="j-next disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="next"><span>下一页</span></a>';
+				html += '<span class="next"><span>下一页</span></span>';
+			}else{
+				html += '<li  class="j-next">';
+				html += '<a flag="'+(parseInt(this.nowPage)+1)+'" class="next" href="javascript:void(0)"><span>下一页</span></a>';
+			}
+			html += '</li>';
+			
+			if( pageNum == 0 || this.nowPage == pageNum){
+				html += '<li class="j-last disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="last"><span>尾页</span></a>';
+				html += '<span class="last"><span>尾页</span></span>';
+			}else{
+				html += '<li  class="j-last">';
+				html += '<a flag="'+pageNum+'" class="last" href="javascript:void(0)"><span>尾页</span></a>';
+			}
+			html += '</li>';
+			
+			
+			html += '</ul>';
+			html += '</div>';
+		 	html += '</div>';
+
+			return html;
+		}
+	}
+	
+	$.fn.pic_dialog = function(option,fun){
+		var html = '<div class="dialogBackground" id="dialogBackground" style="display:none;"></div>';
+		$('body').append(html);
+
+		if(option == 'show'){
+			$(this).show();
+			$('#dialogBackground').show();
+			return false;
+		}
+		
+		var _me = this;
+		_dialog = new pic_dialog(option,fun);
+		_dialog.modal = _me;
+		var html = '';
+		var left = ($(window).width()-700)/2;
+		var top  = ($(window).height()-305)/2;
+		html += '<div style="top: '+top+'px; left: '+left+'px; z-index: 1000; height: 305px; width: 700px;" class="dialog">';
+		html += '<div class="dialogHeader">';
+		html += '<div class="dialogHeader_r">';
+		html += '<div class="dialogHeader_c">';
+		html += '<a href="javascript:void(0)" class="close">close</a>';
+		html += '<h1>';
+		html += '相册选择:'
+		html += '</h1>';
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+		html += '<div class="dialogContent layoutBox unitBox" style="height:265px;min-height: 30px;border-bottom:1px solid #B8D0D6;">';
+		html += '<div class="pageHeader" style="height:220px;background:#FFF;">';
+
+		var id = Math.floor(Math.random()*100);
+
+		if(option.message != undefined){
+			html += '<div style="text-align:center;font-size:14px;margin-bottom:10px;" id="'+option.message+'">拖拽文件上传</div>';
+		}
+		html += '<ul id="pic_'+id+'">';
+		html += '</ul>';
+		html += '</div>';
+		html += '<div id="page_'+id+'" style="text-align:center;margin-top:4px;margin-bottom:10px;">';
+		html += '</div>';
+		html += '</div>';
+				
+		html += '</div>';
+		_me.html(html);
+		_dialog.request('pic_'+id,'page_'+id);
+	
+		if(option.have){
+			return false;
+		}
+	}
+}(window.jQuery);
+
+//grid框
+!function($){
+	var grid = function(option){
+		this.size = typeof(option.size) == 'undefined' ? 6 : option.size;
+		this.nowPage = 1;
+		//this.cmd = option.cmd;
+		this.modal = option.modal;
+		this.para = option.para;
+		this.field = option.field;
+		this.check = option.check == undefined ? false : option.check; //是否复选框
+		this.order = option.order == undefined ? false : option.order; //是否显示序号
+		this.ttl  = '';
+		this.data = {}; //储存当前grid页当前行的所有数据
+		this.pageSize = 10;//页数最多显示10页
+		this.checkAll = option.checkAll == undefined ? false : option.checkAll;//是否默认复选框全选
+		this.showPage = option.showPage == undefined ? true  : option.showPage;//是否显示分页,默认为true
+	}
+
+	grid.prototype = {
+		constructor : grid
+		,request : function(){
+			var self = this;
+			var html = '';
+			//边框
+			/*
+			html += '<div id="DataTables_Table_0_wrapper" class="dataTables_wrapper no-footer">';
+			
+			//显示条数
+			html += '<div class="dataTables_length" id="DataTables_Table_0_length"><label>显示 <select name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" class="select"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> 条</label></div>';
+			
+			//检索栏
+			html += '<div id="DataTables_Table_0_filter" class="dataTables_filter"><label>从当前数据中检索:<input type="search" class="input-text " aria-controls="DataTables_Table_0"></label></div>';
+			
+			html += '<table id="DataTables_Table_0" class="table table-border table-bordered table-bg table-hover table-sort">';
+			
+			html += '<thead>';
+			html += '<tr class="text-c" role="row">';
+			
+			//是否显示复选框
+			if(this.check){
+				html += '<th style="text-align:center;width:60px;line-height:25px"><input id="check_all" type="checkbox"><label for="check_all">全选</label></th>';
+			}
+			
+			//是否显示序号
+			if(this.order){
+				html += '<th style="width:45px;text-align:center;">序号</th>';
+			}
+				
+			$.each(this.field,function(n,v){
+				var width = '';
+				if(v.width != undefined){
+					width = v.width+'px';
+				}else{
+					width = 'auto';
+				}
+				if(v.px){
+					html += '<th class="px" name="'+v.name+'" flag=1 style="width:'+width+'"><a href="javascript:void(0)">'+v.text+'</a></th>';
+				}else{
+					html += '<th style="width:'+width+'">'+v.text+'</th>';
+				}
+				
+			});
+			html += '</tr>';
+			html += '</thead>';
+			html += '<tbody>';
+			*/
+			html+='<div id="DataTables_Table_0_wrapper" class="dataTables_wrapper no-footer"><div class="dataTables_length" id="DataTables_Table_0_length">';
+			html+='<label>显示 <select name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" class="select" id="listnum_select"></select> 条</label></div>';
+			html+='<table class="table table-border table-bordered table-bg table-hover table-sort"><thead>';
+			html+='<tr class="text-c">';
+			//是否显示复选框
+			if(this.check){
+				html += '<th  width="25"><input type="checkbox" name="" value=""></th>';
+			}
+			//循环数据写入表格
+				$.each(this.field,function(n,v){
+					var width = '';
+					if(v.width != undefined){
+						width = v.width+'px';
+					}else{
+						width = 'auto';
+					}
+					if(v.px){
+						html += '<th class="px" name="'+v.name+'" flag=1 width="width:'+width+'"><a href="javascript:void(0)">'+v.text+'</a></th>';
+					}else{
+						html += '<th width="width:'+width+'">'+v.text+'</th>';
+					}
+					
+				});
+			html+='</tr></thead>';
+			html+='<tbody>';
+			
+			/**/
+			this.para.page = this.nowPage;
+			this.para.size = this.size;
+			var ttl = '';
+			var field = this.field;
+			var order = this.order;
+			var check = this.check;
+			var temp = '';
+			var data = {};
+			
+			//加入时间判定
+			var start_time_len = $("input[name='start_time']").length;
+			var end_time_len   = $("input[name='end_time']").length;
+			if(start_time_len === 1 && end_time_len === 1){
+				var start_time = $.trim( $("input[name='start_time']").val() );
+				var end_time   = $.trim( $("input[name='end_time']").val() );
+				if(start_time === '' && end_time === ''){
+
+				}else if(start_time !== '' && end_time !== ''){
+					var start_date = new Date( start_time.replace(/-/g,'/') ).getTime();
+					var end_date   = new Date( end_time.replace(/-/g,'/') ).getTime();
+					if(start_date > end_date){
+						$('#message').message('开始时间不能大于结束时间.');
+						$('#loading').removeClass('loading');
+						return false;
+					}
+				}else{
+					if(start_time === ''){
+						$('#message').message('请选择开始时间.');
+					}else{
+						$('#message').message('请选择结束时间.');
+					}
+					$('#loading').removeClass('loading');
+					return false;
+				}
+			}
+			
+			
+			//$('#loading').addClass('loading');
+			dd.cmd(this.para,function(result){
+				ttl = result.ttl;
+				data = result.rows;
+				self.data = data;
+				$.each(result.rows,function(n,v){
+					temp += '<tr class="text-c">';
+
+					if(check){
+						temp += '<td style="text-align:center;"><input index="'+n+'" type="checkbox" class="table_checkbox"></td>';
+					}
+					/*
+					if(order){
+						temp += '<td style="text-align:center;">'+(n+1)+'</td>';
+					}
+					*/
+					$.each(field,function(i,va){
+						temp += '<td>';
+							//操作
+							if(va.render != undefined){
+								var str = va.render(v[va.name],v,(n+1));
+								temp += str;
+							}else{
+								if(va.type == 'pic'){
+									temp += '<img  width="'+va.pic_width+'px" src="'+v[va.name]+'">';
+								}else{
+									temp += v[va.name];
+								}
+							}
+							temp += '</td>';
+						});
+						temp += '</tr>';
+					});
+					html += temp;
+					html += '</tbody>';
+					html += '</table>';
+					
+					html += '<div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite"></div><div class="dataTables_paginate paging_simple_numbers" id="DataTables_Table_0_paginate"></div></div>';
+					self.modal.html(html);
+					var a = self.show(ttl);
+					//self.modal.next('div').remove();
+					//self.modal.after(a);
+					$("#DataTables_Table_0").after(a);
+			        
+					if(self.checkAll){
+						$('#check_all').attr('checked','checked');	
+						$('.check_one').attr('checked','checked');
+					}
+					
+				});
+		},
+
+		//排序 
+		px : function(para){
+			var self = this;
+			temp = '';
+			var length = self.data.length;
+			if(para.flag == 1){
+				for(var i=0;i<length-1;i++){
+					for(var j=i+1;j<length;j++){
+						if(self.data[i][para.name] > self.data[j][para.name]){
+							temp = self.data[i];
+							self.data[i] = self.data[j];
+							self.data[j]= temp;
+						}
+					}
+				}
+			}else{
+				for(var i=0;i<length-1;i++){
+					for(var j=i+1;j<length;j++){
+						if(self.data[i][para.name] < self.data[j][para.name]){
+							temp = self.data[i];
+							self.data[i] = self.data[j];
+							self.data[j]= temp;
+						}
+					}
+				}
+			}
+
+			var temp = '';
+			var check = self.check;
+			var field = self.field;
+			var order = self.order;
+			$.each(self.data,function(n,v){
+				temp += '<tr class="text-c">';
+					
+				if(check){
+					temp += '<td style="text-align:center;"><input index="'+n+'" type="checkbox" class="check_one"></td>';
+				}
+				if(order){
+					temp += '<td>'+(n+1)+'</td>';
+				}
+				$.each(field,function(i,va){
+					temp += '<td>';
+						//操作
+					if(va.render != undefined){
+						var str = va.render(v[va.name],v,(n+1));
+						temp += str;
+					}else{
+						if(va.type == 'pic'){
+							temp += '<img width="'+width+'" src="'+v[va.name]+'">';
+						}else{
+							temp += v[va.name];
+						}
+					}
+					temp += '</td>';
+				});
+					temp += '</tr>';
+			});
+			self.modal.find('tbody').html(temp);
+		},
+
+		//分页
+		show : function(ttl){
+			var self = this;
+			
+			$("span.r").find("strong").html(ttl);
+			
+			var display = '';
+			if( this.showPage === true ){
+				var display = '';
+			}else{
+				var display = 'style="display:none;"';
+			}
+			var html = '';
+			var pageNum = Math.ceil(ttl/this.size);
+			
+			if(this.size == 10){
+				html += '<option value="10" selected>10</option>';
+			}else{
+				html += '<option value=5>5</option>';
+			}
+
+			if(this.size == 25){
+                html += '<option selected value=25>25</option>';
+            }else{
+                html += '<option value=10>10</option>';
+            }
+            if(this.size == 50){
+                html += '<option selected value=50>50</option>';
+            }else{
+                html += '<option value=50>50</option>';
+            }
+			if(this.size > 50){
+                html += '<option selected value=100>100</option>';
+            }
+			$("#listnum_select").html(html);
+			var content='';
+			content+='显示1到2条，共'+ttl+'条';
+			$("#DataTables_Table_0_info").html(content);
+			var selected = '';
+			//页数的控制
+			var flag = this.nowPage - Math.ceil(self.pageSize/2);
+			if(pageNum > self.pageSize){
+				var pageFlag = self.pageSize;
+			}else{
+				var pageFlag = pageNum;
+			}
+
+			this.nowPage = parseInt(this.nowPage);
+			var pageinfo='';
+			if(flag <=0){
+				for(var i=1;i<=pageFlag;i++){
+					if(this.nowPage == i){
+						selected = 'current';
+					}else{
+						selected = '';
+					}
+					
+					pageinfo += '<a class="paginate_button '+selected+'" aria-controls="DataTables_Table_0" data-dt-idx="'+i+'" tabindex="'+(i-1)+'">'+i+'</a>';
+				}
+			}else{
+				var start = this.nowPage-Math.ceil(self.pageSize/2)+1;
+				for(var j=start;j<=this.nowPage;j++){
+					if(this.nowPage == j){
+						selected = 'current';
+					}else{
+						selected = '';
+					}
+					html += '<span><a class="paginate_button '+selected+'" aria-controls="DataTables_Table_0" data-dt-idx="'+j+'" tabindex="'+(j-1)+'">'+j+'</a></span>';
+				}
+				if(this.nowPage+Math.ceil(self.pageSize/2) > pageNum){
+					var foot = pageNum;
+				}else{
+					var foot = this.nowPage+Math.ceil(self.pageSize/2);
+				}
+				for(var j=this.nowPage+1;j<=foot;j++){
+					html += '<span><a class="paginate_button" aria-controls="DataTables_Table_0" data-dt-idx="'+j+'" tabindex="'+(j-1)+'">'+j+'</a></span>';
+				}	
+			}
+			if(pageNum == 0 || this.nowPage == pageNum){
+				html += '<a id="DataTables_Table_0_next" class="paginate_button next disabled" aria-controls="DataTables_Table_0" data-dt-idx="'+pageNum+'" tabindex="0">下一页</a>';
+			}else{
+				html += '<a id="DataTables_Table_0_next" class="paginate_button next" aria-controls="DataTables_Table_0" data-dt-idx="'+(parseInt(this.nowPage)+1)+'" tabindex="0">下一页</a>';
+			}
+			
+			if( pageNum == 0 || this.nowPage == pageNum){
+				html += '<a id="DataTables_Table_0_next" class="paginate_button next disabled" aria-controls="DataTables_Table_0" data-dt-idx="'+pageNum+'" tabindex="0">尾页</a>';
+			}else{
+				html += '<a id="DataTables_Table_0_next" class="paginate_button next" aria-controls="DataTables_Table_0" data-dt-idx="'+pageNum+'" tabindex="0">尾页</a>';
+			}
+			
+			
+		 	html += '</div>';
+
+			return html;
+		}
+	}
+
+	var temp_grid = {}; //用来保存之前grid对象,方便reload以及其他搜索使用
+
+	$.fn.grid = function(option){
+		var _me = this;
+		if(option == 'reload'){
+			temp_grid.nowPage = 1;
+			temp_grid.request();
+			return false;
+		}else if(option.qry_para != undefined){
+			for(var pro in option.qry_para){
+				temp_grid.para[pro] = option.qry_para[pro];
+			}
+			temp_grid.nowPage = 1;
+			temp_grid.request();
+			return false;
+		}else if(option == 'getRows'){
+			var data = [];
+			var i = 0;
+			$('.check_one').each(function(){
+				if($(this).attr('checked') != undefined){
+					var order = $(this).attr('index');
+					data[i] = temp_grid.data[order];
+					i++;
+				}
+			});
+			return data;
+		}
+		option.modal = _me;
+//		//记录参数[参数部分采取部分记忆,防止参数误记忆引起的其他问题]
+		var not_incldue_para = new Array("News","MediaReport","Honor","Environment","Device","Channel","Department","Disease","Doctor","Article","Success","Technology","Movie","PicManager","Navigation","Seo","StatisticsLog","Link","Ask","Reservation");
+		var this_controller  = option.para.controller.toLowerCase();
+		for( var i = 0 ; i < not_incldue_para.length ; i++ ){
+			if( not_incldue_para[i].toLowerCase() == this_controller ){
+				if(incldue_para[ option.para.controller ] != undefined){
+					for (x in incldue_para) {
+						if( x != option.para.controller ){
+							incldue_para[x] = null;
+						}
+					}
+				}
+				if(incldue_para[ option.para.controller ] != undefined){
+					option.para   = incldue_para[ option.para.controller ];
+					for (y in option.para) {
+						if( $("input[name='"+ y +"']").length > 0){
+							if( $.trim( option.para[y] ) != '' ){
+								$("input[name='"+ y +"']").val( option.para[y] );
+							}
+						}
+					}
+				}else{
+					incldue_para[ option.para.controller ] = option.para;
+				}
+				break;
+			}
+		}
+//		//记录页码
+		if(incldue_size[ option.para.controller ] != undefined){
+			for (x in incldue_size) {
+				if( x != option.para.controller ){
+					incldue_size[x] = null;
+				}
+			}
+		}
+		if(incldue_size[ option.para.controller ] != undefined && incldue_size[ option.para.controller ] != 10){
+			option.size   = incldue_size[ option.para.controller ];
+		}
+//		//初始化
+		var _grid = new grid(option);
+		temp_grid = _grid;
+		if(incldue_page[ option.para.controller ] != undefined){
+			for (x in incldue_page) {
+				if( x != option.para.controller ){
+					incldue_page[x] = null;
+				}
+			}
+		}
+		if(incldue_page[ option.para.controller ] != undefined && incldue_page[ option.para.controller ] > 1){
+			_grid.nowPage = incldue_page[ option.para.controller ];
+		}
+		//执行
+		_grid.request();
+		//页数点击
+		_me.parent('div').on('click','.j-num',function(){
+			var page = $(this).attr('flag');
+			incldue_page[ option.para.controller ] = page;
+			incldue_size[ option.para.controller ] = $('#pageNum').val();
+			_grid.nowPage = page;
+			_grid.request();
+		});
+
+		//下一页点击
+		_me.parent('div').on('click','a.next',function(){
+			var page = $(this).attr('flag');
+			incldue_page[ option.para.controller ] = page;
+			incldue_size[ option.para.controller ] = $('#pageNum').val();
+			_grid.nowPage = page;
+			_grid.request();
+
+		});
+
+		//上一页点击
+		_me.parent('div').on('click','a.previous',function(){
+			var page = $(this).attr('flag');
+			incldue_page[ option.para.controller ] = page;
+			incldue_size[ option.para.controller ] = $('#pageNum').val();
+			_grid.nowPage = page;
+			_grid.request();
+
+		});
+
+		//首页点击
+		_me.parent('div').on('click','a.first',function(){
+			var page = $(this).attr('flag');
+			incldue_page[ option.para.controller ] = page;
+			incldue_size[ option.para.controller ] = $('#pageNum').val();
+			_grid.nowPage = page;
+			_grid.request();
+
+		});
+
+		//末页点击
+		_me.parent('div').on('click','a.last',function(){
+			var page = $(this).attr('flag');
+			incldue_page[ option.para.controller ] = page;
+			incldue_size[ option.para.controller ] = $('#pageNum').val();
+			_grid.nowPage = page;
+			_grid.request();
+
+		});
+		
+		//页数被选择
+		_me.parent().on('change','#pageNum',function(){
+			_grid.cache_con = [];
+			var size = $(this).val();
+			if(size != ''){
+				_grid.size = size;
+				_grid.nowPage = 1;
+				incldue_size[ option.para.controller ] = size;
+				_grid.request();
+			}
+		});
+		
+		//全选
+		_me.on('click','#check_all',function(){
+            if($(this).attr('checked') != undefined){
+                $('.check_one').attr('checked','checked');
+            }else{
+                $('.check_one').removeAttr('checked');
+            }
+        });
+
+		//排序
+		_me.on('click','.px',function(){
+			var name = $(this).attr('name');
+			var flag = $(this).attr('flag');
+			if(flag == 1){
+				$(this).attr('flag',2);
+			}else{
+				$(this).attr('flag',1);
+			}
+			_grid.px({name:name,flag:flag});
+		});
+		
+		_me.on('click','.check_one',function(e){
+			//阻止冒泡事件
+			e.stopPropagation();
+		});
+		
+		_me.on('click','tbody tr',function(){
+			if($(this).find('input').attr('checked') == undefined){
+				$(this).find('input').attr('checked','checked');
+			}else{
+				$(this).find('input').removeAttr('checked');
+			}
+		});
+
+		_me.on('hover','tbody tr',function(){
+			$(this).css('background','#9BE0C2');
+		});
+
+		_me.on('mouseout','tbody tr',function(){
+			$(this).css('background','');
+		});
+
+		return $(this);
+	}
+}(window.jQuery);

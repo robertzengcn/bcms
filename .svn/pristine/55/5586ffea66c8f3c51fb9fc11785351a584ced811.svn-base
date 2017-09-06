@@ -1,0 +1,53 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Client extends Entity {
+
+    var $id;
+
+    var $username;
+
+    var $gender;
+
+    var $age;
+
+    var $birthday;
+
+    var $date;
+    
+    var $address;
+
+    var $telphone;
+
+    var $email;
+
+    var $qq;
+    
+    var $mark;
+    
+    var $department_id;
+    
+    var $doctor_id;
+    
+    var $is_used;
+    
+    var $source;
+    
+    var $reception_id;
+    
+    var $focus_id;
+    
+    var $code;
+    
+    var $plushtime;
+
+    public function validate() {
+        if ($this->date && !is_numeric($this->date)) {
+            $this->date = strtotime($this->date);
+        }
+        
+        if ($this->plushtime == '' || $this->plushtime == '0') {
+        	$this->plushtime = time();
+        }
+    }
+}

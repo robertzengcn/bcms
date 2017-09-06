@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>同步网健网络医院平台数据</title>
+</head>
+<body>
+<div class="loginWraper pd-20">
+  <div id="loginform" class="loginBox">
+    <form class="form form-horizontal" action="index.html" method="post">
+      <div class="row cl">
+        <label class="form-label col-2"><i class="Hui-iconfont" style="font-size:18px;">&#xe60d;</i></label>
+        <div class="formControls col-96">
+          <input type="hidden" name="type" id="type" value="1"/>
+          <input id="user" name="username" type="text" placeholder="请输入全球医院网网络医院平台账号" class="input-text size-L" datatype="*2-16" nullmsg="账户不能为空"/>
+        </div>
+		<div class="col-2"> </div>
+      </div>
+      <div class="row cl">
+        <label class="form-label col-2"><i class="Hui-iconfont" style="font-size:18px;">&#xe60e;</i></label>
+        <div class="formControls col-96">
+          <input id="pwd" name="pwd" type="password" placeholder="密码" class="input-text size-L" datatype="*2-16" nullmsg="密码不能为空"/>
+        </div>
+		<div class="col-2"> </div>
+      </div>
+      <div class="row cl">
+        <div class="formControls col-8 col-offset-2">
+          <input id="verify" title="验证码" name="verify" class="input-text size-L" type="text" placeholder="验证码" onBlur="if(this.value==''){this.value='验证码:'}" onClick="if(this.value=='验证码:'){this.value='';}" value="验证码:" style="width:150px;">
+          <input type="hidden" name="token" id="token" value="1443062104">
+          <img id="change" src="../public/img/verify.php"> 
+          <img src="../public/img/cross.png" id="verify_img_trip" style="position:absolute;top:9px;left:83px;display:none;" />
+          <a id="kanbuq" href="javascript:;" onClick="gLogin.fun()">换一张</a> </div>
+      </div>      
+      <div class="row">
+        <div class="formControls col-8 col-offset-3">
+          <input type="button" class="btn btn-success radius size-L" value="&nbsp;开始同步&nbsp;" id="save">
+          <input type="reset" class="btn btn-default radius size-L" value="&nbsp;取&nbsp;消&nbsp;" id="back">
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/cloudsync.js"></script>
+<script type="text/javascript">
+var gCloudSync = new CloudSync();
+gCloudSync.setThisName('gCloudSync');
+gCloudSync.init();
+$(function(){
+	$(".form").Validform({
+		tiptype:2,
+		callback:function(form){
+			form[0].submit();
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.$('.btn-refresh').click();
+			parent.layer.close(index);
+		}
+	});
+
+});
+</script>
+</body>
+</html>

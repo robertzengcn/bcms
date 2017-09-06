@@ -1,0 +1,101 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main">
+  <div class=" container">
+    <ol class="breadcrumb">
+      <i class="icon icon-home"></i>您所在的位置：&nbsp;
+      <li><a href="{{$WEBSITE}}">首页</a></li>
+      <li class="active">网站地图</li>
+    </ol>
+    <div class="ks_segment" style='max-width: 1600px; width: inherit; '>
+  <div id="dashboard" class="dashboard dashboard-draggable" data-height="300">
+    <header></header>
+    <section class='row'>
+      <div class="col-md-12 col-sm-12" data-id='1'>
+        <div class="panel" data-url=''>
+          <div class="panel-heading">
+           {{$ContactTag->get(name)}}
+           </div>
+          <div class="panel-body_none2">
+          	<ul>
+            	<li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/introduce.html'>医院简介</a></li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/doctor/index.html'>专家团队</a></li>	
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/environment/index.html'>医院环境</a></li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/device/index.html'>先进设备</a></li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/honor/index.html'>医院荣誉</a>	</li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/technology/index.html'>特色技术</a>	</li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/success/index.html'>成功案例</a>	</li>	
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/ask/index.html'>在线问答</a></li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href="javascript:Layout.openWindow('reservation');">在线预约</a></li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/news/index.html'>医院新闻</a></li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/media/index.html'>媒体报道</a>		</li>
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a href='/hospital/movie/index.html'>视频新闻</a></li>
+                
+                </ul>
+            
+			    {{foreach $SiteMapTag->getDepartment() as $vo}}
+                <li class="ks_icon1"><i class="icon icon-th-large"></i><a>{{$vo->name}}</a></li>
+                <li class="ks_icon2">
+                    {{foreach $SiteMapTag->getDiease({{$vo->id}}) as $vo2}}  
+                	<a href="{{$WEBSITE}}/{{$vo->url}}/{{$vo2->url}}/index.html"><i class="icon icon-caret-right"></i>{{$vo2->name|truncate:6}}</a>
+                    {{/foreach}}
+                </li>
+               {{/foreach}}
+            
+         
+            
+          </div>
+          </div>
+          </div>
+          <div class="col-md-12 col-sm-12" data-id='1'>
+          </div>
+          </section>
+          </div>
+    </div>
+    
+  </div>
+</div>
+
+
+{{/block}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

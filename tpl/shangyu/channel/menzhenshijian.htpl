@@ -1,0 +1,170 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=js}}
+<script src="{{resource}}/boyicms/menzhen1.js"></script>
+{{/block}}
+{{block name=body}}
+<script type="text/javascript">
+function getdoctors(dep1,dep2,date1,date2,time1,time2){
+	if(dep1 != ''){
+		$('#dep1').html(dep2+'<i class="icon icon-times"></i>');
+		$('#dep1').attr('value',dep1);
+	}
+	if(date1 != ''){
+		$('#date1').html(date2+'<i class="icon icon-times"></i>');
+		$('#date1').attr('value',date1);
+	}
+	if(time1 != ''){
+		$('#time1').html(time2+'<i class="icon icon-times"></i>');
+		$('#time1').attr('value',time1);
+	}
+    var dep = $('#dep1').attr('value') == '' ? dep1 : $('#dep1').attr('value');
+ 	var date = $('#date1').attr('value') == '' ? date1 : $('#date1').attr('value');
+ 	var time = $('#time1').attr('value') == '' ? time1 : $('#time1').attr('value');
+ 	$('#doctors').empty();
+ 	$("#doc_count").empty();
+ 	$.ajax({
+ 		type:'GET',
+			url:"/controller?controller=Reservation&method=getdoctors&dep="+dep+"&date="+date+"&time="+time,
+			dataType: 'json',
+			success: function(result){
+				if(result.data.statu == true){
+					var html = '';
+					$.each(result.data.data,function(i,v){
+						  var str = v[0].description;
+						  str = str.substring(0,151);
+						  html += '<li class="row">';
+				          html += '<div class="col-xs-12 col-sm-12 col-md-6">';
+				          html += '<div class="pull-left col-xs-12 col-sm-4"><a>';
+				          html += '<img src="/public/'+v[0].pic+'"></a></div>';
+			              html += '<div class="pull-left col-xs-12 col-sm-8">';
+			              html += '<h4><a href="/doctor/'+v[0].doctor_id+'.html" target="_blank">'+v[0].doctor+'</a></h4>';
+			              html += '<h5><span>科室：'+v[0].department+'</span><span>职称：'+v[0].position+'</span></h5>'; 
+			              html += '<p>个人简介：'+str+'</p>';
+			              html += '</div></div>';
+			              html += '<div class="col-xs-12 col-sm-12 col-md-6"><table class="table table-bordered"><thead><tr><th></th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th><th>日</th></tr></thead>';
+						  html += '<tbody><tr><td>上午</td><td id="doc11_'+v[0].doctor_id+'"></td><td id="doc12_'+v[0].doctor_id+'"></td><td id="doc13_'+v[0].doctor_id+'"></td><td id="doc14_'+v[0].doctor_id+'"></td><td id="doc15_'+v[0].doctor_id+'"></td><td id="doc16_'+v[0].doctor_id+'"></td><td id="doc10_'+v[0].doctor_id+'"></td></tr>';
+			              html += '<tr><td>下午</td><td id="doc21_'+v[0].doctor_id+'"></td><td id="doc22_'+v[0].doctor_id+'"></td><td id="doc23_'+v[0].doctor_id+'"></td><td id="doc24_'+v[0].doctor_id+'"></td><td id="doc25_'+v[0].doctor_id+'"></td><td id="doc26_'+v[0].doctor_id+'"></td><td id="doc20_'+v[0].doctor_id+'"></td></tr>';
+			              html += '<tr><td>晚上</td><td id="doc31_'+v[0].doctor_id+'"></td><td id="doc32_'+v[0].doctor_id+'"></td><td id="doc33_'+v[0].doctor_id+'"></td><td id="doc34_'+v[0].doctor_id+'"></td><td id="doc35_'+v[0].doctor_id+'"></td><td id="doc36_'+v[0].doctor_id+'"></td><td id="doc30_'+v[0].doctor_id+'"></td></tr>';
+			              html += '</tbody> </table></div></li>';
+			              $("#doctors").append(html);
+			              $("#doc_count").html("共"+result.ttl+"名医生");
+			              
+			              for(var p in v){
+							if(v[p].morning == 1){
+								var ids = '#doc1'+v[p].date+'_'+v[p].doctor_id;
+								$(ids).html('约');
+							}
+							if(v[p].afternoon == 2){
+								var ids = '#doc2'+v[p].date+'_'+v[p].doctor_id;
+								$(ids).html('约');
+							}
+							if(v[p].night == 3){
+								var ids = '#doc3'+v[p].date+'_'+v[p].doctor_id;
+								$(ids).html('约');
+							}
+						 }
+					 });
+					 
+						 
+					  }
+				
+				
+			}
+ 	})
+ 	
+ }
+ 
+ function removes(obj){
+	 obj = '#'+obj;
+	 $(obj).empty();
+	 $(obj).attr('value','');
+	 getdoctors('','','','','','');
+ }
+</script>
+<div class="main_pat container">
+    <ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a>为您服务</a></li>
+      <li class="active">门诊时间</li>
+    </ol>
+	<div class="mpat_tit">
+	  <h5>您已经选择：</h5>
+	  <a href="javascript:void(0);" value='' id='dep1' onclick="removes($(this).attr('id'))"></a>
+	  <a href="javascript:void(0);" value='' id='date1' onclick="removes($(this).attr('id'))"></a>
+	  <a href="javascript:void(0);" value='' id='time1' onclick="removes($(this).attr('id'))"></a>
+	  <span class="pull-right" id='doc_count'></span>
+	</div>
+    <dl>
+    	<dd class="main_three mpat_one">
+        	<h4>门诊科室：</h4>
+     <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+        {{deptmlist page='1' pagesize='3'  children='true'}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul> 
+            [children]
+        	<li value="[field:id/]" value2="[children:name/]" onclick="getdoctors(this.value,$(this).attr('value2'),'','','','')"><a href="javascript:void(0);">[children:name/]</a></li>
+            [/children]
+        </ul>
+        {{/deptmlist}}
+    </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+                {{deptmlist page='2' pagesize='3' children='true'}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul id="dep[field:id/]">
+           [children]
+        	<li value="[field:id/]" value2="[children:name/]" onclick="getdoctors(this.value,$(this).attr('value2'),'','','','')"><a href="javascript:void(0);">[children:name/]</a></li>
+            [/children]
+        </ul>
+        {{/deptmlist}}
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+                {{deptmlist page='3' pagesize='3' children='true'}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul id="dep[field:id/]">
+           [children]
+        	<li value="[field:id/]" value2="[children:name/]" onclick="getdoctors(this.value,$(this).attr('value2'),'','','','')"><a href="javascript:void(0);">[children:name/]</a></li>
+            [/children]
+        </ul>
+        {{/deptmlist}}
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi bord_none">
+                {{deptmlist page='4' pagesize='3' children='true'}}
+    	<h3><i class="icon icon-circle"></i>  [field:name/]</h3>
+        <ul id="dep[field:id/]">
+           [children]
+        	<li value="[field:id/]" value2="[children:name/]" onclick="getdoctors(this.value,$(this).attr('value2'),'','','','')"><a href="javascript:void(0);">[children:name/]</a></li>
+            [/children]
+        </ul>
+        {{/deptmlist}}
+            </div>
+        </dd>
+        <dd class="mpat_two">
+        	<ul>
+            	<h4>坐诊星期：</h4>
+            	<li value="1" value2="星期一" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期一</a></li>
+                <li value="2" value2="星期二" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期二</a></li>
+                <li value="3" value2="星期三" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期三</a></li>
+                <li value="4" value2="星期四" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期四</a></li>
+                <li value="5" value2="星期五" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期五</a></li>
+                <li value="6" value2="星期六" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期六</a></li>
+                <li value="0" value2="星期日" onclick="getdoctors('','',this.value,$(this).attr('value2'),'','');"><a href="javascript:void(0);">星期日</a></li>
+            </ul>
+        </dd>
+        <dd class="mpat_three">
+        	<ul>
+            	<h4>坐诊时间：</h4>
+            	<li value="1" value2="上午" onclick="getdoctors('','','','',this.value,$(this).attr('value2'))"><a href="javascript:void(0);">上午</a></li>
+                <li value="2" value2="下午" onclick="getdoctors('','','','',this.value,$(this).attr('value2'))"><a href="javascript:void(0);">下午</a></li>
+                <li value="3" value2="晚上" onclick="getdoctors('','','','',this.value,$(this).attr('value2'))"><a href="javascript:void(0);">晚上</a></li>
+            </ul>
+        </dd>
+    </dl>
+</div>
+
+<div class="main_pat2 container">
+	<ul class="mpat2" id="doctors">
+    </ul>
+     <footer style="text-align:right;">
+      </footer>
+</div>
+{{/block}}

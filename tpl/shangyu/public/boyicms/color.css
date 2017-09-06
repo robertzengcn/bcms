@@ -1,0 +1,331 @@
+@charset "utf-8";
+/* CSS Document */
+
+body{ background:#f5f5f5;color: #282828;}
+body.white_bg{ background:#fff;}
+/*首页*/
+	/*头部*/
+.header .head_top{background: #f1f1f1; color:#818181;}
+.header .head_top a:hover{ color:#004883;}
+.header .head_logo{ background:#fff;}
+
+.header .head_logo .icon-arrow-right{background: none;border: 0;}
+.header .head_logo .input-group-addon{ background:#164b81;border:3px solid #164b81;}
+.header .head_logo .input-group-addon button{border: none; color:#fff; background:#164b81; }
+.header .head_logo .form-control{ border:3px solid #164b81;}
+.header .head_logo .form-control::-webkit-input-placeholder,.header .head_logo .form-control:-moz-placeholder,.header .head_logo .form-control::-moz-placeholder,.header .head_logo .form-control:-ms-input-placeholder { color:#767678;}
+
+	/*导航*/
+#nav{/*filter: progid: DXImageTransform.Microsoft.gradient(left,startColorstr='#004883', endColorstr='#c6b936');  */  /* IE6,IE7 */
+	/*-ms-filter: "progid:DXImageTransform.Microsoft.gradient(left,startColorstr='#004883', endColorstr='#c6b936')";  */  /* IE8 */
+	/*background: -webkit-linear-gradient(left,#004883, #c6b936);*/ /* Safari 5.1 - 6.0 */
+	/*background: -o-linear-gradient(left,#004883, #c6b936);*/ /* Opera 11.1 - 12.0 */
+	/*background: -moz-linear-gradient(left,#004883, #c6b936);*/ /* Firefox 3.6 - 15 */
+	/*background: linear-gradient(left,#004883, #c6b936);*/ /* 标准的语法 */
+	/*background-color: #c6b936;*/
+	/*border-top: 1px solid #c6b936;box-shadow: 0 3px 6px #999;	-webkit-box-shadow: 0 3px 6px #999;	-moz-box-shadow: 0 3px 6px #999;*/}
+#nav .navbar-nav > li a{color: #fff;}
+#jsddm > li > a:focus, #jsddm > li > a:hover{ background: rgba(0,0,0,0.2);}
+#nav .sub_menu{background: rgba(255, 255, 255, 0.9);box-shadow: 0 3px 5px #666;-webkit-box-shadow: 0 3px 5px #666;}
+#nav .sub_menu li a{color:#333;border-right:1px solid #ddd;}
+#nav .sub_menu li a:hover{color: #164b81;font-weight: bold;}
+#nav .navbar-nav li.nav_one {background: rgba(0,0,0,0.2);}
+#nav .navbar-default .navbar-toggle .icon-bar {background: #fff}
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover{ background:#004883;}
+@media (max-width: 767px) {#nav .navbar-nav li.nav_one,#jsddm > li{ background:#164b81; border-bottom:1px solid #cecece;}}
+
+	/*banner+导航2*/
+.home_banner .nav_two{/*filter: progid: DXImageTransform.Microsoft.gradient(left,startColorstr='#004883', endColorstr='#c6b936');  */  /* IE6,IE7 */
+	/*-ms-filter: "progid:DXImageTransform.Microsoft.gradient(left,startColorstr='#004883', endColorstr='#c6b936')";  */  /* IE8 */
+	/*background: -webkit-linear-gradient(left,#004883, #c6b936);*/ /* Safari 5.1 - 6.0 */
+	/*background: -o-linear-gradient(left,#004883, #c6b936);*/ /* Opera 11.1 - 12.0 */
+	/*background: -moz-linear-gradient(left,#004883, #c6b936);*/ /* Firefox 3.6 - 15 */
+	/*background: linear-gradient(left,#004883, #c6b936);*/ /* 标准的语法 */
+	/*background-color: #c6b936;*/
+	/*border-top: 1px solid #c6b936;box-shadow: 0 3px 6px #999;	-webkit-box-shadow: 0 3px 6px #999;	-moz-box-shadow: 0 3px 6px #999;*/}
+.home_banner .nav_two ul li a{ color:#fff;}
+	/*标题*/
+.main_tit{border-bottom: 1px solid #cdcdcd;}
+.main_tit strong{ border-bottom:2px solid #164b82;color:#164b82;}
+.main_tit strong a{ display:block;color:#014783;}
+	/*主要1*/
+.main_top .white_bg{ background:#fff;}
+.main_top .maint_l .news_tit{  border-bottom:1px solid #cdcdcd;}
+.main_top .maint_l .news_tit li a{color:#111;border-bottom: 2px solid #fff;}
+.main_top .maint_l .news_tit li.active a{ color:#014783;border-bottom:2px solid #164b82;}
+.main_top .maint_l .news_box h2 a:hover{color: #164b82;}
+.main_top .maint_l .news_box p{ border-bottom:1px dashed #ccc; color:#7d7b7c;}
+.main_top .maint_l .news_box dl dd a:hover{color: #164b82;}
+.main_top .maint_l .news_box dl dd span,.main_top .maint_r .notice_box dl dd span{ color:#666;}
+
+.main_top .maint_r .notice_tit{  border-bottom:1px solid #cdcdcd;}
+.main_top .maint_r .notice_tit li a{color:#111;border-bottom: 2px solid #fff;}
+.main_top .maint_r .notice_tit li.active a{ color:#014783;border-bottom:2px solid #164b82;}
+.main_top .maint_r .notice_box dl dd a:hover{color: #164b82;}
+.main_top .maint_r .notice_box dl dd{border-bottom: 1px dashed #ccc;}
+	/*主要2*/
+.main_two .white_bg{ background:#fff;}
+.main_top .maint_l #myNiceCarousel .carousel-indicators li{ background:#fff;}
+.main_two .main_tit span a{border:1px solid #999;}
+.main_two .main_tit span a i{ color:#999;}
+.main_two .main_tit span a:hover{ border-color:#164b82;}
+.main_two .main_tit span a:hover i{ color:#164b82;}
+.main_two .mtwo_l #myNiceCarousel1 .carousel-inner ul li span{ background: rgba(0,72,131,.7); color:#fff;}
+.main_two .mtwo_r .form-group .btn{ background:#004883;color:#fff;}
+.main_two .mtwo_r .form-control{ color:#666;}
+
+	/*主要3*/
+.main_three{ background:#fff;}
+.main_three .mthree_keshi{border-right:1px  dashed #b5b5b5;}
+.main_three .mthree_keshi h3{ color:#004684;}
+.main_three .mthree_keshi ul li a:hover{ color:#164b82;}
+
+@media (max-width: 991px) {.main_three .mthree_keshi{ border-bottom:1px dashed #b5b5b5;}}
+
+	/*主要4*/
+.main_four .white_bg{ background:#fff;}
+.main_four .mfour_zt li p{ background:#004883; color:#fff;}
+	/*页尾*/
+.footer{ background:#37383a;color:#fff;}
+.footer a{ color:#fff;}
+.footer .foor_m #jumpMenu{ border:1px solid #ddd;}
+.footer .foor_m ul li a i.icon-star::after{color:#37383a;}
+@media (min-width: 767px) {.footer .foor_l,.footer .foor_m,.footer .foor_r{border-right:1px solid #666;}}
+@media (max-width: 767px) {.footer .foor_l,.footer .foor_m,.footer .foor_r{border-bottom:1px solid #666;}}
+
+/*患者服务*/
+.main_pat{ background:#fff;}
+.main_pat h5{ color:#666; }
+.main_pat .mpat_tit a{border: 1px solid #ddd;background: #f4f4f4;}
+.main_pat .mpat_tit a:hover{ border:1px solid #0d3d88;}
+.main_pat dl{ background:#f8f8f8; border:1px solid #ddd; }
+.main_pat dl dd{ border-bottom:1px solid #ddd;}
+.main_pat .mpat_one{background:#f8f8f8;}
+.main_pat .mpat_one h4,.main_pat .mpat_two ul h4,.main_pat .mpat_three h4{color:#999}
+.main_pat .mpat_two ul li a:hover,.main_pat .mpat_three ul li a:hover{color: #164b82;}
+
+.main_pat2{background:#fff;}
+.main_pat2 .mpat2{border-bottom:1px dashed #ddd; }
+.main_pat2 .mpat2 li h4 a:hover{ color:#164b82;}
+.main_pat2 .table-bordered,.main_pat2 .table-bordered td,.main_pat2  .table-bordered th {border: 1px solid #f2f2f2; color:#666;}
+.main_pat2 .table > thead > tr > th{ background:#f2f2f2;}
+.main_pat2 .table > tbody > tr > td a{ background:#195091; color:#fff;}
+@media (max-width: 767px) {.main_pat2 .mpat2 li{border-bottom:1px dashed #ccc;}}
+	/*页码*/
+.pager > li > a{ background:#f1eff0; color:#999;}
+.pager > .active > a, .pager > .active > a:hover, .pager > .active > a:focus, .pager > .active > span, .pager > .active > span:hover{ background:#16447f;}
+
+/*科室介绍*/
+.main_dep{ background:#fff;}
+.main_dep .mdep_one{background: #f8f8f8;border: 1px solid #ddd;}
+.main_dep .mdep_one h4{color: #999;}
+
+/*三院护理*/
+.main_hos{ background:#fff;}
+.main_hos #myNiceCarousel2 .carousel-indicators li{ background:#bebebe; border:1px solid #a0a0a0;}
+.main_hos #myNiceCarousel2 .carousel-indicators li.active{ background:#fff;}
+.main_hos h3 a:hover{ color:#164b82;}
+.main_hos p{ color:#666;}
+.main_hos ul{ border-top:1px dashed #cecece; }
+.main_hos ul li a,.main_hos2 ul li a{color:#454545;}
+.main_hos ul li a:hover,.main_hos2 ul li a:hover{color:#094488;}
+.main_hos ul li span,.main_hos2 ul li span{ color:#999;}
+.main_hos2 .main_hos2_l .white_bg,.main_hos2 .main_hos2_r .white_bg{ background:#fff;}
+
+.main_hos3{ background:#fff;}
+
+/*新闻中心*/
+.main_news .mnew_l .white_bg,.main_news .mnew_r .white_bg{ background:#fff;}
+.main_news .mnew_l #myNiceCarousel3 .carousel-indicators li{ background:#fff;}
+.main_news .mnew_l .news_box h2 a:hover {color: #164b82;}
+.main_news .mnew_l .news_box p {border-bottom: 1px dashed #ccc;color: #7d7b7c;}
+.main_news .mnew_l .news_box dl dd a:hover{color: #164b82;}
+.main_news .mnew_l .news_box dl dd span, .main_news .mnew_r dl dd span{ color:#999;}
+
+.main_news .mnew_r dl dd { border-bottom:1px dashed #ccc;}
+.main_news .mnew_r dl dd a:hover{color: #164b82;}
+
+.main_news-2 .mnew-2_l .white_bg,.main_news-2 .mnew-2_r .white_bg{ background:#fff;}
+.main_news-2 dl dd { border-bottom:1px dashed #ccc;}
+.main_news-2 dl dd a:hover{color: #164b82;}
+.main_news-2 dl dd span{ color:#999;}
+
+/*医疗联合体*/
+.main_med{ background:#fff;}
+
+/*医师介绍*/
+.main_doc .input-group form .input-group-addon{background: #004883;border: none;}
+.main_doc .input-group form .input-group-addon:hover{ background:#035da6;}
+.main_doc .input-group form .input-group-addon button{border: none;color: #fff;background: #164b81;}
+.main_doc .mpat2{ border-bottom:none;}
+.main_doc .mpat2 li{ border-bottom:1px dashed #dedede; }
+.main_doc .mpat2 li p a{ color:#164b82;}
+
+/*医院概况*/
+.main_abo .mabo_l .white_bg,.main_abo .mabo_r .white_bg{background:#fff;}
+.main_abo2,.main_abo3{background:#fff;}
+.main_abo .mabo_l p::after,.main_abo .mabo_r p::after{color:#999;}
+.main_abo .mabo_l a,.main_abo .mabo_r a{ color:#164b82;}
+.main_abo3 h3{  color:#164b82;}
+.main_abo3 b{ color:#343434; }
+
+/*招聘*/
+.main_rec{ background:#fff;}
+.main_rec ul li{ border-bottom:1px dashed #ddd;}
+
+/*专题专栏*/
+.main_spe{background:#fff;}
+.main_spe ul li p{background: #004883;color: #fff;}
+
+/*专家内页*/
+.main_exp .white_bg,.main_exp2 .white_bg{ background:#fff;}
+.main_exp .mexp_l h4 a:hover,.main_exp .mexp_l a,.main_exp2 .mexp2_r h4 a:hover,.main_exp2 .mexp2_r p a{color: #164b82;}
+
+.main_exp2 .mexp2_l .form-group .btn{ background:#004883;color:#fff;}
+.main_exp2 .mexp2_l .form-control{ color:#999;}
+
+/*患者服务——预约挂号*/
+.main_psapp{ background:#fff;}
+.main_psapp .mpsapp_title{ background:#e7e7e7;}
+.main_psapp .mpsapp_title li{ color:#ccc;}
+.main_psapp .mpsapp_title li span{ color:#999;}
+.main_psapp .mpsapp_title li span:hover{ color:#004785;}
+.main_psapp .mpsapp_title li.active span{ color:#333;}
+.main_psapp .mpsapp_box h3{ color:#f22a2a;}
+
+/*患者服务1*/
+.main_ps1 .breadcrumb{ color:#666;}
+.main_ps1 .main_ps1_box{ background:#fff;}
+.main_ps1 .main_ps1_box h1{ color:#004785;}
+.main_ps1 .main_ps1_box .mpsbox_img h1{ color:#333;}
+.main_ps1 .main_ps1_box .color_f22a2a{ color:#f22a2a;}
+.main_ps1 .main_ps1_box .color_014888{color:#014888;}
+
+/*患者服务5*/
+.main_ps5{background: #fff;}
+.main_ps5 .ps5_list li{border-bottom: 1px dashed #ddd;}
+.main_ps5 .ps5_list li a{color: #454545;}
+.main_ps5 .ps5_list li span{color: #999;}
+
+/*患者服务——特色*/
+.main_psfea{background:#fff;}
+.main_psfea li{border-bottom: 1px dashed #ddd;}
+.main_psfea li h2{color: #444;}
+.main_psfea li h2 a:hover{color: #164b81;}
+.main_psfea li p{color: #999;}
+.main_psfea li p::after{ color:#ccc;}
+
+/*医患交流*/
+.main_dpc{ background:#fff;}
+.main_dpc .mdpc_l .mdpcl_tit{border-bottom: 1px solid #cecece;}
+.main_dpc .mdpc_l .mdpcl_tit li a:hover{color: #164b81;}
+.main_dpc .mdpc_l .mdpcl_tit li.active a{border-bottom: 2px solid #094488;color: #094488; }
+.main_dpc .mdpc_l .mdpcl_list li{border-bottom: 1px solid #eee;color: #999;}
+.main_dpc .mdpc_l .mdpcl_list li .tit .mr5{ color:#666;}
+.main_dpc .mdpc_l .mdpcl_list li .tit a:hover{ color:#094488;}
+.main_dpc .mdpc_l .mdpcl_list li .completed::before{color: #01B30C;}
+.main_dpc .mdpc_l .mdpcl_list li .incomplete::before{ color:#e75033;}
+.main_dpc .mdpc_l .pager > .active > a,.main_dpc .mdpc_l .pager > .active > a:hover,.main_dpc .mdpc_l .pager > .active > a:focus,.main_dpc .mdpc_l .pager > .active > span,.main_dpc .mdpc_l .pager > .active > span:hover {background: #158064;}
+
+.main_dpc .mdpc_r .mdpcr_ask .mdpcrask_btn a{ background:#004883 ;color:#fff;}
+.main_dpc .mdpc_r .mdpcrask_tit{border-bottom: 1px solid #cecece;}
+.main_dpc .mdpc_r .mdpcrask_tit h2 span{border-bottom: 2px solid #999;color: #999;}
+.main_dpc .mdpc_r .mdpcrask_box form .btn{ color:#fff; background:#004883;}
+.main_dpc .mdpc_r .mdpcr_doc ul li h4 a:hover{ color:#004883;}
+.main_dpc .mdpc_r .mdpcr_doc ul li p a{color:#004883;}
+
+/*新闻中心1*/
+.main_news1 .white_bg{ background:#fff;}
+.main_news1 .mnews1_l .mnews1l_tit{border-bottom: 2px solid #cecece;}
+.main_news1 .mnews1_l .mnews1l_tit a{font-size:14px;}
+.main_news1 .mnews1_l .mnews1l_tit a.active{color: #156681;border-bottom: 2px solid #156681;}
+.main_news1 .mnews1_l .mnews1l_tit a:hover{color: #156681;}
+.main_news1 .mnews1_l .mnews1l_tit a i{color: #ccc;}
+.main_news1 .mnews1_l .mnews1l_list li{border-bottom: 1px solid #e6e6e6;}
+.main_news1 .mnews1_l .mnews1l_list li .list_info{color: #888;}
+.main_news1 .mnews1_l .mnews1l_list li .list_info a:hover{ color:#156681;}
+.main_news1 .mnews1_l .mnews1l_list li .list_info a i.icon-star::after { color:#fff;}
+.main_news1 .mnews1_l .mnews1l_list li .list_summary p{ color:#666;}
+.main_news1 .mnews1_l .mnews1l_list li .list_summary p::after{ color:#999;}
+
+.main_news1 .mnews1_r .mnews1r_tit{border-bottom: 1px solid #cecece;}
+.main_news1 .mnews1_r .mnews1r_tit h2 span{border-bottom: 2px solid #094289;color: #094289;}
+.main_news1 .mnews1_r .mnews1r_nav li a:hover{color: #094289;}
+.main_news1 .mnews1_r .mnews1r_nav li a span{ background:#004883;}
+.main_news1 .mnews1_r .mnews1r_img a{color:#666;}
+.main_news1 .mnews1_r .mnews1r_img a:hover{color: #094289;}
+
+/*新闻中心2*/
+.main_news1 .breadcrumb{color: #666;}
+.mnews_l2 h1{color: #004883;}
+.mnews_l2 .mnewsl2_info{ color: #797979;border-bottom: 1px solid #c2c2c2;}
+.mnews_l2 .mnewsl2_info a i{ color:#fff;}
+.mnews_l2 .mnewsl2_info a i.icon-star::after{color:#1596ea;}
+.mnews_l2 .mnewsl2_info a.new2_qzone{background: #1596ea;}
+.mnews_l2 .mnewsl2_info a.new2_sina{background: #e53048;}
+.mnews_l2 .mnewsl2_info a.new2_weixin{background: #01b30c;}
+.mnews_l2 .mnewsl2_Readings h3{color: #666;}
+.mnews_l2 .mnewsl2_Readings ul li a::before {color: #777;}
+.mnews_l2 .mnewsl2_Readings ul li span{ color:#797979;}
+
+/*妇科科室*/
+.wd_keshi .wd_btn{ border: 1px solid #ddd;background: #fff;color: #666;}
+.wd_keshi .wd_btn:hover{background: #666;color: #fff;border: 1px solid #666;}
+.mian_wd1 .mwd1_l .carousel-inner p{background: rgba(0,0,0,.5);color:#fff;}
+.mian_wd1 .mwd1_r p a{ color:#004883;}
+.mian_wd2 .mwd2_img p{background: rgba(0,72,131,.7);color: #fff;}
+.mian_wd2 .mwd2_info p a{ color:#7f1d12;}
+.main_wd5 .breadcrumb{color:grey;}
+
+/*医患交流2*/
+.main_dpc2{ background:#fff;}
+.main_dpc2 form .form-group label{background:#004883; color:#fff;}
+.main_dpc2 form .form-group .pdc2_required::before{color: #ea644a;}
+.main_dpc2 form .dpc2_btn input{background:#004883;}
+.main_dpc2 form .dpc2_btn input:hover{ background:#035da6;}
+
+/*医患交流3*/
+.main_dpc3{background:#fff;}
+.main_dpc3 .main_tit span{color: #999;}
+.main_dpc3 .mpdc3_l form label{color: #666;}
+.main_dpc3 .mpdc3_l form .form-group .getcode{ color:#fff; background:#004883;}
+.main_dpc3 .mpdc3_l form .form-group .getcode:hover{ background:#035da6;}
+.main_dpc3 .mpdc3_l form .form-group #submit{ background:#004883;}
+.main_dpc3 .mpdc3_l form .form-group #submit:hover{background:#035da6;}
+.main_dpc3 .mpdc3_r p{color: #666;}
+.main_dpc3 .mpdc3_r p a{ color:#024883;}
+@media (min-width:991px) {.main_dpc3 .mpdc3_l{ border-right:1px solid #ddd;}}
+@media (max-width:991px) {.main_dpc3 .mpdc3_l{ border-bottom:1px solid #ddd;}}
+
+/*检查单查询*/
+.main_icl{ background:#fff;}
+.main_icl .micl_r form input#submit{background:#004883;}
+.main_icl .micl_r form input#submit:hover{background:#035da6;}
+
+/*健康体检*/
+.main_hcup{ background:#fff;}
+.main_hcup .mhcup_tit1{ background:#e7e7e7;}
+.main_hcup .mhcup_tit1 li a{ color:#666;}
+.main_hcup .mhcup_tit1 li a:hover{ color:#164b81;}
+.main_hcup .mhcup_tit1 li.active a{ color:#333;}
+
+.int_main .int_menu_title {background: #314f81;}
+.int_main .int_menu_title h1,.int_menu_title h2 {color: #fff;}
+
+.int_main .int_menu_list .nav-parent .nav{border-left:1px solid #e1e1e1; border-right:1px solid #e1e1e1;}
+.int_main .int_menu_list .nav-parent .nav li.active a{ background:#eee; color:#314f81;}
+.int_main .int_menu_list li a{border-bottom:1px solid #e1e1e1;color:#666;}
+.int_main .int_menu_list li.nav-parent > a:nth-child(1){ background:#3e78e4; color:#fff;}
+
+.int_main .int_cont .int_cont_tit{ border-bottom:1px solid #ccc;color:#123d8c; }
+.int_main .int_cont .int_cont_tit:before {color:#123d8c;}
+.int_main .int_cont .int_cont_tit .int_index1 li.active{ background:#ddd;}
+.int_main .int_cont .int_cont_tjyd ul li:before{ color:#aeaeae;}
+.int_main .int_cont .int_cont_tjyd ul li span{ color:#999;}
+
+/*网站地图*/
+.main_webmap{background: #fff;}
+.main_webmap h1{color: #004785; }
+.main_webmap .mwmap_list dl{border-bottom: 1px dashed #ddd;}
+.main_webmap .mwmap_list dd span a::after {color: #ddd;}
+.main_webmap .mwmap_list dd strong {color: #999;}

@@ -1,0 +1,292 @@
+<?php
+
+abstract class Controller {
+
+    function __construct() {}
+
+    function __destruct() {}
+    
+    public static $staticProperty=Array();
+
+    /**
+     * 自动加载
+     *
+     * @param unknown $class
+     */
+    static function load($class) {
+        if (strpos($class, 'Service') !== false) {
+            $file_path = KERNELPATH . $class . '.php';
+        } elseif (strpos($class, 'DAO') !== false) {
+            $file_path = DAOPATH . $class . '.php';
+        } elseif (strpos($class, 'Model_') !== false) {
+            $file_path = false;
+        } elseif (strpos($class, 'Smarty') !== false) {
+            $file_path = strtolower(ABSPATH . '/lib/smarty/sysplugins/' . $class . '.php');
+        } elseif (strpos($class, 'Tag') !== false && $class == 'Tag') {
+            $file_path = ENTITYPATH . $class . '.php';
+        } elseif (strpos($class, 'Tag') !== false) {
+            $file_path = ABSPATH . '/tagobj/' . $class . '.php';
+        } elseif (strpos($class, 'Exception')) {
+            $file_path = KERNELPATH . '/exception/' . $class . '.php';
+        } else {
+            $file_path = ENTITYPATH . $class . '.php';
+        }
+
+        if ($file_path) {
+            if (file_exists($file_path)) {
+                require_once $file_path;
+            }
+        }
+    }
+
+    /**
+     * 绑定参数
+     *
+     * @param unknown $entity
+     */
+    protected function blindParams($entity) {
+        foreach ($entity as $key => $value) {
+            if (isset($_REQUEST[$key])) {
+                $entity->$key = $_REQUEST[$key];
+            }
+        }
+    }
+
+    /*
+     * FilterService::addFunc(FilterService::SQLInjection); FilterService::addFunc(FilterService::Addslashes); .... FilterService::excute() -> result; 或者是其他自定义的过滤
+     */
+    abstract function filter();
+
+    public function excute() {
+        if ((! isset($_REQUEST['method'])) || $_REQUEST['method'] == NULL || strlen($_REQUEST['method']) == 0) {
+            echo json_encode(new Result(false, 3, ErrorMsgs::get(3), NULL));
+
+            return false;
+        }
+
+        $method_name = get_class_methods($this);
+        if (! in_array($_REQUEST['method'], $method_name)) {
+            echo json_encode(new Result(false, 3, ErrorMsgs::get(3), NULL));
+            return false;
+        }
+
+        try {
+            $methodName = $_REQUEST['method'];
+            $this->$methodName();
+        } catch (ValidatorException $ve) {
+            $code = $ve->getCode();
+            echo json_encode(new Result(false, $code, ErrorMsgs::get($code), null));
+        } catch (Exception $e) {
+            echo json_encode(new Result(false, '', $e->getMessage(), null));
+        }
+    }
+    
+    /**
+     * 日期转换，将2016-01-01转换为20160101
+     * 
+     * param $thedate 2016-01-01
+     *  return $date
+     * */
+    
+    public function changedate($thedate){
+    	if(isset($thedate)){
+    		$date=intval(date('Ymd',strtotime($thedate)));
+    		return  $date;
+    		 
+    	}else{
+    		return null;
+    	}
+    }
+    
+    /**
+     * 对象转换为数组
+     * 
+     * param $obj
+     * return array
+     * 
+     * */
+    
+    
+    public function objectToArray($obj){
+    	
+    	
+    	     		
+ 
+    	$arr = is_object($obj) ? get_object_vars($obj) : $obj;
+    	
+    	if(is_array($arr)){
+    		return array_map(__FUNCTION__, $arr);
+
+    		
+    	}else{
+
+    		return $arr;
+    	}
+    	
+    	
+    }
+    
+    /**
+     * 返回性别字符
+     * param $num $type
+     * */
+    public function genderchar($num, $type=0){
+    	if($type==0){
+    	if($num==1){
+    		return "女";
+    	}else{
+    		return "男";
+    	}
+    	}else{
+    		if($num==1){
+    			return "男";
+    		}else{
+    			return "女";
+    		}
+    	}
+    	
+    }
+    
+    /**
+     * 转变null为' '
+     * param string 
+     * */
+    public function changenull($string){
+    	if(!empty($string)){
+    		return $string;
+    	}else{
+    		return " ";
+    	}
+    }
+    
+    /**
+     * 发送post请求
+     * @param string $url 请求地址
+     * @param array $post_data post键值对数据
+     * @return string
+     */
+    public function send_post($url, $post_data) {
+    
+    	$ch = curl_init();
+    	$timeout = 60000*10;
+    	curl_setopt($ch, CURLOPT_URL, $url);
+    	curl_setopt($ch, CURLOPT_POST, true);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    	$result = curl_exec($ch);
+    	curl_close($ch);
+    	return $result;
+    }
+    /**
+     * 设置request 默认值
+     * */
+    final public function getRequest($name = '', $default = '') {
+    	if (!empty($name)) {
+    		if (isset($_REQUEST[$name]) && $_REQUEST[$name]) {
+    			return $_REQUEST[$name];
+    		} else {
+    			return $default;
+    		}
+    	}
+    
+    	return $_REQUEST;
+    }
+    /**
+     * 移除utf8中的bom
+     * */
+    
+    function remove_utf8_bom($text)
+    {
+    	$bom = pack('H*','EFBBBF');
+    	$text = preg_replace("/^$bom/", '', $text);
+    	return $text;
+    }
+    
+    
+    /**
+     * 绑定观察对象到指定动作
+     * @param object Reference to the observer class
+     * @param array An array of eventId's to observe
+     * 
+     * */
+    function attach(&$observer, $eventIDArray) {
+    	
+    	foreach($eventIDArray as $eventID) {
+    		$nameHash = md5(get_class($observer).$eventID);
+    		Controller::setStaticObserver($nameHash, array('obs'=>&$observer, 'eventID'=>$eventID));
+    	}
+    }
+    
+    /**
+     * 从观察对象中删除指定的动作
+     * @param object
+     * @param array
+     */
+    function detach($observer, $eventIDArray) {
+    	foreach($eventIDArray as $eventID) {
+    		$nameHash = md5(get_class($observer).$eventID);
+    		Controller::unsetStaticObserver($nameHash);
+    	}
+    }
+    /**
+     * 通知观察对象，指定动作发生
+     *
+     * @param string The event ID to notify for
+     * @param array paramters to pass to the observer, useful for passing stuff which is outside of the 'scope' of the observed class.
+     */
+    function notify($eventID, $paramArray = array()) {
+    
+    	
+    	$observers = & Controller::getStaticObserver();
+    	
+    	if (!is_null($observers))
+    	{
+    		foreach($observers as $key=>$obs) {
+    			if ($obs['eventID'] == $eventID) {
+    				$obs['obs']->update($this, $eventID, $paramArray);
+    			}
+    		}
+    	}
+    }
+    /**
+     * 设置静态属性
+     * 
+     * */   
+    function & getStaticProperty($var)
+    {
+    	
+    	return self::$staticProperty;
+    }
+    /**
+     * 获取静态属性
+     * */
+    function & getStaticObserver() {
+    	return Controller::getStaticProperty('observer');
+    }
+    /**
+     * 设置静态属性
+     * 
+     * */
+    function setStaticObserver($element, $value)
+    { 
+    	
+    $observer =  & Controller::getStaticObserver();
+    $observer[$element] = $value;
+   	
+    }
+    /**
+     * 删除观察者对象
+     * */
+    function & unsetStaticObserver($element)
+    {
+    	$observer =  & Controller::getStaticObserver();
+    	unset($observer[$element]);
+    }
+    
+
+    
+    
+    
+
+}

@@ -1,0 +1,94 @@
+<?php
+include './HM.php';
+
+class Reservationmanager extends HM{
+	public function __construct() {
+		parent::__construct();
+	}
+	/*
+	 * 设置用户为到诊
+	 * */
+	protected function __makeres(){
+		
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$id=(int)$_REQUEST['id'];
+			
+			$reseser=new ReservationDetailService();
+			$arr=array('id'=>$id);
+			$res=$reseser->changestatu($arr);
+			die(json_encode( array('code'=>0,'msg'=>'success') , true ));
+		}
+	}
+	
+	/*
+	 * 获取某个预约时段等待的人数
+	 * @param id预约时间段id
+	 * */
+	protected function __getresnum(){
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$id=(int)$_REQUEST['id'];
+			$reseser=new ReservationDetailService();
+			
+			$res=$reseser->getresnum(array('reserver_id'=>$id));
+			die(json_encode( array('code'=>0,'msg'=>$res) , true ));
+		}
+	}
+	
+	#.通过预约ID取预约信息
+	protected function __reservation_info(){
+		new ReservationService();
+		$reservation_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
+	
+		if( $reservation_id <= 0 ){
+			die( json_encode( array('code'=>1,'msg'=>'查询失败,id不能为空!') ) );
+				
+		}
+		$resarr=array('id'=>$reservation_id);
+		
+		$result = R::findOne('reservationdetail','id =:id', $resarr);
+		
+	
+		if( is_object($result) ){
+			$data['code']            = 0;
+			$data['msg']             = '查询成功';
+			#.查询医院名称
+			$contact = R::findOne('contact',"flag = 'name'");
+			$data['hospital_name']   = $contact->val;
+	$arrcheck=array('id'=>$result->reserver_id);
+			#.查询预约详细信息
+			$reservaInfo = R::findOne('reservation','id = :id',$arrcheck );
+			
+	
+			if($reservaInfo){
+			#.查询科室
+			$deparment   = R::findOne('department',"id = " . $reservaInfo->department_id);
+			$data['department_name'] = isset( $deparment->name ) ? $deparment->name : '';
+			#.查询医生
+			$doctor      = R::findOne('doctor',"id = " . $reservaInfo->doctor_id);
+			$data['doctor_name'] 	 = isset( $doctor->name ) ? $doctor->name : '';
+			$data['date'] 			 = date('Y-m-d',$reservaInfo->date);
+						
+					if($reservaInfo->morning){
+					$data['time'] = $reservaInfo->morning;
+			}elseif($reservaInfo->afternoon){
+			$data['time'] = $reservaInfo->afternoon;
+			}else{
+			$data['time'] = $reservaInfo->night;
+				}
+				
+					$data['resertimes']=date('Y-m-d H:i:s',$result->times);
+					$data['username'] 		 = $result->name;
+				$data['tel'] 			 = $result->hometel;
+							die( json_encode( $data ) );
+			}else{
+			echo json_encode( array('code'=>1,'msg'=>'查询失败,reservation_fid不存在!'));
+			exit();
+			}
+	
+		}else{
+			die( json_encode( array('code'=>1,'msg'=>'查询失败,改预约id不存在!') ) );
+			}
+	}
+}
+new Reservationmanager();
+?>

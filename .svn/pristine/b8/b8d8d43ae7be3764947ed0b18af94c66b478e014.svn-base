@@ -1,0 +1,357 @@
+<?php
+
+/**
+ * 客服管理（咨询管理）模块service服务层
+ * @author Administrator
+ *
+ */
+class ClientService extends BaseService {
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化dao数据表处理层,并将其赋值给dao属性
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->dao = new ClientDAO();
+        
+    }
+
+    /**
+     * 添加方法
+     * 处理问题添加逻辑处理方法,并需要开启事务,处理client、clientRecord表的数据插入
+     *
+     * @param object $client
+     *            client实体对象
+     * @param object $clientRecord
+     *            clientRecord实体对象
+     */
+    public function save($client) {
+        // 开启事务处理
+        $this->dao->beginTrans();
+        // 异常try模块
+        try {
+            $client->validate();
+            $data=$this->dao->saveClient($client);
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans(); // 事务回滚
+            return $this->fail(0, $e->getMessage());
+        }
+        // 回执
+        return $this->success($data);
+    }
+    
+    /**
+     * 保存clientrecord
+     * @param entity $clientrecord
+     * */
+    public function saveclientrecord($clientrecord){
+    	$this->dao->saveclientrecord($clientrecord);
+    	return $this->success();
+    }
+    
+    /**
+     * 获取所有患者列表
+     * */
+    public function getAllPerson() {
+    	return $this->dao->getAllPerson();
+    }
+    
+    
+    /**
+     * 修改方法
+     * 处理问题添加逻辑处理方法,并需要开启事务,处理client、clientRecord表的数据插入
+     *
+     * @param object $client
+     *            client实体对象
+     * @param object $clientRecord
+     *            clientRecords实体对象数组
+     */
+    public function update($client, $clientRecords) {
+        // 开启事务处理
+        $this->dao->beginTrans();
+        // 异常try模块
+        try {
+            $client->validate();
+            $this->dao->updateClient($client, $clientRecords);
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans(); // 事务回滚
+            return $this->fail(0, $e->getMessage());
+        }
+        // 回执
+        return $this->success();
+    }
+    
+    /**
+     * 删除方法
+     * 需要开启事务,处理client、clientRecord表的删除
+     *
+     * @param int $id
+     *            client实体对象的id
+     */
+    public function deleteClient($id) {
+        // 开启事务处理
+        $this->dao->beginTrans();
+        // 异常try模块
+        try {
+            $this->dao->deleteClient($id);
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans(); // 事务回滚
+            return $this->fail(0, $e->getMessage());
+        }
+        // 回执
+        return $this->success();
+    }
+    
+    /**
+     * 
+     * 发送短信给所有关注人
+     * 
+     * */
+    public function sendMsg($focus_ids) {
+    	try {
+    		$users = $this->dao->getUsersByIds($focus_ids);
+    		$ser = new DuanxinService();
+    		foreach ($users as $user) {
+    			if (!empty($user->mobile)) {
+    				$content = '客户' . $_REQUEST['username'] . '预约了您' . $_REQUEST['date'] . ' ' . $_REQUEST['restime'] . '的号码!';
+    				$ser->sendNormalMessage($user->mobile, $content);
+    			}
+    		}
+    	    
+    	} catch (Exception $e) {
+    		return $this->fail(0, $e->getMessage());
+    	}
+    	return $this->success();
+    }
+
+    /**
+     *
+     *
+     * 分页查询&数据列表
+     *
+     * @param array $params
+     */
+    public function query($params) {
+        $Result = $this->dao->query($params);
+        return $this->success($Result);
+    }
+
+    /**
+     *
+     * 写入预约记录    
+     * $resbookID 预约成功后返回的ID,$client_id患者的基础表ID
+     */
+    public function addrescode($resbookID,$client_id) {
+    	$Result = $this->dao->addrescode($resbookID,$client_id);    	
+    	return $Result;
+    }
+    
+    /**
+     *
+     * 获取咨询记录
+     *
+     * @param int $client_id
+     * @return object 数据对象
+     */
+    public function getRecord($client_id) {
+        $Result = $this->dao->getRecord($client_id);
+        return $Result;
+    }
+
+    /**
+     * 查询数据总量
+     *
+     * @see kernel/BaseService::totalRows()
+     */
+    public function totalRows($params) {
+        return $this->dao->totalRows($params);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Int $id
+     * @return Result
+     */
+    public function get($id) {
+        if (! $id) {
+            throw new ValidatorException(7);
+        }
+        $data = $this->dao->get($id);
+        return $this->success($data);
+    }
+    
+    /**
+     * 保存关注人所有分组信息
+     * */
+    public function saveGroup($group) {
+        // 异常try模块
+        try {
+            $group->validate();
+            $groupid = $this->dao->saveGroup($group);
+        } catch (Exception $e) {
+            return $this->fail(0, $e->getMessage());
+        }
+        // 回执
+        return $this->success($groupid);
+    }
+    
+    /**
+     * 获取组信息
+     * */
+    public function getGroups() {
+        return $this->dao->getGroups();
+    }
+    
+    /**
+     * 获取指定组用户
+     * */
+    public function getGroupUsers($groupid) {
+        return $this->dao->getGroupUsers($groupid);
+    }
+    
+    /**
+     * 获取来源信息
+     * */
+    public function getDataSource() {
+        return $this->dao->getDataSource();
+    }
+    
+    /**
+     * 保存来源信息
+     */
+    public function saveDataSource(){
+        unset($_REQUEST['controller'],$_REQUEST['method']);
+        $dataSource = new PatientDataSource();
+        foreach ($_REQUEST as $key=>$val){
+            $dataSource->$key = $val;
+        }
+         
+        try {
+            $dataSource->validate();
+            $re = $this->dao->saveDataSource($dataSource);
+            if($re){
+                return array('statu'=>true,'msg'=>'添加成功！', 'data'=>$re);
+            }else{
+                return array('statu'=>false,'msg'=>'添加失败！');
+            }
+        } catch (Exception $e) {
+            return array('statu'=>false,'msg'=>$e->getMessage());
+        }
+         
+    }
+    
+    /**
+     * 来源信息-修改
+     * */
+    public function modSource() {
+        unset($_REQUEST['controller'],$_REQUEST['method']);
+        $dataSource = new PatientDataSource();
+        foreach ($_REQUEST as $key=>$val){
+            $dataSource->$key = $val;
+        }
+        $dataSource->validate();
+        $re = $this->dao->modSource($dataSource);
+        if($re){
+            return array('statu'=>true,'msg'=>'修改成功！', 'data'=>$re);
+        }else{
+            return array('statu'=>false,'msg'=>'修改失败！');
+        }
+    }
+    
+    /**
+     * 删除来源信息
+     */
+    public function delDataSource($ids){
+        if (!is_array($ids)) {
+            $ids = array($ids);
+        }
+        Entity::isIds($ids);
+        $re = $this->dao->delDataSource($ids);
+        if($re){
+            return array('statu'=>true,'msg'=>'删除成功');
+        }
+    }
+    
+    /**
+     * 获取前台接待员
+     * */
+    public function getReceptionist() {
+        return $this->dao->getReceptionist();
+    }
+    
+    /**
+     * 保存前台接待信息
+     */
+    public function addReceptionist(){
+        unset($_REQUEST['controller'],$_REQUEST['method']);
+        $receptionist = new PatientReceptionist();
+        foreach ($_REQUEST as $key=>$val){
+            $receptionist->$key = $val;
+        }
+        $receptionist->validate();
+        $re = $this->dao->addReceptionist($receptionist);
+        if($re){
+            return array('statu'=>true,'msg'=>'添加成功！', 'data'=>$re);
+        }else{
+            return array('statu'=>false,'msg'=>'添加失败！');
+        }
+    }
+    
+    /**
+     * 前台接待信息-修改
+     * */
+    public function modReceptionist() {
+        unset($_REQUEST['controller'],$_REQUEST['method']);
+        $receptionist = new PatientReceptionist();
+        foreach ($_REQUEST as $key=>$val){
+            $receptionist->$key = $val;
+        }
+        $receptionist->validate();
+        $re = $this->dao->modReceptionist($receptionist);
+        if($re){
+            return array('statu'=>true,'msg'=>'修改成功！', 'data'=>$re);
+        }else{
+            return array('statu'=>false,'msg'=>'修改失败！');
+        }
+    }
+    
+    /**
+     * 删除前台接待信息
+     */
+    public function delReceptionist($ids){
+        if (!is_array($ids)) {
+            $ids = array($ids);
+        }
+        Entity::isIds($ids);
+        $re = $this->dao->delReceptionist($ids);
+        if($re){
+            return array('statu'=>true,'msg'=>'删除成功');
+        }
+    }
+    
+    /**
+     * 获取前台接待员数据条数
+     * */
+    public function getReceptionistCount() {
+        return $this->dao->getReceptionistCount();
+    }
+    
+    /**
+     * 获取统计数据
+     * */
+    public function getStatData() {
+        return $this->dao->getStatData($_REQUEST);
+    }
+    
+    /**
+     * 获取当月就诊数据
+     * */
+    public function statByDate() {
+        return $this->dao->statByDate($_REQUEST);
+    }
+}

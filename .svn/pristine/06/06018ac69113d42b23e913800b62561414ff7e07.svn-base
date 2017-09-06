@@ -1,0 +1,48 @@
+<?php
+include './HM.php';
+class Order extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	protected function __getorder(){
+		
+		if(isset($_REQUEST['querynum'])){
+		
+			$querynum=explode('_', $_REQUEST['querynum']);
+			
+			if($querynum[0]=='draw'){
+				$winlog=new WinlogService();
+				$data=$winlog->getdetailbyflag(array('flag'=>$querynum[1]));
+				echo json_encode(array('statue'=>true,'code'=>0,'msg'=>null,'data'=>$data));
+				
+			}elseif($querynum[0]=='order'){
+			$orderser=new OrderService();							
+			$arr=array('order_num'=>$querynum[1],'qrcode'=>$querynum[2]);
+			$result=$orderser->gdetaibyqr($arr);
+			echo json_encode($result);
+			}else{
+				$this->__msg(1,'querynum参数错误',null);
+			}
+		}else{
+			$this->__msg(1,'缺少参数query num',null);
+		}				
+	}
+	
+	protected function __orderhaspay(){
+
+		if(!isset($_REQUEST['order_num'])||!isset($_REQUEST['qrcode'])){
+			echo json_encode(array('statue'=>false,'code'=>0,'msg'=>'缺少订单参数','data'=>null));
+			exit();
+		}
+		$arr=array('order_num'=>$_REQUEST['order_num'],'qrcode'=>$_REQUEST['qrcode']);
+		$orderser=new OrderService();
+		$result=$orderser->makeorderhaspay($arr);
+		echo json_encode($result);
+	}
+	
+	
+	
+}
+new Order();

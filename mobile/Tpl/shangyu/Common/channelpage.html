@@ -1,0 +1,22 @@
+
+{{if $pageCount gt 1}}
+ <ul class="am-pagination am-pagination-centered">
+	{{if $page eq 1}}
+	 <li class="am-disabled"><a href="#">«</a></li>
+	{{else}}
+	
+	<li class="am-disabled"><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$page-1}}&channel_id={{$channel_id}}'>«</a></li>
+	{{/if}}
+	{{for $foo=1 to $pageCount}}
+	<li {{if $foo eq $page}}class="am-active"{{/if}}><a href="{{$MOBILE}}/{{$url}}.php?method=query&page={{$foo}}&channel_id={{$channel_id}}">{{$foo}}</a></li>
+	{{/for}}
+	
+	
+	{{if $page eq $pageCount}}
+	<li class="am-disabled"><a href="#">&raquo;</a></li>
+	{{else}}
+	<li><a href="{{$MOBILE}}/{{$url}}.php?method=query&page={{$page+1}}&channel_id={{$channel_id}}">&raquo;</a></li>
+	{{/if}}
+</ul>
+{{/if}}
+

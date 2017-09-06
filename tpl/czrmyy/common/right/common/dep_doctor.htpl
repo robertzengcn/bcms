@@ -1,0 +1,10 @@
+﻿<div style="width:269px;float: left" class="par-doctor bk">
+    <h4><span><a target="_blank" href="{{$WEBSITE}}/doctor/">专家在线</a></span></h4>
+    {{$doctorToday = $DoctorTag->getDoctorToday()}}
+    <a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html">
+        <img src="{{$UPLOAD}}/{{$doctorToday->pic}}" alt="doctor" class="img"/></a>
+    <div>
+        <h5><a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html">{{$doctorToday->name}}&nbsp;{{$doctorToday->position}}</a></h5>
+        <p>{{$doctorToday->description|truncate:"25"}}...<a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html">[详细]</a></p>
+        <a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" class="mr5"><img src="{{$RESOURCE}}/images/zx.gif" alt="#" /></a></div>
+</div>

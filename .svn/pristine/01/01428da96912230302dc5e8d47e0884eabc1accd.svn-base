@@ -1,0 +1,23 @@
+/* CSS Document */
+
+
+
+
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+.logo_link,.homenav {width:20px;height:20px;text-indent:-999;margin:15px 6px;}
+.logo_link{background:url(../i/logo.png)  no-repeat;float:left;-moz-background-size:20px 20px; /* 老版本的 Firefox */background-size:20px 20px;text-indent:-999;}
+.homenav {background:url(../i/homeimg.png) no-repeat;float:right;-moz-background-size:20px 20px; /* 老版本的 Firefox */background-size:20px 20px;}
+
+
+/* header over*/
+
+.listbox{width:100%;text-align:left;}
+.listbox ul {width:90%;margin:0 auto;}
+.listbox h2{font-size:18px;height:50px;line-height:50px;padding:0px 8px;}
+.listbox ul li{width:30%;float:left;margin:3px 2px;border:1px solid #c7e3ef;border-radius:8px;-moz-border-radius:8px; /* Old Firefox */ background:#f0f8fb;text-align:center;font-size:15px;height:35px;line-height:35px;}
+.listbox ul li a{color:#000000;font-size:15px;}
+
+
+/* body over*/

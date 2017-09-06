@@ -1,0 +1,274 @@
+/**
+ * 自定义导航
+ * */
+function Navgroup() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function initEdit()
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.cate != undefined) {$("#cate").val(para.cate)}
+			if (para.group_id != undefined) {$("#group_id").val(para.group_id)}
+			if (para.id != undefined) {
+				//有id，则是编辑
+				self.cmd(gHttp,{controller:'Navgroup',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							picflag = result1.data.flag;
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			//初始化导航父级
+			$("#apid").bindApid(para.cate);
+			
+			//初始化科室链接数据
+			$("#htmlUrl").bindDepartment();
+			
+			$('#htmlUrl').change(function(){
+				var sel = $(this).val();
+				$('#childDiseaseDiv').empty();
+				$('#hurl').val(sel);
+				if(sel=='departments'||sel=='disease'){
+					$('#hurl').val('');
+					var params = {sel:sel};
+					$('#childUrlDiv').bindDisease(params, 'hurl');
+				}else if(sel == "channel"){
+					$('#childUrlDiv').bindChannel('hurl');
+				}else{
+					$('#childUrlDiv').hide();
+					$('#childUrlDiv').html('');
+				}
+				
+			});
+			
+			//链接方式切换
+			$('input[name="radio_link"]').click(function(){
+				$(this).attr('checked',true);
+				$("#link").val("");
+				$("#childUrlDiv").hide();
+				$("#childUrlDiv").html('');
+				$("#childDiseaseDiv").html('');
+				$('#htmlUrl').val('');
+				var id = $(this).attr('id');
+				$("div[id^='div_link']").hide();
+				$("#div_" + id).show();
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+	// }}}
+    // {{{ function onloadCss()
+	
+	/**
+	 * 加载css
+	 * */
+	this.onloadCss = function() {
+		$('.skin-minimal input').iCheck({
+			checkboxClass: 'icheckbox-blue',
+			radioClass: 'iradio-blue',
+			increaseArea: '20%'
+		});
+		/*缩略图操作*/
+		$('div.thumbnailbox').on('mouseenter',function(){
+			$(this).find('div.img-btn').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.img-btn').stop().animate({height:"0px"});
+		});
+		$('div.img-btn').find('span').on('mouseenter',function(){
+			$(this).stop().css("background-position","-46px 0px");
+		}).on('mouseleave',function(){
+			$(this).stop().css("background-position","-46px -22px");
+		});
+		var defaultsrc=$('div.thumbnailbox img').attr('flag');
+		$('span#delete-thisimg').on('click',function(){
+			$thumbnail_img=$(this);
+			layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+				$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+				layer.msg('已删除!',1);
+			});
+		});
+		/*缩略图操作完结*/
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+		if (para.group_id == undefined) {
+			var data = {controller:'Navgroup',method:'queryGroup',is_group:1};
+			var columns = [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+                            { data: 'id' },
+				            { data: 'subject' },
+				            { data: 'flag'},
+				            { data: 'is_display',render:function(value,type,row){return value=='1'?'<span class="label label-success radius">显示</span>':'<span class="label label-default radius">不显示</span>';}},
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+					              str += '<a style="text-decoration:none"  onClick="gNavgroup.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gNavgroup.detail('+id+');" href="javascript:;" title="查看详细"><i class="Hui-iconfont">&#xe681;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gNavgroup.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ];
+			$("#dataTable").grid({
+				para:data,
+				aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+							],
+				initSort : [[0, "asc"]],
+				field : columns
+			});
+		} else {
+			gGroupId = para.group_id;
+			var data = {controller:'Navgroup',method:'getGroup',group_id:para.group_id};
+			var columns = [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+                            { data: 'id' },
+				            { data: 'subject' },
+				            { data: 'url'},
+				            { data: 'pid'},
+				            { data: 'sort'},
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gNavgroup.infoedit('+id+', \'diynav-detail.html\');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gNavgroup.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ];
+			$("#dataTable").grid({
+				para:data,
+				aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]}
+							],
+				initSort : [[0, "asc"]],
+				field : columns
+			});
+		}		
+	}
+	
+	// }}}
+	
+	//去新增导航
+	this.toAddNav = function() {
+		self.openAdd('新增导航信息','diynav-detail.html?group_id=' + gGroupId,'740','560')
+	}
+	
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'Navgroup',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Navgroup',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){		
+		var url = 'diy-nav.html';		
+		self.openEditWID('编辑自定义导航组信息', url + '?id=' + id,'480','302');
+	}
+	this.infoedit = function(id,url){		
+		self.openEditWID('编辑导航信息', url + '?id=' + id,'740','500');
+	}
+	//查看详细
+	this.detail = function(id){
+		self.openAdd('本导航组详细列表','diynav-list.html?group_id='+id);
+	}
+	
+	// {{{ function save()
+	
+	/**
+	 * 保存
+	 * */
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Navgroup',method:'save'};
+		} else {
+			post = {controller:'Navgroup',method:'edit',id:id};
+		}
+		$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.alert('操作成功!',{icon: 1});	
+				layer_close();
+				
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#formEdit').submit();
+	}
+	
+	// }}}
+}

@@ -1,0 +1,18 @@
+﻿nclude file="Common/header.html"}}
+<!--开始 内容页-->
+<div class="crop crop" style="height:300px;">
+
+	{{$department=$DepartmentTag->get($id)}}
+	<h4>{{$department->name}}</h4>
+	<ul>
+		{{$Diseases = $DiseaseTag->getByDeparment($department->id)}}
+		{{foreach from=$Diseases item=DisValue name=name}}
+		<li><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$DisValue->id}}" />{{$DisValue->name|truncate:"5"}}</a></li>
+		{{/foreach}}
+	</ul>
+	<div style="clear:both"></div>
+</div>
+<!--结束 内容页-->
+<div id="blank"> </div>
+﻿<!--开始 尾部-->
+﻿{{include file="Common/footer.html"}}

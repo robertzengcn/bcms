@@ -1,0 +1,10 @@
+{
+    "layout_header": {
+        "tpl": "common/layout/header",
+        "html": "header.html"
+    },
+    "layout_footer": {
+        "tpl": "common/layout/footer",
+        "html": "footer.html"
+    }
+}

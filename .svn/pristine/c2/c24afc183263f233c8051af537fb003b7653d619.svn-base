@@ -1,0 +1,39 @@
+<?php
+include './HM.php';
+class User extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	protected function __login(){
+		if( isset( $_REQUEST['username'] ) && isset( $_REQUEST['pwd'] )  ){
+			$username = trim( $_REQUEST['username'] );
+			$pwd      = trim( $_REQUEST['pwd'] );
+			if( strlen( $pwd ) != 32 ){$this->__msg(1,'请将pwd参数进行md5小写转换后传入.',null);}
+			$password = md5( $pwd );
+			new ArticleService();
+			$result = R::findOne('worker',"`name` = '{$username}' and `password`='{$password}'");
+
+			if(!is_object( $result )){
+				$this->__msg(1,'账户密码不匹配,验证失败.',null); 
+			}else{
+				$passport=md5(time().$_REQUEST['username'].rand(1000,9999));
+				$returnarr=array('passport'=>$passport);
+				session_start();
+                $_SESSION['passport']=$passport;
+              //echo $_SESSION['passport'];
+				
+								
+				$this->__msg(0,'success',$returnarr);
+			};
+		}else{
+			$this->__msg(1,'缺少username或pwd参数.',null);
+		}
+	}
+	
+	
+	
+	
+}
+new User();

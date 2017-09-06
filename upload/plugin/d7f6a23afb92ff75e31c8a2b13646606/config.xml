@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<Name>多站管理</Name>
+	<ByName>website</ByName>
+	<Discription>同时管理多个站点的资讯文章，即一键同步本站文章到其它被管理站点，并支持在文章内容前后追加新的内容</Discription>
+	<Author>全球医院网</Author>
+	<ByVersion>v1.0</ByVersion>
+	<HccinletHtml>index</HccinletHtml>
+	<SqlFile>run.sql</SqlFile>
+	<UnInstall>WebsiteService:uninstall</UnInstall>
+	<Kernel>
+		<Controller>WebsiteController.php:controller/WebsiteController.php</Controller>
+		<Service>WebsiteService.php:kernel/WebsiteService.php</Service>
+		<Dao>WebsiteDAO.php:kernel/dao/WebsiteDAO.php</Dao>
+		<Entity1>Website.php:kernel/entity/Website.php</Entity1>
+		<Entity2>Websitecontent.php:kernel/entity/Websitecontent.php</Entity2>
+	</Kernel>
+</plugin>

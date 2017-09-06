@@ -1,0 +1,366 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<link href="spectrum/spectrum.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>群发消息</title>
+<style type="text/css">
+	/*导航条*/
+    .mainnav{z-index:1;background-color:#222}/*导航条背景*/
+    .mainnav > ul{ font-size: 0; line-height: 0}
+    .mainnav > ul > li,.mainnav > ul > li > a{height:40px;line-height:40px}/*导航条高度*/
+    .mainnav > ul > li{display:inline-block;color:#fff;font-size:14px;font-weight:bold}/*设置字体*/
+    .mainnav > ul > li > a{display:inline-block;padding:0 20px;color:#fff;text-align:center}/*链接颜色*/
+    .mainnav > ul > li > a:hover,.mainnav > ul > li.current > a{color:#fff;text-decoration:none; background-color:#e74c3c;-webkit-transition: background-color 0.3s ease 0s; -moz-transition: background-color 0.3s ease 0s; -o-transition: background-color 0.3s ease 0s; -ms-transition: background-color 0.3s ease 0s;transition: background-color 0.3s ease 0s}/*交互颜色*/
+    .Hui-nav-toggle{ display:none; position:absolute; top:0px; right:15px; font-size: 20px; color:#999; padding:6px 11px; -moz-border-radius:4px;-webkit-border-radius:4px;-ms-border-radius:4px;border-radius:4px; background-color:rgba(0,0,0,0.5);color:#fff;}
+    .Hui-nav-toggle:hover{ text-decoration: none;}
+	
+	.container{border:1px solid #fffff;}	
+	.pic_list_box{width:410px;float:left;}
+	.wtext-editor{height:1000px;overflow-y:scroll;margin-left:2px;float:right;width:calc(100% - 420px);}	
+	
+	
+	.pic_l{ background-color:#f8f8f8; border-right:2px solid #f5f5f5;height:380px;overflow-y:scroll;}
+	.pic_l img{max-width: 100%; height: auto;display: block;}
+
+	.pic_l li{ padding:10px; background-color:#fff; border:1px solid #efefef; overflow:hidden;}
+	.pic_l li.active{border:3px solid #44b549;}
+
+	.pic_l li .bg_pic:first-child .tit{ position:absolute; background-color:rgba(0,0,0,0.6);bottom: 0;left: 0;right: 0; line-height:28px; height:28px; padding:0 16px; color:#fff;}
+	.pic_l li .bg_pic{background-size:44px 34px; float:right;float: right;width: 78px;height: 78px;margin-left: 14px; position:relative;background-color:#cccccc;}
+	.pic_l li .bg_pic:first-child{height:108px; width:100%;}
+	.pic_l li .pic_tit{line-height: 24px;max-height: 48px;overflow: hidden;*zoom: 1;word-wrap: break-word;word-break: break-all; display:inline-block; float:left;margin-top: 8px; max-width:90px;}
+	.pic_l li .maskBar i{ display:inline-block; margin:auto 5px; cursor:pointer; font-size:16px;}
+
+	.pic_l li:last-child{ border:1px dotted #999; text-align:center;}
+	.pic_l li:last-child:before{content: "\e600"; line-height:74px;font-family: "Hui-iconfont" !important;font-style: normal;-webkit-font-smoothing: antialiased;-webkit-text-stroke-width: 0.2px;-moz-osx-font-smoothing: grayscale; font-size:26px;}
+	.pic_l li:last-child:hover{border:2px dotted #44b549; color:#44b549;}
+	
+	
+	.delColor {border-radius: 10px;color: #000;display: block;height: 16px;left: 7px;line-height: 14px;position: relative;text-align: center;top: -5px;width: 16px;	}
+	
+	.wclassify-title{height:65px;background:#3a3332;color:#dad9d8;text-align:center;font-size:20px;font-weight:700;line-height:65px}
+	.wcolorbox{height:66px; border:1px #1E9BE8 solid;margin:0 2px;color:#dad9d8;text-align:center;font-size:20px;font-weight:700;line-height:65px;overflow-y: auto; }
+	.wcolorbox a,.wcolorbox a:focus,.wcolorbox a:hover{color:#dad9d8}
+	.wclassify-ul>li.active,.wclassify-ul>li>a:hover{background:#4c4342;text-decoration:none}
+	.wclassify-ul>li{width:80px;height:45px;color:#dad9d8;text-align:center}
+	.wclassify-ul>li>a{display:block;line-height:45px;color:#dad9d8;text-decoration:none;font-size:14px}
+	.wclassify-ul{background: #999; height:499px;}
+	.color_control{width:99%;height:auto;margin:0px auto;text-align: left;}
+	.colorli{width:18px;height:18px;float:left;margin:2px; cursor:pointer;}
+	.colorlist li#addColor{background:#48cf51;color:#FFFFFF;font-weight:bolder;line-height:18px;text-align:center;font-size:14px;}
+
+	.sp-picker-container, .sp-palette-container{float: left;padding: 10px;position: fixed; top:120px;}
+	.sp-picker-container {width: 172px;border: solid 1px #ff691f;background-color: #eee;}
+
+	.left-box{border:1px solid #e7e7eb;background:#f8f8f8;}
+
+	.info_group {
+		height: 490px;    
+		overflow: auto; 	
+	}
+
+	.list_content {
+		cursor: pointer;
+		margin: 16px auto;
+		overflow: hidden;
+		width: 90%;
+	}
+
+	.list_content:hover{
+		border:1px solid #dad9d8;
+		width:93%;
+		padding:6px;
+	}
+
+
+	.list_content{
+		border:1px solid #43b548;
+	}
+	div.appmsg_edit_mask{background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0 !important;bottom: 0;display: none;left: 0;position: absolute;right: 0;height: 40px;line-height: 40px;}
+	.appmsg_edit_mask a {margin-left: 8px;margin-right: 8px;}
+	.maskWraper:hover .appmsg_edit_mask  {display: block;}
+	li.maskWraper{cursor:pointer;}
+	.img-btn-del {background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0 !important;height: 30px;left: 0;overflow: hidden;position: absolute;top: 0;width: 100%;display: none;}
+	.thumbnailbox:hover .img-btn-del{display: block;}
+
+</style>
+</head>
+<body>
+<div class="pd-5">
+    <nav class="mainnav cl">
+    	<ul class="cl ifr_list">
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/detail-wx.html">自定义菜单</a></li>
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/detail-wx-reply.html">自动回复</a></li>
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/clickstat-menu.html">菜单点击</a></li>
+			<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/manage-text.html">素材管理</a></li>	
+			<li class="menulist current"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/send-message.html">群发消息</a></li>		
+    	</ul>
+    </nav>
+    <div style="width:100%;height:10px;clear:both;"></div>
+	<div class="container col-12">
+		<div class="pic_list_box">
+			<div class="row">
+				<div class="pic_l">
+					<h4>图文列表</h4>
+					<ul class="pic_list" id="info_list">
+						<li class="maskWraper active" id="appmsgItem1">
+							<div class="bg_pic"><span class="tit">标题</span></div>
+							<div class="appmsg_edit_mask">
+								<a class="js_other"  title="其它素材"><i class="Hui-iconfont" style="font-size:24px;color:#FFFFFF;">&#xe63e;</i></a>
+							</div>
+							<div style="display:none"><div class='tags'></div><div class='author'></div><div class='digest'></div><div class='content'></div><div class='pic'></div><div class='tmid'></div>
+							</div>					
+						</li>
+						<li class="maskWraper add"></li>
+					</ul>
+				</div>        
+			</div>
+			<div class="pd-5">
+			  <div class="cl col-85 l">
+				<div class="wclassify-title">分类</div>
+				<ul class="wclassify-ul" id="style-categories">
+				  <li flag="1"  class="dropdown allmenu_li active"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 标题 </a></li>
+				  <li flag="2"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 正文 </a></li>
+				  <li flag="3"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 图文 </a></li>
+				  <li flag="4"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 关注 </a></li>
+				  <li flag="5"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 分割线 </a></li>
+				  <li flag="6"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 背景 </a></li>
+				  <li flag="7"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 表情图 </a></li>
+				  <li flag="8"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 阅读原文 </a></li>
+				  <li flag="9"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 点赞 </a></li>
+				  <li flag="10"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 其他 </a></li>
+				  <li flag="11"  class="dropdown allmenu_li"> <a class="filter dropdown allmenu_li-toggle"  href="javascript:;"> 自定义 </a></li>
+				</ul>
+			  </div>
+			  <!--col-715 over-->
+			  <div class="col-86 bk-gray l">
+				<div class="wcolorbox">
+				  <div class="color_control">
+					<ul class="colorlist">
+					  <li onMouseDown="changeColor('#fff45c')" style="background-color: #fff45c;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#fde800')" style="background-color: #fde800;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ffcb15')" style="background-color: #ffcb15;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ffa921')" style="background-color: #ffa921;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ff691f')" style="background-color: #ff691f;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ff391f')" style="background-color: #ff391f;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#c53f46')" style="background-color: #c53f46;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#d6004a')" style="background-color: #d6004a;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ff1d6b')" style="background-color: #ff1d6b;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ff4da9')" style="background-color: #ff4da9;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ff80c5')" style="background-color: #ff80c5;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ffb4ce')" style="background-color: #ffb4ce;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#ddf56d')" style="background-color: #ddf56d;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#b0f346')" style="background-color: #b0f346;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#6fe113')" style="background-color: #6fe113;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#87c943')" style="background-color: #87c943;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#129527')" style="background-color: #129527;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#059d7f')" style="background-color: #059d7f;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#00589c')" style="background-color: #00589c;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#4676d9')" style="background-color: #4676d9;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#4e99df')" style="background-color: #4e99df;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#5faaff')" style="background-color: #5faaff;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#3abcff')" style="background-color: #3abcff;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#70d8ff')" style="background-color: #70d8ff;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#cccccc')" style="background-color: #cccccc;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#999999')" style="background-color: #999999;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#666666')" style="background-color: #666666;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#333333')" style="background-color: #333333;" class="colorli"></li>
+					  <li onMouseDown="changeColor('#000000')" style="background-color: #000000;" class="colorli"></li>
+					  <li id="addColor" class="colorli">+</li>
+					</ul>
+					<input type='text' id="full" style="display:none;"/>
+				  </div>
+				</div>
+				<!--color control over-->
+				<div class="cl col-12 mt-5 info_group" id="info_group"></div>
+				</div>
+				<!--info_group over-->
+			  </div>
+		</div>
+	  <!--pic_list_box over-->
+		<div class="wtext-editor">
+			<form method="post" class="form form-horizontal" id="wechateditor">
+			  <input type="hidden" value="1" id="itemIndex">
+			  <input type="hidden" value="" name="thumb_media_id" id="tmid"/>
+			  <div class="row cl">
+				<label class="form-label col-95"><span class="c-red">*</span>标题：</label>
+				<div class="formControls col-72">
+				  <input type="text" class="input-text" value="" placeholder="" id="tags" name="tags" datatype="*2-30"  errormsg="限2-30个字" nullmsg="标题不能为空" />
+				</div>
+				<div class="col-2"> </div>	
+			  </div>
+			  <div class="row cl">
+				<label class="form-label col-95"><span class="c-red">*</span>作者：</label>
+				<div class="formControls col-72">
+				  <input type="text" class="input-text" value="" placeholder="" id="author" name="author" datatype="*2-10"  errormsg="限2-10个字" nullmsg="作者不能为空">
+				</div>
+				<div class="col-2"> </div>
+			  </div>
+				<div class="row cl">
+					<label class="form-label col-95"><span class="c-red">*</span>封面图：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius"  onClick="layer_show('上传图片','/hcc/js/boyicms/uploadimg.html?method=uploadPic&dir=wechattxt&type=weixin','720','420')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox">
+						<img src="/hcc/images/boyicms/logo/thumbnail_auto.gif" flag="/hcc/images/boyicms/logo/thumbnail_auto.gif" id="thumbnail" width="150px"/>
+						<div class="img-btn-del"><span class="cancel" id="delete-thisimg" title="删除">删除</span></div>			
+					</div>
+					<div class="formControls col-94">
+						<input class="input-hidden" type="hidden" id="pic" name="pic" value="" datatype="*" nullmsg="封面图片不能为空！" />
+					</div>
+				<div class="col-2"> </div>
+				</div> <!--上传图片-->
+			<div class="row cl">
+				<label class="form-label col-95"></label>
+				<div class="formControls col-10">
+				  （大图片尺寸建议900px*500px，小图片尺寸建议200px*200px）
+				</div>
+			  </div>	
+			  <div class="row cl">
+				<label class="form-label col-95">显示封面：</label>
+				<div class="formControls col-3 skin-minimal">
+				  <!--add col-91 css-->
+				  <div class="radio-box">
+					<input type="radio" value="1" name="show_cover_pic" checked="checked">
+					<label>是</label>
+				  </div>
+				  <div class="radio-box">
+					<input type="radio" value="0" name="show_cover_pic">
+					<label>否</label>
+				  </div>
+				</div>
+			  </div>		
+			  <div class="row cl">
+				<label class="form-label col-95"><span class="c-red">*</span>摘要：</label>
+				<div class="formControls col-72">
+				  <textarea name="digest" id="digest" cols="" rows="" class="textarea"  placeholder="请输入素材内容简介..." datatype="*10-100" dragonfly="true" nullmsg="素材内容简介不能为空！" onKeyUp="textarealength(this,200)"></textarea>
+				  <p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+				</div>
+				<div class="col-2"> </div>
+			  </div>
+			  <div class="row cl">
+				<label class="form-label col-95"><span class="c-red">*</span>详细内容：</label>
+			  </div>
+			  <div class="row cl">        
+				<div class="formControls col-71">
+				  <textarea nullmsg="详细内容不能为空！" style="width:100%;height:400px;" id="editor" name="content" datatype="*"></textarea>	          
+				</div>
+					<div class="col-2"> </div>
+			  </div>
+			  <div class="row cl">
+				<label class="form-label col-95">原文链接：</label>
+				<div class="formControls col-72">
+				  <input type="text" class="input-text" value="" placeholder="" name="content_source_url" id="content_source_url">
+				</div>
+			  </div>
+			  <div class="col-10 col-offset-2 mt-15">
+				<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+				<button id="saveAndSend" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe603;</i> 保存并发送</button>
+			  </div>
+			</form>
+		</div>
+	</div>
+</div>	
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script>
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script>
+<script type="text/javascript" src="../../../lib/webuploader/0.1.5/webuploader.min.js"></script>
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.config.js"></script>
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.all.min.js"> </script>
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script>
+<script type="text/javascript" src="../../../js/H-ui.js"></script>
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="spectrum/spectrum.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="js/weixin.js"></script>
+<script type="text/javascript">
+var articleItems = {};
+var editor = UE.getEditor('editor',{
+    toolbars: [
+    [
+		'source', //源代码
+		'|',
+        'undo', //撤销
+        'redo', //重做
+		'|',
+        'bold', //加粗               
+        'italic', //斜体
+        'underline', //下划线
+        'strikethrough', //删除线
+        'subscript', //下标        
+        'superscript', //上标		
+		'|', 
+		'link', //超链接
+        'unlink', //取消链接
+        '|',
+        'fontsize', //字号 
+		'forecolor', //字体颜色
+        'backcolor', //背景色		
+		'|', 	
+        'simpleupload', //单图上传
+        'insertimage', //多图上传      
+        '|', 
+        'emotion', //表情
+        'spechars', //特殊字符        
+        'map', //Baidu地图  
+		'music', //音乐	
+        'insertvideo', //视频 
+		'scrawl', //涂鸦
+		'horizontal', //分隔线        
+		'|', 		
+		'rowspacingtop', //段前距
+        'rowspacingbottom', //段后距 
+		'lineheight', //行间距                
+        'autotypeset', //自动排版
+		'|', 
+		'indent', //首行缩进 
+        'justifyleft', //居左对齐
+        'justifyright', //居右对齐
+        'justifycenter', //居中对齐
+        'justifyjustify', //两端对齐
+        '|', 
+        'insertorderedlist', //有序列表
+        'insertunorderedlist', //无序列表		   
+        '|',       
+        'imagenone', //默认
+        'imageleft', //左浮动
+        'imageright', //右浮动        
+        'imagecenter', //居中
+        '|',
+		'cleardoc', //清空文档
+        'preview', //预览  
+		'searchreplace', //查询替换	 		
+        'fullscreen', //全屏     
+
+        
+    ]
+]
+});
+var gWeiXin = new WeiXin();
+gWeiXin.setThisName('gWeiXin');
+gWeiXin.initSendMessage();
+</script>
+</body>
+</html>

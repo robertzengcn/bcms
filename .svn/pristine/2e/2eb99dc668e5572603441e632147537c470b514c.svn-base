@@ -1,0 +1,419 @@
+<?php
+/**
+ * 
+ * 疾病资讯tag标签
+ * @author Administrator
+ *
+ */
+class ArticleTag extends CommonTag {
+	
+	/**
+	 * 
+	 * 构造方法
+	 */
+	function __construct() {
+		$this->service = new ArticleService ();
+		parent::__construct( get_class() );
+	}
+	
+	/**
+	 * 
+	 * 获取推荐数据
+	 * @param string $order
+	 * @param int $limit
+	 * @param string $where
+	 * @param string $field
+	 */
+	public function getRecommend($order, $limit, $where, $field = '*') {
+		$RecommendListService = new RecommendListService ();
+		$res = $RecommendListService->getRecommend ( $order, $limit, $where, $field = '*' );
+		foreach ( $res as $v ) {
+			$data [] = $v->id;
+		}
+		return $this->service->getRecommend ( 'id', $data, $order );
+	}
+	
+   /**
+	 * 
+	 * 根据页码获取对应的数据
+	 * {{foreach $tagOb->getList($cur) as $v}}
+	 * {{/foreach}}
+	 * @param  int $current  当前页
+	 * @param  boolean $sort 排序规则,true为时间降序
+	 * @return array list
+	 */
+	public function getList($current,$sort = true) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.分页数
+		$pageCount = ceil( $count / $this->tagConfig['pageSize']);
+		#.组合条件进行数据查询
+		$limit = array ("page" => $current, "size" => $this->tagConfig['pageSize'] );
+		$field = '*';
+		$where = array ('1' => 1 );
+		$order = $sort === true ? "plushtime desc" : "plushtime asc";
+		$data = $this->getPage ( $field, $where, $limit, $order );
+		return $data;
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取分页html
+	 * {{$tagOb->getPageHtml($cur)}}
+	 * @param int $current 当前页
+	 */
+	public function getPageHtml($current ,$disease_id, $dir) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('disease_id' => $disease_id ) )->data;
+		#.生成html信息
+		return $this->setPageHtml($current, $this->tagConfig['pageSize'] , $count , $dir );
+	    
+	}
+	
+	public function getPageHtmlByDep($current ,$department_id, $dir) {
+	    #.第几页
+	    $current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+	    #.查询总条数
+	    $count  = $this->service->totalRows ( array ('department_id' => $department_id) )->data;
+	    #.生成html信息
+	    return $this->setPageHtml($current, $this->tagConfig['pageSize'] , $count , $dir );
+	}
+	
+	/**
+	 * 
+	 * 根据唯一id获取该id的详细信息
+	 * {{$news = $tagOb->get($id)}}
+	 * @param int $id 唯一id
+	 */
+	public function get($id) {
+		$id = (int)$id <= 0 ? 0 : (int)$id;
+		$where = array( "id" => $id );
+		$result = $this->service->findOne( $where , '*' );
+		$article = new Article();
+		$article->generateFromRedBean($result);
+		return $article;
+	}
+	
+	/**
+	 * 根据推荐位置获取文章列表 ...
+	 * @param unknown_type $recommend_id
+	 */
+	public function getByRecommend($recommend,$disease='',$department='',$size,$name='article_id'){
+		if (!is_numeric($recommend)){
+			$position = new RecommendPositionService();
+			$result = $position->getByName($recommend);
+			$recommend_id = $result->id;
+		}else{
+			$recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+		}
+		$recommendObj = new RecommendListService();
+		$articleIds = $recommendObj->getByRecommendID($recommend_id,$name);
+		$_REQUEST['ids'] = array();
+		foreach ($articleIds as $val){
+			$_REQUEST['ids'][] = $val->$name;
+		}
+		$result = $this->service->getByIds();
+		if ($disease !== '') {
+			$arr = $this->getRs($disease, $result, 'Disease');
+		}
+		if ($department !== ''){
+			$arr = $this->getRs($department, $result, 'Department');
+		}
+        $array = array();
+        if($disease == '' && $department == ''){
+            $data1 = array();
+            foreach($result->data as $v){
+                $data1[$v->updatetime] = $v;
+            }
+            krsort($data1);
+            foreach ($data1 as $v1){
+            	$data2[] = $v1;
+            }
+            for($i=0;$i<$size;$i++){
+                $array[] = $data2[$i];
+            }
+            return $array;exit;
+        }
+		$i=1;
+		foreach ($arr as $v){
+			if ($i<=$size){
+				$array[] = $v;
+			}
+			$i++;
+		}
+		return $array;
+	}
+	
+	/**
+	 * 获取置顶资讯
+	 * @param unknown_type $recommend_id
+	 * @param unknown_type $disease_id
+	 * @param unknown_type $is_top
+	 * @param unknown_type $name
+	 * @return Ambigous <multitype:, unknown>
+	 */
+	public function getByTop($recommend,$disease='',$department='',$is_top=1,$name='article_id'){
+		if (!is_numeric($recommend)){
+			$position = new RecommendPositionService();
+			$result = $position->getByName($recommend);
+			$recommend_id = $result->id;
+		}else{
+			$recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+		}
+		$recommendObj = new RecommendListService();
+		$articleIds = $recommendObj->getByTop($recommend_id,$is_top,$name);
+		$_REQUEST['ids'] = array();
+	    foreach ($articleIds as $val){
+			$_REQUEST['ids'][] = $val->$name;
+		}
+		$result = $this->service->getByIds();
+		if ($disease !== '') {
+			$obj = $this->getRs($disease, $result, 'Disease');
+		}
+		if ($department !== '') {
+			$obj = $this->getRs($department, $result, 'Department');
+		}
+		return $obj[0];
+	}
+	
+	/**
+	 * 提取值
+	 * @param unknown_type $value
+	 * @param unknown_type $result
+	 * @param unknown_type $str
+	 * @return Ambiguous
+	 */
+	public function getRs($value,$result,$str){
+		$key = strtolower($str).'_id';
+		if (! is_numeric ( $value )) {
+			$service = $str.'Service';
+		    $Obj = new $service();
+			$where = array ();
+			$where ['name'] = $value;
+				$rs = $Obj->query ( $where )->data;
+				foreach ( $rs as $v ) {
+					if ($v->name == $value) {
+						$id = $v->id;
+					}
+				}
+			} else {
+				$id = ( int ) $value <= 0 ? 0 : ( int ) $value;
+			}
+			$arr = array();
+			foreach ( $result->data as $val ) {
+				 if ($val->$key == $id) {
+					$arr[$val->updatetime] = $val;
+				 }
+			}
+			krsort($arr);
+			return $arr;
+	}
+	
+	/**
+	 * 根据科室获取文章
+	 * 需要在service里面添加根据科室获取文章的方法
+	 * @param unknown_type $deparment_id
+	 */
+	public function getByDeparment($deparment,$page,$limit = '',$order='desc'){
+		if (!is_numeric($deparment)){
+			$where = array();
+			$where['name'] = $deparment;
+			$deparmentObj = new DepartmentService();
+			$rs = $deparmentObj->query($where)->data;
+			$deparment_id = $rs[0]->id;
+		}else{
+			$deparment_id = (int)$deparment <=0 ? 0 : (int)$deparment;
+		}
+		$limit = $limit == '' ? $this->tagConfig['pageSize'] : $limit;
+		$result = $this->service->getByDepartmentID($deparment_id,$page,$limit,$order)->data;
+		return $result;
+	}
+	
+	/**
+	 * 根据科室和疾病获取id
+	 * @param unknown_type $department
+	 * @param unknown_type $disease
+	 */
+	public function getByDisease($department,$disease,$page,$limit = 0){
+		$limit = (int)$limit == 0 ? $this->tagConfig['pageSize'] : (int)$limit;
+		if (!is_numeric($department) && !is_numeric($disease)){
+			$where = array();
+			$where['name'] = $department;
+			$deparmentObj = new DepartmentService();
+			$rs = $deparmentObj->query($where)->data;
+			$department_id = $rs[0]->id;
+			$where['name'] = $disease;
+			$diseaseObj = new DiseaseService();
+			$rs = $diseaseObj->getByName($where)->data;
+			$disease_id = $rs->id;
+		}else{
+			$department_id = (int)$department <=0 ? 0 :(int)$department;
+			$disease_id = (int)$disease <=0 ? 0 :(int)$disease;
+		}
+		$where = array();
+		$where['department_id'] = $department_id;
+		$where['disease_id'] = $disease_id;
+		$where['page'] = $page;
+		$where['size'] = $limit;
+		$result = $this->service->query($where);
+		return $result->data;
+	}
+	
+	/**
+	 * 
+	 * 根据资讯id获取关联推荐的文章列表
+	 * @param int $id 资讯id
+	 * @param int $limit 限制条数(为0则取所有)
+	 * @return array&object 返回数组对象
+	 */
+	public function getByRelation($id,$limit = 0) {
+		$thisInfo = $this->get( $id );
+		if (isset($thisInfo->relation) && $thisInfo->relation != false){
+			$_REQUEST['ids'] = explode(',', $thisInfo->relation);
+		}else{
+			//随机获取文章
+			$articles = $this->getByDisease($thisInfo->department_id, $thisInfo->disease_id, 1,20);
+			$arr = array();
+			foreach ($articles as $key=>$val){
+				if ($val->id == $thisInfo->id){
+					unset($val);
+				}else{
+					$arr[] = $val->id;
+				}
+			}
+			$_REQUEST['ids'] = array();
+			for ($i=1;$i<=$limit;$i++){
+				$num = mt_rand(0, count($arr)-1);
+				if (!isset($_REQUEST['ids'][$num])){
+					$_REQUEST['ids'][$num] = $arr[$num];
+					$i--;
+				}
+			}
+		}
+		foreach( $_REQUEST['ids'] as $key => $value ) {
+			if( (int)$value <= 0  ) {
+				unset( $_REQUEST['ids'][$key] );
+			}
+		}
+		$result = $this->service->getByIds();
+		if( count($result->data) >= 1 ) {
+			return (int)$limit <= 0 ? $result->data : array_slice( $result->data , 0, $limit );
+		}else{
+			return null;
+		}
+	}
+	
+	/**
+	 * 获取最新文章
+	 * @param unknown_type $limit
+	 */
+	public function getNewest($limit){
+		$where = array();
+		$where['page'] = 1;
+		$where['size'] = $limit;
+		$articles = $this->service->query($where);
+		return $articles->data;
+	}
+	
+	/**
+	 * 获取热点文章
+	 * @param unknown_type $limit
+	 * @return Ambiguous
+	 */
+	public function getByClick($limit){
+		$articles = $this->service->getByClick($limit);
+		return $articles;
+	}
+	
+	/**
+	 * 获取文章的路径
+	 * @param int $id 文章id
+	 * @echo 输出实际路径
+	 */
+	public function getArticleUrl($id){
+		$id = (int)$id <= 0 ? 0 : (int)$id;
+		$where = array( "id" => $id );
+		$result = $this->service->findOne( $where , '*' );
+		$article = new Article();
+		$article->generateFromRedBean($result);
+		$diseaseID = $article->disease_id;
+		//数据存入tag属性,防止循环导致多次读取
+		if( ! isset( $this->initDiseaseData ) || ! isset( $this->initDepartmentData ) ){
+	    	$diseaseService = new DiseaseService();
+	    	$diseaseArrays  = $diseaseService->query( array() );
+	    	$this->initDiseaseData = $diseaseArrays->data;
+	    	$departService  = new DepartmentService();
+	    	$departArrays   = $departService->query( array() );
+	    	$this->initDepartmentData = $departArrays->data;
+		}
+		$parList = $this->getParListIds( $this->initDiseaseData , $diseaseID );
+		$url = NETADDRESS;
+		//循环科室信息
+		foreach( $this->initDepartmentData as $key => $value ){
+			if( $value->id == $article->department_id ){
+				$url .= '/' . $value->url;break;
+			}
+		}
+		ECHO $url . '/' . $this->getParUrl( $diseaseArrays->data , $result->disease_id ) . '/' . $id . '.html';
+	}
+	
+	/**
+	 * 通过递归形式,获取某个疾病的整体路径
+	 * @param unknown $diseases
+	 * @param unknown $id
+	 * @param string $data
+	 * @return string
+	 */
+	private function getParUrl( $diseases , $id  ,$data = '' ){
+		foreach($diseases as $key => $value){
+			if($value->id == $id){
+				$data[] = $value->url;
+				if( $value->parent_id != 0 ) {
+					return $this->getParUrl($diseases, $value->parent_id , $data);
+				}
+			}
+		}
+		return implode( '/' , array_reverse( $data ) );
+	}
+
+    /**
+     * @param string $department_id  当前文章所属科室ID
+     * @param string $article_id     当前文章ID
+     * @return array
+     */
+    public function getArticleIds($department_id,$article_id){
+        $ids = $this->service->getArticleIds($department_id);
+        $key = array_search($article_id,$ids);
+        $result = array();
+        $result['currentA'] = $key;
+        if( $key-1<0 ){
+            $result['beforeA'] = 0;
+        }else{
+            $result['beforeA'] = $ids[$key-1];
+        }
+        $max = count($ids);
+        if($key+1 >= $max){
+            $result['nextA'] = 0;
+        }else{
+            $result['nextA'] = $ids[$key+1];
+        }
+        return $result;
+    }
+    
+    
+    /**  获取文章tag*/
+    public function getArtTags($plushtime){
+        $tagS = new TagService();
+        $result =  $tagS->getTags($plushtime);
+        $result = str_replace('，', ',', $result);
+        $result =explode(',', $result);
+        return $result;
+    }
+    
+    
+    
+}

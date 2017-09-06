@@ -1,0 +1,65 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Article extends Entity {
+
+    var $id;
+
+    var $subject;
+
+    var $pic;
+
+    var $source;
+
+    var $content;
+
+    var $click_count;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $updatetime;
+
+    var $isbidding;
+
+    var $department_id;
+
+    var $disease_id;
+
+    var $doctor_id;
+
+    var $is_top;
+
+    var $worker_id;
+
+    var $relation;
+
+    public function validate() {
+        if ($this->subject == '' || strlen($this->subject) == 0) {
+            throw new ValidatorException(6);
+        }
+        if ($this->content == '' || strlen($this->content) == 0) {
+            throw new ValidatorException(5);
+        }
+        if (! $this->isNum($this->isbidding) || strlen($this->isbidding) == 0) {
+            throw new ValidatorException(8);
+        }
+        if (! $this->isNum($this->department_id) || strlen($this->department_id) == 0) {
+            throw new ValidatorException(72);
+        }
+        if (! $this->isNum($this->disease_id) || strlen($this->disease_id) == 0) {
+            throw new ValidatorException(59);
+        }
+        if ($this->plushtime == '' || strlen($this->plushtime) == 0) {
+            $this->plushtime = time();
+        }
+        if ($this->updatetime == '' || strlen($this->updatetime) == 0) {
+            $this->updatetime = time();
+        }
+    }
+}

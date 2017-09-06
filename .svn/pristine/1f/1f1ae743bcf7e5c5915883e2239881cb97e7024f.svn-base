@@ -1,0 +1,643 @@
+<?php
+/**
+ * 极光推送插件
+ * 
+ * */
+class JpushService extends BaseService {
+	private static $EFFECTIVE_DEVICE_TYPES = array('ios', 'android', 'winphone');
+	private $appKey;
+	private $masterSecret;
+	private $logFile='/log/jpush.log';
+	private $retryTimes;
+	private $pushurl='https://api.jpush.cn/v3/push';
+	private $pushvalidurl='https://api.jpush.cn/v3/push/validate';
+	private $platform;
+	
+	private $audience;
+	private $tags;
+	private $tagAnds;
+	private $alias;
+	private $registrationIds;
+	
+	private $notificationAlert;
+	private $iosNotification;
+	private $androidNotification;
+	private $winPhoneNotification;
+	private $smsMessage;
+	private $message;
+	private $options;
+	private $useragent = 'JPush-API-PHP-Client';
+	private $connect_timeout=20;
+	private $read_timeout=120;
+
+    /**
+     * 构造函数
+     */
+    public function __construct($appKey,$masterSecret,$retryTimes=3) {
+    	if (!is_string($appKey) || !is_string($masterSecret)) {
+    		throw new Exception('Invalid appKey or masterSecret ',194);
+    	}
+    	$this->appKey = $appKey;
+    	$this->masterSecret = $masterSecret;
+    	
+    	if (!is_null($retryTimes)) {//发送重试次数
+    		$this->retryTimes = $retryTimes;
+    	} else {
+    		$this->retryTimes = 1;
+    	}
+   
+    }
+    
+    /**
+     * 推送消息
+     * */
+    public function send() {
+    	
+    	return $this->post( $this->pushurl, $this->build());
+    }
+    
+    public function get($client, $url) {
+    	$response = $this->sendRequest($url, 'GET', $body=null);
+    	return $this->processResp($response);
+    }
+    public function post($url, $body) {
+    	$response = $this->sendRequest($url, 'POST', $body);
+    	return $this->processResp($response);
+    }
+    /**
+     * 设置设备
+     * */
+    public function setPlatform($platform) {
+    	# $required_keys = array('all', 'android', 'ios', 'winphone');
+    	if (is_string($platform)) {
+    		$ptf = strtolower($platform);
+    		if ('all' === $ptf) {
+    			$this->platform = 'all';
+    		} elseif (in_array($ptf, self::$EFFECTIVE_DEVICE_TYPES)) {
+    			$this->platform = array($ptf);
+    		}
+    	} elseif (is_array($platform)) {
+    		$ptf = array_map('strtolower', $platform);
+    		$this->platform = array_intersect($ptf, self::$EFFECTIVE_DEVICE_TYPES);
+    	}
+    	return $this;
+    }
+    
+
+    
+    private function sendRequest($url, $method, $body=null, $times=1) {
+    	
+    	if (!defined('CURL_HTTP_VERSION_2_0')) {
+    		define('CURL_HTTP_VERSION_2_0', 3);
+    	}
+    	$ch = curl_init();
+    	curl_setopt($ch, CURLOPT_URL, $url);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_HEADER, true);
+    	curl_setopt($ch, CURLOPT_USERAGENT, $this->useragent);
+    	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connect_timeout);  // 连接建立最长耗时
+    	curl_setopt($ch, CURLOPT_TIMEOUT, $this->read_timeout);  // 请求最长耗时
+    	// 设置SSL版本 1=CURL_SSLVERSION_TLSv1, 不指定使用默认值,curl会自动获取需要使用的CURL版本
+    	// curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    	// 如果报证书相关失败,可以考虑取消注释掉该行,强制指定证书版本
+    	//curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
+    	// 设置Basic认证
+    	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    	curl_setopt($ch, CURLOPT_USERPWD, $this->getAuthStr());
+    	curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+    
+    	// 设置Post参数
+    	if ($method === 'POST') {
+    		curl_setopt($ch, CURLOPT_POST, true);
+    	} else if ($method === 'DELETE' || $method === 'PUT') {
+    		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    	}
+    	if (!is_null($body)) {
+    		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    	}
+    
+    	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    	'Content-Type: application/json',
+    	'Connection: Keep-Alive'
+    			));
+    
+    	$output = curl_exec($ch);
+    	$response = array();
+    	$errorCode = curl_errno($ch);
+   
+    	// $msg = '';
+    	// $data = json_decode($body, true);
+    	// if (isset($data['options']['sendno'])) {
+    	//     $sendno = $data['options']['sendno'];
+    	//     $msg = 'sendno: ' . $sendno;
+    	// }
+    
+    	$msg = '';
+    	if (isset($body['options']['sendno'])) {
+    		$sendno = $body['options']['sendno'];
+    		$msg = 'sendno: ' . $sendno;
+    	}
+    
+    
+    	if ($errorCode) {//如果出错
+    		$retries = $this->getRetryTimes();
+    		if ($times < $retries) {
+    			return self::sendRequest($url, $method, $body, ++$times);
+    		} else {
+    			if ($errorCode === 28) {
+    				throw new Exception($msg . "Response timeout. Your request has probably be received by JPush Server,please check that whether need to be pushed again.",195 );
+    			} elseif ($errorCode === 56) {
+    				// resolve error[56 Problem (2) in the Chunked-Encoded data]
+    				throw new Exception($msg . "Response timeout, maybe cause by old CURL version. Your request has probably be received by JPush Server, please check that whether need to be pushed again.",196);
+    			} else {
+    				throw new Exception("$msg . Connect timeout. Please retry later. Error:" . $errorCode . " " . curl_error($ch),197);
+    			}
+    		}
+    	} else {
+    		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    		$header_text = substr($output, 0, $header_size);
+    		$body = substr($output, $header_size);
+    		$headers = array();
+    		foreach (explode("\r\n", $header_text) as $i => $line) {
+    			if (!empty($line)) {
+    				if ($i === 0) {
+    					$headers[0] = $line;
+    				} else if (strpos($line, ": ")) {
+    					list ($key, $value) = explode(': ', $line);
+    					$headers[$key] = $value;
+    				}
+    			}
+    		}
+    		
+    		$response['headers'] = $headers;
+    		$response['body'] = $body;
+    		$response['http_code'] = $httpCode;
+    	}
+    	curl_close($ch);
+    	return $response;
+    }
+    
+    /**
+     * 合成消息中的参数
+     * */
+    public function build() {
+    	$payload = array();
+    
+    	// validate platform
+    	if (is_null($this->platform)) {
+    		throw new Exception('platform must be set',195);  		
+    	}
+    	$payload["platform"] = $this->platform;
+    
+    	// validate audience
+    	$audience = array();
+    	if (!is_null($this->tags)) {
+    		$audience["tag"] = $this->tags;
+    	}
+    	if (!is_null($this->tagAnds)) {
+    		$audience["tag_and"] = $this->tagAnds;
+    	}
+    	if (!is_null($this->alias)) {
+    		$audience["alias"] = $this->alias;
+    	}
+    	if (!is_null($this->registrationIds)) {
+    		$audience["registration_id"] = $this->registrationIds;
+    	}
+    
+    	if (is_null($this->audience) && count($audience) <= 0) {
+    		throw new Exception("audience must be set",198);
+    	} else if (!is_null($this->audience) && count($audience) > 0) {
+    		throw new Exception("you can't add tags/alias/registration_id/tag_and when audience='all'",199);
+    	} else if (is_null($this->audience)) {
+    		$payload["audience"] = $audience;
+    	} else {
+    		$payload["audience"] = $this->audience;
+    	}
+    
+    
+    	// validate notification
+    	$notification = array();
+    
+    	if (!is_null($this->notificationAlert)) {
+    		$notification['alert'] = $this->notificationAlert;
+    	}
+    
+    	if (!is_null($this->androidNotification)) {
+    		$notification['android'] = $this->androidNotification;
+    		if (is_null($this->androidNotification['alert'])) {
+    			if (is_null($this->notificationAlert)) {
+    				throw new Exception("Android alert can not be null",200);
+    			} else {
+    				$notification['android']['alert'] = $this->notificationAlert;
+    			}
+    		}
+    	}
+    
+    	if (!is_null($this->iosNotification)) {
+    		$notification['ios'] = $this->iosNotification;
+    		if (is_null($this->iosNotification['alert'])) {
+    			if (is_null($this->notificationAlert)) {
+    				throw new Exception("iOS alert can not be null",201);
+    			} else {
+    				$notification['ios']['alert'] = $this->notificationAlert;
+    			}
+    		}
+    	}
+    
+    	if (!is_null($this->winPhoneNotification)) {
+    		$notification['winphone'] = $this->winPhoneNotification;
+    		if (is_null($this->winPhoneNotification['alert'])) {
+    			if (is_null($this->winPhoneNotification)) {
+    				throw new Exception("WinPhone alert can not be null",202);
+    			} else {
+    				$notification['winphone']['alert'] = $this->notificationAlert;
+    			}
+    		}
+    	}
+    
+    	if (count($notification) > 0) {
+    		$payload['notification'] = $notification;
+    	}
+    
+    	if (count($this->message) > 0) {
+    		$payload['message'] = $this->message;
+    	}
+    	if (!array_key_exists('notification', $payload) && !array_key_exists('message', $payload)) {
+    		throw new Exception('notification and message can not all be null',203);
+    	}
+    
+    	if (count($this->smsMessage)) {
+    		$payload['sms_message'] = $this->smsMessage;
+    	}
+    
+    	if (is_null($this->options)) {
+    		$this->options();
+    	}
+    
+    	$payload['options'] = $this->options;
+    
+    	return $payload;
+    }
+    
+    public function addTagAnd($tag) {
+    	if (is_null($this->tagAnds)) {
+    		$this->tagAnds = array();
+    	}
+    
+    	if (is_array($tag)) {
+    		foreach($tag as $_tag) {
+    			if (!is_string($_tag)) {
+    				throw new Exception("Invalid tag_and value",204);
+    			}
+    			if (!in_array($_tag, $this->tagAnds)) {
+    				array_push($this->tagAnds, $_tag);
+    			}
+    		}
+    	} else if (is_string($tag)) {
+    		if (!in_array($tag, $this->tagAnds)) {
+    			array_push($this->tagAnds, $tag);
+    		}
+    	} else {
+    		throw new Exception("Invalid tag_and value",205);
+    	}
+    
+    	return $this;
+    }
+    
+    public function addAlias($alias) {
+    	if (is_null($this->alias)) {
+    		$this->alias = array();
+    	}
+    
+    	if (is_array($alias)) {
+    		foreach($alias as $_alias) {
+    			if (!is_string($_alias)) {
+    				throw new Exception("Invalid alias value",206);
+    			}
+    			if (!in_array($_alias, $this->alias)) {
+    				array_push($this->alias, $_alias);
+    			}
+    		}
+    	} else if (is_string($alias)) {
+    		if (!in_array($alias, $this->alias)) {
+    			array_push($this->alias, $alias);
+    		}
+    	} else {
+    		throw new Exception("Invalid alias value",207);
+    	}
+    
+    	return $this;
+    }
+    
+    public function addRegistrationId($registrationId) {
+    	if (is_null($this->registrationIds)) {
+    		$this->registrationIds = array();
+    	}
+    
+    	if (is_array($registrationId)) {
+    		foreach($registrationId as $_registrationId) {
+    			if (!is_string($_registrationId)) {
+    				throw new Exception("Invalid registration_id value",208);
+    			}
+    			if (!in_array($_registrationId, $this->registrationIds)) {
+    				array_push($this->registrationIds, $_registrationId);
+    			}
+    		}
+    	} else if (is_string($registrationId)) {
+    		if (!in_array($registrationId, $this->registrationIds)) {
+    			array_push($this->registrationIds, $registrationId);
+    		}
+    	} else {
+    		throw new Exception("Invalid registration_id value",209);
+    	}
+    
+    	return $this;
+    }
+    /**
+     * 设置基本通知
+     * */
+    public function setNotificationAlert($alert) {
+    	if (!is_string($alert)) {
+    		throw new Exception("Invalid alert value",210);
+    	}
+    	$this->notificationAlert = $alert;
+    	return $this;
+    }
+    
+    public function addWinPhoneNotification($alert=null, $title=null, $_open_page=null, $extras=null) {
+    	$winPhone = array();
+    
+    	if (!is_null($alert)) {
+    		if (!is_string($alert)) {
+    			throw new Exception("Invalid winphone notification",211);
+    		}
+    		$winPhone['alert'] = $alert;
+    	}
+    
+    	if (!is_null($title)) {
+    		if (!is_string($title)) {
+    			throw new Exception("Invalid winphone title notification",212);
+    		}
+    		if(strlen($title) > 0) {
+    			$winPhone['title'] = $title;
+    		}
+    	}
+    
+    	if (!is_null($_open_page)) {
+    		if (!is_string($_open_page)) {
+    			throw new Exception("Invalid winphone _open_page notification",213);
+    		}
+    		if (strlen($_open_page) > 0) {
+    			$winPhone['_open_page'] = $_open_page;
+    		}
+    	}
+    
+    	if (!is_null($extras)) {
+    		if (!is_array($extras)) {
+    			throw new Exception("Invalid winphone extras notification",214);
+    		}
+    		if (count($extras) > 0) {
+    			$winPhone['extras'] = $extras;
+    		}
+    	}
+    
+    	if (count($winPhone) <= 0) {
+    		throw new Exception("Invalid winphone notification",215);
+    	}
+    
+    	$this->winPhoneNotification = $winPhone;
+    	return $this;
+    }
+    
+    /**
+     * 安卓推送设置
+     * 
+     * */
+    public function androidNotification($alert = '', array $notification = array()) {
+    	# $required_keys = array('title', 'builder_id', 'extras');
+    	$android = array();
+    	$android['alert'] = is_string($alert) ? $alert : '';
+    	if (!empty($notification)) {
+    		if (isset($notification['title']) && is_string($notification['title'])) {
+    			$android['title'] = $notification['title'];
+    		}
+    		if (isset($notification['builder_id']) && is_int($notification['builder_id'])) {
+    			$android['builder_id'] = $notification['builder_id'];
+    		}
+    		if (isset($notification['extras']) && is_array($notification['extras']) && !empty($notification['extras'])) {
+    			$android['extras'] = $notification['extras'];
+    		}
+    		if (isset($notification['priority']) && is_int($notification['priority'])) {
+    			$android['priority'] = $notification['priority'];
+    		}
+    		if (isset($notification['category']) && is_string($notification['category'])) {
+    			$android['category'] = $notification['category`'];
+    		}
+    		if (isset($notification['style']) && is_int($notification['style'])) {
+    			$android['style'] = $notification['style'];
+    		}
+    		if (isset($notification['big_text']) && is_string($notification['big_text'])) {
+    			$android['big_text'] = $notification['big_text'];
+    		}
+    		if (isset($notification['inbox']) && is_array($notification['inbox'])) {
+    			$android['inbox'] = $notification['inbox'];
+    		}
+    		if (isset($notification['big_pic_path']) && is_string($notification['big_pic_path'])) {
+    			$android['big_pic_path'] = $notification['big_pic_path'];
+    		}
+    	}
+    	$this->androidNotification = $android;
+    	return $this;
+    }
+    /**
+     * IOS推送新
+     * */
+    public function iosNotification($alert = '', array $notification = array()) {
+    	# $required_keys = array('sound', 'badge', 'content-available', 'mutable-content', category', 'extras');
+    	$ios = array();
+    	$ios['alert'] = (is_string($alert) || is_array($alert)) ? $alert : '';
+    	if (!empty($notification)) {
+    		if (isset($notification['sound']) && is_string($notification['sound'])) {
+    			$ios['sound'] = $notification['sound'];
+    		}
+    		if (isset($notification['badge'])) {
+    			$ios['badge'] = (int)$notification['badge'] ? $notification['badge'] : 0;
+    		}
+    		if (isset($notification['content-available']) && is_bool($notification['content-available']) && $notification['content-available']) {
+    			$ios['content-available'] = $notification['content-available'];
+    		}
+    		if (isset($notification['mutable-content']) && is_bool($notification['mutable-content']) && $notification['mutable-content']) {
+    			$ios['mutable-content'] = $notification['mutable-content'];
+    		}
+    		if (isset($notification['category']) && is_string($notification['category'])) {
+    			$ios['category'] = $notification['category'];
+    		}
+    		if (isset($notification['extras']) && is_array($notification['extras']) && !empty($notification['extras'])) {
+    			$ios['extras'] = $notification['extras'];
+    		}
+    	}
+    	if (!isset($ios['sound'])) {
+    		$ios['sound'] = '';
+    	}
+    	if (!isset($ios['badge'])) {
+    		$ios['badge'] = '+1';
+    	}
+    	$this->iosNotification = $ios;
+    	return $this;
+    }
+    
+    /**
+     * 旧IOS推送
+     * */
+    public function addIosNotification($alert=null, $sound=null, $badge=null, $content_available=null, $category=null, $extras=null) {
+    	$ios = array();
+    
+    	if (!is_null($alert)) {
+    		if (!is_string($alert) && !is_array($alert)) {
+    			throw new InvalidArgumentException("Invalid ios alert value");
+    		}
+    		$ios['alert'] = $alert;
+    	}
+    
+    	if (!is_null($sound)) {
+    		if (!is_string($sound)) {
+    			throw new InvalidArgumentException("Invalid ios sound value");
+    		}
+    		if ($sound !== Config::DISABLE_SOUND) {
+    			$ios['sound'] = $sound;
+    		}
+    	} else {
+    		// 默认sound为''
+    		$ios['sound'] = '';
+    	}
+    
+    	if (!is_null($badge)) {
+    		if (is_string($badge) && !preg_match("/^[+-]{1}[0-9]{1,3}$/", $badge)) {
+    			if (!is_int($badge)) {
+    				throw new InvalidArgumentException("Invalid ios badge value");
+    			}
+    		}
+    		if ($badge != Config::DISABLE_BADGE) {
+    			$ios['badge'] = $badge;
+    		}
+    	} else {
+    		// 默认badge为'+1'
+    		$ios['badge'] = '+1';
+    	}
+    
+    	if (!is_null($content_available)) {
+    		if (!is_bool($content_available)) {
+    			throw new InvalidArgumentException("Invalid ios content-available value");
+    		}
+    		$ios['content-available'] = $content_available;
+    	}
+    
+    	if (!is_null($category)) {
+    		if (!is_string($category)) {
+    			throw new InvalidArgumentException("Invalid ios category value");
+    		}
+    		if (strlen($category)) {
+    			$ios['category'] = $category;
+    		}
+    	}
+    
+    	if (!is_null($extras)) {
+    		if (!is_array($extras)) {
+    			throw new InvalidArgumentException("Invalid ios extras value");
+    		}
+    		if (count($extras) > 0) {
+    			$ios['extras'] = $extras;
+    		}
+    	}
+    
+    	if (count($ios) <= 0) {
+    		throw new InvalidArgumentException("Invalid iOS notification");
+    	}
+    
+    	$this->iosNotification = $ios;
+    	return $this;
+    }
+    
+    /**
+     * 其他选项
+     * */
+    public function options(array $opts = array()) {
+    	# $required_keys = array('sendno', 'time_to_live', 'override_msg_id', 'apns_production', 'big_push_duration');
+    	$options = array();
+    	if (isset($opts['sendno']) && is_int($opts['sendno'])) {
+    		$options['sendno'] = $opts['sendno'];
+    	} else {
+    		$options['sendno'] = $this->generateSendno();
+    	}
+    	if (isset($opts['time_to_live']) && is_int($opts['time_to_live']) && $opts['time_to_live'] <= 864000 && $opts['time_to_live'] >= 0) {
+    		$options['time_to_live'] = $opts['time_to_live'];
+    	}
+    	if (isset($opts['override_msg_id']) && is_long($opts['override_msg_id'])) {
+    		$options['override_msg_id'] = $opts['override_msg_id'];
+    	}
+    	if (isset($opts['apns_production']) && is_bool($opts['apns_production'])) {
+    		$options['apns_production'] = $opts['apns_production'];
+    	} else {
+    		$options['apns_production'] = false;
+    	}
+    	if (isset($opts['big_push_duration']) && is_int($opts['big_push_duration']) && $opts['big_push_duration'] <= 1400 && $opts['big_push_duration'] >= 0) {
+    		$options['big_push_duration'] = $opts['big_push_duration'];
+    	}
+    	$this->options = $options;
+    
+    	return $this;
+    }
+    /**
+     * 生成推送序号
+     * */
+    private function generateSendno() {
+    	return rand(100000, 4294967294);
+    }
+    /**
+     * 处理返回值
+     * */
+    public function processResp($response) {
+    	if($response['http_code'] === 200) {
+    		$result = array();
+    		$data = json_decode($response['body'], true);
+    		if (!is_null($data)) {
+    			$result['body'] = $data;
+    		}
+    		$result['http_code'] = $response['http_code'];
+    		$result['headers'] = $response['headers'];
+    		return $result;
+    	} else {
+    		
+    		if($response['body']){
+    			$body = json_decode($response['body'], true);
+    			
+    			if (key_exists('error', $body)) {
+    				$errcode = $body['error']['code'];
+    				$errmessage = $body['error']['message'];
+    			} else {
+    				$errcode = $body['code'];
+    				$errmessage = $body['message'];
+    			}
+    			throw new Exception($errmessage,$errcode);
+    		}else{
+    			throw new Exception('未知错误',216);
+    		}
+
+    		
+    	}
+    }
+    /**
+     * 设置应用验证密码
+     * */
+    public function  getAuthStr() { 
+    	return $this->appKey . ":" . $this->masterSecret; }
+    
+/**
+ * 计算重试次数
+ * */
+    	public function getRetryTimes() { 
+    		return $this->retryTimes; }
+
+}

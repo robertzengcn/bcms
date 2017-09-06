@@ -1,0 +1,288 @@
+<?php
+
+/**
+ * 在线问答模块流程控制器
+ * @author Administrator
+ *
+ */
+class BoyiManagerController extends Controller {
+
+    private $service = null;
+    private $HMAKEY='Vb4!PLCzCW';
+    private $boyiurl="http://www.boyicms.com/interface/hma/HmaAccountInterface.php";
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化service层,并将其赋值给service属性
+     */
+    public function __construct() {
+		
+        parent::__construct();
+		
+        $this->service = new BoyiManagerService();
+    }
+    /**
+     * 数据安全验证、登录检测
+     *
+     * @see controller/Controller::filter()
+     */
+    public function filter() {
+    	$filterService = new FilterService();
+    	$filterService->addFunc($filterService::$SQLINJECTION);
+    	$filterService->addFunc($filterService::$FILERPLUSHTIME);
+    	$filterService->addFunc($filterService::$WORKERISLOGIN);
+    	$filterService->addFunc($filterService::$WORKERLOGHISTORY);
+    	return $filterService->execute();
+    }
+    
+    /*
+     * 
+     *获取手机验证码 
+     * 
+     * */
+    
+    public function getmsg(){
+		
+    	$phonenum=isset($_REQUEST['mobile'])&&strlen($_REQUEST['mobile'])>0?$_REQUEST['mobile']:null;
+    	
+    	if(preg_match("/^13[0-9]{1}[0-9]{8}$|15[0-9]{1}[0-9]{8}$|18[0-9]{1}[0-9]{8}$|17[0-9]{1}[0-9]{8}/",$phonenum)){ //验证通过   		
+    		//$HMAKEY='Vb4!PLCzCW';
+    		$url=$this->boyiurl."?type=sendcode";//请求总控发送验证码
+    		$post_data=array(
+    				'mobile'=>$phonenum,
+    				'hmkey'=>md5( $this->HMAKEY . date('Y-m-d') ),
+    				'website'=>NETADDRESS,
+    				   				    				   		
+    		);
+    		$fresult=$this->send_post($url,$post_data);
+    		
+    		$result=json_decode($fresult);
+    		if($result->res==0){
+    			echo json_encode(array('stute'=>true,'msg'=>null,'code'=>0,'data'=>null));    			
+    		}else{
+    			echo json_encode(array('stute'=>false,'msg'=>$result->message,'code'=>0,'data'=>null));
+    		}    		    		
+    	}else{
+    		//手机号码格式不对
+    		echo json_encode(array('stute'=>false,'msg'=>'手机号码不正确','code'=>0,'data'=>null));
+    	}
+    }
+    
+ 
+    
+    /**
+     * 发送post请求
+     * @param string $url 请求地址
+     * @param array $post_data post键值对数据
+     * @return string
+     */
+    public function send_post($url, $post_data) {
+    
+    	$ch = curl_init();
+    	$timeout = 60000*10;
+    	curl_setopt($ch, CURLOPT_URL, $url);
+    	curl_setopt($ch, CURLOPT_POST, true);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    	$result = curl_exec($ch);
+    	curl_close($ch);
+    	return $result;
+    }
+    
+    /*
+     * 检测验证码是否正确
+     * */
+    public function checkverify(){
+    	if(isset($_REQUEST['param'])&&strlen($_REQUEST['param'])>0){
+    		if (strtolower($_REQUEST['param']) !== strtolower($_SESSION['verify'])) {
+    			//echo json_encode(array('info'=>'请输入正确的验证码','status'=>'n'));
+    			       echo '{"info":"请输入正确的验证码","status":"n"}';
+    		}else{
+    			//echo json_encode(array('info'=>'','status'=>'y'));
+    			echo '{"info":"验证通过","status":"y"}';
+    		}
+    	}
+    } 
+    
+    /*
+     * 表单提交
+     * */
+    public function submitform(){
+    	if(isset($_REQUEST['verify'])&&strlen($_REQUEST['verify'])>0){
+    		
+    		if (strtolower($_REQUEST['verify']) !== strtolower($_SESSION['verify'])) {
+    			echo json_encode(array('stute'=>false,'msg'=>'验证码不正确','code'=>0,'data'=>null));
+    		}else{
+    			$phonenum=isset($_REQUEST['mobile'])&&strlen($_REQUEST['mobile'])>0?$_REQUEST['mobile']:null;
+    			$username=isset($_REQUEST['username'])&&strlen($_REQUEST['username'])>0?$_REQUEST['username']:null;
+    			$password=isset($_REQUEST['password'])&&strlen($_REQUEST['password'])>0?$_REQUEST['password']:null;
+    			$code=isset($_REQUEST['code'])&&strlen($_REQUEST['code']>0)?$_REQUEST['code']:null;
+    			$url=$this->boyiurl."?type=create_account";//请求总控发送验证码
+    			$post_data=array(
+    					'mobile'=>$phonenum,
+    					'hmkey'=>md5( $this->HMAKEY . date('Y-m-d') ),
+    					'website'=>NETADDRESS,
+    					'code'=>$code,
+    					'username'=>$username,
+    					'password'=>$password,    			
+    			);
+    			
+    			$result=$this->send_post($url,$post_data);
+    			$thedata=json_decode($result);
+    			if($thedata->code==0){//验证成功
+    				try{//读取远程文件
+    				$filename=basename($thedata->msg);
+    				$fdir=ABSPATH.'/'.$filename;
+    				//$file = fopen($thedata->msg, "rb");
+    				$ch=curl_init();
+    				$timeout=5;
+    				curl_setopt($ch,CURLOPT_URL,$thedata->msg);
+    				curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+    				curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+    				$content=curl_exec($ch);
+    				curl_close($ch);
+    				
+    				if ($content) {
+    					//print_r($file);exit();
+    					$newf = fopen ($fdir, "wb");
+    					
+    						fwrite($newf, $content);
+    					
+    				}
+    				}catch(Exception $e){
+    					
+    					throw new ValidatorException(184);
+    				}
+
+
+               if ($newf) {
+               fclose($newf);
+                }
+    					
+    				
+    				echo json_encode(array('stute'=>true,'msg'=>'注册成功','code'=>0,'data'=>array('username'=>$username,'fileurl'=>$thedata->msg)));
+    			}else{
+    				echo json_encode(array('stute'=>false,'msg'=>$thedata->msg,'code'=>0,'data'=>null));
+    			}
+    		}
+    	}else{
+    		echo json_encode(array('stute'=>false,'msg'=>'验证码为空','code'=>0,'data'=>null));
+    	}
+    }
+    
+    /*
+     * 用户名验证
+     * */
+    public function checkusername(){
+    	
+    	if(isset($_REQUEST['param'])&&strlen($_REQUEST['param'])>0){
+    		
+    		$url=$this->boyiurl."?type=check_username";//请求总控发送验证码
+    		$post_data=array(    				
+    				'username'=>$_REQUEST['param'], 
+    				'hmkey'=>md5( $this->HMAKEY . date('Y-m-d') ),
+    				  				
+    		);
+    		$result=$this->send_post($url,$post_data);
+    		$obj=json_decode($result);
+    		
+    		if($obj->code==0){
+    			echo '{"info":"正确","status":"y"}';
+    		}else{
+    			echo '{"info":"用户名已存在","status":"n"}';
+    		}
+    		
+    	}else{
+    		echo json_encode(array('stute'=>false,'msg'=>'用户名太短','code'=>0,'data'=>null));
+    	}
+    }
+    /*
+     * 请求总控对网站进行验证
+     * */
+    public function getremote(){
+    	if(isset($_REQUEST['username'])&&strlen($_REQUEST['username'])>0){
+    		$url=$this->boyiurl."?type=verifywebsite";
+    		$post_data=array(
+    				'username'=>$_REQUEST['username'],
+    				'hmkey'=>md5( $this->HMAKEY . date('Y-m-d')),
+    				'website'=>NETADDRESS    		
+    		);    		
+    		$result=$this->send_post($url,$post_data);
+    		$obj=json_decode($result);
+    		if($obj->code==0){//远程验证成功
+    			$boyiman=new BoyiManager();
+    			$boyimanagerser=new BoyiManagerService();
+    			$boyiman->boyikey=$obj->key;
+    			$boyiman->date=time();    			
+    			$boyimanagerser->save($boyiman);
+    			
+    			
+    			echo json_encode(array('stute'=>true,'msg'=>null,'code'=>0,'data'=>null));
+    		}else{
+    			echo json_encode(array('stute'=>false,'msg'=>'验证失败','code'=>$obj->code,'data'=>$obj->msg));
+    		}
+    		    		
+    	}
+    }
+    /*
+     * 总控验证账号密码,登录七众媒
+     * 
+     * */
+    public function accoutcheck(){
+    	if(isset($_REQUEST['mobile'])&&strlen($_REQUEST['mobile'])>0){
+    		if(!isset($_REQUEST['password'])||strlen($_REQUEST['password'])<=0){
+    			echo json_encode(array('stute'=>true,'msg'=>'密码为空','code'=>0,'data'=>null));
+    			exit();
+    		}
+    		if($_REQUEST['type']==1){
+    		$url=$this->boyiurl."?type=verifyaccount";
+    		$post_data=array(
+    				'mobile'=>$_REQUEST['mobile'],
+    				'password'=>$_REQUEST['password'],
+    				'hmkey'=>md5( $this->HMAKEY . date('Y-m-d')),
+    				'website'=>NETADDRESS
+    		);
+    		$result=$this->send_post($url,$post_data);
+    		$objs=json_decode($result);
+    		if($objs->code==0){
+    			echo json_encode(array('stute'=>true,'msg'=>null,'code'=>null,'data'=>array('token'=>$objs->msg,'mobile'=>$_REQUEST['mobile'])));
+    			exit();
+    		}else{
+    			echo json_encode(array('stute'=>false,'msg'=>$objs->msg,'code'=>$objs->code,'data'=>null));
+    			exit();
+    		}
+    		
+    		}
+    	}else{
+    		echo json_encode(array('stute'=>false,'msg'=>'用户名太短','code'=>$obj->code,'data'=>$obj->msg));
+    		exit();
+    	}
+    }
+    
+	/*
+	 * 
+	 * 检查网站在总控否验证成功
+	 * */
+    public function checkwebsite(){
+    	$url=$this->boyiurl."?type=checkwebsite";    	    	
+    	$post_data=array(
+    			'hmkey'=>md5( $this->HMAKEY . date('Y-m-d')),
+    			'website'=>NETADDRESS,    			
+    	);
+    	$result=$this->send_post($url,$post_data);
+    	$objs=json_decode($result);
+    	if($objs->code==1){
+    		echo json_encode(array('stute'=>true,'msg'=>'网站已认证','code'=>1,'data'=>null));
+    		exit();
+    	}else{
+    		echo json_encode(array('stute'=>false,'msg'=>'网站未认证','code'=>0,'data'=>null));
+    		exit();
+    	}
+    	
+    }
+    
+
+
+   
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app" ng-controller="AppCtrl">
+<head>
+<meta charset="utf-8" />
+<meta name="keywords" content="{{$sys.web_keywords}}" />
+<meta name="description" content="{{$sys.web_description}}" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{$sys.web_title}}</title>
+<script>
+	var web_logo='{{$sys.web_logo}}';
+	var web_copyright='{{$sys.web_copyright}}';
+	var web_qq='{{$sys.web_qq}}';
+	var web_mail='{{$sys.web_mail}}';
+	var web_phone='{{$sys.web_phone}}';
+	var web_address='{{$sys.web_address}}';
+	var web_ipc='{{$sys.web_ipc}}';
+	var qi_ad_xds='{{$sys.qi_ad_xds}}';
+	
+    var PREFIX_URL = "http://"+window.location.host+"/addons/Market/Show/json/"; 
+   var JSON_URL = "http://"+window.location.host+"/index.php";
+    var SHOW_URL = "http://"+window.location.host+"/addons/show.php/";
+   var CONTROLLER_URL = "http://"+window.location.host+"/controller/";
+  var PREFIX_S1_URL = "http://"+window.location.host+"/";
+  var PREFIX_S2_URL = "http://"+window.location.host+"/";
+  var PREFIX_HOST = "http://"+window.location.host+"/";
+  var PREFIX_FILE_HOST = "http://"+window.location.host+'/upload/'; 
+<!--    var SYS_FILE_HOST2 = "http://"+window.location.host+"/upload/syspic/"; -->
+   var SYS_FILE_HOST = "http://img.boyicms.com/syspic/";
+  var CLIENT_CDN = "http://"+window.location.host+"/";
+  var INTERVAL_OBJ = {}; // 用于图集使用的定时器对象
+  var IS_OPEN_REG="{{$sys.is_open_reg}}";
+   var QI_AD_XDS="{{$sys.qi_ad_xds}}";   
+   
+  function gt_custom_ajax(result, selector) {
+    selectorA = selector;
+    if (result) {
+      //当验证成功时,延迟2秒自动刷新验证码
+      /*setTimeout(function() {
+        selector(".gt_refresh_button").click();
+      }, 2000);*/
+      challenge = selector(".geetest_challenge").value;
+      validate = selector(".geetest_validate").value;
+      seccode = selector(".geetest_seccode").value;
+      submit = true;
+    }
+  }
+    function doNothing(){ 
+		window.event.returnValue=false; 
+		return false; 
+    }
+</script>
+	<style type="text/css">*{font-family:微软雅黑;}</style>
+
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/jquery.Jcrop.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/select.min.css"/>   
+    
+	<link rel="stylesheet" href="{{$COMMON}}Show/public/css/show-common.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/ui-grid.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/hint.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/bootstrap.vertical-tabs.min.css"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/show.css?v=17"/>
+    <link rel="stylesheet" href="{{$COMMON}}Show/public/css/new.css"/>
+
+    <script src="{{$COMMON}}Show/public/js/jquery.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/jquery-ui.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/jquery.Jcrop.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular-route.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular-animate.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular-sanitize.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/select.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/sortable.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/bootstrap.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/Chart.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/ZeroClipboard.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/hammer.min.js"></script>
+    <!-- compiled JavaScript -->
+
+    <script src="{{$COMMON}}Show/public/js/ui-grid.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/bootstrap-wysiwyg.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/jquery.hotkeys.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular-file-upload.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular-file-upload-directives.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/angular-locale_zh-cn.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/flux.js"></script>
+    <script src="{{$COMMON}}Show/public/js/jquery.qrcode.min.js"></script>
+    <script src="{{$COMMON}}Show/public/js/slides.min.jquery.js"></script>
+    <script src="{{$COMMON}}Show/public/js/show.js?v=17"></script>    
+<style>
+.myGrid {width: 998px;height: 550px;}
+.myGrid1 {width: 650px;height: 550px;}
+.choose_template .main .content .mask ul li .roll :hover .cc{display: block;}
+</style>
+</head>
+<body oncontextmenu="doNothing()">
+
+  <div style="z-index:2000;" id="notify" ng-include="'notifications.tpl.html'" ng-if="notifications.getCurrent().length"></div>
+	<div id="eq_main" ng-view></div>
+<script>
+  var submit = false;
+  var challenge, validate, seccode, selectorA;
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/css.css">
+<script type="text/javascript" src="{{$RESOURCE}}/js/jquery-1.4.min.js"></script>
+<script language="javascript" src="{{$RESOURCE}}/js/iscroll.js" ></script>

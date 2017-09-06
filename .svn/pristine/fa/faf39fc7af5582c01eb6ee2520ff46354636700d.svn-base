@@ -1,0 +1,113 @@
+<?php
+
+class TechnologyController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        $this->service = new TechnologyService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$FILERPLUSHTIME);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+            $technologys = $_REQUEST['id'];
+        } else {
+            $technologys = array(
+                $_REQUEST['id']
+            );
+        }
+        $result = $this->service->deleteBatch($technologys);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+        $result = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得单笔
+     */
+    public function get() {
+        $this->blindParams($technology = new Technology());
+        $result = $this->service->get($technology);
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑特色技术动态数据
+     */
+    public function edit() {
+        $this->blindParams($technology = new Technology());
+        $result = $this->service->update($technology);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 动态特色技术添加
+     */
+    public function add() {
+        $this->blindParams($technology = new Technology());
+        $result = $this->service->save($technology);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 定制特色技术添加
+     */
+    public function addSpecial() {
+        $this->blindParams($technology = new Technology());
+        $result = $this->service->addSpecial($technology);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 定制特色技术编辑
+     */
+    public function mdfSpecial() {
+        $this->blindParams($technology = new Technology());
+        $result = $this->service->mdfSpecial($technology);
+
+        echo json_encode($result);
+    }
+
+    function getAll() {
+        $result = $this->service->getAll();
+        echo json_encode($result);
+    }
+}
+

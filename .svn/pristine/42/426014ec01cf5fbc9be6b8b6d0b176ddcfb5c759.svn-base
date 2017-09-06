@@ -1,0 +1,541 @@
+<?php
+define('ROOTPATH',rtrim($_SERVER['DOCUMENT_ROOT'],'/'));//根目录
+
+define('TPLSUFFIX','.htpl');//模版后缀名
+
+define('PROJECT_NAME',basename(__DIR__));
+
+
+
+
+class Mod{
+	public $option = '';
+	public $config;
+	
+	/**
+	 * 构造连接
+	 */
+	public function __construct() {
+		
+		
+		//模拟controller参数
+		$self = substr($_SERVER['PHP_SELF'],strrpos($_SERVER['PHP_SELF'],'/')+1);
+		$_REQUEST['controller'] = ucfirst( str_replace('.php', '' , strtolower( $self ) ) );
+		//如果method不存在，则为query(前提是query也要实现了这个方法才行),如果不存在，则默认执行index方法
+		if( ! isset($_REQUEST['method']) || trim( $_REQUEST['method'] ) == '' ) {
+			if( method_exists($this,  'query' ) ) {
+				$_REQUEST['method'] = 'query';
+			}else{
+				$_REQUEST['method'] = 'index';
+			}
+		}
+		require_once ABSPATH . '/dynapage/Tag.php'; // tag基类
+		//加载smarty引擎
+		require_once ROOTPATH . '/lib/smarty/Smarty.class.php';
+		if(isset($_REQUEST['mod'])){
+			$this->option = $_REQUEST['mod'];
+		}			
+		
+		
+		$this->tagInit();
+		$this->readConfig($this->option); // 读取配置文件
+		//实例化smarty句柄
+		$this->smartyInit();
+		$this->smarty->assign("UPLOAD", UPLOAD); // 上传文件根目录
+		$this->smarty->assign('WEBSITE', NETADDRESS); // 网站域名根目录
+		
+// 		$this->smarty->assign("SEO_TITLE", "");
+// 		$this->smarty->assign("SEO_KEYWORDS", "");
+// 		$this->smarty->assign("SEO_DESCRIPTION", "");
+		$this->tagAssign();
+		$this->makeOnce(true);
+		
+	}
+	
+	/**
+	 *
+	 * 执行入口方法
+	 */
+	public function excute() {
+		
+	
+	
+		//被执行方法
+		$this->method = trim( $_REQUEST ['method'] );
+		$method = $this->method;
+	
+/* 		//实例化基类
+		$ActionController = new ActionController();
+		//执行对应方法
+		$this->result = $ActionController->excute();
+	
+		//错误输出
+		if(isset($this->result->statu)){
+			//如果错误为找不到方法,则试图调取自身的方法
+			if(method_exists($this, $this->method)){
+				$this->$method();exit;
+			}
+			if(!$this->result->statu){
+				die( $this->result->msg );
+			}
+		} */
+		$this->$method();
+	}
+	
+	
+	/**
+	 *
+	 * smarty初始化工作
+	 * @info::temp临时解析文件与缓存文件同PC端的放在一起即可,后缀区分
+	 */
+	private function smartyInit() {
+		$this->smarty = new Smarty();
+		
+		$this->smarty->setPluginsDir(PLUGINSDIR_SMARTY_SECOND);
+		$this->smarty->setTemplateDir ( $this->setViewPath() );
+		$this->smarty->setcompileDir ( COMPILEDIR );
+		$this->smarty->setCacheDir ( CACHEDIR );
+		$this->smarty->left_delimiter  = LEFT_LIMITER;
+		$this->smarty->right_delimiter = RIGHT_LIMITER;
+		$this->smarty->assign('RESOURCE', NETADDRESS . '/public'); // 本次模版资源路径
+		
+		
+		
+		//print_r($this->setViewPath());exit();
+		
+	}
+	
+	
+	/**
+	 *
+	 * 设置静态模版路径(常量)
+	 * @return boolean
+	 */
+	private function setViewPath() {
+		$filePath = ROOTPATH . '/tpl/'.'config.json';
+		$content  = file_get_contents($filePath);
+		$json     = array(json_decode($content,true));
+	
+		/**  注入公共变量  **/
+		$this->smarty->assign('RESOURCE' , NETADDRESS . '/tpl/'.$json[0][0]['currentUsed'].'/Public');//网站样式文件夹
+		$this->smarty->assign('MOBILE', NETADDRESS . '/');//手机页面地址
+		/**  注入公共数据  **/
+		//$this->assignPublicData();
+		return ROOTPATH . '/tpl/'.$json[0][0]['currentUsed'].'/';
+	}
+	
+	/**
+	 *
+	 * 注册其他服务层
+	 * @info 由于pc端的控制层大多需要登录才能调取,所以直接载入pc端的服务层
+	 *       调取需要的数据
+	 * @param string $service 需要被调取的服务前缀
+	 * @param string $method 调取方法
+	 * @param all    $params 参数
+	 */
+	public function getServiceMethod($service = '' , $method = '' , $params = null) {
+	   //$basicservice=ROOTPATH . '/kernel/BaseService.php';
+		$service = ucfirst( $service );
+		$filePath = ROOTPATH . '/kernel/' . $service . 'Service.php';
+		if( ! file_exists( $filePath ) ){
+			return null;
+		}else{
+			//require_once $basicservice;
+			require_once $filePath;
+			$service = $service . 'Service';
+			$handler = new $service();
+			
+			$execute = $this->serviceMethodException($service,$handler,$method,$params);
+			if( $execute === false ){
+				
+					return $handler->$method($params);
+				
+			}
+			return $execute;
+		}
+	}
+	
+	/**
+	 *
+	 * 总控用户验证方法
+	 *
+	 */
+	
+	public function getuser() {
+	
+	
+		session_start();
+	
+		if(!$_SESSION['user']){
+			// 			echo '4563';
+			// 			echo $_REQUEST['username'];
+			// 			exit();
+	
+			$username = $this->getRequest('username', '');
+			$date = $this->getRequest('date', '');
+			$website = $this->getRequest('website', '');
+			$token = $this->getRequest('token', '');
+	
+			$url = "http://www.boyicms.com/interface/hma/HmaAccountInterface.php?type=logincheck";
+			$post_data = array ("username" => $username,"date" => $date,"website"=>$website,"token"=>$token);
+	
+			$ch=curl_init();
+			curl_setopt($ch,CURLOPT_URL,$url);
+			//curl_setopt($ch,CURLOPT_HEADER,1);
+			curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+			curl_setopt($ch,CURLOPT_POST,1);
+			curl_setopt($ch,CURLOPT_POSTFIELDS,$post_data);
+			$data=curl_exec($ch);
+			curl_close($ch);
+			$obj=json_decode($data);
+			$datearray=array('username'=>$username);
+			if($obj->code==0){
+					
+					
+				$result=$this->getServiceMethod( 'Member' , 'getmemberbyname' , $datearray );
+				//print_r($result);
+					
+				if(!empty($result)){
+	
+	
+					$_SESSION['user']=$result['username'];
+					$_SESSION['member_id']=$result['id'];
+	
+					// 	     	print_r($_SESSION['user']);
+					// 	     	exit();
+				}else{
+	
+					$result=$this->getServiceMethod('Member' , 'addmember' , $datearray );
+	
+					$_SESSION['user']=$username;
+					$_SESSION['member_id']=$result->data->id;
+	
+				}
+	
+	
+	
+			}else{
+				die('用户错误');
+			}
+	
+	
+		}
+	
+	
+	
+	
+	}
+	
+	/**
+	 * tag标签对象初始化工作
+	 */
+	public function tagInit() {
+		if (! isset($this->option)) {
+			$result = new Result(false, - 1, ErrorMsgs::get(- 1), Null);
+			die($result->toJSON());
+		}
+		
+	
+		// tag引入并执行初始化工作
+		$this->tag = new Tag($this->option);
+		$tagConfig = $this->tag->init();
+		if (! $tagConfig->statu) {
+			die($tagConfig->toJSON());
+		}
+
+// 		if (PLUGINSDIR_SMARTY == ABSPATH . '/tagobj/common/') {
+// 			define ( 'PLUGINSDIR_SMARTY', ABSPATH . '/tagobj/cusplugins/' );
+// 		}
+		$smartyplugin=array(PLUGINSDIR_SMARTY_SECOND);
+		// 初始化smarty
+		$this->smarty = $this->tag->smarty;
+		$this->smarty->setPluginsDir($smartyplugin);
+		$this->smarty->setTemplateDir(TEMPDIR . $this->tag->templateName . '/');
+		$this->smarty->setcompileDir(COMPILEDIR);
+		$this->smarty->setCacheDir(CACHEDIR);
+		$this->smarty->left_delimiter = LEFT_LIMITER;
+		$this->smarty->right_delimiter = RIGHT_LIMITER;
+		 //print_r(PLUGINSDIR_SMARTY);exit();
+		//标签加载
+		foreach($smartyplugin as $key=>$val){
+			
+		if (is_dir($val)) {
+			$handle=opendir($val);
+			while($file=readdir($handle)) {
+				if (($file!=".")and($file!="..")) {
+					
+					require_once $val. $file;
+				}
+			}
+			closedir($handle);
+		}
+		}
+		// 注入通用变量
+	
+		
+		// 注入通用变量
+		$this->tagAssign();
+		$this->makeOnce(true);
+	}
+	
+	
+	
+	/**
+	 *
+	 * 执行函数体执行例外方法执行
+	 * @param string $service
+	 * @param object $handler
+	 * @param string $method
+	 * @param array|string  $params
+	 */
+	private function serviceMethodException( $service , $handler , $method , $params ){
+		
+		switch( strtolower( PROJECT_NAME ) ) {
+			case 'mobile':$params_cate  = 1;break;
+			case 'app'   :$params_cate  = 2;break;
+			case 'wechat':$params_cate  = 3;break;
+			default     :$params_cate  = 1;break;
+		}
+		
+		switch( $service ){
+			case 'MobilePicManagerService':
+				switch( strtolower( $method ) ){
+					case 'getbyflag':
+						$param = array();
+						$param['form'] = 'mobile';
+						$param['flag'] = $params;
+						$param['cate'] = $params_cate;
+						return $handler->$method( $param );
+						break;
+					default:
+						return false;
+						break;
+				}
+				break;
+			case 'MobileNavigationService':
+				switch( strtolower( $method ) ){
+					case 'querygroup':
+						$params['cate'] = $params_cate;
+						return $handler->$method( $params );
+						break;
+					default:
+						return false;
+						break;
+				}
+				break;
+			default:
+				return false;
+				break;
+		}
+	}
+	
+	/**
+	 * 注入通用变量
+	 */
+	public function tagAssign() {
+		$this->assignSeoTableInfo();
+		$this->smarty->assign("UPLOAD", UPLOAD); // 上传文件根目录
+		$this->smarty->assign('WEBSITE', NETADDRESS); // 网站域名根目录
+		$this->smarty->assign('RESOURCE', NETADDRESS . '/public'); // 本次模版资源路径
+	}
+	
+	/**
+	 * 注入seo信息(自动)
+	 * @info 注入seo表中存在的seo信息
+	 */
+	public function assignSeoTableInfo() {
+		if (isset($this->option) && $this->option != '') {
+			
+			//$seoServices = new SeoService();
+			$where = array(
+					"flag" => $this->option
+			);
+			$result =$this->getServiceMethod('Seo','getflag',$where);
+			//print_r($seoInfo);exit();
+			//$seoInfo = $seoServices->findOne($where, '*');
+			if($result!=null){
+			$seoInfo=$result->data;
+			
+			if (isset($seoInfo['id'])) {
+				$this->smarty->assign("SEO_TITLE", $seoInfo['title']);
+				$this->smarty->assign("SEO_KEYWORDS", $seoInfo['keywords']);
+				$this->smarty->assign("SEO_DESCRIPTION", $seoInfo['description']);
+			}else{
+				$this->smarty->assign("SEO_TITLE", "");
+				$this->smarty->assign("SEO_KEYWORDS", "");
+				$this->smarty->assign("SEO_DESCRIPTION", "");
+			}
+			}else{
+				$this->smarty->assign("SEO_TITLE", "");
+				$this->smarty->assign("SEO_KEYWORDS", "");
+				$this->smarty->assign("SEO_DESCRIPTION", "");
+			}
+		}
+	}
+	
+	
+	/**
+	 *
+	 *
+	 * 静态分页文件每页数据条数获取
+	 *
+	 * @param string $handler
+	 *            标识符
+	 * @return int $pageSize 条数
+	 */
+	public function readConfig($handler = '') {
+		// .组合
+		$handler = ucfirst($handler) . 'Tag';
+		// .默认模版路径
+		$currentUsed = file_get_contents(TEMPDIR . '/config.json');
+		$array = json_decode($currentUsed, true);
+		$pulugin_tpl = $array[0]['currentUsed'];
+		// .获取配置文件
+		$pagesizeJson = TEMPDIR . $pulugin_tpl . '/makehtml.json';
+		$pageArrays = json_decode( $this->delBom( file_get_contents($pagesizeJson) ) );
+		// .遍历
+		$config = array();
+		$isconfig = false;
+		if( isset( $pageArrays ) && is_array( $pageArrays ) ){
+			foreach ($pageArrays as $key => $value) {
+				if ($value->tag == $handler) {
+					if (count($value) >= 1) {
+						foreach ($value as $k => $v) {
+							$config[$k] = $value->$k;
+						}
+						$this->config = $config;
+						$isconfig = true;
+					}
+				}
+			}
+		}
+		if (! $isconfig) {
+			$this->config['pageSize'] = 8;
+		}
+		return $this->config;
+	}
+	
+	/**
+	 * 检测是否存在bom头,并自动去除
+	 * @param unknown $contents
+	 * @return string|unknown
+	 */
+	private function delBom($contents){
+		$charset = array();
+		$charset[1]=substr($contents,0,1);
+		$charset[2]=substr($contents,1,1);
+		$charset[3]=substr($contents,2,1);
+		if(ord($charset[1])==239 && ord($charset[2])==187 && ord($charset[3])==191){
+			return substr($contents,3);
+		}
+		return $contents;
+	}
+	
+
+	
+	/**
+	 *
+	 *
+	 * 生成只需要生成一次的页面,节约生成时间
+	 *
+	 * @param boolean $assign
+	 *            如果为true,则代表只注入变量
+	 *            @info 配置文件格式
+	 *            {
+	 *            "layout_header": { //注入变量名
+	 *            "tpl": "common/layout/header", //需要生成的模版路径(不需要加后缀)
+	 *            "html": "header.html" //模版生成静态文件存放路径
+	 *            }
+	 */
+	public function makeOnce($assign = false) {
+		$commonConfigJson = TEMPDIR . $this->tag->templateName . '/common/config.json';
+		
+		if (! file_exists($commonConfigJson)) {
+			return true;
+		}
+		$configContent = json_decode(file_get_contents($commonConfigJson), true);
+		$rootDir = COMPILEDIR . 'commonHtml';
+		$tpldir=TEMPDIR . $this->tag->templateName;
+		if (! is_dir($rootDir)) {
+			mkdir($rootDir);
+		}
+		foreach ($configContent as $key => $value) {
+			if (is_array($value)) {
+				if ($assign) {
+					
+					$this->smarty->assign($key, $tpldir . '/' . $value['tpl'].SUBFIX);
+				} else {
+					
+					$this->tagDisplay($rootDir . '/' . $value['html'], $this->tagFetch($value['tpl']), false);
+					//$this->smarty->assign($key, $rootDir . '/' . $value['html']);
+				}
+			}
+		}
+	}
+	
+	/**
+	 *
+	 *
+	 * html生成方法
+	 *
+	 * @param string $fileName
+	 *            html生成路径
+	 * @param string $content
+	 *            内容
+	 */
+	public function tagDisplay($fileName, $content, $flag = true) {
+		$size = file_put_contents($fileName, $content);
+		if ($flag) {
+			if ($size > 0) {
+				die(json_encode(new Result(true, 0, '', NULL)));
+			} else {
+				die(json_encode(new Result(false, 49, ErrorMsgs::get(49), NULL)));
+			}
+		}
+	}
+	
+	/**
+	 *
+	 *
+	 * smarty模版解析fetch内容获取
+	 *
+	 * @param string $htplName
+	 *            模版路径(不带后缀)
+	 * @param string $allHtplName
+	 *            是否为全路径(意思是模版存在于模版文件夹之外的文件)
+	 */
+	public function tagFetch($htplName = '', $allHtplName = false) {
+		// 注入通用页面变量
+		$this->makeOnce(true);
+		// 根据预置到变量定义 在变量转入smarty
+		$this->tag->prepareSystemVars();
+		// 如果传入的模版路径不为空,则使用传入的 模版
+		if ($htplName != '') {
+			if ($allHtplName) {
+				$htplFile = $htplName;
+			} else {
+				$htplFile = TEMPDIR . $this->tag->templateName . '/' . $htplName . SUBFIX;
+			}
+		} else {
+			$htplFile = TEMPDIR . $this->tag->templateName . '/' . $this->tag->htplFileName . SUBFIX;
+		}
+		// 模版文件是否存在
+		if (! file_exists($htplFile)) {
+			die(json_encode(new Result(false, 35, ErrorMsgs::get(35) . "：" . $htplFile, Null)));
+		}
+		$content = $this->smarty->fetch($htplFile);
+		if ($content != '') {
+			return $content;
+		}
+		die(json_encode(new Result(false, 49, ErrorMsgs::get(49), NULL)));
+	}
+	
+	
+}
+spl_autoload_register ( array (
+'Controller',
+'load'
+) );
+
+
+?>

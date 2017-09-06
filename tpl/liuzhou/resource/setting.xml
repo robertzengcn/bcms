@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+		<File>
+		    <item><source>/upload/logo/logo.png</source><whither>/upload/picmanager/Logo.png</whither></item>
+			<item><source>/upload/logo/favicon.png</source><whither>/upload/picmanager/Logo2.ico</whither></item>
+			<item><source>/upload/logo/logo_2.png</source><whither>/upload/picmanager/Logo3.png</whither></item>
+			<item><source>/upload/banner/banner0.jpg</source><whither>/upload/picmanager/banner0.png</whither></item>
+			<item><source>/upload/banner/banner1.jpg</source><whither>/upload/picmanager/banner1.png</whither></item>
+			<item><source>/upload/banner/banner2.jpg</source><whither>/upload/picmanager/banner2.png</whither></item>
+			<item><source>/upload/banner/banner3.jpg</source><whither>/upload/picmanager/banner3.png</whither></item>
+			<item><source>/upload/content/1.jpg</source><whither>/upload/picmanager/1.jpg</whither></item>
+			<item><source>/upload/content/2.jpg</source><whither>/upload/picmanager/2.jpg</whither></item>
+			<item><source>/upload/content/ry.png</source><whither>/upload/picmanager/3.jpg</whither></item>
+			<item><source>/upload/content/icon/ks_icon.png</source><whither>/upload/picmanager/ks_icon.png</whither></item>
+			<item><source>/upload/content/icon/icon_jyzn1.png</source><whither>/upload/picmanager/icon_jyzn1.png</whither></item>
+			<item><source>/upload/content/icon/icon_jyzn2.png</source><whither>/upload/picmanager/icon_jyzn2.png</whither></item>
+			<item><source>/upload/content/icon/icon_jyzn3.png</source><whither>/upload/picmanager/icon_jyzn3.png</whither></item>
+			<item><source>/upload/content/icon/icon_jyzn4.png</source><whither>/upload/picmanager/icon_jyzn4.png</whither></item>
+			<item><source>/upload/content/icon/icon_jyzn5.png</source><whither>/upload/picmanager/icon_jyzn5.png</whither></item>
+
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	<Insert>
+		<item>INSERT INTO `picmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`) VALUES
+		('logo', 'logo', '/picmanager/Logo.png', '', 1, 1, NULL),
+		('toub', 'ico', '/picmanager/Logo2.ico', '', 1, 1, NULL),
+		('首页banner','scroll0','/picmanager/banner0.png','',1,1,NULL),
+		('首页小轮播图1','scroll1','','',1,2,NULL);
+		</item>
+	    <item>INSERT INTO `navigation` (`subject`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`) VALUES
+		('首页', '/index.html', 0, 0, 1, 1, 1, 'Nav1'),
+		('医院概况', '', 0, 0, 2, 1, 1, 'Nav2'),
+			('医院简介', '', 0, 0, 1, 1, 1, 'Nav21'),
+			('组织架构', '', 0, 0, 2, 1, 1, 'Nav21'),
+			('医院文化', '', 0, 0, 3, 1, 1, 'Nav21'),
+			('医院分布', '', 0, 0, 4, 1, 1, 'Nav21'),
+			('医院荣誉', '', 0, 0, 5, 1, 1, 'Nav21'),
+			('依法执业', '', 0, 0, 6, 1, 1, 'Nav21'),
+		('医院新闻', '', 0, 0, 3, 1, 1, 'Nav3'),
+			('频道首页', '', 0, 0, 1, 1, 1, 'Nav31'),
+			('三院新闻', '', 0, 0, 2, 1, 1, 'Nav31'),
+			('医院公告', '', 0, 0, 3, 1, 1, 'Nav31'),
+			('频道报道', '', 0, 0, 4, 1, 1, 'Nav31'),
+			('学术会议', '', 0, 0, 5, 1, 1, 'Nav31'),
+		('科室专家', '', 0, 0, 4, 1, 1, 'Nav4'),
+		('优质护理', '', 0, 0, 5, 1, 1, 'Nav5'),
+		('就诊指南', '', 0, 0, 6, 1, 1, 'Nav6'),
+		('科研教学', '', 0, 0, 7, 1, 1, 'Nav7'),
+		('院务公开', '', 0, 0, 8, 1, 1, 'Nav8'),
+		('预约挂号', '', 0, 0, 9, 1, 1, 'Nav9');
+	    </item>
+	    <item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+	    	(1, 0, '热门关键词', 'keyword', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+	    	(0, 1, '关键词1', 'keyword01', '', 0, 0, 1, 0, 1, 'keyword01', ''),
+	    	(0, 1, '关键词2', 'keyword01', '', 0, 0, 1, 0, 1, 'keyword01', '');
+	    </item>
+	    <item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+	    	(1, 0, '友情链接', 'blogroll', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+	    	(0, 1, '链接1', 'blogroll01', '', 0, 0, 1, 0, 1, 'blogroll01', 'picmanager/Logo3.png'),
+	    	(0, 1, '链接2', 'blogroll01', '', 0, 0, 1, 0, 1, 'blogroll01', 'picmanager/Logo3.png');
+	    </item> 
+		<item>INSERT INTO `pic` (`sort`, `pic`, `text`) VALUES
+		( 1,'picmanager/1.jpg', '标题一'),
+		( 2,'picmanager/2.jpg', '标题二'),
+		( 3,'picmanager/3.jpg', '标题三');
+		</item>
+	    <item>INSERT INTO `channelarticle` (`subject`,`pic`,`content`)VALUES
+	    ('公告1','','content1'),('公告2','','content1'),('公告3','','content1'),('公告4','','content1'),('公告5','','content1'),('公告6','','content1'),('公告7','','content1'),('公告8','','content1'),
+	    ('科研1','','content2'),('科研2','','content2'),('科研3','','content2'),('科研4','','content2'),('科研5','','content2'),('科研6','','content2'),('科研7','','content2'),('科研8','','content2'),
+	    ('教学1','','content3'),('教学2','','content3'),('教学3','','content3'),('教学4','','content3'),('教学5','','content3'),('教学6','','content3'),('教学7','','content3'),('教学8','','content3'),
+	    ('门诊指南','picmanager/icon_jyzn1.png','content4'),('医院分布','picmanager/icon_jyzn2.png','content4'),('检查须知','picmanager/icon_jyzn3.png','content4'),('交通位置','picmanager/icon_jyzn4.png','content4'),('服务热线','picmanager/icon_jyzn5.png','content4'),
+	    ('专题一','picmanager/1.jpg','content5'),('专题二','picmanager/1.jpg','content5'),('专题三','picmanager/1.jpg','content5'),('专题四','picmanager/1.jpg','content5'),('专题五','picmanager/1.jpg','content5'),
+	    ('组织架构','','content6'),('医院文化','','content6'),('医院分布','','content6'),('医院荣誉','','content6'),('依法执业','','content6');
+	    </item>
+	    <item>INSERT INTO `channel` (`name`,`shortname`,`is_use_tpl`,`tplurl`,`detailtplurl`) VALUES
+	    	('最新公告','zuixingonggao','1','',''),
+	    	('科研动态','keyandongtai','1','',''),
+	    	('教学动态','jiaoxuedongtai','1','',''),
+	    	('就医指南','jiuyizhinan','1','',''),
+	    	('医院专题','yiyuanzhuanti','1','',''),
+	    	('医院概况','yiyuangaikuang','1','','');
+	    </item>
+    </Insert>
+    
+	<Delete>
+	    <item>{t:picmanager,f:flag,v:{"logo"|"ico"|"scroll0"|"scroll1"|}}</item>
+	    <item>{t:navigation,f:name,v:{"Nav1"|"Nav2"|"Nav3"|"Nav4"|"Nav5"|"Nav6"|"Nav7"|"Nav8"|"Nav9"|"Nav21"|"Nav31"}}</item>
+	    <item>{t:navgroup,f:flag,v:{"keyword"|"keyword01"|"blogroll"|"blogroll01"|}}</item>
+	    <item>{t:pic,f:text,v:{"标题一"|"标题二"|"标题三"|}}</item>
+	    <item>{t:channelarticle,f:content,v:{"content1"|"content2"|"content3"|"content4"|"content5"|"content6"|}}</item>
+	    <item>{t:channel,f:name,v:{"最新公告"|"科研动态"|"教学动态"|"就医指南"|"医院专题"|"医院概况"|}}</item>
+	</Delete>		
+	<Parent>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav2}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav21"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav3}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav31"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:keyword}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"keyword01"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:blogroll}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"blogroll01"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:picmanager,f:flag,g:id,v:scroll1}</get>
+	         <set>{t:pic,f:text,s:pid,v:{"标题一"|"标题二"|"标题三"}}</set>
+	    </item>
+	    <item>
+			<get>{t:channel,f:shortname,g:id,v:zuixingonggao}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content1"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:keyandongtai}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content2"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:jiaoxuedongtai}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content3"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:jiuyizhinan}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content4"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiyuanzhuanti}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content5"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiyuangaikuang}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content6"}}</set>
+		</item>
+	</Parent>			
+</body>

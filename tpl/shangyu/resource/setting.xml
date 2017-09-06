@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+		<File>
+		    <item><source>/upload/logo.png</source><whither>/upload/picmanager/Logo.png</whither></item>
+			<item><source>/upload/favicon.ico</source><whither>/upload/picmanager/Logo2.ico</whither></item>
+			<item><source>/upload/index4.png</source><whither>/upload/picmanager/weixin.png</whither></item>
+			<item><source>/upload/index5.png</source><whither>/upload/picmanager/weibo.png</whither></item>
+			<item><source>/upload/banner1_1.jpg</source><whither>/upload/picmanager/index.jpg</whither></item>
+			<item><source>/upload/index1.png</source><whither>/upload/picmanager/scroll.png</whither></item>
+			<item><source>/upload/index2.png</source><whither>/upload/picmanager/index2.png</whither></item>
+			<item><source>/upload/index3.png</source><whither>/upload/picmanager/index3.png</whither></item>
+			<item><source>/upload/index6.png</source><whither>/upload/picmanager/index6.png</whither></item>
+			<item><source>/upload/index18.png</source><whither>/upload/picmanager/index18.png</whither></item>
+			<item><source>/upload/index19.png</source><whither>/upload/picmanager/index19.png</whither></item>
+			<item><source>/upload/index20.png</source><whither>/upload/picmanager/index20.png</whither></item>
+			<item><source>/upload/icon1.png</source><whither>/upload/picmanager/tu1.png</whither></item>
+			<item><source>/upload/icon2.png</source><whither>/upload/picmanager/tu2.png</whither></item>
+			<item><source>/upload/icon3.png</source><whither>/upload/picmanager/tu3.png</whither></item>
+			<item><source>/upload/icon4.png</source><whither>/upload/picmanager/tu4.png</whither></item>
+			<item><source>/upload/icon5.png</source><whither>/upload/picmanager/tu5.png</whither></item>
+			<item><source>/upload/icon6.png</source><whither>/upload/picmanager/tu6.png</whither></item>
+			<item><source>/upload/icon7.png</source><whither>/upload/picmanager/tu7.png</whither></item>
+			<item><source>/upload/icon8.png</source><whither>/upload/picmanager/tu8.png</whither></item>
+			<item><source>/upload/icon9.png</source><whither>/upload/picmanager/tu9.png</whither></item>
+			<item><source>/upload/zx_1.png</source><whither>/upload/picmanager/tu10.png</whither></item>
+			<item><source>/upload/zx_2.png</source><whither>/upload/picmanager/tu11.png</whither></item>
+			<item><source>/upload/zx_3.png</source><whither>/upload/picmanager/tu12.png</whither></item>
+			<item><source>/upload/zx_4.png</source><whither>/upload/picmanager/tu13.png</whither></item>
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	<Insert>
+		<item>INSERT INTO `picmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`) VALUES
+		('logo', 'logo', 'picmanager/Logo.png', '', 1, 1, NULL),
+		('标题图标', 'title_logo', 'picmanager/Logo2.ico', '', 2, 1, NULL),
+		('首页大图', 'index', 'picmanager/index.jpg', '', 1, 1, NULL),
+		('专题专栏图1', 'zhuanti1', 'picmanager/index2.png', '', 5, 1, NULL),
+		('专题专栏图2', 'zhuanti2', 'picmanager/index3.png', '', 6, 1, NULL),
+		('微信二维码', 'weixin', 'picmanager/weixin.png', '', 3, 1, NULL),
+		('微博二维码', 'weibo', 'picmanager/weibo.png', '', 1, 4, NULL),
+		('首页小轮播图','scroll','','',1,2,NULL),
+		('护理动态','scroll2','','',2,2,NULL);
+		</item>
+		<item>INSERT INTO `channel` (`name`,`shortname`,`is_use_tpl`,`tplurl`,`detailtplurl`) VALUES 
+		('院务公开','yuanwugongkai','0','tpl/shangyu/channel/yuanwugongkai.htpl','tpl/shangyu/channel/empty.htpl'),
+		('医院公告','yiyuangonggao','1','',''),
+		('学术会议','xueshuhuiyi','1','',''),
+		('招聘信息','zhaopinxinxi','1','',''),
+		('就诊须知','jiuzhenxuzhi','1','',''),
+		('医院概况','yiyuangaikuang','0','tpl/shangyu/channel/yiyuangaikuang.htpl','tpl/shangyu/channel/empty.htpl'),
+		('医院文化','yiyuanwenhua','0','tpl/shangyu/channel/article_yygk.htpl','tpl/shangyu/channel/empty.htpl'),
+		('新闻中心','xinwenzhongxin','0','tpl/shangyu/channel/xinwenzhongxin.htpl','tpl/shangyu/channel/empty.htpl'),
+		('门诊时间','menzhenshijian','0','tpl/shangyu/channel/menzhenshijian.htpl','tpl/shangyu/channel/empty.htpl'),
+		('健康体检','jiankangtijian','0','tpl/shangyu/channel/jiankangtijian.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('基础体检','jichutijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('常规体检','changguitijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('标准体检','biaozhuntijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('女性体检','nvxingtijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('生育婚检','shengyutijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('白领体检','bailingtijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('入职体检','ruzhitijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('商务体检','shangwutijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('豪华体检','haohuatijian','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('糖尿病体检','tangniaobing','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('心血管病体检','xinxueguan','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('肝病/肠胃病体检','gangbing','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		 ('肿瘤体检','zhongliu','0','tpl/shangyu/channel/empty.htpl','tpl/shangyu/channel/empty.htpl'),
+		('医生详情页','doctors','0','tpl/shangyu/channel/doctor.htpl','tpl/shangyu/channel/empty.htpl'),
+		('科室介绍详情','ksjs','0','tpl/shangyu/channel/ksjs.htpl','tpl/shangyu/channel/empty.htpl'),
+		('科室图片集锦详情','tpjj','0','tpl/shangyu/channel/tpjj.htpl','tpl/shangyu/channel/empty.htpl'),
+		('科室健康教育详情','jkjy','0','tpl/shangyu/channel/ksjs.htpl','tpl/shangyu/channel/empty.htpl'),
+		('科室检查及流程详情','jcjlc','0','tpl/shangyu/channel/jcjlc.htpl','tpl/shangyu/channel/empty.htpl'),
+		('用户注册','register','0','tpl/shangyu/channel/register.htpl','tpl/shangyu/channel/empty.htpl'),
+		('检查单查询','jianchadan','0','tpl/shangyu/channel/jianchadan.htpl','tpl/shangyu/channel/empty.htpl'),
+		('预约挂号','yuyueguahao','0','tpl/shangyu/channel/yuyueguahao.htpl','tpl/shangyu/channel/empty.htpl'),
+		('科室导航','keshidaohan','0','tpl/shangyu/channel/keshidaohan.htpl','tpl/shangyu/channel/empty.htpl'),
+		('三院护理','sanyuanhuli','0','tpl/shangyu/channel/sanyuanhuli.htpl','tpl/shangyu/channel/empty.htpl'),
+		('护理简介','hulijianjie','0','tpl/shangyu/channel/article.htpl','tpl/shangyu/channel/empty.htpl'),
+		('护理动态','hulidongtai','1','',''),
+		('通知公告','tongzhigonggao','1','',''),
+		('管理规范','guanliguifan','1','',''),
+		('护士进修','hushijinxiu','1','',''),
+		('天使风采','tianshifengcai','0','tpl/shangyu/channel/tianshifengcai.htpl','tpl/shangyu/channel/empty.htpl'),
+		('专科护理','zhuankehuli','1','',''),
+		('信息公开','xinxigongkai','1','',''),
+		('大事记','dashiji','1','',''),
+		('办事指南','banshizhinan','1','',''),
+		('医疗联合','yiliaolianhe','0','tpl/shangyu/channel/article.htpl','tpl/shangyu/channel/empty.htpl'),
+		('成员单位','chengyuandanwei','0','tpl/shangyu/channel/article.htpl','tpl/shangyu/channel/empty.htpl'),
+		('专题专栏','zhuantizhuanlan','0','tpl/shangyu/channel/zhuantizhuanlan.htpl','tpl/shangyu/channel/empty.htpl'),
+		('法律责任','falvzeren','0','tpl/shangyu/channel/article.htpl','tpl/shangyu/channel/empty.htpl');
+		</item>
+		<item>INSERT INTO `channelarticle` (`subject`,`channel_id`,`content`)VALUES
+	    ('文章1','','content1'),('文章2','','content1'),('文章3','','content1'),('文章4','','content1'),('文章5','','content1'),('文章6','','content1'),
+	    ('文章1','','content2'),('文章2','','content2'),('文章3','','content2'),('文章4','','content2'),('文章5','','content2'),('文章6','','content2'),
+	    ('文章1','','content3'),('文章2','','content3'),('文章3','','content3'),('文章4','','content3'),('文章5','','content3'),('文章6','','content3'),
+	    ('文章1','','content4'),('文章2','','content4'),('文章3','','content4'),('文章4','','content4'),('文章5','','content4'),('文章6','','content4'),
+	    ('挂号须知','','content10'),('门诊就诊流程及注意事项','','content10'),('入院办理流程','','content10'),('基础体检男','','content14'),('基础体检女','','content14'),
+	    ('基础体检男','','content11'),('基础体检女','','content11'),('基础体检男','','content12'),('基础体检女','','content12'),('女性体检','','content13'),
+	    ('基础体检男','','content15'),('基础体检女','','content15'),('基础体检男','','content16'),('基础体检女','','content16'),
+	    ('基础体检男','','content17'),('基础体检女','','content17'),('基础体检男','','content18'),('基础体检女','','content18'),
+	    ('基础体检男','','content19'),('基础体检女','','content19'),('糖尿病体检','','content20'),('心血管病体检','','content21'),
+	    ('肝病肠胃病体检','','content22'),('肿瘤体检','','content23'),('护理简介','','content25'),('院务公开','','content32'),
+	    ('电话/QQ预约','','content24'),('微信预约','','content24'),('手机APP','','content24'),('现场预约','','content24'),
+	    ('文章1','','content26'),('文章2','','content26'),('文章3','','content26'),('文章4','','content26'),('文章5','','content26'),('文章6','','content26'),
+	    ('文章1','','content27'),('文章2','','content27'),('文章3','','content27'),('文章4','','content27'),('文章5','','content27'),('文章6','','content27'),
+	    ('文章1','','content28'),('文章2','','content28'),('文章3','','content28'),('文章4','','content28'),('文章5','','content28'),('文章6','','content28'),
+	    ('文章1','','content29'),('文章2','','content29'),('文章3','','content29'),('文章4','','content29'),('文章5','','content29'),('文章6','','content29'),
+	    ('文章1','','content30'),('文章2','','content30'),('文章3','','content30'),('文章4','','content30'),('文章5','','content30'),('文章6','','content30'),
+	    ('文章1','','content33'),('文章2','','content33'),('文章3','','content33'),('文章4','','content33'),('文章5','','content33'),('文章6','','content33'),
+	    ('文章1','','content34'),('文章2','','content34'),('文章3','','content34'),('文章4','','content34'),('文章5','','content30'),('文章6','','content34'),
+	    ('文章1','','content35'),('文章2','','content35'),('文章3','','content35'),('文章4','','content35'),('文章5','','content35'),('文章6','','content35'),
+	    ('文章1','','content36'),('文章2','','content36'),('文章3','','content36'),('文章4','','content36'),('文章5','','content36'),('文章6','','content36'),
+	    ('医疗联合体简介','','content37'),('成员单位','','content38'),
+	    ('法律责任','','content5'),('医院概况','','content6'),('医院文化','','content7'),('新闻中心','','content8'),('门诊时间','','content9');
+	    </item>
+	    <item>INSERT INTO `channelarticle` (`subject`,`channel_id`,`content`,`pic`)VALUES
+	    ('图1','','content31','picmanager/index3.png'),('图2','','content31','picmanager/index3.png'),('图3','','content31','picmanager/index3.png'),('图4','','content31','picmanager/index3.png');
+	    </item>
+		<item>INSERT INTO `pic` (`pid`, `sort`, `url`, `pic`, `text`) VALUES
+		('', 1, '', 'picmanager/scroll.png', 'index01'),
+		('', 2, '', 'picmanager/scroll.png', 'index01'),
+		('', 3, '', 'picmanager/scroll.png', 'index01'),
+		('', 1, '', 'picmanager/index6.png', 'index02'),
+		('', 2, '', 'picmanager/index6.png', 'index02'),
+		('', 3, '', 'picmanager/index6.png', 'index02');</item>	
+		<item>INSERT INTO `navigation` (`subject`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		('首页', '/index.html', 0, 0, 1, 1, 1, 'Nav1', ''),
+		('医院概况', '/yiyuangaikuang', 0, 0, 2, 1, 1, 'Nav2', ''),
+		 ('频道首页','/yiyuangaikuang','0','0',1,1,1,'Nav21',''),
+		 ('医院简介','/hospital/introduce.html','0','0',2,1,1,'Nav21',''),
+		 ('医院文化','/yiyuanwenhua','0','0',3,1,1,'Nav21',''),
+		 ('精彩图集','/hospital/environment','0','0',4,1,1,'Nav21',''),
+		 ('医院地址','/contact.html','0','0',5,1,1,'Nav21',''),		
+		('新闻中心', '/xinwenzhongxin', 0, 0, 2, 1, 1, 'Nav3', ''),
+	     ('频道首页','/xinwenzhongxin','0','0',1,1,1,'Nav31',''),
+		 ('三院新闻','/hospital/news','0','0',2,1,1,'Nav31',''),
+		 ('医院公告','/yiyuangonggao','0','0',3,1,1,'Nav31',''),
+		 ('媒体报告','/hospital/media','0','0',4,1,1,'Nav31',''),
+		 ('学术会议','/xueshuhuiyi','0','0',5,1,1,'Nav31',''),
+		('为您服务', '', 0, 0, 3, 1, 1, 'Nav4', ''),
+		 ('门诊时间','/menzhenshijian','0','0',2,1,1,'Nav41',''),
+		 ('就诊须知','jiuzhenxuzhi','0','0',3,1,1,'Nav41',''),
+		 ('特色专科','/technology','0','0',4,1,1,'Nav41',''),
+		 ('医院导航','/sitemap.html','0','0',5,1,1,'Nav41',''),
+		 ('预约挂号','/yuyueguahao','0','0',6,1,1,'Nav41',''),
+		 ('健康体检','/jiankangtijian','0','0',7,1,1,'Nav41',''),
+		 ('检查单查询','/jianchadan','0','0',8,1,1,'Nav41',''),
+		 ('医患交流','/ask','0','0',9,1,1,'Nav41',''),
+		 ('意见建议','/yijianjianyi','0','0',10,1,1,'Nav41',''),
+		('我们医师','/doctor/index.html','0','0',5,1,1,'Nav5',''),
+		('科室导航', '/keshidaohan', 0, 0, 6, 1, 1, 'Nav6', ''),
+		('三院护理', '/sanyuanhuli', 0, 0, 7, 1, 1, 'Nav7', ''),
+		 ('频道首页','sanyuanhuli','0','0',1,1,1,'Nav71',''),
+		 ('护理简介','/hulijianjie','0','0',2,1,1,'Nav71',''),
+		 ('护理动态','/hulidongtai','0','0',3,1,1,'Nav71',''),
+		 ('通知公告','/tongzhigonggao','0','0',4,1,1,'Nav71',''),
+		 ('管理规范','/guanliguifan','0','0',5,1,1,'Nav71',''),
+		 ('护士进修','/hushijinxiu','0','0',6,1,1,'Nav71',''),
+		 ('专科护理','/zhuankehuli','0','0',7,1,1,'Nav71',''),
+		 ('天使风采','/tianshifengcai','0','0',8,1,1,'Nav71',''),
+		 ('下载中心','/xiazaizhongxin','0','0',9,1,1,'Nav71',''),
+		('院务公开', '/yuanwugongkai', 0, 0, 8, 1, 1, 'Nav8', ''),
+		 ('频道首页','/yuanwugongkai','0','0',1,1,1,'Nav81',''),
+		 ('信息公开','/xinxigongkai','0','0',2,1,1,'Nav81',''),
+		 ('管理规范','/guanliguifan','0','0',3,1,1,'Nav81',''),
+		 ('通知公告','/tongzhigonggao','0','0',4,1,1,'Nav81',''),
+		 ('大事记','/dashiji','0','0',5,1,1,'Nav81',''),
+		 ('办事指南','/banshizhinan','0','0',6,1,1,'Nav81',''),
+		 ('下载中心','/xiazaizhongxin','0','0',7,1,1,'Nav81',''),
+		('医疗联合', '/yiliaolianhe', 0, 0, 9, 1, 1, 'Nav9', ''),
+		 ('医疗联合体简介','/yiliaolianhe','0','0',1,1,1,'Nav91',''),
+		 ('成员单位','/chengyuandanwei','0','0',2,1,1,'Nav91',''),
+		('专题专栏', '/zhuantizhuanlan', 0, 0, 10, 1, 1, 'Nav10', ''),
+		('招聘信息', '/zhaopinxinxi', 0, 0, 11, 1, 1, 'Nav11', '');
+		</item>	
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '快捷预约', 'index_nav', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+		(0, 1, '预约挂号', 'index_nav01', '', 0, 0, 1, 0, 1, 'index_nav01', 'picmanager/tu1.png'),
+		(0, 1, '就诊流程', 'index_nav02', '', 0, 0, 2, 0, 1, 'index_nav01', 'picmanager/tu2.png'),
+		(0, 1, '门诊时间', 'index_nav02', '', 0, 0, 3, 0, 1, 'index_nav01', 'picmanager/tu3.png'),
+		(0, 1, '医师门诊', 'index_nav02', '', 0, 0, 4, 0, 1, 'index_nav01', 'picmanager/tu4.png'),
+		(0, 1, '特邀门诊', 'index_nav02', '', 0, 0, 5, 0, 1, 'index_nav01', 'picmanager/tu5.png'),
+		(0, 1, '检验单查询', 'index_nav02', '', 0, 0, 6, 0, 1, 'index_nav01', 'picmanager/tu6.png'),
+		(0, 1, '重点科室', 'index_nav02', '', 0, 0, 7, 0, 1, 'index_nav01', 'picmanager/tu7.png'),
+		(0, 1, '健康体检', 'index_nav03', '', 0, 0, 8, 0, 1, 'index_nav01', 'picmanager/tu8.png'),
+		(0, 1, '地理交通', 'index_nav03', '', 0, 0, 9, 0, 1, 'index_nav01', 'picmanager/tu9.png');</item>
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '首页咨询预约', 'index_yuyue', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+		(0, 1, '导航1', 'index_yuyue01', '', 0, 0, 1, 0, 1, 'index_yuyue01', 'picmanager/tu10.png'),
+		(0, 1, '导航2', 'index_yuyue02', '', 0, 0, 2, 0, 1, 'index_yuyue01', 'picmanager/tu11.png'),
+		(0, 1, '导航3', 'index_yuyue03', '', 0, 0, 3, 0, 1, 'index_yuyue01', 'picmanager/tu12.png'),
+        (0, 1, '导航4', 'index_yuyue04', '', 0, 0, 4, 0, 1, 'index_yuyue01', 'picmanager/tu13.png');</item>
+        <item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '健康体检', 'physical', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+		(0, 1, '基础检查', 'physical01', '', 0, 0, 1, 0, 1, 'physical01', ''),
+		(0, 1, '常规检查', 'physical02', '', 0, 0, 2, 0, 1, 'physical01', ''),
+		(0, 1, '标准体检', 'physical03', '', 0, 0, 3, 0, 1, 'physical01', ''),
+		(0, 1, '女性体检', 'physical04', '', 0, 0, 4, 0, 1, 'physical01', ''),
+		(0, 1, '生育婚检', 'physical05', '', 0, 0, 5, 0, 1, 'physical01', ''),
+		(0, 1, '白领体检', 'physical05', '', 0, 0, 6, 0, 1, 'physical01', ''),
+		(0, 1, '入职体检', 'physical06', '', 0, 0, 7, 0, 1, 'physical01', ''),
+		(0, 1, '商务体检', 'physical07', '', 0, 0, 8, 0, 1, 'physical01', ''),
+		(0, 1, '豪华体检', 'physical08', '', 0, 0, 9, 0, 1, 'physical01', ''),
+		(0, 1, '糖尿病体检', 'physical09', '', 0, 0, 10, 0, 1, 'physical01', ''),
+		(0, 1, '心血管体检', 'physical10', '', 0, 0, 11, 0, 1, 'physical01', ''),
+		(0, 1, '肝病/肠胃体检', 'physical11', '', 0, 12, 8, 0, 1, 'physical01', ''),
+		(0, 1, '肿瘤体检', 'physical12', '', 0, 0, 13, 0, 1, 'physical01', '');</item>
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '专题专栏', 'zhaunti', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+		(0, 1, '图1', 'zhuanti01', '', 0, 0, 1, 0, 1, 'zhuanti01', 'picmanager/index2.png'),
+		(0, 1, '图2', 'zhuanti01', '', 0, 0, 1, 0, 1, 'zhuanti01', 'picmanager/index2.png'),
+		(0, 1, '图3', 'zhuanti01', '', 0, 0, 1, 0, 1, 'zhuanti01', 'picmanager/index2.png'),
+		(0, 1, '图4', 'zhuanti01', '', 0, 0, 1, 0, 1, 'zhuanti01', 'picmanager/index2.png'),
+		(0, 1, '图5', 'zhuanti01', '', 0, 0, 1, 0, 1, 'zhuanti01', 'picmanager/index2.png');
+		</item>
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '医生内页在线问诊', 'wenzhen', NULL, NULL, NULL, 1, NULL, 1, NULL, NULL),
+		(0, 1, '图1', 'wenzhen01', '', 0, 0, 1, 0, 1, 'wenzhen01', 'picmanager/index18.png'),
+		(0, 1, '图2', 'wenzhen01', '', 0, 0, 1, 0, 1, 'wenzhen01', 'picmanager/index19.png'),
+		(0, 1, '图3', 'wenzhen01', '', 0, 0, 1, 0, 1, 'wenzhen01', 'picmanager/index20.png');
+		</item>
+    </Insert>
+    
+	<Delete>
+	    <item>{t:channel,f:shortname,v:{"yuanwugongkai"|"yiyuangonggao"|"xueshuhuiyi"|"zhaopinxinxi"|"falvzeren"|"yiyuangaikuang"|"yiyuanwenhua"|"jingcaituji"|"menzhenshijian"|"jiuzhenxuzhi"|"jiankangtijian"|"jianchadan"|"yuyueguahao"|"sanyuanhuli"|"jsjx"|"jcjlc"|"tpjj"|"jkjy"}}</item>
+	    <item>{t:channel,f:shortname,v:{"jichutijian"|"changguitijian"|"biaozhuntijian"|"nvxingtijian"|"shengyutijian"|"bailingtijain"|"ruzhitijian"|"shangwutijian"|"haohuatijian"|"tangniaobing"|"xinxueguan"|"gangbing"|"zhongliu"|"keshidaohan"|"register"}}</item>
+	    <item>{t:channel,f:shortname,v:{"hulijianjie"|"hulidongtai"|"tianshifengcai"|"tongzhigonggao"|"guanliguifan"|"hushijinxiu"|"zhuankehuli"|"dashiji"|"banshizhinan"|"yiliaotianhe"|"chengyuandanwei"|"zhuantizhuanlan"|"doctor"}}</item>
+	    <item>{t:channelarticle,f:content,v:{"content1"|"content2"|"content3"|"content4"|"content5"|"content6"|"content7"|"content8"|"content9"|"content10"|"content11"}}</item>
+	    <item>{t:channelarticle,f:content,v:{"content21"|"content22"|"content23"|"content24"|"content25"|"content26"|"content27"|"content28"|"content29"|"content30"|"content31"|"content12"|"content13"|"content14"|"content15"|"content16"|"content17"|"content18"|"content19"|"content20"}}</item>
+		<item>{t:channelarticle,f:content,v:{"content33"|"content34"|"content35"|"content36"|"content37"|"content38"}}</item>
+		<item>{t:picmanager,f:flag,v:{"scroll"|"logo"|"title_logo"|"weixin"|"weibo"|"zhuanti1"|"zhuanti2"|"index"|"scroll2"}}</item>
+		<item>{t:pic,f:text,v:{"index01"|"index02"}}</item>
+		<item>{t:navigation,f:name,v:{"Nav1"|"Nav2"|"Nav3"|"Nav4"|"Nav5"|"Nav6"|"Nav7"|"Nav8"|"Nav9"|"Nav10"|"Nav11"|"Nav21"|"Nav31"|"Nav41"|"Nav51"|"Nav61"|"Nav71"|"Nav81"|"Nav91"}}</item>
+		<item>{t:navgroup,f:name,v:{"index_nav01"|"index_yuyue01"|"physical01"|"zhuanti01"|"wenzhen01"}}</item>
+		<item>{t:navgroup,f:flag,v:{"index_nav"|"index_yuyue"|"physical"|"zhuanti"|"wenzhen"}}</item>
+	    <item>{t:environment,f:content,v:{"qq"}}</item>
+	</Delete>		
+	<Parent>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav2}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav21"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav3}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav31"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav4}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav41"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav5}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav51"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav6}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav61"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav7}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav71"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav8}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav81"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navigation,f:name,g:id,v:Nav9}</get>
+	         <set>{t:navigation,f:name,s:pid,v:{"Nav91"}}</set>
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:index_nav}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"index_nav01"}}</set>    
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:index_yuyue}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"index_yuyue01"}}</set>    
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:physical}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"physical01"}}</set>    
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:zhuanti}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"zhuanti01"}}</set>    
+	    </item>
+	    <item>
+	         <get>{t:navgroup,f:flag,g:id,v:wenzhen}</get>
+	         <set>{t:navgroup,f:name,s:group_id,v:{"wenzhen01"}}</set>    
+	    </item>
+		<item>
+			<get>{t:picmanager,f:flag,g:id,v:scroll}</get>
+			<set>{t:pic,f:text,s:pid,v:{"index01"}}</set>
+		</item>
+		<item>
+			<get>{t:picmanager,f:flag,g:id,v:scroll2}</get>
+			<set>{t:pic,f:text,s:pid,v:{"index02"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:xinxigongkai}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content1"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiyuangonggao}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content2"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:xueshuhuiyi}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content3"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:zhaopinxinxi}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content4"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:falvzeren}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content5"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiyuangaikuang}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content6"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:xinwenzhongxin}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content8"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiyuanwenhua}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content7"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:menzhenshijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content9"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:jiuzhenxuzhi}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content10"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:jichutijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content11"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:biaozhuntijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content12"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:nvxingtijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content13"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:shengyutijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content14"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:bailingtijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content15"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:ruzhitijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content16"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:shangwutijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content17"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:haohuatijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content18"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:changguitijian}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content19"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:tangniaobing}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content20"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:xinxueguan}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content21"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:gangbing}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content22"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:zhongliu}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content23"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yuyueguahao}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content24"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:hulijianjie}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content25"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:hulidongtai}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content26"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:tongzhigonggao}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content27"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:guanliguifan}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content28"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:hushijinxiu}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content29"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:zhuankehuli}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content30"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:tianshifengcai}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content31"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yuanwugongkai}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content32"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:dashiji}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content33"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:banshizhinan}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content34"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiliaolianhe}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content37"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:chengyuandanwei}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content38"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:zhuantizhuanlan}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content35"}}</set>
+		</item>
+	</Parent>			
+</body>

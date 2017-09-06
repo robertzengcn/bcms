@@ -1,0 +1,111 @@
+<?php
+
+/*
+ * 登陆页面模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", "0");
+include_once ABSPATH.'/mod/Mod.php';
+
+class Register extends Mod{
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 *
+	 *登录类方法
+	 */
+	public function index() {
+		
+        session_start();
+		$_SESSION['token']=md5(time().rand(1,999));//产生一个随机数防止域外提交	
+		$this->smarty->assign("token", $_SESSION['token']);
+		$this->smarty->display( 'register/index'.SUBFIX);
+	}
+	public function register(){
+		session_start();
+		if(!isset($_REQUEST['verify'])||strtolower($_SESSION['verify'])!=strtolower($_REQUEST['verify'])){
+			$array = array('status'=>false,'msg'=>'验证码错误','code'=>10001,'data'=>null);
+			$_SESSION['verify']=rand(1,100);//随机生成一个验证码覆盖原来的
+			echo json_encode($array);
+			exit();
+		}
+		
+		if(!isset($_REQUEST['token'])||$_SESSION['token']!=$_REQUEST['token']){
+			$array = array('status'=>false,'msg'=>'非法跨域请求','code'=>10002,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		if(!isset($_REQUEST['auth_code'])||md5($_REQUEST['auth_code'])!=$_SESSION['MOBILE_AUTH_CODE']){
+			$array = array('status'=>false,'msg'=>'auth_code不正确','code'=>10005,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+		if(!isset($_REQUEST['mobile'])||!strlen($_REQUEST['mobile'])>1){
+			$array = array('status'=>false,'msg'=>'缺少mobile参数','code'=>10003,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		if(!isset($_REQUEST['password'])||!strlen($_REQUEST['password'])>1){
+			$array = array('status'=>false,'msg'=>'缺少password参数','code'=>10004,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		$memberser=new MemberService();
+		
+		$result=$memberser->registmember($_REQUEST['mobile'],$_REQUEST['password']);
+
+		
+		if($result->statu){
+			$array = array('status'=>true,'msg'=>null,'code'=>0,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}else{
+			
+			$array = array('status'=>false,'msg'=>$result->msg,'code'=>$result->code,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+		
+	}
+	public function sendcode(){
+		session_start();
+		if($_SESSION['token']!=$_REQUEST['token']){
+			$array = array('statu'=>false,'msg'=>'非法跨域请求','code'=>10002,'data'=>$_SESSION['token']);
+			echo json_encode($array);
+			exit();
+		}
+		$phonenum=isset($_REQUEST['mobile'])&&strlen($_REQUEST['mobile'])>0?$_REQUEST['mobile']:null;
+		 
+		if(preg_match("/^13[0-9]{1}[0-9]{8}$|15[0-9]{1}[0-9]{8}$|18[0-9]{1}[0-9]{8}$|17[0-9]{1}[0-9]{8}/",$phonenum)){ //验证通过
+			//$HMAKEY='Vb4!PLCzCW';
+			$contectser = new ContactService ();
+			$url = $contectser->getmsgurl ()->val;
+			$cid = $contectser->getmsgcid ()->val;
+			$pwd = $contectser->getmsgpwd ()->val;
+			$cell = $contectser->getmsgcell ()->val;
+			$duanxinser = new DuanxinService ( $url, $cid, $pwd, $cell );
+			$result=$duanxinser->sendAuthCode( $phonenum); // 发送短信
+			//$result=$this->getServiceMethod( 'Duanxin' , 'sendAuthCode' , $phonenum );						
+			if($result){
+				echo json_encode(array('stute'=>true,'msg'=>null,'code'=>0,'data'=>null));
+			}else{
+				echo json_encode(array('stute'=>false,'msg'=>'验证码发送失败','code'=>10003,'data'=>null));
+			}
+		}else{
+			//手机号码格式不对
+			echo json_encode(array('stute'=>false,'msg'=>'手机号码不正确','code'=>0,'data'=>null));
+		}
+		exit();
+	}
+	
+	
+}
+new Register();

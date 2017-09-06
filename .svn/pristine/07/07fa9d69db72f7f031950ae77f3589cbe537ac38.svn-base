@@ -1,0 +1,21 @@
+/* CSS Document */
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;height:50px;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+#page header h1 a img{ vertical-align:middle;padding:0px 6px;}
+.homenav {float:right;padding:15px 6px;}
+
+h2.title_dis{width:100%;height:50px;line-height:50px;text-align:left;text-indent:1em;font-size:18px;background:#e2f2f8;}
+
+.disinfo{width:100%;margin-top:10px;}
+.infobox{width:96%;margin:0 auto;border-left:1px solid #e4e3e3;border-right:1px solid #e4e3e3;}
+.infobox h2{font-size:16px;text-align:left;text-indent:1em;border-top:1px solid #e4e3e3;border-bottom:1px solid #e4e3e3;height:45px;line-height:45px;background:url(../i/updownimg.png) 94% center  no-repeat #f6f6f6;-moz-background-size:20px 20px; /* ÀÏ°æ±¾µÄ Firefox */background-size:20px 20px;}
+.infobox div p{text-align:left;text-indent:2em;font-size:14px;color:#666666;line-height:25px;padding:0 14px;}
+.info1,.info2,.info3,.info4{display:none;}
+.dislist{text-align:left;height:50px;overflow:hidden;}
+.dislist ul li{display:inline;}
+.dislist ul li a{font-size:16px;color:#0694cb;margin:0px 8px;line-height:50px;}
+
+.ask_point{width:100%;}
+.askbox{width:96%;height:35px;margin:0 auto;border:1px solid #e4e3e3;border-radius:8px;-moz-border-radius:25px;background:#f6f6f6;}
+.askbox a{font-size:14px;color:#0694cb;line-height:35px;}

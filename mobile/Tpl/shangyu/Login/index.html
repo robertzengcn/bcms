@@ -1,0 +1,83 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}登陆{{/block}}
+{{block name=body}}
+
+
+    <div class="am-tabs" id="doc-my-tabs" data-am-tabs>
+      <ul class="am-tabs-nav am-nav am-nav-tabs am-nav-justify">
+        <li class="am-active"><a href="/">登陆</a></li>
+        <li><a href="/">注册</a></li>
+      </ul>
+      
+      <div class="am-tabs-bd">
+        <div class="am-tab-panel am-active">
+        	<section class="am-container">
+              <form class="am-form" method="post" id="loginform">
+                
+                <div class="am-form-group row">
+                <div class="col-md-6">
+                <input class="am-form-field am-input-lg" name="tmobile" id="username" placeholder="请输入账号" type="text" errormsg="手机号码不正确" datatype="m" />
+                </div><div></div>
+                </div>
+                
+                <div class="am-form-group row">
+                <div class="col-md-6">
+                <input class="am-form-field am-input-lg" name="tpassword" id="tpassword" placeholder="密码" type="password" nullmsg="密码不能为空！" datatype="*6-18" />
+                </div><div></div>
+                </div>
+                <div class="am-form-group row">
+                <div class="captcha"><input class="am-form-field am-input-lg" name="ckcode" id="captcha" placeholder="验证码" type="text">
+                <img id="mpdc4_ckcode" height="36" src="/public/img/verify.php"></div>
+                
+                </div>
+                <input name="forward" value="/" type="hidden">
+                <button type="button" id="losubmit" class="am-btn am-btn-primary am-btn-block">登陆</button>
+                
+              </form>
+              <p class="am-cf"><a href="/mobile/user.php?method=findpass" class="am-fr">忘记密码</a></p>
+            </section>
+        </div>
+        <div class="am-tab-panel">
+        	<section class="am-container">
+              <form class="am-form" method="post" id="registerform">
+                <div class="am-form-group row">
+                <div class="col-md-6">
+                <input class="am-form-field am-input-lg" name="mobile" id="mobile" placeholder="请输入账号" type="text" nullmsg="手机号不能为空" errormsg="手机号码不正确" datatype="m" />
+                </div><div></div>
+                </div>
+              <div class="am-form-group row">
+                <div class="col-md-6">
+                <input class="am-form-field am-input-lg" name="password" id="password" placeholder="密码" type="password" nullmsg="密码不能为空！" datatype="*6-18" />
+               </div><div></div>
+                </div>
+                <div  class="captcha">
+                <input class="am-form-field am-input-lg" name="auth_code" id="auth_code" placeholder="手机验证码" type="text" />
+                <a id="getcode" href="javascript: void(0)" class="btn getcode" data-url="./" style="position: absolute;right:6px;top:4px;display: block; color:#fff;background-color: #0c79b1;padding:5px;">获取验证码</a> 
+                </div>                               
+                <br>
+                <input id="token" type="hidden" value="{{$token}}" name="token">
+                <button type="button" name="submit" id="submits" class="am-btn am-btn-primary am-btn-block">注册</button>
+                <input name="forward" value="/" type="hidden">
+              
+              </form>
+              <p class="am-cf"><a href="/mobile/user.php?method=findpass" class="am-fr">忘记密码</a></p>
+            </section>
+        </div>
+      </div>
+    </div>
+
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.login();
+function jump(){
+	window.location.href="/mobile/user.php";
+}
+</script>
+
+{{/block}}

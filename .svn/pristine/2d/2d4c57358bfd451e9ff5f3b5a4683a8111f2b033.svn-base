@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * 
+ * 手机端辅助功能类::注入公共数据
+ * @method getNextAndLast   注入上一条与下一条
+ * @method assignPublicData 注入公共数据(contact等)
+ * @method pageSetting      注入公共分页方法
+ * @author Administrator
+ *
+ */
+class Lib {
+	
+	/**
+	 * 
+	 * 注入推荐阅读文章
+	 * @param string $serviceName 服务层名称
+	 * @param string $url 路径名称
+	 * @param string $titleField 表中标题字段的名称(name,title,subject)
+	 * @param int $limit 条数
+	 * @param boolean $isRand 是否打乱
+	 */
+	public function getRecommend( $serviceName , $url , $titleField , $limit = 5 , $isRand = false ) {
+		$data  = $this->getServiceMethod($serviceName,'query',array('page'=>1,'size'=>$limit));
+		/** 注入数据 **/
+		$this->smarty->assign( 'recommend' , $data->data );
+		$this->smarty->assign('titleField',$titleField);
+		$this->smarty->assign('url',$url);
+	}
+	
+	/**
+	 * 
+	 * 根据id取上一条与下一条信息
+	 * @param string $serviceName 服务层名称
+	 * @param string $url 路径名称
+	 * @param string $titleField 表中标题字段的名称(name,title,subject)
+	 * @param int $id id(如果不传值则取get中的id参数)
+	 */
+	public function getNextAndLast($serviceName,$url,$titleField,$id = null) {
+		if(is_null($id)){
+			$id = (int)$_REQUEST['id'];
+		}
+		if($id<=0 || $serviceName == ''){return false;};
+		$data = array();
+		$data['last'] = $this->getServiceMethod($serviceName,'getLastOne',$id);//上一条
+		$data['pre']  = $this->getServiceMethod($serviceName,'getPreOne',$id);//下一条
+		/** 注入数据 **/
+		$this->smarty->assign('titleField',$titleField);
+		$this->smarty->assign('url',$url);
+		$this->smarty->assign('lastInfo',$data['last']);
+		$this->smarty->assign('preInfo',$data['pre']);
+	}
+	
+	/**
+	 * 
+	 * 注入公共数据
+	 */
+	public function assignPublicData() {
+		/** 注入contact信息  **/
+        $department = $this->getServiceMethod('department','query',array());
+		$contact  = $this->getServiceMethod('contact','query',array());
+		$contactData = array();
+		foreach( $contact->data as $key => $value ) {
+			if( isset( $value->flag ) && $value->flag != '' ) {
+				$contactData[ $value->flag ] = $value->val;
+			}
+		}
+		/** 注入logo **/
+		$logoInfo  = $this->getServiceMethod('MobilePicManager','getByFlag','mobileLogo');
+        if( isset($logoInfo->data[0]->src)   ){
+		    $this->smarty->assign('LOGO',$logoInfo->data[0]->src);
+        }
+		/** 注入数据  **/
+        $this->smarty->assign('department',$department->data);
+		isset($contactData['name']) ? $this->smarty->assign('WEBTITLE',$contactData['name']) : null;
+		$this->smarty->assign('contact',$contactData);
+		$this->smarty->assign("UPLOAD", UPLOAD);// 上传文件根目录
+		/** 注入nav **/
+		$this->smarty->assign('navigation',$this->getMobileNav());
+		/** 注入轮播图片 **/
+		$picManager  = $this->getServiceMethod('MobilePicManager','getByFlag','mobile_index');
+		$id = $picManager->data[0];
+		$pic  =  $this->getServiceMethod('pic','query',array('pid'=>$id->id));
+		$this->smarty->assign('pic',$pic->data);
+		/** 注入解析对象 **/
+		$this->assignTagObj();
+	}
+	
+	/**
+	 * 注入所有obj对象,以支持web版本模版编写
+	 * @return boolean
+	 */
+	private function assignTagObj(){
+		$configFile = ABSPATH . '/dynapage/tagobjects.json';
+		if (file_exists($configFile)) {
+			$content = file_get_contents($configFile);
+			$tagObjects = json_decode($content,true);
+			foreach ($tagObjects as $key => $value){
+				$file = ABSPATH . '/tagobj/' . $value['obj'] .'.php';
+				if( file_exists( $file ) ){
+					$this->smarty->assign($value['obj'],new $value['obj']());
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * 共用分页数据获取方法
+	 * @param int $pageSize 每页多少条
+	 * @param string $url 页面路径,用于补全分页路径
+	 * @param string $serviceName 需要调取服务层名称
+	 * @param array $param 数组参数
+	 */
+	public function pageSetting( $pageSize , $url , $serviceName = null , $param = array() , $method = 'query' ) {
+		if(is_null($serviceName)){
+			return false;
+		}
+		
+
+	
+		$dataCount = $this->result['ttl'];//总条数
+		
+		
+		$pageCount =  ceil( $dataCount / $pageSize );//总页数
+		if(isset($_REQUEST['page']) && (int)$_REQUEST['page'] >= 1){//读取page
+			$page = (int)$_REQUEST['page'];
+			if($page >= $pageCount){
+				$page = $pageCount;
+			}
+			if($page <= 0){
+				$page = 1;
+			}
+		}else{
+			$page = 1;
+		}
+		$param = array_merge(array('page'=>$page , 'size'=>$pageSize ),$param);
+		$data  = $this->getServiceMethod( $serviceName , $method , $param );
+	
+		/** 注入分页参数 **/
+		$this->smarty->assign('pageSize',$pageSize);//每页多少条
+		$this->smarty->assign('dataCount',$dataCount);//总共多少条数据
+		$this->smarty->assign('pageCount',$pageCount);//总共分页数
+		$this->smarty->assign('page',$page);//当前页
+		$this->smarty->assign('url',$url);//当前页
+		$this->smarty->assign('moreParam','');//附加参数
+		/** 注入数据 **/
+
+		$this->smarty->assign('list',$data->data);
+	}
+	
+	/**
+	 * 根据当前访问类型获取导航信息
+	 * @return object array
+	 */
+	public function getMobileNav( $groupFlag = null ){
+		switch( strtolower( PROJECT_NAME ) ) {
+			case 'mobile':$params = array('cate'=>1);break;
+			case 'app':$params = array('cate'=>2);break;
+			case 'wechat':$params = array('cate'=>3);break;
+			default:$params = array('cate'=>1);break;
+		}
+		$data  = $this->getServiceMethod( 'MobileNavigation' , 'queryGroup' , $params );
+		foreach ( $data->data as $key => $value ) {
+			if( ! is_null( $groupFlag ) && $groupFlag != '' ){
+				if( $value->flag != $groupFlag ){
+					unset( $data->data[$key] );
+					continue;
+				}
+			}
+			$list = R::findAll('mobilenavigation','`is_group`=0 and `group_id`='.$value->id);
+			$navigationArray = array();
+			foreach ($list as $k => $v) {
+				$navigation = new MobileNavigation();
+				$navigation->generateFromRedBean($v);
+				$navigationArray[] = $navigation;
+			}
+			$data->data[$key]->list = $navigationArray;
+		}
+		return $data->data;
+	}
+	
+	/** 多层自定义导航 
+	 * 
+	 * @param unknown $where获取 
+	 * */
+	public function queryByFlag($where){
+	    $params = array('flag' => $where);
+	    $data  = $this->getServiceMethod( 'MobileNavigation','queryGroup' , $params );
+	    if( count( $data->data ) <= 0 ){return false;}
+	    $result = $this->subtreeNav($data->data,0,$data->data[0]->id);
+	    $subArray = array();
+	    foreach ($result as $rkey=>$rvalue){
+	       $res = $this->subtreeNav($result, $rkey,$data->data[0]->id);
+	       $subArray[$rkey] = $res;
+	    }
+	    $moblieNavGroup = array();
+	    $moblieNavGroup['data']=$data->data[0];
+	    $moblieNavGroup['ParNav']=$result;
+	    $moblieNavGroup['SubNav']=$subArray;
+	    return $moblieNavGroup;
+	}
+	
+	/**   
+	 * 多层导航 获取
+	 * */
+	public function subtreeNav($data,$pid,$group_id){
+	    $navigationArray = array();
+	    foreach ($data as $key=>$value){
+	       $list = R::findAll('mobilenavigation','`is_group`= 0 and `pid`='.$pid.' and `group_id`='.$group_id);
+	       foreach ($list as $k => $v) {
+	           $navigation = new MobileNavigation();
+	           $navigation->generateFromRedBean($v);
+	           $navigationArray[$v->id] = $navigation;
+	       }
+	    }
+	    return $navigationArray;
+	}
+	    
+	    
+	/**
+	 * 
+	 * JS跳转到相应页面
+	 * @param string $url 地址
+	 */
+	public function scriptUrl($url) {
+		ECHO "<script type='text/javascript'>window.location.href='". $url ."'</script>";
+	}
+	/*
+	 * 数据处理
+	 * */
+	
+	final public function getRequest($name = '', $default = '') {
+		if (!empty($name)) {
+			if (isset($_REQUEST[$name]) && $_REQUEST[$name]) {
+				return $_REQUEST[$name];
+			} else {
+				return $default;
+			}
+		}
+	
+		return $_REQUEST;
+	}
+	
+
+}
+?>

@@ -1,0 +1,65 @@
+<!--right-->
+
+   <div class="list_right">
+                 <div class="list_about">
+                 {{$introduce = $IntroduceTag->get()}}
+                       <img width="256" height="116" src="{{$UPLOAD}}{{$introduce->pic}}">
+                       <a class="zjjt" href="{{$WEBSITE}}/hospital/introduce.html">医院简介</a><a class="tsjs" href="{{$WEBSITE}}/technology/">特色技术</a><a class="zjtd" href="{{$WEBSITE}}/doctor/">专家团队</a>
+                       <a class="zlsb" href="{{$WEBSITE}}/device/index.html">诊疗设备</a>
+                 </div>
+
+                 <div class="list_js">
+                  <h3>特色技术</h3>
+                    {{$Technologys = $TechnologyTag->getList(1,5)}}
+                    <ul>
+                    {{foreach from=$Technologys item=value name=name}}
+                    {{if $smarty.foreach.name.first}}
+                    <li><strong><a href="{{$WEBSITE}}/technology/{{$value->id}}.html" target="_blank">{{$value->subject|truncate:"14"}}</a></strong><a href="{{$WEBSITE}}/technology/{{$value->id}}.html" target="_blank"><img width="254" height="102" src="{{$UPLOAD}}/{{$value->pic}}"></a></li>
+                    {{else}}
+                    <li><strong><a href="{{$WEBSITE}}/technology/{{$value->id}}.html" target="_blank">{{$value->subject|truncate:"14"}}</a></strong><span>...</span><b><a href="{{$WEBSITE}}/technology/{{$value->id}}.html" target="_blank">详情</a></b></li>
+                    {{/if}}
+                    {{/foreach}}
+                    </ul>
+                    </div>
+
+            <div id="suibian" >
+                 <div class="list_gd">
+                     <strong> <a href="{{$WEBSITE}}/doctor/index.html" target="_blank">专家团队</a></strong><span><a onmouseup="ISL_StopUp_1()"  class="leftbotton" onmousedown="ISL_GoUp_1()" onmouseout="ISL_StopUp_1()" href="javascript:void(0);" target="_self"><img src="{{$WEBSITE}}/public/images/gd_left.jpg" style="margin:0px 10px 0 0;"></a><a onmouseup="ISL_StopDown_1()" class="rightbotton" onmousedown="ISL_GoDown_1()" onmouseout="ISL_StopDown_1()" href="javascript:void(0);" target="_self"><img src="{{$WEBSITE}}/public/images/gd_right.jpg"></a></span>
+                     <div class="list_gd1"  id="ISL_Cont_1">
+                      <div class="list_gd3" id="List1_1">
+                          <ul>
+                              {{doctors limit=5}}
+                              {{foreach from=$doctors item=value}}
+                                <li><a href="{{$WEBSITE}}/doctor/{{$value->id}}.html" target="_blank">
+                                <img width="266" height="287" src="{{$UPLOAD}}{{$value->pic}}"></a><span>
+                                <a href="{{$WEBSITE}}/doctor/{{$value->id}}.html" target="_blank">{{$value->name}}&nbsp;&nbsp;{{$value->position}}</a></span></li>
+                              {{/foreach}}
+                        </ul>
+                      </div>
+                      <div class="list_gd3" id="List1_2">
+                        <ul>
+                            {{doctors limit=6}}
+                            {{foreach from=$doctors item=value}}
+                              <li><a href="{{$WEBSITE}}/doctor/{{$value->id}}.html" target="_blank">
+                              <img width="266" height="287" src="{{$UPLOAD}}{{$value->pic}}"></a><span>
+                              <a href="{{$WEBSITE}}/doctor/{{$value->id}}.html" target="_blank">{{$value->name}}&nbsp;&nbsp;{{$value->position}}</a></span></li>
+                            {{/foreach}}
+                      </ul>
+                    </div>
+                   </div>
+                 </div>
+
+              <div class="list_gh">
+                     <strong><em>挂号通道</em><span><a href="javascript:void(0)" onclick="online();return false" >预约<br>挂号</a>
+                         </span></strong>
+
+                     {{$tel2 = $PicManagerTag->getPic('tel3')}}
+                      <img src="{{$UPLOAD}}{{$tel2->img}}" style="float:left;margin-left:0" width="265" height="146" border="0" usemap="#Map">
+                     <map name="Map" id="Map">
+                       <area target="_blank" shape="rect" coords="18,77,75,134" href="tencent://message/?uin={{$ContactTag->get('qq')}}&Site=&Menu=yes;" />
+                       <area target="_blank" shape="rect" coords="101,74,228,133" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;"  />
+                     </map>
+              </div>
+              </div>
+           </div>
+<!--right end-->

@@ -1,0 +1,195 @@
+<?php
+include './HM.php';
+
+class Ask extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	/**
+	 * 
+	 * 获取问题列表
+	 * */
+	protected function __getList(){
+		if( isset( $_REQUEST['page'] ) && isset( $_REQUEST['row'] )  ){
+			#.获取参数
+			$page = (int)$_REQUEST['page'];
+			$row  = (int)$_REQUEST['row'];
+			$row  = $row <= 0 ? 1 : $row;
+			#.获取ask条数
+			new AskService();
+			$result = R::find(TABLENAME_ASK);
+			$count  = count( $result );
+			if( $count <= 0 ){
+				die( json_encode( array('code'=>0,'msg'=>'success','queslist'=>array()) , true ) );exit;
+			}
+			if( $page <= 0 ){$page=1;}
+			#.计算最大页
+			$maxPage = ceil( $count / $row );
+			if( $page > $maxPage ){
+				die( json_encode( array('code'=>0,'msg'=>'success','queslist'=>array()) , true ) );exit;
+			}
+			#.limit
+			$limit   = ( $page - 1 ) * $row . ',' . $row;
+			$result = R::find('ask','ORDER BY id desc limit '.$limit);
+			#.遍历获得hm像要的数据
+			$data = array();
+			foreach ( $result as $key => $value ) {
+				$data[$key-1]['title'] = $value->subject;
+				$data[$key-1]['time']  = date('Y-m-d H:i:s',$value->plushtime);
+				$data[$key-1]['question_id'] = $value->id;
+				#.查询本问题是否来自总控
+				$inter_ask = R::find('interface_ask','ask_id='.$value->id);
+				$data[$key-1]['is_hma'] = count($inter_ask) >= 1 ? '1' : '0';
+			}
+			#.输出
+			$ddata = array();
+			foreach ($data as $k => $v){
+				$ddata[] = $v;
+			}
+			die( json_encode( array('code'=>0,'msg'=>'success','queslist'=>$ddata) , true ) );exit;
+		}else{
+			$this->__msg(1,'缺少page或row参数.',null);
+		}
+	}
+	
+	protected function __getInfo(){
+		if( isset( $_REQUEST['question_id'] ) && (int)$_REQUEST['question_id'] >= 1 ){
+			$id = (int)$_REQUEST['question_id'];
+			new AskService();
+			$result = R::findOne(TABLENAME_ASK,'where `id`=\''.$id.'\'');
+			if( count( $result ) <= 0 ){
+				$this->__msg(1,'不存在对应的问题信息.',null);
+			}else{
+				$data = array();
+				$data['code'] 		   = 0;
+				$data['msg']  		   = 'success';
+				$data['id']			   = $id;
+				$data['case_questime'] = date('Y-m-d H:i:s',$result->plushtime);
+				$data['title']    	   = $result->subject;
+				$data['username']      = $result->name;
+				$descInfo = R::findOne(TABLENAME_ASKDESC,'where `ask_id`=\''.$id.'\'');
+				$data['age']		   = $descInfo->age;
+				$data['image_url']     = isset($descInfo->pic1)&&$descInfo->pic1?$descInfo->pic1:"";
+				$data['describe']      = $descInfo->description;
+				$data['gender']        = $descInfo->gender == 0 ? '女' : '男';
+				die( json_encode( $data ) );
+			}
+		}else{
+			$this->__msg(1,'缺少question_id或参数不正确.',null);
+		}
+	}
+	/**
+	 * 回答问题
+	 * */
+	protected function __answer(){
+		require_once '../hwibsc/answer.php';
+		if( isset( $_REQUEST['question_id'] ) ){
+			$id      = (int)$_REQUEST['question_id'];
+			$content = isset( $_REQUEST['content'] ) ? $_REQUEST['content'] : '';
+			$askser=new AskService();
+			$result = R::findOne(TABLENAME_ASK,'where `id`=\''.$id.'\'');
+			
+			#.如果回复内容为空,则取出所有
+			if( trim( $content ) == '' ){
+				if( $result->isanswer == 1 ){
+					$this->__input($id,true);
+				}else{
+					$this->__input($id,false);
+				}
+			}
+			if( count( $result ) <= 0 ){
+				$this->__msg(1,'不存在对应的问题信息.',null);
+			}else{
+				if( $content == '' ){
+					$this->__msg(1,'回复内容不能为空.',null);
+				}
+				$isAdd = false;
+				
+				#.是否已经回复过了
+				if( $result->isanswer == 1 ){
+					#.取出ansID
+					$answer = R::findOne(TABLENAME_ANSWER,'where `ask_id`=\''.$id.'\'');
+					#.继续回复
+					$askaddto = new AskAddto();
+					$askaddtoDao = new AskAddtoDAO();
+					$askaddto->mode  = 0;
+					$askaddto->askID = $id;
+					$askaddto->ansID = $answer->id;
+					$askaddto->info  = $content;
+					$askaddto->plushtime = time();
+					$askaddto->addID = 0;
+					$askaddtoDao->save($askaddto);
+					$isAdd = true;
+					if( isset( $_REQUEST['is_hma'] ) && $_REQUEST['is_hma'] == '1' ){
+						new AnswerGet($askaddto,'no_answer');
+					}
+					
+					
+				}else{
+					#.添加回复
+					$answer = new Answer();
+					$answerDao = new AnswerDAO();
+					$answer->askID   = $id;
+					$answer->hosID   = 1;
+					$answer->docID   = 1;
+					$answer->content = $content;
+					$answer->plushtime = time();
+					$answer->useful  = 0;
+					$answer->useless = 0;
+					$answerDao->save( $answer );
+					R::exec( "update `ask` set `isanswer`=1 where `id`=$id;" );
+					$isAdd = false;
+					if( isset( $_REQUEST['is_hma'] ) && $_REQUEST['is_hma'] == '1' ){
+						new AnswerGet($answer,'answer');
+					}
+				}
+				$question = R::findOne(TABLENAME_INTERFACE_ASK,'ask_id = :ask_id',array('ask_id'=>$id));
+				if($question->question_id){
+					
+					$askser->askjspush($result->user_alis,$question->question_id,$result->isanswer);
+				}
+				
+				#.输出信息
+				$this->__input($id,$isAdd);
+			}
+		}else{
+			$this->__msg(1,'缺少question_id或缺少content参数.',null);
+		}
+	}
+	
+	private function __input($askID,$isAdd){
+		$answer = R::findOne('answer','where `ask_id`=\''.$askID.'\'');#.取出回复信息
+		$data   = array();
+		$i      = 0;
+		if( $isAdd === true ){//追问表有信息
+			$data[$i]['is_from'] = false;
+			$data[$i]['chat_id'] = 1;
+			$data[$i]['content'] = $answer->content;
+			$data[$i]['time']    = date('Y-m-d H:i:s',$answer->plushtime);
+			$i++;
+			$addList = R::findAll('askaddto','where `ask_id`=\''.$askID.'\'');#.取出回复信息
+			foreach ($addList as $key => $value){
+				$data[$i]['is_from'] = $value->mode == 0 ? false : true;
+				$data[$i]['chat_id'] = $key+1;
+				$data[$i]['content'] = $value->info;
+				$data[$i]['time']    = date('Y-m-d H:i:s',$answer->plushtime);
+				$i++;
+			}
+		}else{//追问表没有信息
+			if( is_object( $answer ) ){
+				$data[$i]['is_from'] = false;
+				$data[$i]['chat_id'] = 1;
+				$data[$i]['content'] = $answer->content;
+				$data[$i]['time']    = date('Y-m-d H:i:s',$answer->plushtime);
+			}else{
+				$data = null;
+			}
+		}
+		die( json_encode( array('code'=>0,'msg'=>'success','queslist'=>$data) ) );exit;
+	}
+	
+
+	
+}
+new Ask();

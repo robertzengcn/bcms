@@ -1,0 +1,326 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/disease.css">
+  {{/block}}
+  {{block name=js}}
+  <script type="text/javascript" src="{{$RESOURCE}}/js/showtab.js"></script>
+  {{/block}}
+  {{block name="body"}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="">{{$department->name}}</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <!--左-->
+  <div class="w700">
+    <div class="top-left">
+      <!--img-->
+      <div class="flash" style="position:relative;overflow:hidden;width:270px;height:200px;">
+    	<div id="flash-box">
+                <ul id="flash-comtent">
+                    {{$listPic = $PicManagerTag->getScroll('listPic')}}
+                    {{foreach $listPic as $value}}
+                    <li><img width="270" height="200" src="{{$value->pic}}" /></li>
+                    {{/foreach}}
+                </ul>
+            </div>
+            <ul id="flash-id">
+                {{foreach $listPic as $key => $value}}
+                <li class="">{{$key+1}}</li>
+                {{/foreach}}
+            </ul>
+    <script type="text/javascript"> 
+new Marquee(
+{
+	MSClassID : "flash-box",
+	ContentID : "flash-comtent",
+	TabID	  : "flash-id",
+	Direction : 2,
+	Step	  : 0.3,
+	Width	  : 270,
+	Height	  : 200,
+	Timer	  : 20,
+	DelayTime : 2500,
+	WaitTime  : 0,
+	ScrollStep: 270,
+	SwitchType: 1,
+	AutoStart : 1
+})
+</script>
+  </div>
+      <!--doctorr-->
+      <div class="w225 w260 top8">
+        <div class="par-doctor bk">
+          <h4><a target="_blank" href="{{$WEBSITE}}/doctor/index.html">专家在线</a></h4>
+          {{$doctorToday = $DoctorTag->getDoctorToday()}}
+          <a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html"><img src="{{$UPLOAD}}{{$doctorToday->pic}}" alt="alt" class="img"/></a>
+          <div>
+          <h5><a target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html"><strong>{{$doctorToday->name}}</strong></a></h5>
+          <p>{{$doctorToday->description|truncate:22}}...<a target="_blank" target="_blank" href="{{$WEBSITE}}/doctor/{{$doctorToday->id}}.html">[详细]</a></p>
+          <a target="_blank" href="javascript:Layout.openWindow('chat')" class="mr5"><img src="{{$RESOURCE}}/images/zx.gif" alt="#"/></a><a target="_blank" href="{{$WEBSITE}}/reservation/index.html"><img src="{{$RESOURCE}}/images/yy.gif" alt="#" /></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--news-->
+    <div class="top-news bk">
+      <div class="top-news-tab"><span></span><h3><b style="color:white">最新新闻</b></h3></div>
+      {{recommendArticles positionName="科室头版头条" departmentId=$department_id size=2}}
+      {{foreach $recommendArticles as $v}}
+      {{disease id=$v->disease_id assign="disease"}}
+      {{if $v->disease_id != false}}
+      <h4><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$v->id}}.html">{{$v->subject}}</a></h4>
+      <p>{{$v->description|truncate:50}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$v->id}}.htm">[详细]</a> </p>
+      {{else}}
+      <h4><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$v->id}}.html">{{$v->subject}}</a></h4>
+      <p>{{$v->description|truncate:50}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$v->id}}.html">[详细]</a> </p>
+      {{/if}}
+      {{/foreach}}
+      <ul>
+        {{recommendArticles positionName="科室头版列表" departmentId=$department_id size=10}}
+      	{{foreach $recommendArticles as $v}}
+      	{{if $v->disease_id == false}}
+      	<li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$v->id}}.html">{{$v->subject|truncate:12}}</a></li>
+      	{{else}}
+      	{{disease id=$v->disease_id assign="disease"}}
+      	<li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$v->id}}.html">{{$v->subject|truncate:12}}</a></li>
+      	{{/if}}
+      	{{/foreach}}
+      </ul>
+    </div>
+    <div class="clear"></div>
+    {{$diseases = $DiseaseTag->getByDeparment($department->id)}}
+    {{if $diseases[0]->id != false}}
+    <!--article1-->
+    <div class="article bk">
+      <div class="article-tab">
+        <h3 id="class1_btn1" onmouseover="showtab(1,'class1',2)" class="current"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[0]->url}}/index.html">{{$diseases[0]->name}}</a></strong></h3>
+        <h3 id="class1_btn2" onmouseover="showtab(2,'class1',2)"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[1]->url}}/index.html">{{$diseases[1]->name}}</a></strong></h3>
+      </div>
+      <!--内容1-->
+      <div id="class1_sub1">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[0]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[0]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[0]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[0]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[0]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>
+      <!--内容2-->
+      <div id="class1_sub2" class="hide">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[1]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[1]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[1]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[1]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[1]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>         
+    </div>
+    {{/if}}
+    {{if $diseases[2]->id != false}}
+    <!--article2-->
+    <div class="article bk">
+      <div class="article-tab">
+        <h3 id="class2_btn1" onmouseover="showtab(1,'class2',2)" class="current"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[2]->url}}/index.html">{{$diseases[2]->name}}</a></strong></h3>
+        <h3 id="class2_btn2" onmouseover="showtab(2,'class2',2)"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[3]->url}}/index.html">{{$diseases[3]->name}}</a></strong></h3>
+      </div>
+      <!--内容1-->
+      <div id="class2_sub1">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[2]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[2]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[2]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[2]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[2]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>
+      <!--内容2-->
+      <div id="class2_sub2" class="hide">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[3]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[3]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[3]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[3]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[3]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>        
+    </div>
+    {{/if}}
+    {{if $diseases[4]->id != false}}
+    <!--article3-->
+    <div class="article bk">
+      <div class="article-tab">
+        <h3 id="class3_btn1" onmouseover="showtab(1,'class3',2)" class="current"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[4]->url}}/index.html">{{$diseases[4]->name}}</a></strong></h3>
+        <h3 id="class3_btn2" onmouseover="showtab(2,'class3',2)"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[5]->url}}/index.html">{{$diseases[5]->name}}</a></strong></h3>
+      </div>
+      <!--内容1-->
+      <div id="class3_sub1">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[4]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[4]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[4]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[4]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[4]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>
+      <!--内容2-->
+      <div id="class3_sub2" class="hide">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[5]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[5]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[5]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[5]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[5]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>        
+    </div>
+    {{/if}}
+    {{if $diseases[6]->id != false}}
+    <!--article4-->
+    <div class="article bk">
+      <div class="article-tab">
+        <h3 id="class4_btn1" onmouseover="showtab(1,'class4',2)" class="current"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[6]->url}}/index.html">{{$diseases[6]->name}}</a></strong></h3>
+        <h3 id="class4_btn2" onmouseover="showtab(2,'class4',2)"><strong><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[7]->url}}/index.html">{{$diseases[7]->name}}</a></strong></h3>
+      </div>
+      <!--内容1-->
+      <div id="class4_sub1">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[6]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[6]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[6]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[6]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[6]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>
+      <!--内容2-->
+      <div id="class4_sub2" class="hide">
+        <div class="article-list">
+          {{recommendArticles positionName="科室疾病图文" diseaseId=$diseases[7]->id size=1}}
+          {{foreach $recommendArticles as $value}}
+          <img src="{{$UPLOAD}}/{{$value->pic}}" /><h6><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[7]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></h6>
+          <p>{{$value->description|truncate:30}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[7]->url}}/{{$value->id}}.html">{详细}</a></p>
+          {{/foreach}}
+          <ul>
+          	{{recommendArticles positionName="科室疾病列表" diseaseName="{{$diseases[7]->name}}" size=5}}
+          	{{foreach $recommendArticles as $value}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$diseases[7]->url}}/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+            {{/foreach}}
+          </ul>
+        </div>
+      </div>        
+    </div>
+    {{/if}}
+    <!--article end-->
+    <div class="clear"></div>
+  </div>
+  <!--right-->
+  <div class="w225">
+    <div class="par-tool bk nonebottom">
+    {{$img = $PicManagerTag->getPic('par-title')}}
+    <h4 class="tool-h4" style="background:url({{$UPLOAD}}{{$img->img}})">{{$ContactTag->get('name')}}在线服务</h4>
+      <ul>
+        <li><a target="_blank" href="javascript:openWindow('chat')"><img src="{{$RESOURCE}}/images/par-zx.gif" /></a></li>
+        <li><a target="_blank" href="{{$WEBSITE}}/reservation/index.html"><img src="{{$RESOURCE}}/images/par-yy.gif" /></a></li>
+        <li><a target="_blank" href="{{$WEBSITE}}/doctor/index.html"><img src="{{$RESOURCE}}/images/par-doctor.gif" /></a></li>
+        <li><a target="_blank" href="{{$WEBSITE}}/contact.html"><img src="{{$RESOURCE}}/images/par-road.gif" /></a></li>
+      </ul>
+    </div>
+    <!--技术-->
+    <div class="par-technology h190 bk nonetop">
+      <h4 class="technology-h4"><a target="_blank" href="{{$WEBSITE}}/technology/index.html">先进技术</a></h4>
+      <ul>
+        {{technologys limit=5}}
+      {{foreach name="technology" from=$technologys item=value}}
+      {{if $smarty.foreach.technology.last}}
+      <li class="nonebottom">・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+      {{else}}
+      <li>・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+      {{/if}}
+      {{/foreach}}
+      </ul>
+    </div>
+    <!--预约-->
+    <div class="par-reserve bk top8">
+      <h4><a target="_blank" href="{{$WEBSITE}}/reservation/index.html">预约信息</a></h4>
+      <ul id="reserve-box">
+          <li><span>赵女士</span><span>牙齿缺失</span><span class="dress">预约成功</span></li>
+          <li><span>钱女士</span><span>牙齿缺失</span><span class="dress">预约成功</span></li>
+          <li><span>孙先生</span><span>氟斑牙</span><span class="dress">预约成功</span></li>
+          <li><span>李女士</span><span>个别牙齿缺失</span><span class="dress">预约成功</span></li>
+          <li><span>周先生</span><span>牙错位</span><span class="dress">预约成功</span></li>
+          <li><span>吴先生</span><span>牙错位</span><span class="dress">预约成功</span></li>
+          <li><span>郑女士</span><span>前牙开合</span><span class="dress">预约成功</span></li>
+          <li><span>王先生</span><span>龅牙</span><span class="dress">预约成功</span></li>
+          <li><span>冯先生</span><span>牙周炎</span><span class="dress">预约成功</span></li>
+          <li><span>陈女士</span><span>牙龈出血</span><span class="dress">预约成功</span></li>
+        </ul>
+      <script> 
+new Marquee(["reserve-box"],0,0.1,220,175,22,2000,2000,0,3);
+</script>
+      <div><a target="_blank" href="{{$WEBSITE}}/reservation/index.html"><img src="{{$RESOURCE}}/images/reserve-ask.gif" alt="#" /></a></div>
+    </div>
+    <!--专家答疑-->
+    <div class="par-sense bk top8">
+      <h4><a target="_blank" href="{{$WEBSITE}}/ask/index.html">专家答疑</a></h4>
+      {{$img = $PicManagerTag->getPic('right_bottom')}}
+      <div class="sense-img"><img src="{{$UPLOAD}}{{$img->img}}" />
+        <div>
+          {{foreach $AskTag->getList(1,1) as $value}}
+        {{$askInfo = $AskTag->get($value->id)}}
+          <h5><a target="_blank" href="{{$WEBSITE}}/ask/{{$value->id}}.html">{{$askInfo->subject|truncate:15}}？</a></h5>
+          {{/foreach}}
+        </div>
+      </div>
+      <ul>
+        {{foreach $AskTag->getList(1) as $vo}}
+          {{if $vo@iteration <= 5 }}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/ask/{{$vo->id}}.html">{{$vo->subject|truncate:"10"}}</a></li>
+		  {{/if}}
+		  {{/foreach}}
+      </ul>
+    </div>
+  </div>
+  <!--bottom-->
+  {{/block}}

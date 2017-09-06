@@ -1,0 +1,542 @@
+<?php
+if (!defined('BOYICMS_IN')) exit();
+	/**
+	 * 
+	 * 注册其他服务层
+	 * @info 由于pc端的控制层大多需要登录才能调取,所以直接载入pc端的服务层
+	 *       调取需要的数据
+	 * @param string $service 需要被调取的服务前缀
+	 * @param string $method 调取方法
+	 * @param all    $params 参数
+	 */
+function getServiceMethod($service = '' , $method = '' , $params = null) {
+	
+	$service = ucfirst( $service );
+	$filePath = $_SERVER['DOCUMENT_ROOT'] . '/kernel/' . $service . 'Service.php';
+	if( ! file_exists( $filePath ) ){
+		return null;
+	}else{
+		require_once $filePath;
+		$service = $service . 'Service';
+		$handler = new $service();
+		if( ! is_null($params)) {
+			return $handler->$method($params);
+		}else{
+			return $handler->$method();
+		}
+	}
+}
+/**
+ * 获取和设置语言定义(不区分大小写)
+ * @param string|array $name 语言变量
+ * @param string $value 语言值
+ * @return mixed
+ */
+function L($name=null, $value=null) {
+    static $_lang = array();
+    // 空参数返回所有定义
+    if (empty($name))
+        return $_lang;
+    // 判断语言获取(或设置)
+    // 若不存在,直接返回全大写$name
+    if (is_string($name)) {
+        $name = strtoupper($name);
+        if (is_null($value))
+            return isset($_lang[$name]) ? $_lang[$name] : $name;
+        $_lang[$name] = $value; // 语言定义
+        return;
+    }
+    // 批量定义
+    if (is_array($name))
+        $_lang = array_merge($_lang, array_change_key_case($name, CASE_UPPER));
+    return;
+}
+
+/**
+ * 获取配置参数
+ * @param string|array $name 配置变量
+ * @param mixed $value 配置值
+ * @return mixed
+ */
+function C($name=null, $value=null) {
+
+    static $_config = array();
+
+    // 优先执行设置获取或赋值
+    if (is_string($name)) {
+        if (!strpos($name, '.')) {
+            $name = strtolower($name);
+            if (is_null($value))
+                return isset($_config[$name]) ? $_config[$name] : null;
+            $_config[$name] = $value;
+            return;
+        }
+        // 二维数组设置和获取支持
+        $name = explode('.', $name);
+        $name[0]   =  strtolower($name[0]);
+        if (is_null($value))
+            return isset($_config[$name[0]][$name[1]]) ? $_config[$name[0]][$name[1]] : null;
+        $_config[$name[0]][$name[1]] = $value;
+        return;
+    }
+    // 批量设置
+    if (is_array($name)){
+        $_config = array_merge($_config, array_change_key_case($name));
+        return;
+    }
+    return null; // 避免非法参数
+}
+
+
+/**
+ * 优化的require_once
+ * @param string $filename 文件地址
+ * @return boolean
+ */
+function require_cache($filename) {
+    static $_importFiles = array();
+    if (!isset($_importFiles[$filename])) {
+        if (file_exists_case($filename)) {
+            require $filename;
+            $_importFiles[$filename] = true;
+        } else {
+            $_importFiles[$filename] = false;
+        }
+    }
+    return $_importFiles[$filename];
+}
+
+/**
+ * 批量导入文件 成功则返回
+ * @param array $array 文件数组
+ * @param boolean $return 加载成功后是否返回
+ * @return boolean
+ */
+function require_array($array,$return=false){
+    foreach ($array as $file){
+        if (require_cache($file) && $return) return true;
+    }
+    if($return) return false;
+}
+
+/**
+ * 区分大小写的文件存在判断
+ * @param string $filename 文件地址
+ * @return boolean
+ */
+function file_exists_case($filename) {
+    if (is_file($filename)) {
+        if (IS_WIN && C('APP_FILE_CASE')) {
+            if (basename(realpath($filename)) != basename($filename))
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+
+
+/**
+ * 快速定义和导入别名 支持批量定义
+ * @param string|array $alias 类库别名
+ * @param string $classfile 对应类库
+ * @return boolean
+ */
+function alias_import($alias, $classfile='') {
+    static $_alias = array();
+    if (is_string($alias)) {
+        if(isset($_alias[$alias])) {
+            return require_cache($_alias[$alias]);
+        }elseif ('' !== $classfile) {
+            // 定义别名导入
+            $_alias[$alias] = $classfile;
+            return;
+        }
+    }elseif (is_array($alias)) {
+        $_alias   =  array_merge($_alias,$alias);
+        return;
+    }
+    return false;
+}
+
+/**
+ * 去除代码中的空白和注释
+ * @param string $content 代码内容
+ * @return string
+ */
+function strip_whitespace($content) {
+    $stripStr   = '';
+    //分析php源码
+    $tokens     = token_get_all($content);
+    $last_space = false;
+    for ($i = 0, $j = count($tokens); $i < $j; $i++) {
+        if (is_string($tokens[$i])) {
+            $last_space = false;
+            $stripStr  .= $tokens[$i];
+        } else {
+            switch ($tokens[$i][0]) {
+                //过滤各种PHP注释
+                case T_COMMENT:
+                case T_DOC_COMMENT:
+                    break;
+                //过滤空格
+                case T_WHITESPACE:
+                    if (!$last_space) {
+                        $stripStr  .= ' ';
+                        $last_space = true;
+                    }
+                    break;
+                case T_START_HEREDOC:
+                    $stripStr .= "<<<BOYI\n";
+                    break;
+                case T_END_HEREDOC:
+                    $stripStr .= "BOYI;\n";
+                    for($k = $i+1; $k < $j; $k++) {
+                        if(is_string($tokens[$k]) && $tokens[$k] == ';') {
+                            $i = $k;
+                            break;
+                        } else if($tokens[$k][0] == T_CLOSE_TAG) {
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    $last_space = false;
+                    $stripStr  .= $tokens[$i][1];
+            }
+        }
+    }
+    return $stripStr;
+}
+
+// 编译文件
+function compile($filename) {
+    $content        = file_get_contents($filename);
+    // 替换预编译指令
+    $content        = preg_replace('/\/\/\[RUNTIME\](.*?)\/\/\[\/RUNTIME\]/s', '', $content);
+    $content        = substr(trim($content), 5);
+    if ('?>' == substr($content, -2))
+        $content    = substr($content, 0, -2);
+    return $content;
+}
+
+
+/**
+ * 添加和获取页面Trace记录
+ * @param string $value 变量
+ * @param string $label 标签
+ * @param string $level 日志级别 
+ * @param boolean $record 是否记录日志
+ * @return void
+ */
+function trace($value='[boyi]',$label='',$level='DEBUG',$record=false) {
+    static $_trace =  array();
+    if('[boyi]' === $value){ // 获取trace信息
+        return $_trace;
+    }else{
+        $info   =   ($label?$label.':':'').print_r($value,true);
+        if('ERR' == $level && C('TRACE_EXCEPTION')) {// 抛出异常
+            throw_exception($info);
+        }
+        $level  =   strtoupper($level);
+        if(!isset($_trace[$level])) {
+                $_trace[$level] =   array();
+            }
+        $_trace[$level][]   = $info;
+    }
+}
+/**
+ * 自定义异常处理
+ * @param string $msg 异常消息
+ * @param string $type 异常类型 默认为ThinkException
+ * @param integer $code 异常代码 默认为0
+ * @return void
+ */
+function throw_exception($msg, $type='TagException', $code=0) {
+    if (class_exists($type, false))
+        throw new $type($msg, $code);
+    else
+        E($msg);        // 异常类型不存在则输出错误信息字串
+}
+
+/**
+ * 错误输出
+ * @param mixed $error 错误
+ * @return void
+ */
+function E($error) {
+    $e = array();
+    if (APP_DEBUG) {
+        //调试模式下输出错误信息
+        if (!is_array($error)) {
+            $trace          = debug_backtrace();
+            $e['message']   = $error;
+            $e['file']      = $trace[0]['file'];
+            $e['line']      = $trace[0]['line'];
+        } else {
+            $e              = $error;
+        }
+    } else {
+            if (C('SHOW_ERROR_MSG'))
+                $e['message'] = is_array($error) ? $error['message'] : $error;
+            else
+                $e['message'] = C('ERROR_MESSAGE');
+    }
+    // 包含异常页面模板
+    include C('TMPL_EXCEPTION_FILE');
+    exit;
+}
+/**
+ * 
+ * 截取 
+ * @param $string 字符串
+ * @param $length 需要截取的长度
+ * @param $etc 尾巴
+ */
+
+function truncate($str, $length = 80, $etc = '...', $charset="utf-8", $start=0, $suffix=true) {
+    if ($length == 0)
+        return '';
+
+       if(function_exists("mb_substr")){
+            $slice= mb_substr($str, $start, $length, $charset);
+        }elseif(function_exists('iconv_substr')) {
+            $slice= iconv_substr($str,$start,$length,$charset);
+        }else{
+            $re['utf-8'] = "/[x01-x7f]|[xc2-xdf][x80-xbf]|[xe0-xef][x80-xbf]{2}|[xf0-xff][x80-xbf]{3}/";
+            $re['gb2312'] = "/[x01-x7f]|[xb0-xf7][xa0-xfe]/";
+            $re['gbk'] = "/[x01-x7f]|[x81-xfe][x40-xfe]/";
+            $re['big5'] = "/[x01-x7f]|[x81-xfe]([x40-x7e]|xa1-xfe])/";
+            preg_match_all($re[$charset], $str, $match);
+            $slice = join("",array_slice($match[0], $start, $length));
+        }    
+		$fix='';
+		if(strlen($slice) < strlen($str)){
+			$fix = $etc;
+		}
+		return $suffix ? $slice.$fix : $slice;
+}
+
+/**
+ * 
+ * 简单运算 
+ * @param $string 字符串
+ * @param $number 运算的数字
+ * @param $symbol 运算符号
+ */
+function operation($string, $number = 0, $symbol = '+') {
+	if(!is_numeric($string)) return $string;
+    if ($number == 0) return $string;
+		$number = intval($number);
+	switch($symbol){
+		case '+'; $string = $string+$number;break;
+		case '-'; $string = $string-$number;break;
+		case '*'; $string = $string*$number;break;
+		case '/'; $string = $string/$number;break;
+		default:break;
+	}
+    return $string;
+}
+/**
+ * 
+ * 时间格式化
+ * @param $string 字符串
+ * @param $format 需要格式化的形式
+ */
+if(!function_exists('dateformat')){
+	function dateformat($string, $format=null) {
+		if ($format === null) {
+			return ;
+		}
+		return date($format, $string);
+	}
+}
+function getOneSql($params)
+{
+	if(empty($params['id'])){
+		return '';
+	}	
+	if($params['relate']){
+		$relate =' LEFT JOIN '.$params['relate'].' ON '.$params['relate'].'_id='.$params['table'].'.id';
+	}
+	$sql = 'SELECT * FROM '.$params['table'].$relate.' where 1=1 and id='.$params['id'].' LIMIT 1';
+	return $sql; 
+}
+function getSql($flag,$params)
+{
+   $tabs = array(
+		'pic' => array('as'=>'pic','tag'=>''),
+		'link'  => array('as'=>'lin','tag'=>''),
+ 		'navigation'  => array('as'=>'nav','tag'=>'NavigationTag','n'=>'nav','s'=>1),
+		'navgroup'  => array('as'=>'nav','tag'=>'NavgroupTag','n'=>'nav','s'=>1),
+		'news'  => array('as'=>'new','tag'=>'NewsTag','f'=>1,'k'=>1),
+		'article'=>array('as'=>'art','tag'=>'ArticleTag','d'=>1,'f'=>1,'i'=>1,'n'=>'dep','r'=>1,'k'=>1),
+		'doctor'  => array('as'=>'doc','tag'=>'DoctorTag','d'=>1,'f'=>1),
+		'resdoctor'  => array('as'=>'res','tag'=>'ReservationTag','d'=>1),
+		'topic'  => array('as'=>'top','tag'=>'TopicTag','f'=>1),
+		'success'  => array('as'=>'suc','tag'=>'SuccessTag','d'=>1,'f'=>1,'n'=>'dep'),
+		'technology'  => array('as'=>'tec','tag'=>'TechnologyTag','d'=>1,'f'=>1,'n'=>'dep'),
+		'channelarticle'  => array('as'=>'chan','tag'=>'ChannelArticleTag','f'=>1,'n'=>'cha','k'=>1,'s'=>1),
+		'ask'  => array('as'=>'ask','tag'=>'AskTag','d'=>1,'f'=>1,'n'=>'dep'),
+		'honor'  => array('as'=>'hon','tag'=>'HonorTag'),
+		'environment'=>array('as'=>'env','tag'=>'EnvironmentTag'),
+		'device'=>array('as'=>'dev','tag'=>'DeviceTag'),
+		'movie'=>array('as'=>'mov','tag'=>'MovieTag','k'=>1,'s'=>1),
+		'mediareport'=>array('as'=>'med','tag'=>'MediaReportTag'),
+		'disease'=>array('as'=>'dis','tag'=>'DiseaseTag','d'=>1),
+    );
+		$tab = $tabs[$flag];
+			$as = $tab['as'];
+			$tag = $tab['tag'];
+		if(empty($tag)){
+			$select = 'SELECT '.$as.'.*';
+			$select .= ' FROM `'.$flag.'` AS '.$as.' ';
+			$where = ' WHERE 1=1';
+			if($flag=='link'){
+				$where .= ' AND '.$as.'.isdisplay=1';
+			}elseif($flag=='pic'){
+				if($params['sign']){
+					$sign= ' AND flag="'.$params['sign'].'"';
+				}
+				if($params['name']){
+					$sign= 'AND name="'.$params['name'].'"';
+				}
+				$where .= ' AND pic.pid in(SELECT id FROM picmanager WHERE 1=1'.$sign.' AND kind=2)';				
+			}
+			$where .= ' ORDER BY '.$as.'.'.$params['orderby'];
+			$where .= $params['limit'] ? ' LIMIT '.$params['limit'] : '';
+			return $select.$where;		
+		}
+		if(empty($params['field'])){
+			if($params['id'] || $params['typeid']){
+			  $select = 'SELECT '.$as.'.*';
+			}else{
+			$getfields = 'get'.ucfirst($as).'Fields';
+	        $table = new $tag();
+			$field = $table->$getfields();
+			$field = str_replace($as.'.id,', '', $field);
+		  $select = 'SELECT DISTINCT('.$as.'.id),'.$field;
+		  }
+		}else{
+			$select = 'SELECT DISTINCT('.$as.'.id),';
+			$tagf = explode(',', $params['field']);
+			foreach($tagf as $key=>$val){
+				if($val!='id')
+				{
+					$select .= $as.'.'.$val.',';	
+				}				
+			}
+		    $select = substr($select, 0, strlen($select) - 1);			
+		}
+		$join = '';
+		if(isset($tab['n']) && $tab['n']=='cha'){
+			$cha = new ChannelTag();
+			$field_cha = $cha->getChaFields();
+			$select .= ','.$field_cha;
+			$join .=' LEFT JOIN `channel` as cha ON chan.channel_id = cha.id ';
+		}
+
+		$where = ' WHERE 1=1';
+		if($params['flag']&& isset($tab['f']) && $tab['f']==1)
+		{
+			$join .= ' LEFT JOIN `recommendlist` AS rec ON rec.'.$flag.'_id = '.$as.'.id ';
+			$where .= ' AND rec.recommendposition_id IN('.$params['flag'].')';
+		}
+		if(isset($tab['d']) && $tab['d']==1){
+			if(empty($params['isdep'])){
+				$join .= ' LEFT JOIN `department` AS dep ON dep.id = '.$as.'.department_id ';
+			}
+			if(isset($tab['i']) && $tab['i']==1 && empty($params['isdis'])){
+			    $join .= ' LEFT JOIN `disease` AS dis ON dis.id = '.$as.'.disease_id ';				
+			}
+			if($params['department']){
+				$dep = explode(',',$params['department']);
+				foreach($dep as $key=>$val){
+				  $select .= ',dep.'.$val.' AS department_'.$val;					
+				}				
+			}
+			if($params['disease']){
+				$dis = explode(',',$params['disease']);
+				foreach($dis as $key=>$val){
+				  $select .= ',dis.'.$val.' as disease_'.$val;					
+				}		
+			}
+		}
+		if($params['id'])
+		{
+			$where .= ' AND '.$as.'.id='.$params['id'];
+		}
+		if($params['channel_id'])
+		{
+		  $where .= ' AND '.$as.'.channel_id='.$params['channel_id'];
+		}		
+		if(isset($params['modulekey']) && $params[$params['modulekey'].'_id'])
+		{
+			$where .= ' AND '.$as.'.'.$params['modulekey'].'_id='.$params[$params['modulekey'].'_id'];
+		}
+		if(isset($params['typeid']) && $params['typeid']!=4){
+			if($params['sql']=='one'){
+				$where .= ' AND nav.cate='.$params['typeid'].' AND nav.is_display=1 AND nav.pid=0';
+			}else{
+				$where .= ' AND nav.pid='.$params['navid'].' AND nav.is_display=1';
+			}
+		}elseif(isset($params['typeid']) && $params['typeid'] ==4){
+			if($params['sql']=='one'){
+				$where .= ' AND nav.is_display=1 AND nav.is_group!=0';
+			}else{
+				$where .= ' AND nav.group_id='.$params['navid'].' AND nav.is_display=1';
+			}			
+		}
+
+		if(isset($params['relation']) && $params['relation'] && $tab['r']==1){
+			$res = $table->getArtList('SELECT relation FROM article WHERE id='.$params['relation']);
+			$where .= ' AND art.id IN('.$res[0]->relation.')';
+		}
+		if(isset($params['name']) && $params['name'] && isset($tab['n'])){
+			$name = str_replace('@', '","', $params['name']);
+			$title = empty($params['typeid']) ? 'name' : 'subject';
+			$where .= ' AND '.$tab['n'].'.'.$title.' IN("'.$name.'")';
+		}
+		if(isset($params['sign']) && $params['sign'] && $tab['s']==1){
+			 if( $flag == 'channelarticle' ) {
+				$where .= ' AND cha.flag="'.$params['sign'].'"';				 
+			 }else{
+				$where .= ' AND '.$as.'.flag="'.$params['sign'].'"';				
+			 }
+		}
+		$select .= ' FROM `'.$flag.'` AS '.$as.' ';
+
+		if($params['keyword']!='' && $tab['k']==1 )
+		{
+			$keyword = str_replace('@', '|', $params['keyword']);
+			$where .= ' AND CONCAT('.$as.'.subject,'.$as.'.keywords) REGEXP "'.$keyword.'"';
+		}
+		if(isset($params['orderby'])){
+			$where .= ' ORDER BY '.$as.'.'.$params['orderby'];
+		}
+		if(empty($params['id'])){	
+			$where .= $params['limit'] ? ' LIMIT '.$params['limit'] : '';
+			//$where .= ' LIMIT '.'".($current-1)*$pageSize."'.',".$pageSize."';
+	    }else{
+			$where .=' LIMIT 1';
+		}
+
+		return $select.$join.$where;
+			
+}
+function getHtml($name,$file='html')
+{
+	$currentUsed = file_get_contents(TEMPDIR.'/config.json');
+	$array = json_decode($currentUsed,true);
+	$pulugin_tpl = $array[0]['currentUsed'];
+	$file = TEMPDIR . $pulugin_tpl . '/common/'.$file.'/'.$name.'.html';
+	if(file_exists($file)){
+		$html = file_get_contents($file);
+		return $html;		
+	}else{
+		return '';	
+	}
+
+}
+

@@ -1,0 +1,18 @@
+@charset "gb2312";
+.fenye{padding-top:0px;}
+/* CSS Document */
+.device{border-bottom:dashed 1px #989898;height:130px;margin:0px 12px 14px 12px;}
+.device img{float:left;border:solid 1px #d2d6db;margin-top:4px;margin-right:12px;display:inline;width:140px;height:110px;}
+.device h3{line-height:26px;font-weight:bold;}
+.device p{line-height:23px;color:#666;}
+.device p a,.device h3 a{color:#862202;}
+
+
+.device_par{text-align:center;line-height:32px;color:#666;margin:0px 10px;}
+.device_par div{padding-top:5px;}
+.device_par div img{border:3px solid #d8d8d8;}
+.device_par h3{font-size:18px;color:#862202;padding-top:10px;font-weight:bold;text-align:center;}
+.device_par_content{font-size:12px;margin:20px 20px 0px 20px;line-height:26px;}
+.device_par_content p{text-indent:2em;}
+
+.par-ask{text-align:center;padding-top:20px;}

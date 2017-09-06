@@ -1,0 +1,27 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/list.css">
+{{/block}} 
+{{block name=body}}
+<div id="breadcrumb"><span>您当前的位置:&nbsp;</span>
+<a target="_blank" href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> > 
+<a target="_blank" href="####" onclick="return false;">媒体报道</a></div>
+<div class="clear"></div>
+<div class="main">
+
+    <div class="par-main">
+        <h2><span>媒体报道列表</span></h2>
+        {{foreach $MediaReportTag->getList($cur) as $v}}
+        <div class="article-list"><h4><a target="_blank" href="{{$v->id}}.html">{{$v->subject}}</a></h4>
+            <p>{{$v->description|truncate:"60"}}...<a target="_blank" href="{{$v->id}}.html">[详细]</a></p>
+        </div>
+        {{/foreach}}
+        <div class="fenye">{{$MediaReportTag->getPageHtml($cur)}}</div>
+    </div>
+    <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+</div>
+
+<div class="main-bottom"></div>
+{{/block}}

@@ -1,0 +1,13 @@
+/* CSS Document */
+
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;height:50px;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+#page header h1 a img{ vertical-align:middle;padding:0px 6px;}
+.homenav {float:right;padding:15px 6px;}
+
+#body{text-align:left;}
+.listbox{width:100%;text-indent:1em;}
+.listbox h2{color:#3f4040;font-size:18px;background:#efefef; border-bottom:1px solid #e9e9e9; border-top:1px solid #e9e9e9;height:45px;line-height:45px;} 
+.listbox ul li{height:45px;line-height:45px;width:100%; border-top:1px dashed #d5d5d5;}
+.listbox ul li a {color:#666666;font-size:14px;}

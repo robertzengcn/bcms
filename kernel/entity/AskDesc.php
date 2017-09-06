@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * ask(详情)数据实体类
+ * @author Administrator
+ */
+require_once ENTITYPATH . '/Entity.php'; // 引入数据实体基类
+class AskDesc extends Entity {
+
+    public $id; // 主键id
+    public $askID; // ask表外键id
+    public $description; // 简单描述
+    public $phone; // 联系方式
+    public $history; // 病史
+    public $condtion; // 目前治疗情况
+    public $clickCount; // 点击量
+    public $city; // 提问者用户所在城市(通过ip获取)
+    public $pic1; // 化验单图片/病历图/其他图1
+    public $pic2; // 化验单图片/病历图/其他图2
+    public $pic3; // 化验单图片/病历图/其他图3
+    public $age; // 年龄
+    public $gender; // 性别
+
+    /**
+     * 数据验证::由于都是可选项,所以除了ask外键id，其余都为空没关系debug
+     *
+     * @see kernel/entity/Entity::validate()
+     */
+    public function validate() {
+        if ((int) $this->ask_id <= 0) {
+            throw new ValidatorException(7);
+        }
+        if ((int) $this->age < 0) {
+            throw new ValidatorException(138);
+        }
+        if ((int) $this->gender != 0 && (int) $this->gender != 1) {
+            throw new ValidatorException(139);
+        }
+    }
+}

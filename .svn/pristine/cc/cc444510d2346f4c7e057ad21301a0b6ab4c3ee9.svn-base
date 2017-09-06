@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>添加专题</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="formEdit">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>标题：</label>
+			<div class="formControls col-8">
+			    <input type="hidden" id="id" name="id" value="">
+			    <input type="hidden" name="is_tpl" value="1" />
+				<input type="text" class="input-text" value="" placeholder="" id="subject" name="subject" nullmsg="标题不能为空" datatype="*2-50" errormsg="限2-50个字" />
+			</div><div class="col-2"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">SEO标题：</label>
+			<div class="formControls col-8">				
+				<input type="text" class="input-text " value="" placeholder="用于搜索引擎优化的标题，写入头部Title的内容，可与上面的标题不一致..." id="seo_title" name="title" nullmsg="title不能为空"  datatype="*2-50" errormsg="限2-50字"/>
+			</div><div class="col-2"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">缩略图：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius" onClick="gTopic.uploadImg('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=topic','720','440')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<input type="hidden" id="pic" name="pic" />
+				<input type="hidden" id="plushtime" name="plushtime" />
+				<img id="thumbnail" src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail" width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+		</div><!--上传图片-->
+		<div class="row cl">
+			<label class="form-label col-2">选取模板：</label>
+			<div class="formControls col-8 skin-minimal">
+				<div class="formControls col-2"> <span class="select-box">
+				<select name="topiclistid" id="topiclistid" class="select" datatype="*" nullmsg="请选择模板" >				</select>
+				</span> </div><div class="col-2"></div>
+				<a class="btn btn-success radius" onClick="gTopic.openAdd('专题模板管理','../template/topic-temp.html','800','500')" href="javascript:;"><i class="Hui-iconfont">&#xe640;</i> 更多模板 </a>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>目录：</label>
+					<div class="formControls col-91">
+						<input type="text" class="input-text" value="" placeholder="限英文字母" id="url" name="url"  datatype="Letter" nullmsg="目录不能为空" errormsg="限2-30个英文字母"/>
+					</div><div class="col-2"></div>
+			<label class="form-label col-1"><span class="c-red">*</span>文件名：</label>
+					<div class="formControls col-91">
+						<input type="text" class="input-text" value="" placeholder="限英文字母,如：abc.html" id="link" name="link" datatype="filename" nullmsg="文件名不能为空" errormsg="限英文字母，以.html结尾"/>
+					</div><div class="col-2"></div>
+			<label class="form-label col-6" style="text-align:left;color: #b3b3b3;"><span class="c-red">*</span>（当前路径：<span id="demo_url"></span>)</label>			
+		</div>	
+		<div class="row cl">
+			<label class="form-label col-2">关键词：</label>
+			<div class="formControls col-8">
+				<input type="text" class="input-text" value="" placeholder="多个关键词间请用“,”区分开......" id="keywords" name="keywords">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">专题简介：</label>
+			<div class="formControls col-8">
+				<textarea name="description" id="seo_desc" cols="" rows="" class="textarea"  placeholder="请输入专题简要描述..." datatype="*10-200" dragonfly="true" onKeyUp="textarealength(this,200)" nullmsg="简介不能为空！" errormsg="限10-200字"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			</div><div class="col-2"> </div>
+		</div>
+
+		
+		<div class="row cl">
+			<label class="form-label col-2">详细内容：</label>
+			<div class="formControls col-8"> 
+				<textarea id="editor" name="content" style="width:100%;height:400px;" nullmsg="详细内容不能为空！" datatype="*"></textarea> 
+			</div><div class="col-3"></div>
+		</div>
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button id="back" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<!--悬浮框按钮-->
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gTopic.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>
+        <a href="javascript:;" onClick="gTopic.openAdd('素材库','../shortcuts/source-material.html','900','560')"><li class="floating2"></li></a>        
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/topic.js"></script>
+<script type="text/javascript">
+var editor = UE.getEditor('editor');
+var gTopic = new Topic();
+gTopic.setThisName('gTopic');
+gTopic.initEdit();
+
+</script>
+</body>
+</html>

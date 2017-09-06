@@ -1,0 +1,41 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Channel extends Entity {
+
+    var $id;
+
+    var $name;
+
+    var $shortname;
+
+    var $is_use_tpl;
+	
+	var $flag;
+    
+    var $tplurl;
+    
+    var $detailtplurl;
+    
+    var $title;
+    
+    var $keywords;
+    
+    var $description;
+
+    public function validate() {
+        if ($this->name == '' || strlen($this->name) == 0) {
+            throw new ValidatorException(64);
+        }
+        if ($this->shortname == '' || strlen($this->shortname) == 0) {
+            throw new ValidatorException(65);
+        }
+        $pattern = '/^[a-zA-Z]+$/';
+        if (! preg_match($pattern, $this->shortname)) {
+            throw new ValidatorException(141);
+        }
+        if (! $this->isNum($this->is_use_tpl)) {
+            throw new ValidatorException(66);
+        }
+    }
+}

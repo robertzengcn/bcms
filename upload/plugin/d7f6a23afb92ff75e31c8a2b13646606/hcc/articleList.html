@@ -1,0 +1,61 @@
+<div id="navTab" class="tabsPage">
+	<div class="navTab-panel tabsPageContent layoutBox" style="">
+		<div class="page unitBox" id="article">
+			<div class="pageContent">
+				<form id="frm_post"  class="pageForm required-validate">
+					<div class="panel">
+						<div class="panelHeader">
+							<div class="panelHeaderContent">
+								<h1>快捷搜索</h1>
+							</div>
+						</div>
+						<div class="panelContent">
+							<div style="float:left;">
+                            科室：&nbsp;&nbsp;
+							<select class="textSelect search_input"  name="department_id" id="department_id">
+								<option value="">全部</option>
+							</select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							&nbsp;疾病：&nbsp;&nbsp;&nbsp;
+							<select class="textSelect search_input" name="disease_id" id="disease_id">
+								<option value="">全部</option>
+							</select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							&nbsp;责任编辑：&nbsp;&nbsp;&nbsp;
+							<select class="textSelect search_input" name="doctor_id" id="doctor_id">
+								<option value="">全部</option>
+							</select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;竞价：&nbsp;&nbsp;&nbsp;
+							<select class="textSelect search_input" style="width:100px;" name="isbidding">
+								<option value="">===全部===</option>
+								<option value="1">是</option>
+								<option value="0">否</option>
+							</select>
+                            <br /><br />
+							关键字：&nbsp;&nbsp;&nbsp;
+							<input class="textInput search_input" name="subject" type="text" size="20" value="" style="width:258px;"/>
+							
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新时间：&nbsp;&nbsp;&nbsp;
+							<input class="Wdate" name="start_time" type="text" size="22" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd',vel:'start_time'})" value=""/>
+							-
+							<input  class="Wdate" name="end_time" type="text" size="22" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd',vel:'end_time'})" value=""/>
+							
+							</div>
+							<img id="qry" src="./public/img/selectwo.jpg" width="90px" style="float:left;margin-top:0px;"/>
+							<span class="clear"></span>
+						</div>
+						<div class="panelFooter">
+							<div class="panelFooterContent"></div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="pageContent">
+				<div class="panelBar">
+					<ul class="toolBar"  id="toolBar">
+					</ul>
+				</div>
+				<div id="listAll"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="message"></div>

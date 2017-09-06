@@ -1,0 +1,31 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/list.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您当前位置：<a target="_blank" href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a>>
+    <a target="_blank" href='{{$WEBSITE}}/{{$department->url}}/'>{{$department->name}}</a> >
+    <a target="_blank" >{{$disease.name}}</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+    {{articlesInDisease page="$cur" diseaseId="$id" departmentId="$department_id"}}
+    <div class="par-main">
+      {{article id=$id assign="article"}}
+      <h2><span>文章列表</span></h2>
+       {{foreach $articlesInDisease as $v}}
+       {{department id=$v->department_id assign="department"}}
+      <div class="article-list"><h4><a target="_blank" href="{{$v->id}}.html">{{$v->subject}}</a></h4>
+        <p>{{$v->description|truncate:"60"}}...<a target="_blank" href="{{$v->id}}.html">[详细]</a></p>
+      </div>
+       {{/foreach}}
+      <div class="fenye">{{$tagOb->getPageHtml($cur ,$id , $adir)}}</div>
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

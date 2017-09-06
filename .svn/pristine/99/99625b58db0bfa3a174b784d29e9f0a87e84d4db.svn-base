@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>疾病自诊_疾病介绍</title>
+<meta name="keywords" content="疾病自诊_疾病介绍" />
+<meta name="description" content="疾病自诊_疾病介绍" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0;" name="viewport" />
+<link rel="stylesheet" href="../public/css/base.css?v=20160701">
+<link rel="stylesheet" href="../public/css/jk.css?v=20160701">
+<script type="text/javascript" src="../public/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript">
+$(function(){
+	jbzz.diseaseresult();
+})
+</script>
+</head>
+<body>
+<header class="clearfix header">
+  <a href="javascript:history.go(-1)" class="icons head_back"></a>
+  <h2></h2>
+</header>
+		<section id="body">
+			<h2 id="diseasetitle" class="title_dis">疾病名称</h2>
+			<article class="disinfo">
+				<div class="dis1 infobox">
+					<h2>疾病简介</h2>
+					 <div class="info1">
+						<p></p>
+					 </div>
+				</div>
+				<div class="dis2 infobox">
+					<h2>临床表现</h2>
+					 <div class="info2">
+						<p></p>
+					 </div>
+				</div>
+				<div class="dis3 infobox">
+					<h2>检查项目</h2>
+					 <div class="info3">
+						<p></p>
+					 </div>
+				</div>
+				<div class="dis4 infobox">
+					<h2>治疗方法</h2>
+					 <div class="info4">
+						<p></p>
+					 </div>
+				</div>			
+			</article>
+			<div class="clearbox" style="height:10px;"></div>
+			<h2 class="title_dis">其他诊断结果</h2>
+			<div class="dislist">
+				<ul></ul>			
+			</div>
+			<article class="ask_point">
+				<div class="askbox">
+					<a href="./index.html">&nbsp;&nbsp;对以上诊断有疑问，点击咨询专家>></a>
+				</div>
+			</article>
+	    </section>
+</body>
+</html>

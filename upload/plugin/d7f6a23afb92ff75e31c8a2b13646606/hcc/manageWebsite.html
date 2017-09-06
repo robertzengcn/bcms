@@ -1,0 +1,72 @@
+<div class="pageContent pageHeader" style="border:0">
+<form id="information" class="pageForm required-validate">
+	<div class="pageFormContent" style="width:40%;float:left;">
+		<ul style="margin-left:50px;">
+			<li>
+				<span class="span_one">医院名称：</span>
+				<span class="span_two"><input class="textInput titlelen" title="医院名称" name="hospital" type="text" size="30" id="chk_hospital" value=""/></span>
+				<div style='clear:both;'></div>
+			</li>
+			<li>
+				<span class="span_one">医院域名：</span>
+				<span class="span_two"><input class="textInput titlelen" title="医院域名" name="domain" type="text" size="30" id="chk_domain" value=""/></span>
+				<div style='clear:both;'></div>
+			</li>
+			<li>
+				<span class="span_one">数据库IP/域名：</span>
+				<span class="span_two">
+					<input type="text" class="textInput" title="IP" name="ip" id="chk_ip" value=""><span class="explanation">（远程连接地址）</span>
+				</span>
+				<div style="clear:both;"></div>
+			</li>
+			<li>
+				<span class="span_one">端口：</span>
+				<span class="span_two">
+				<input type="text" class="textInput" title="端口" onkeyup="value=value.replace(/[^\d]/g,'');" name="port" id="chk_port" value="3306"><span class="explanation">（默认值3306）</span>
+				</span>
+				<div style="clear:both;"></div>
+			</li>
+			<li>
+				<span class="span_one">数据库名：</span>
+				<span class="span_two">
+				<input type="text" class="textInput" title="数据库" name="db" id="chk_db" value=""><span class="explanation">（站点使用的数据库名称）</span>
+				</span>
+				<div style="clear:both;"></div>
+			</li>
+			<li>
+				<span class="span_one">数据库用户名：</span>
+				<span class="span_two">
+				<input type="text" class="textInput" title="数据库用户名" name="user" id="chk_user" value="">
+				</span>
+				<div style="clear:both;"></div>
+			</li>
+			<li>
+				<span class="span_one">数据库密码：</span>
+				<span class="span_two">
+				<input type="text" class="textInput" title="数据库密码" name="pwd" id="chk_pwd" value="">
+				</span>
+				<div style="clear:both;"></div>
+			</li>
+			<li>
+				<span class="span_one">&nbsp;</span>
+				<span class="span_two" id="error">
+				</span>
+				<div style="clear:both;"></div>
+			</li>
+		</ul>
+		<input type="hidden" name="addtime" id="addtime" value="">
+		<input type="hidden" name="id" id="id" value="">
+		<input type="hidden" name="action" id="action" value="add">
+		
+	</div>
+	<div style="float:left;width:40%;"><img src="plugin/plugins/website/i/websiteexam.png" width="400px" /></div>
+	<div style="clear:both;"></div>
+	<div class="formBar">
+		<ul>
+		    <li><a href="javascript:void(0)" id="save"><img src="./public/img/t.gif"></a></li>
+			<li><a href="javascript:void(0)" id="back"><img src="./public/img/s.gif"></a></li>
+		</ul>
+	</div>
+</form>
+</div>
+<div id="message"></div>

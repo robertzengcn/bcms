@@ -1,0 +1,26 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class ReservationDetail extends Entity {
+
+    var $id;
+
+    var $department_id;
+
+    var $doctor_id;
+
+    var $date;
+
+    var $times;
+
+    var $statu;
+
+    var $username;
+
+    var $telephone;
+
+    var $card;
+
+    // 验证字段
+    public function validate() {}
+}

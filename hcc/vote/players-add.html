@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>添加选手-微信投票</title>
+<style type="text/css">
+	.pic_l{width:520px;overflow-x: hidden; overflow-y: auto; }
+	.pic_l img{max-width: 100%; height: auto;display: block;padding:2px;}
+
+	.pic_l li{ height:114px;width:164px;padding:1px; background-color:#fff; border:1px solid #efefef; overflow:hidden;float:left;border:1px solid #CECECE;}
+	.pic_l li .bg_pic:first-child{height:108px; width:100%;}
+	
+	.pic_l li:last-child{ border:1px dotted #999; text-align:center;}
+	.pic_l li:last-child:before{content: "\e600"; line-height:74px;font-family: "Hui-iconfont" !important;font-style: normal;-webkit-font-smoothing: antialiased;-webkit-text-stroke-width: 0.2px;-moz-osx-font-smoothing: grayscale; font-size:26px;}
+	.pic_l li:last-child:hover{border:1px dotted #CECECE; color:#CECECE;}
+	
+	div.appmsg_edit_mask{background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0 !important;bottom: 0;display: none;left: 0;position: absolute;right: 0;top:0px;height: 30px;line-height: 30px;}
+	.appmsg_edit_mask a {margin-left: 8px;margin-right: 8px;}
+	.maskWraper:hover .appmsg_edit_mask  {display: block;}
+	li.maskWraper{cursor:pointer;}
+	.img-btn-del {background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0 !important;height: 30px;left: 0;overflow: hidden;position: absolute;top: 0;width: 100%;display: none;}
+	.thumbnailbox:hover .img-btn-del{display: block;}
+	.col-2{width:80px;}
+</style>
+</head>
+<body>
+<div class="pd-20">
+	<form action="post" method="post" class="form form-horizontal" id="formEdit">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>活动：</label>
+			<div class="formControls col-7"> <span class="select-box">
+				<select name="aname" class="select" id="aname">
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>姓名：</label>
+			<div class="formControls col-4">
+				<input type="text" class="input-text" value="" placeholder="" name="item" id="item" datatype="*2-6" nullmsg="姓名不能为空" errormsg="限2-6个字"/>
+				<input type="hidden" id="id" name="id" value=""/>
+				<input type="hidden" id="vid" name="vid" value=""/>
+			</div>
+			<div class="col-3"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>电话：</label>
+			<div class="formControls col-4">
+				<input type="text" class="input-text" value="" placeholder="" name="phone" id="phone" datatype="CheckMobile" nullmsg="电话不能为空" errormsg="请输入正确的电话号码"/>
+			</div>
+			<div class="col-1"></div>
+			<label class="form-label col-2"><span class="c-red">*</span>票数：</label>
+			<div class="formControls col-3">
+				<input type="text" class="input-text" value="0" placeholder="" name="vcount" id="vcount" datatype="/0|[1-9]{1}[0-9]{0,1}/"  errormsg="请输入正确的票数"/>
+			</div>
+			<div class="col-1"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>照片：</label>		
+			<div class="formControls col-7">
+				<div class="pic_l" id="img_list">
+					<ul class="pic_list">
+						<li class="maskWraper" id="list1">
+							<div class="bg_pic"><img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" width="160px" /></div>
+							<div class="appmsg_edit_mask">
+								<a class="js_other"  title="上传照片" onClick="layer_show('上传照片','../js/boyicms/uploadimg.html?method=uploadPic&dir=vote&ipn=list&type=piclist','720','420')" href="javascript:;"><i class="Hui-iconfont" style="font-size:22px;color:#FFFFFF;">&#xe642;</i></a>
+								<a class="js_delete"  title="删除" style="float:right;"><i class="Hui-iconfont" style="font-size:22px;color:#FFFFFF;">&#xe6e2;</i></a>
+							</div>
+							<input type="hidden" id="piclist1" name="piclist[]">						
+						</li>
+						<li class="maskWraper add"></li>
+					</ul>
+				</div> 
+			</div>
+			<input type="hidden" id="picnum" name="picnum" value="1">
+		</div><!--上传图片-->
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>审核：</label>
+					<div class="formControls col-3"> <span class="select-box">
+						<select name="status" class="select" id="status">
+							<option value="1">通过</option>
+							<option value="0">未通过</option>							
+						</select>
+						</span>
+					</div>
+				</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>简介：</label>
+			<div class="formControls col-8">
+				<textarea name="intro" id="intro" cols="" rows="" class="textarea"  placeholder="" datatype="*0-500"  dragonfly="true"  onKeyUp="textarealength(this,200)" errormsg="请输入0-500个字"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/500</p>
+			</div>
+			<div class="col-3"></div>
+		</div>
+		<div style="width:100%;height:50px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-1">
+				<button class="btn btn-primary radius bt-normal" type="button" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button class="btn btn-default radius bt-normal" type="button" onClick="layer_close();">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/vote.js"></script>
+<script type="text/javascript">
+var sVote = new Vote();
+sVote.setThisName('sVote');
+sVote.initEditPlayer();
+</script>
+</body>
+</html>

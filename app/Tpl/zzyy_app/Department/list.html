@@ -1,0 +1,51 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+
+{{$department=$DepartmentTag->get($departmentId)}}
+{{$disease=$DiseaseTag->get($diseaseId)}} 
+{{include file="Common/header.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+</head>
+<body>
+{{include file="Common/right.html"}}
+{{$doc=$PicManagerTag->getMobilePic(appkeshi,app)}}
+<img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+
+<div class="border"></div> 
+
+<div id="news">
+	<div class="title">
+    <ins></ins> <a href='{{$MOBILE}}/department.php?method=index&id={{$department->id}}'>
+		{{$department->name}}</a> > {{$disease->name}}
+    </div>
+    <ul>
+        {{foreach $list as $v}}
+        
+    	<li><a class="news_txt" href="{{$MOBILE}}/department.php?method=get&department_id={{$v->id}}&disease_id={{$v->id}}"><p>{{$v->subject|truncate:15}}</p></a>
+    	<a href="tel:{{$contact.phone}}"><span></span></a></li>        
+        {{/foreach}}
+    </ul>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

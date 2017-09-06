@@ -1,0 +1,264 @@
+<?php
+    /**
+     * 微信分享
+     */
+
+class ShareController extends Controller {
+
+    private $service;
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        //$this->service = new ShareService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        //$filterService->addFunc($filterService::$SQLINJECTION);
+         //$filterService->addFunc($filterService::$WORKERISLOGIN);
+        //$filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 分享获得积分(自定义分享标题与分享统计)
+     */
+    public function myShare() {		
+		$username = stripslashes(trim($_POST['sharename'])) ;
+			$post_url = "http://www.boyicms.com/interface/hma/UserInterface.php";	
+		if($username){
+			$post_data = array("type"=>"getname","username"=>$username);
+			$obj = $this->http_post($post_url,$post_data);
+			if($obj->username){
+			//分享处理与统计
+				$memberser=new MemberService();				
+				$memberarr=array('username'=>$obj->username);
+				$memberarray=$memberser->getmembyname($memberarr)->data;//获取会员信息
+				$member=new Member();
+				$member->id=$memberarray['id'];
+				$member->username=$memberarray['username'];
+				$member->telephone=$memberarray['telephone'];
+				$member->ownscore=$memberarray['ownscore'];
+ 
+			   if(empty($memberarray)){//如果会员不存在则添加会员
+				$newmember=array('username'=>$obj->username,'telephone'=>'');
+				$mresult=$memberser->addmember($newmember);
+				$member=$mresult->data;	
+			   }			
+				$memberlogser=new CommodityAddScoreLogService();//准备写入用户日志								
+				$scoreruleser=new CommodityRuleService();
+				$scoarry=array('order'=>'order by id desc');
+				$result=$scoreruleser->query($scoarry);//查询现有的积分规则				
+				$nows=time();
+				$score = 0;
+				foreach ($result->data as $key=>$val){//规则处理位置		
+					if($val->status != 0 && $val->id==3){//分享链接并积活
+						$res = $memberlogser->fromIp(array('uid'=>$member->id,'type'=>$val->id,'ip'=>$this->getIp()));
+						if($res){
+							$num=$memberlogser->summember(array('uid'=>$member->id,'type'=>$val->id));//获取用户今日获得的积分数							
+							if($num->data->total<$val->limit){//如果没有超过该用户分享链接上限则执行操作							
+								$memberser->addscoretomember(array('id'=>$member->id,'score'=>$val->score));
+								$logarr=array('uid'=>$member->id,'date'=>$nows,'type'=>$val->id,'score'=>$val->score,'ip'=>$this->getIp());//保存用户登录信息,写入日子好
+								$memberlogser->savelog($logarr);
+								$score = $val->score;
+							}							
+						}
+					}					
+				}
+			}else{
+				echo json_encode(new Result(false, 0, '', ''));	
+				exit;
+			}
+		}
+		$name =$_SESSION['user'];
+		if($name){
+			$url = $_POST['url'];
+			$js_sdk = $this->make_signature($url);	
+			$content = $this->get_sitemeta($url);			
+			$post_data = array("type"=>"encstr","string"=>$name);
+			$obj = $this->http_post($post_url,$post_data);		
+			if(preg_match("/?/i", $url)){
+				$url = $url.'&username='.$obj->string.'&';				
+			}else{
+				$url = $url.'?username='.$obj->string.'&';			
+			}
+			$content['url'] = $url;
+			$info['news'] = $content;    
+			$info['js_sdk'] = $js_sdk;
+			$info['score'] = $score;				
+			echo json_encode(new Result(true, 0, '', $info));
+		}else{
+			echo json_encode(new Result(false, 0, 'Not logged in', ''));			
+		}
+		
+	}
+	public function get_sitemeta($url) {   
+		 $data = file_get_contents($url);        
+		 $meta = array();
+		 if (!empty($data)) {
+			  #Title
+			  preg_match('/<TITLE>([\w\W]*?)<\/TITLE>/si', $data, $matches);
+			  $meta['title'] = (!empty($matches[1])) ? $matches[1] : '';			  
+/* 			  #Keywords
+			  preg_match('/<META\s+name="keywords"\s+content="([\w\W]*?)"/si', $data, $matches);         
+			  if (empty($matches[1])) {
+				   preg_match("/<META\s+name='keywords'\s+content='([\w\W]*?)'/si", $data, $matches);              
+			  }
+			  if (empty($matches[1])) {
+				   preg_match('/<META\s+content="([\w\W]*?)"\s+name="keywords"/si', $data, $matches);              
+			  }
+			  if (empty($matches[1])) {
+				   preg_match('/<META\s+http-equiv="keywords"\s+content="([\w\W]*?)"/si', $data, $matches);              
+			  }
+			  if (!empty($matches[1])) {
+				   $meta['keywords'] = $matches[1];
+			  }  */        
+			  #Description
+			  preg_match('/<META\s+name="description"\s+content="([\w\W]*?)"/si', $data, $matches);         
+			  if (empty($matches[1])) {
+				   preg_match("/<META\s+name='description'\s+content='([\w\W]*?)'/si", $data, $matches);              
+			  }
+			  if (empty($matches[1])) {
+				   preg_match('/<META\s+content="([\w\W]*?)"\s+name="description"/si', $data, $matches);                        
+			  }
+			  if (empty($matches[1])) {
+				   preg_match('/<META\s+http-equiv="description"\s+content="([\w\W]*?)"/si', $data, $matches);              
+			  }
+				$meta['description'] = (!empty($matches[1])) ? $matches[1] : '';
+			   #img
+			  preg_match( '/<img.+src=\"?(.+\.(jpg|gif|bmp|bnp|png))\"?.+>/si', $data, $matches );
+				$meta['picurl'] = (!empty($matches[1])) ? $matches[1] : '';
+		 }
+      return $meta;
+	}
+	private function make_nonceStr(){
+		$codeSet = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		for ($i = 0; $i<16; $i++) {
+			$codes[$i] = $codeSet[mt_rand(0, strlen($codeSet)-1)];
+		}
+		$nonceStr = implode($codes);
+		return $nonceStr;
+	}
+	private function make_signature($url){
+		$nonceStr = $this->make_nonceStr();
+		$timestamp = time();
+/* 		$filename = ABSPATH.'/weixindb/weixinApp.json';	
+		if (file_exists($filename)){
+	        $json = file_get_contents($filename);
+	        $array = json_decode($json,true);
+			 $weixindao = new WeixinService();
+			$weixin = $weixindao->getWeixinById($array['id']);
+			$appId = $weixin->appid;                   //你的APPID
+			$appsecret = $weixin->appsecret;//你的appsecret
+		} */
+		$appId = 'wx8e4bea2a1132b1ac';
+		$appsecret = 'af88509b64670348669e640b50874324';	 //要绑定JS接口安全域名
+		$jsapi_ticket = $this->make_ticket($appId,$appsecret);
+		if($jsapi_ticket==''){
+			echo json_encode(new Result(false, 0, '', ''));
+			exit;
+		}
+		//$url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		// 这里参数的顺序要按照 key 值 ASCII 码升序排序
+		$string1 = "jsapi_ticket=$jsapi_ticket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+		$signature = sha1($string1);
+		$arr = array(
+			'appid' => $appId,
+			'signature' => $signature,
+			'time' => $timestamp,
+			'nonceStr' => $nonceStr,
+			'jsapi_ticket' => $jsapi_ticket,
+			'url' =>$url,
+			'string1' => $string1
+		);
+		return $arr;
+	}
+	private function make_ticket($appId,$appsecret){
+		
+		// access_token 应该全局存储与更新，以下代码以写入到文件中
+		$tokenurl = ABSPATH.'/weixindb/access_token.json';		
+		if ($data=="" || $data->expire_time < time()) {
+			$TOKEN_URL="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appId."&secret=".$appsecret;
+			$json = $this->http_get($TOKEN_URL);
+			$result = json_decode($json,true);
+			$access_token = $result['access_token'];	
+			if ($access_token) {
+				$data->expire_time = time() + 7000;
+				$data->access_token = $access_token;
+				$fp = fopen($tokenurl, "w");
+				fwrite($fp, json_encode($data));
+				fclose($fp);
+			}
+		}else{
+			$access_token = $data->access_token;
+		}
+		$ticketurl = ABSPATH.'/weixindb/jsapi_ticket.json';
+		$data = json_decode(file_get_contents($ticketurl));
+		if ($data==''||$data->expire_time < time()) {
+			$ticket_URL="https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=".$access_token."&type=jsapi";
+			$json = $this->http_get($ticket_URL);
+			$result = json_decode($json,true);
+			$ticket = $result['ticket'];
+			if ($ticket) {
+				$data->expire_time = time() + 7000;
+				$data->jsapi_ticket = $ticket;
+				$fp = fopen($ticketurl, "w");
+				fwrite($fp, json_encode($data));
+				fclose($fp);
+			}
+		}else{
+			$ticket = $data->jsapi_ticket;
+		}
+		return $ticket;
+	}
+	private function http_get($url){
+	    $oCurl = curl_init();
+	    if(stripos($url,"https://")!==FALSE){
+	        curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
+	        curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, FALSE);
+	        curl_setopt($oCurl, CURLOPT_SSLVERSION, 1); //CURL_SSLVERSION_TLSv1
+	    }
+	        curl_setopt($oCurl, CURLOPT_URL, $url);
+	        curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1 );
+	        $sContent = curl_exec($oCurl);
+	        $aStatus = curl_getinfo($oCurl);
+	        curl_close($oCurl);
+	    if(intval($aStatus["http_code"])==200){
+	        return $sContent;
+	    }else{
+	        return false;
+	    }
+	  }
+	private function http_post($url,$post_data){	
+		$ch=curl_init();
+		curl_setopt($ch,CURLOPT_URL,$url);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch,CURLOPT_POST,1);
+		curl_setopt($ch,CURLOPT_POSTFIELDS,$post_data);
+		$data=curl_exec($ch);
+		curl_close($ch);
+	    return json_decode($data);		
+	} 
+		/*
+	 * 获取用户的ip地址
+	* */
+	protected function getIp(){
+		if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+			return $_SERVER['HTTP_CLIENT_IP'];
+		}elseif(!empty($_SERVER['HTTP_X_FORVARDED_FOR'])){
+			return $_SERVER['HTTP_X_FORVARDED_FOR'];
+		}elseif(!empty($_SERVER['REMOTE_ADDR'])){
+			return $_SERVER['REMOTE_ADDR'];
+		}else{
+			return '未知IP';
+		}
+	}	
+}
+?>

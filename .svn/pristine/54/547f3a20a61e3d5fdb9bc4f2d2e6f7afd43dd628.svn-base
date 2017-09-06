@@ -1,0 +1,425 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="/hcc/css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="/hcc/css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="/hcc/lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="/hcc/css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="/hcc/lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>查看详细就诊记录</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="formEdit">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>基本资料</span><span>诊疗信息</span><span>费用结算</span><span>复诊记录</span><span>回访纪录</span></div>
+			<div class="tabCon">
+				<div class="row cl">
+				  <label class="form-label col-2"><span class="c-red">*</span>患者姓名：</label>
+				  <div class="formControls col-5">
+					<input type="text"  name="username" id="username" placeholder="" value="" class="input-text" datatype="*2-16" nullmsg="姓名不能为空" errormsg="限2-16个字" autocomplete="off" />
+				  </div>
+				  <div class="col-3"></div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>手机号：</label>
+					<div class="formControls col-5">
+						<input type="text" class="input-text" value="" onKeyUp="gAddPatient.findUserInfoBytelephone(this)" placeholder="请输入电话，没有请留空" id="telphone" name="telphone" autocomplete="off"/>
+					</div>					
+				</div>
+				
+				<div class="row cl">
+					<label class="form-label col-2">病历号：</label>
+					<div class="formControls col-6 mt-3" id="number"></div>&nbsp;&nbsp;（系统自动分配，不能更改）
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">电子识别码：</label>
+					<div class="formControls col-6"><img id="case_number_img" src="" width="200px"/></div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>性别：</label>
+					<div class="formControls col-5 skin-minimal">
+						<div class="radio-box">
+							<input value="0" type="radio" id="gender0" name="gender">
+							<label>男</label>
+						</div>
+						<div class="radio-box">
+							<input value="1" type="radio" id="gender1" name="gender">
+							<label>女</label>
+						</div>
+					</div>					
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>出生日期：</label>
+					<div class="formControls col-91 skin-minimal">
+						<input type="text" maxlength="3" onBlur="gAddPatient.changeAge();" onFocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd',vel:'birthday',isShowClear:false,onpicked:gAddPatient.changeAge});" name="birthday" id="birthday" class="input-text Wdate" style="width:120px;"/>	
+					</div>
+					<label class="form-label col-1"><span class="c-red">*</span>年龄：</label>
+					<div class="formControls col-94">
+						<input type="text" nullmsg="年龄不能为空" datatype="INTS" name="age" id="age" placeholder="" value="" class="input-text" errormsg="请输入正确的数字" />
+					</div>
+					<div class="col-3"></div>
+				</div>
+				
+				<div class="row cl">
+					<label class="form-label col-2">邮箱：</label>
+					<div class="formControls col-5">
+						<input type="text" class="input-text" placeholder="@请输入用户邮箱，没有请留空" name="email" id="email"/>
+					</div>					
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">QQ号码：</label>
+					<div class="formControls col-5">
+						<input type="text" class="input-text" placeholder="请输入用户QQ，没有请留空" onKeyUp="value=value.replace(/[^\d]/g,'');" name="qq" id="qq" />
+					</div>					
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">会员：</label>
+					<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" id="vip_level" name="vip_level" size="1" plugin="jqtransform">
+							<option value="0">否</option>
+						</select>
+						</span> </div><div class="col-2"></div><a class="btn btn-success radius" id="manageVipLevel" onClick="gAddPatient.openAdd('会员等级管理','manage/member.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe6cc;</i> 会员管理</a>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">来源：</label>
+					<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" id="source" name="source" size="1" datatype="*"  nullmsg="来源不能为空" plugin="jqtransform">
+						</select>
+						</span> </div><div class="col-2"></div><a class="btn btn-success radius" id="manageSource" onClick="gAddPatient.openAdd('患者来源管理','manage/source.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe6c9;</i> 来源管理</a>
+				</div>
+				<div class="row cl" id="source_recommend_name">
+					<label class="form-label col-2">推荐人：</label>
+					<div class="formControls col-5">
+						<input type="text" class="input-text" placeholder="请输入该患者推荐人的姓名或电话..." onKeyUp="gAddPatient.checkName(this)" id="referrer" name="referrer"/>
+					</div><div class="col-2 checkdiv"></div>
+					<input type="hidden" name="recommend_name" id="recommend_name"/>
+					<input type="hidden" name="recommend_tel" id="recommend_tel"/>
+					
+				</div>
+				<div class="row cl" id="sourceDetail" style="display:none;">
+					<label class="form-label col-2">来源详细：</label>
+					<div class="formControls col-10">
+						<textarea name="source_detail" id="source_detail" cols="" rows="" class="textarea"  placeholder="请输入该患者来源渠道需特别注明的事宜，没有请留空..."  dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+			</div>
+			<!--基本资料-->
+			<div class="tabCon">
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>就诊日期：</label>
+					<div class="formControls col-91 skin-minimal">
+						<input type="text" onFocus="WdatePicker()" id="visit_time" class="input-text Wdate" style="width:120px;" name="visit_time" nullmsg="日期不能为空" datatype="*"/>	
+					</div><div class="col-2"></div>
+					<label class="form-label col-95"><span class="c-red">*</span>时间段：</label>
+					<div class="formControls col-96 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" name="visit_time_field" value="1"/>
+							<label>上午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" name="visit_time_field" value="2"/>
+							<label>下午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" name="visit_time_field" value="3"/>
+							<label>晚上</label>
+						</div>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">前台接待：</label>
+					<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" id="receptionist_id" name="receptionist_id" size="1" datatype="*" nullmsg="不能为空，不明请选择“不明“"  plugin="jqtransform">
+						</select>
+						</span> </div><div class="col-2"></div><a class="btn btn-success radius" onClick="gAddPatient.openAdd('前台接诊人员管理','manage/receptionist.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe6d0;</i> 前台管理</a>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">前台记录：</label>
+					<div class="formControls col-10">
+						<textarea name="reception_records" id="reception_records" cols="" rows="" class="textarea"  placeholder="请输入前台接诊人员初步的咨询情况..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">主治医生：</label>
+					<div class="formControls col-10">
+						<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" id="doctor_id" name="doctor_id" size="1" datatype="*"  nullmsg="医生不能为空" plugin="jqtransform"></select>
+						</span> </div><div class="col-2"></div>
+						<a class="btn btn-success radius addpatient_bt" id="manageDoctor" onClick="gAddPatient.openAdd('医生管理','manage/doctors.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe62b;</i> 医生管理</a>
+					</div>
+				</div>
+				
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>成交：</label>
+					<div class="formControls col-5 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" value="1" id="is_finished0" name="is_finished"/>
+							<label>是</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" value="0" id="is_finished1" name="is_finished"/>
+							<label>否</label>
+						</div>
+					</div>
+				</div>
+				<div class="row cl falsediv"  style="display:none;">
+					<label class="form-label col-2">原因：</label>
+					<div class="formControls col-10">
+						<textarea name="reason" id="reason" cols="" rows="" class="textarea"  placeholder="请写明未成交原因便于统计分析..." datatype="*2-300" dragonfly="true" nullmsg="原因不能为空" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div><div class="col-3" style="margin-left:120px;"></div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">诊疗项目：</label>
+					<div class="formControls col-10">
+						<div class="skin-minimal  form-label" style="text-align:left;" id="span_examine_items"></div>
+						<a class="btn btn-success radius addpatient_bt" id="manageExamineItem" onClick="gAddPatient.openAdd('选择诊疗项目','manage/clinicitem.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe6b6;</i> 项目管理</a>
+					</div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">承接科室：</label>
+					<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" id="departmentSel" name="department" size="1" datatype="*"  nullmsg="科室不能为空" plugin="jqtransform"></select>
+						</span> </div><div class="col-2"></div><a class="btn btn-success radius" onClick="gAddPatient.openAdd('科室管理','manage/department.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe643;</i> 科室管理</a>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">病症分类：</label>
+					<div class="formControls col-97"><span class="select-box" style="width:150px;">
+						<select class="select" id="disease_type" name="disease_type" size="1"  datatype="*"  nullmsg="病症不能为空" plugin="jqtransform"></select>
+						</span></div><div class="col-2"></div>
+						<a class="btn btn-success radius addpatient_bt" id="manageDisease" onClick="gAddPatient.openAdd('病症管理','manage/diseases.html','800','400')" href="javascript:;"><i class="Hui-iconfont">&#xe6c0;</i> 病症管理</a>					
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">诊疗方案：</label>
+					<div class="formControls col-10">
+						<textarea id="therapeutic" name="therapeutic" cols="" rows="" class="textarea"  placeholder="请写明该患者的诊疗方案..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>				
+				<div class="row cl successdiv">
+					<label class="form-label col-2">报告单：</label>
+					<div id="checkthumbnaillist"></div>
+					<div id="checkbtnplase">
+						<button class="btn btn-success radius" onclick="gAddPatient.addInspectionReport();return false;" type="button"><i class="Hui-iconfont">&#xe600;</i> 添加报告单</button>
+					</div>
+				</div>
+				<div id="followpage" class="row cl successdiv">
+					<div id="addlistpage"></div>					
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">医嘱：</label>
+					<div class="formControls col-10">
+						<textarea name="advice" id="advice" cols="" rows="" class="textarea"  placeholder="请输入医生的医嘱，以便回访......" dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">处方：</label>
+					<div class="formControls col-10">
+						<table id="prescriptionList" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">									    
+									<th width="140px">药品名称</th>								
+									<th width="60px">规格</th>									
+									<th width="50px">数量</th>	
+									<th width="50px">单位</th>								
+									<th>用法</th>											
+								</tr>
+							</thead>							
+						</table>
+						<input type="hidden" name="prescription" id="prescription" value="">
+						<input type="hidden" name="pre_id" id="pre_id" value="">
+					</div>
+					<div class="formControls col-12 mt-5"><label class="form-label col-2"></label><a class="btn btn-success radius" onClick="gAddPatient.openAdd('处方管理','manage/prescriptions.html','840','400')" href="javascript:;"><i class="Hui-iconfont">&#xe636;</i> 处方管理</a></div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2"><span class="c-red">*</span>约定复诊：</label>
+					<div class="formControls col-91 skin-minimal">
+						<input type="text" onFocus="WdatePicker()" id="return_time" class="input-text Wdate" style="width:120px;" name="return_time">	
+					</div>
+					<label class="form-label col-95">时间段：</label>
+					<div class="formControls col-84 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" name="return_time_field" value="1"/>
+							<label>上午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" name="return_time_field" value="2"/>
+							<label>下午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" name="return_time_field" value="3"/>
+							<label>晚上</label>
+						</div>
+					</div>
+				</div>				
+				<div class="row cl successdiv">
+					<label class="form-label col-2">复诊项目：</label>
+					<div class="formControls col-10">
+						<textarea name="return_items" id="return_items" cols="" rows="" class="textarea"  placeholder="请填写复诊项目..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">患者建议：</label>
+					<div class="formControls col-10">
+						<textarea name="advise" id="advise" cols="" rows="" class="textarea"  placeholder="若就诊患者有相关的建议，请写明，没有请留空..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">不良反应：</label>
+					<div class="formControls col-10">
+						<textarea name="untoward_effect" id="untoward_effect" cols="" rows="" class="textarea"  placeholder="详述用户治疗后有可能出现的不良反应，便于作为离院回访的参考..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">备注：</label>
+					<div class="formControls col-10">
+						<textarea name="remark" id="remark" cols="" rows="" class="textarea"  placeholder="备注其他必要信息..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+			</div>
+			<!--就诊资料-->
+			<div class="tabCon">
+				<div class="row cl successdiv" id="before_left_money" style="display:none;">
+					<label class="form-label col-2">往期余额：</label>
+					<div class="formControls col-6 mt-3" id="left_money_str">0</div>
+					<input type="hidden" name="left_money" id="left_money" value=""/>
+					<div class="col-3"></div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">本次缴费：</label>
+					<div class="formControls col-6">
+						<input type="text" class="input-text" placeholder="￥请输入本次患者缴纳费用，单位元" name="real_price" id="real_price" onKeyUp="value=value.replace(/[^\d+(\.\d+)?$]/g,'');" datatype="doubleINT" nullmsg="请输入费用！" errormsg="格式错误，只能是整数或小数" >
+					</div>
+					<div class="col-3"></div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">本次费用：</label>
+					<div class="formControls col-6">
+						<input type="text" class="input-text" placeholder="￥请输入该患者本次治疗实际产生费用，单位元" name="current_price" id="current_price" onKeyUp="value=value.replace(/[^\d+(\.\d+)?$]/g,'');" datatype="doubleINT" nullmsg="请输入本次费用！" errormsg="格式错误，只能是整数或小数" >
+					</div>
+					<div class="col-3"> </div>
+				</div>
+				<div class="row cl successdiv">
+					<label class="form-label col-2">本次余额：</label>
+					<div class="formControls col-6 mt-3" id="balance_str">0</div>
+					<input type="hidden" name="balance" id="balance" value="" />
+					<div class="col-3"></div>
+				</div>
+			</div>
+			<!--费用结算-->
+			<div class="tabCon">
+				<div class="pd-20">
+					<div class="text-c" id="sosobox">
+						就诊日期：
+						<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'record_end\')||\'%y-%M-%d\'}'})" id="record_start" class="input-text Wdate" style="width:120px;" name="start">
+						-
+						<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'record_start\')}',maxDate:'%y-%M-%d'})" id="record_end" class="input-text Wdate" style="width:120px;" name="end">		
+						<button name="" id="record_seach" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+					</div>
+					<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a class="btn btn-success radius" onClick="gAddPatient.addReDiagnosis();" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 新增复诊</a> <a href="javascript:;" onClick="gAddPatient.delBatchReDiagnosis()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+					<div class="mt-20" id="grids">
+						<table id="reDiagnoseList" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">
+									<th width="25"><input type="checkbox" name="" value=""></th>					
+									<th width="130">就诊日期</th>					
+									<th width="75">费用（元）</th>
+									<th width="80">前台接诊</th>
+									<th width="80">主治医生</th>
+									<th width="120">病症分类</th>
+									<th width="130">约定复诊</th>					
+									<th width="90">操作</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!--复诊记录-->
+			<div class="tabCon">
+				<div class="pd-10">
+					<div class="text-c">
+						回访日期：
+						<input type="text" onFocus="WdatePicker()" id="" class="input-text Wdate" style="width:120px;" name="">			
+						<button name="" id="" class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+					</div>
+					<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a class="btn btn-success radius" id="add" href="javascript:;"><i class="Hui-iconfont">&#xe6c5;</i> 新增回访</a> <a href="javascript:;" onClick="gAddPatient.delBatchReturnVisit()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+					<div class="mt-20">
+						<table id="returnVisitList" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">
+									<th width="30"><input type="checkbox" name="" value=""/></th>
+									<th width="130">回访日期</th>
+									<th width="60">回访人</th>
+									<th width="60">回访方式</th>
+									<th width="400">发送信息</th>										
+									<th width="60">操作</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!--回访纪录-->
+		</div><!--HuiTab over-->
+		<div class="row cl"></div>
+		<div class="row cl" id="formFields"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray" id="subBtn">
+		        <input type="hidden" id="data" value="">
+				<input type="hidden" id="case_id" name="case_id" value="">
+				<input type="hidden" id="pid" name="pid" value="">
+				<input type="hidden" id="patient_id" name="patient_id" value="">
+				<input type="hidden" id="code" value="">
+				<input type="hidden" name="case_number" id="case_number" value="">
+				<input type="hidden" name="type" id="type" value="">
+				<input type="hidden" name="add_time" id="add_time" value="">
+				<input type="hidden" name="detail_id" id="detail_id" value="">
+				<input type="hidden" name="visit_num" id="visit_num" value="">
+				<input type="hidden" id="prescriptionIds" value="">
+				<input type="hidden" name="action" value="modify">
+				<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存更改</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+		</div>		
+		
+	</form>
+
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/js/addPatient.js"></script>
+<script type="text/javascript">
+var gAddPatient = new AddPatient();
+gAddPatient.setThisName('gAddPatient');
+gAddPatient.initPatientDetail();
+</script>
+</body>
+</html>

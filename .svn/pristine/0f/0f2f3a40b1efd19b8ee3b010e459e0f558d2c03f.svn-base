@@ -1,0 +1,466 @@
+<?php
+/**
+ * 处理返回值
+ * */
+function formatReturnData($data, $content, $prefix = 'field') {
+    if (empty($data)) {
+        return '';
+    }
+    
+    if (is_string($data)) {
+    	return $data;
+    }
+    
+    if (is_object($data)) {
+        $data = array($data);
+    }
+    
+    if (is_array($data) && !isset($data[0])) {
+    	$data = array($data);
+    }
+    
+    //需要特殊处理的字段
+    preg_match_all("/\[(.*?)\/\]/", $content, $matches);
+    $specialArr = array();
+    if (isset($matches[1]) && !empty($matches[1])) {
+        foreach ($matches[1] as $field) {
+        	$arr = explode('|', $field);
+        	if (count($arr) > 1 && !empty($arr[1])) {
+        	    $key = trim(array_shift($arr));
+        	    foreach ($arr as $f) {
+        	        if (strpos($f, 'function') === false) {
+        	            $specialArr[$key][] = $f;
+        	        } else {
+        	            $fArr = explode("function", $f);
+        	            $specialArr[$key][] = trim(array_shift($fArr));
+        	            foreach ($fArr as $fun) {
+        	                $specialArr[$key][] = 'function' . trim($fun);
+        	            }
+        	        }
+        	    }
+        	} else {
+        	    $arr = explode('function', $field);
+        	    $arr = array_filter($arr);
+        	    if (count($arr) > 1 && !empty($arr[1])) {
+        	        $key = trim(array_shift($arr));
+            	    foreach ($arr as $f) {
+            	        $specialArr[$key][] = 'function' . trim($f);
+            	    }
+        	    }
+        	}
+        } 
+    }
+    
+    //可显示的子级数据
+    $childData = array('children', 'articles', 'diseases', 'technology', 'doctors', 'doctor', 'arcbyrecommend', 'docreservation');
+    
+    //开始处理
+    $str = '';
+    
+    foreach ($data as $row) {
+        $tmp = $content;
+        $row = (array)$row; //将redbean对象转化成数组
+        $fieldName = array_keys($row); //取得字段名
+        foreach ($fieldName as $name) {
+            if ($name == 'plushtime' && is_numeric($name)) {
+                $row[$name] = date('Y-m-d H:i:s', $row[$name]);
+            }
+            
+            if ($name == 'addtime' && is_numeric($name)) {
+                $row[$name] = date('Y-m-d H:i:s', $row[$name]);
+            }
+            
+
+
+            
+            if (isset($specialArr["{$prefix}:{$name}"])) {
+                //需要特殊处理的字段
+                $row[$name] = formatSpecialField($specialArr["{$prefix}:{$name}"], $row[$name]);
+            }
+ 
+            
+            $tmpData = $row[$name];
+            
+       
+            
+            if (in_array($name, $childData)) {
+                //处理子级数据
+            	formatChildrenData($name, $tmp, $row, $tmpData);
+            	continue;
+            } 
+            
+            //处理外层数据
+            if(is_string($tmpData)){
+            $tmp = preg_replace("/\[{$prefix}:" . $name . "(.*?)\/\]/", $tmpData, $tmp);//这里错了
+            }
+
+        }
+        
+        $str .= $tmp;
+
+    }
+    
+    return $str;
+}
+
+/**
+ * 格式化子级
+ * */
+function formatChildrenData($name, &$tmp, $row, $tmpData = array()) {
+    $tmp = str_replace(PHP_EOL,"",$tmp);
+    preg_match_all("/\[{$name}.*?\](.*?)\[\/{$name}\]/i", $tmp, $res);
+    $tmpChild = array();
+    if (!empty($res)){
+        preg_match_all("/\[{$name}(.*?)\].*?\[\/{$name}\]/i", $tmp, $conditions);
+        $conditions = isset($conditions[1]) ? $conditions[1] : '';
+        $htmlArr = isset($res[1]) ? $res[1] : '';
+        foreach ($htmlArr as $key=>$html) {
+            //格式化条件
+            $conArr = array();
+            if (isset($conditions[$key]) && $conditions[$key]) {
+                $condition = str_replace(array('"', "'"), '', trim($conditions[$key]));
+                $conArr = array_filter(explode(' ', $condition));
+                foreach ($conArr as $conStr) {
+                    $strArr = explode('=', $conStr);
+                    $$strArr[0] = $strArr[1];
+                }
+            }
+    
+            $from = isset($from) ? intval($from) : 0;
+            $limit = isset($limit) ? intval($limit) : 10;
+             
+            //获取子级数据
+            if ($name != 'children') {
+                $ddd = getChildData($name, $row, $conArr);
+                if (!empty($ddd)) {
+                    $tmpData = $ddd;
+                }
+            }
+             
+            if (!empty($tmpData)) {
+                if (isset($next) && $next && strpos($html, $next) !== false) {
+                    //处理子级
+                    if ($type == 'navbylimit') {
+                        foreach ($tmpData as $k=>$d) {
+                            $ser = new NavigationTag();
+                            $childData = $ser->getLimit ( 'id desc', 1000, array('pid'=>$d->id) );
+                            formatChildrenData($next, $tmp, $row, $childData);
+                        }
+                    } elseif ($type == 'deptmlist') {
+                        foreach ($tmpData as $k=>$d) {
+                            $ser = new DepartmentManagerTag();
+                            $childData = $ser->getLimit ( 'id asc', 1000, array('belong'=>$d->id) );
+                            formatChildrenData($next, $tmp, $row, $childData);
+                        }
+                    }
+                    return formatChildrenData($name, $tmp, $row, $tmpData);
+                }
+                 
+                if ($limit) {
+                    $tmpData = array_splice($tmpData, $from, intval($limit));
+                }
+                
+                $tmpChild[$key] .= "\r\n" . formatReturnData($tmpData, $html, $name);
+            } else {
+                if ('docreservation' == $name) {
+                    //预约挂号，未排班的刚不显示
+                    $tmpChild[$key] .= ' <script>$(function(){$("#tr_' . $row['id'] . '").remove();})</script>';
+                } else {
+                    $tmpChild[$key] .= '';
+                }
+            }
+    
+        }
+        
+        $oldArr = isset($res[0]) ? $res[0] : '';
+        foreach ($oldArr as $key=>$old) {
+            $tmp = str_replace($old, $tmpChild[$key], $tmp);
+        }
+    }
+    
+    return $tmp;
+}
+
+/**
+ * 根据标签获取子级数据
+ * */
+function getChildData($tagName, $row, $conArr) {
+    foreach ($conArr as $conStr) {
+        $strArr = explode('=', $conStr);
+        $$strArr[0] = $strArr[1];
+    }
+    $limit = isset($limit) ? intval($limit) : 1000;
+    $recommend_name = isset($recommend_name) ? $recommend_name : '';
+    
+    $by = isset($by) ? $by : 'department';
+
+    $department_id = isset($row['department_id']) ? $row['department_id'] : $row['id'];
+    $disease_id = isset($row['disease_id']) ? $row['disease_id'] : $row['id'];
+    
+    $data = array();
+    //默认by department_id
+    switch ($tagName) {
+    	case 'doctor' :
+    	    //获取医生数据
+            $ser = new DoctorTag();
+            $data = $ser->getByDepartment($department_id);
+            if ($data->pic&&strpos($data->pic, NETADDRESS) === false) {
+                $data->pic = UPLOAD . $data->pic;
+            }
+    	    break;
+    	case 'doctors' :
+    	        //获取医生数据
+    	        $ser = new DoctorTag();
+    	        if ($by == 'recommend' && $recommend_name) 
+    	            $data = $ser->getByRecommend($recommend,'doctor_id');
+    	        else 
+    	            $data = $ser->getDocByDepartment($department_id);
+    	        
+                foreach ($data as $k=>$docinfo) {
+                    if ($data->pic&&strpos($docinfo->pic, NETADDRESS) === false) {
+                        $data[$k]->pic = UPLOAD . $docinfo->pic;
+                    }
+                }   
+    	        break;
+    	case 'articles':
+    	    $ser = new ArticleTag();
+    	    if ($by == 'disease')
+    	        $data = $ser->getByDisease($department_id,$disease_id,1,$limit);
+    	    else 
+    	        $data = $ser->getByDeparment($department_id, 1, $limit);
+    	    
+    	    if (!empty($data))
+        	    foreach ($data as $k=>$v) {
+        	        if ($v->pic&&strpos($v->pic, NETADDRESS) === false) {
+        	            $data[$k]->pic = UPLOAD . $v->pic;
+        	        }
+        	        $data[$k]->url = $ser->getArticleUrl($v->id, false);
+        	    }
+    	    
+    	    break;
+    	case 'arcbyrecommend':
+    	    $ser = new ArticleTag();
+    	    if ($recommend_name)
+    	        $data = $ser->getByRecommend($recommend_name, $disease_id, $department_id, $limit);
+    	    	
+    	    if (!empty($data))
+    	        foreach ($data as $k=>$v) {
+    	            if ($v->pic&&strpos($v->pic, NETADDRESS) === false) {
+    	                $data[$k]->pic = UPLOAD . $v->pic;
+    	            }
+    	            $data[$k]->url = $ser->getArticleUrl($v->id, false);
+    	        }
+    	    break;
+    	case 'diseases':
+    	    $ser = new DiseaseTag();
+    	    $data = $ser->getByDeparment($department_id);
+    	    if ($limit) {
+    	    	$data = array_splice($data, 0, $limit);
+    	    }
+    	    foreach ($data as $k=>$v) {
+    	        $data[$k]->url = $ser->getDiseaseUrl($v->id,$v->department_id,false);
+    	    }
+    	    break;
+    	case 'technology':
+    	    $ser = new TechnologyTag();
+    	    $data = $ser->getByDepartment($department_id,$limit);
+    	    foreach ($data as $k=>$v) {
+    	        if ($v->pic&&strpos($v->pic, NETADDRESS) === false) {
+    	            $data[$k]->pic = UPLOAD . $v->pic;
+    	        }
+    	        $data[$k]->url = getTechUrl($v->id);
+    	    }
+    	    break;
+    	case 'docreservation': //预约挂号获取单个医生排班
+    	    $department_id = isset($row['departmentmanager_id']) ? $row['departmentmanager_id'] : '';
+    	    $doctor = $row['name'] ? $row['name'] : (isset($row['doctor_id']) ? $row['doctor_id'] : $row['id']);
+    	    $ser = new ReservationTag();
+    	    $startdate = time();
+    	    $data = $ser->getDocReservation($department_id,$doctor, $startdate);
+    	    foreach ($data as $k=>$v) {
+    	        if ($v->moring != '-') {
+    	        	$data[$k]->field = '上午';
+    	        } elseif ($v->afternoon != '-') {
+    	            $data[$k]->field = '下午';
+    	        } elseif ($v->night != '-') {
+    	            $data[$k]->field = '晚上';
+    	        } else {
+    	            $data[$k]->field = '-';
+    	        }
+    	        
+    	        $data[$k]->name = $doctor;
+    	    }
+    	    break;
+    	default:
+    	    break;
+    }
+    $data = array_splice($data, 0, $limit);
+    return $data;
+}
+
+/**
+ * 格式化由function标签过来的参数集合
+ * */
+function formatFuncParams($params,&$order, &$limit, &$where, &$field, &$showChild=null) {
+    $tag = array (
+        'field',
+        'order',
+        'limit',
+        'children',
+        'assign',
+        'is_tomobile'
+    );
+    $where=array();
+    foreach ( $params as $key => $v ) {
+        if (! in_array ( $key, $tag ) && $v !== null && $v !== '')
+        {
+            $where [$key] = $v;
+        }
+    }
+    
+    $field = empty ( $params ['field'] ) ? "*" : $params ['field'];
+    $order = empty ( $params ['order'] ) ? "id desc" : $params ['order'];
+    $limit = empty ( $params ['limit'] ) ? "10" : $params ['limit'];
+    $showChild = empty ( $params ['children'] ) ? "" : $params ['children'];
+    return true;
+}
+
+/**
+ * 客户端的详情url需特殊处理
+ * */
+function getClientUrl($fileName, $id, $channel_id = '') {
+    $url = "";
+    switch (PROJECT_NAME) {
+    	case 'mobile':
+    	    $url = "/mobile/{$fileName}.php?method=get&id={$id}";
+    	    if ($channel_id) {
+    	    	$url .= "&channel_id={$channel_id}";
+    	    }
+    	    
+    	    if ($url&&strpos($url, NETADDRESS) === false) {
+    	    	$url = NETADDRESS . $url;
+    	    }
+    	    break;
+    	case 'app':
+    	    $url = "/app/{$fileName}.php?method=get&id={$id}";
+    	    if ($channel_id) {
+    	    	$url .= "&channel_id={$channel_id}";
+    	    }
+    	    
+    	    if ($url&&strpos($url, NETADDRESS) === false) {
+    	    	$url = NETADDRESS . $url;
+    	    }
+    	    break;
+    	case 'wechat':
+    	    $url = "/wechat/{$fileName}.php?method=get&id={$id}";
+    	    if ($channel_id) {
+    	    	$url .= "&channel_id={$channel_id}";
+    	    }
+    	    
+    	    if ($url&&strpos($url, NETADDRESS) === false) {
+    	    	$url = NETADDRESS . $url;
+    	    }
+    	    break;
+    	default:
+    	    break;
+    }
+    
+    return $url;
+}
+
+/**
+ * 特殊字段的特殊处理
+ * */
+function formatSpecialField($fields = array(), $rowStr) {
+	if (empty($fields)) {
+		return $rowStr;
+	}
+	foreach ($fields as $field) {
+	    $field = str_replace('"', '', $field);
+	    if (strpos($field, 'date_format') !== false) {
+	        //字段中有冒号，所以要特殊处理
+	        $arr = explode('date_format:', $field);
+	        $special = array('date_format', $arr[1]);
+	    } else if (strpos($field, 'function') !== false) {
+	        $arr = explode('function=', $field);
+	        $special = array('function', $arr[1]);
+	    } else {
+	        $special = explode(':', $field);
+	    }
+	    
+	    //日期格式化
+	    if ($special[0] == 'date_format') {
+	        $rowStr = smarty_modifier_date_format($rowStr, $special[1]);
+	    }
+	    
+	    //字段中文截取
+	    if ($special[0] == 'length') {
+	        $rowStr = smarty_modifier_truncate($rowStr, intval($special[1]));
+	    }
+	    
+	    //字段英文截取
+	    if ($special[0] == 'substr') {
+	        $rowStr = substr($rowStr, 0, $special[1]);
+	    }
+	    
+	    //自定义函数
+	    if ($special[0] == 'function') {
+	        $str = str_replace('@me', '$rowStr', $special[1]);
+	        $str = '$rowStr=' . $str;
+	        eval($str . ";");
+	    }
+	}
+	
+	return $rowStr;
+}
+
+function GetDateMk($value, $format = 'Y-m-d') {
+    $date = smarty_modifier_date_format($value, $format);
+    return $date;
+}
+
+function MyDate($format = 'Y-m-d', $value) {
+    $date = smarty_modifier_date_format($value, $format);
+    return $date;
+}
+
+function Iteration($value) {
+    return intval($value)+1;
+}
+
+//为了区分mobile,app,wechat的查询显示，标签查询时添加了show_position参数
+function unsetShowPosition() {
+	$show_position = '';
+	if(defined('PROJECT_NAME')){
+		$show_position = getShowPositionStr(PROJECT_NAME);
+	}else{
+		$show_position = getShowPositionStr('pc');
+	}
+	return $show_position;
+}
+
+/**
+ * 通过cate获取显示位字符串
+ *
+ * 显示位置：1(pc), 2(手机网页), 3(app), 4(微站)
+ * */
+function getShowPositionStr($cate) {
+	$show_position = "";
+	switch ($cate) {
+		case 'mobile':
+			$show_position = "( show_position='0' or show_position like '%2%')";
+			break;
+		case 'app':
+			$show_position = "( show_position='0' or show_position like '%3%')";
+			break;
+		case 'wechat':
+			$show_position = "( show_position='0' or show_position like '%4%')";
+			break;
+		default:
+			$show_position = "( show_position='0' or show_position like '%1%')";
+			break;
+	}
+
+	return $show_position;
+}
+?>

@@ -1,0 +1,39 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Vote extends Entity {
+
+  var $id;
+  var $moban;
+  var $title;
+  var $fxms;
+  var $fxtb;
+  var $gztb;
+  var $ktcs;
+  var $checks;
+  var $wappicurl;
+  var $statdate;
+  var $enddate;
+  var $start_time;
+  var $over_time;
+  var $status;
+  var $votelimit;
+  var $shuma;
+  var $shumat;
+  var $shumb;
+  var $shumbt;
+  var $shumc;
+  var $shumct;
+  var $xntps;
+  var $xncheck;
+  var $xnbms;
+  var $wfbmbz;
+  var $is_sh;
+  var $is_sendsms;
+  var $sms_content;
+  var $gonggao;
+  var $add_time;
+  var $ed_dcount; 
+    public function validate() {
+    }
+}

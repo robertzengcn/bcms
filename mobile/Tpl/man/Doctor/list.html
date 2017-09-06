@@ -1,0 +1,28 @@
+{{include file="Common/header.html"}}
+    <link href="{{$RESOURCE}}/css/yangshi.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{{$RESOURCE}}/js/jquery-1.js"></script>
+    <script type="text/javascript" src="{{$RESOURCE}}/js/function.js"></script>
+    <script src="{{$RESOURCE}}/js/qiao.js" id="globalMobileBridgeJSLoad" charset="utf-8"></script><link href="{{$RESOURCE}}/css/m-mobile-style.css" charset="utf-8" type="text/css" rel="stylesheet"><script charset="utf-8" src="list_image_files/set_cookie.htm"></script><script src="list_image_files/CheckInvitejs.aspx" type="text/javascript"></script></head>
+<body>
+<!-- <div class="lanmu1"><h4>当前页面：专家团队</h4></div> -->
+<div class="crumb">当前位置：<a href="{{$MOBILE}}">主页</a> &gt; <a href="">专家团队</a></div>
+<div class="list">
+    {{foreach $list item=v name=name}}
+    {{if $smarty.foreach.name.index<6}}
+    <div class="list2">
+        <div class="list21"><a target="_self" href="{{$MOBILE}}/doctor.php?method=get&id={{$v->id}}"><img src="{{$smarty.const.UPLOAD}}{{$v->pic}}" height="90" width="90"></a></div>
+
+        <div class="list22"><a target="_self" href="{{$MOBILE}}/doctor.php?method=get&id={{$v->id}}"><h3><strong><b>{{$v->name}}</b></strong> </h3><p>{{$v->description|truncate:28}}...</p></a></div>
+
+        <div class="list2333"><a target="_self" href="{{$contact.swt_link}}">预约挂号</a></div>
+
+        <div class="list233"><a target="_self"  href="{{$MOBILE}}/ask.php">在线咨询</a></div>
+    </div>
+    {{/if}}
+    {{/foreach}}
+</div>
+
+
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/index_footer.html"}}
+</body>

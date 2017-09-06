@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<title>抽奖活动</title>
+<link href="{{$COMMON}}Draw/public/draw/css/style.css" rel="stylesheet">
+<script type="text/javascript"  src="{{$COMMON}}Draw/public/draw/js/jquery-1.7.min.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Draw/public/draw/js/jquery.qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="menu_hide"></div>
+	<div id="menu">
+		<ul>
+			{{foreach from=$drawnav key=k item=value}}
+			<li class="menu_cur"><a href="./draw.php?method={{$k}}"><span>{{$value}}</span></a></li>
+			{{/foreach}} 
+		</ul>
+	</div>
+<div class="activity_tit">
+	<div class="pull-left">抽奖活动 ^_^</div>
+    <div class="pull-right"><img src="{{$COMMON}}Draw/public/draw/img/icon.png"></div>
+</div>
+<ul class="activity_box">
+	{{foreach $activity as $list}} 
+  <li><a href="{{$list['link']}}"><img src="{{$list['pic']}}"/></a></li>
+  	{{/foreach}} 
+</ul>
+</body>
+</html>
+<script>
+$(".pull-right").click(function(){
+	$('.menu_hide').show();	
+		$("#menu").animate({right:'0'},300);
+
+})
+$(".menu_hide").click(function(){
+	$('.menu_hide').hide();	
+		$("#menu").animate({right:'-250px'},300);
+
+})
+</script>

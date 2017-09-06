@@ -1,0 +1,45 @@
+function Main() {
+	BaseFunc.call(this);
+	
+	var self = this;
+	
+	this.init = function() {
+		$(function(){
+			
+		});
+	}
+	// {{{ function logout()
+	
+	/**
+	 * 注销
+	 * */
+	this.logout = function() {
+		self.cmd(gHttp,{
+            controller : 'Login',
+            method : 'logout'
+        }, function(ret) {
+            if (ret.code) {
+                alert('注销成功!');
+                location.replace('/hcc/login.html');
+            }
+        });
+	}
+    
+	// }}}
+	// {{{ function article_add()
+	
+	/*
+	 * 跳转到
+	 * */
+	this.jumpUrl = function (title,url,w,h){
+		var index = layer.open({
+			type: 2,
+			title: title,
+			content: url
+		});
+		layer.full(index);
+	}
+	
+	// }}}
+	
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>患者来源管理</title>
+</head>
+<body>
+<div class="pd-20">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>来源列表</span><span>新增来源</span></div>
+			<div class="tabCon">				
+				<div class="mt-5">
+					<table id="sourceList" class="table table-border table-bordered table-bg table-hover table-sort">
+						<thead>
+							<tr class="text-c">
+								<th width="25"><input type="checkbox" id="selectAll" name="" value=""></th>
+								<th width="55">序号</th>
+								<th width="120">名称</th>								
+								<th>备注</th>		
+								<th width="60">操作</th>							
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div style="width:100%;height:50px;clear:both;"></div>
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">					
+					<button onClick="gAddPatient.delSource();" class="btn btn-danger radius bt-normal" type="button"><i class="Hui-iconfont">&#xe6e2;</i> 删除项目</button>	
+				</div>
+			</div>
+			<!--会员等级列表-->
+			<div class="tabCon">
+				<div class="pd-5">
+				  <form action="" method="post" class="form form-horizontal" id="formEdit">
+					<div class="row cl">
+					  <label class="form-label col-2"><span class="c-red">*</span>来源名称：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="请输入要新增来源的名称，如：百度竞价，小区义诊..." id="title" name="title" datatype="*2-30" nullmsg="不能为空">
+					  </div>
+					  <div class="col-3"> </div>
+					</div>					   
+					<div class="row cl">
+					  <label class="form-label col-2">备注：</label>
+					  <div class="formControls col-7">
+						<textarea name="remark" id="remark" cols="" rows="" class="textarea"  placeholder="备注下该来源的情况..."  dragonfly="true"  onKeyUp="textarealength(this,200)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+					  </div>					 
+					</div>
+					<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+							<button id="save" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存新项</button>	
+					</div>
+					<input type="hidden" id="id" name="id"  value="" />
+				  </form>
+				</div>
+			</div>
+			<!--新增等级-->
+			
+		</div><!--HuiTab over-->
+	
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/clients.js"></script>
+<script type="text/javascript">
+var gClients = new gClients();
+gClients.setThisName('gClients');
+gClients.editorsource();
+</script>
+</body>
+</html>

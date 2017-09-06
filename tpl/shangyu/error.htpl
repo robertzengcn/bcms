@@ -1,0 +1,61 @@
+{{extends file='./common/layout/layout.htpl'}}
+{{block name=body}}
+<ol class="breadcrumb container list_nav">您现在的位置：
+        <li><a href="{{$WEBSITE}}"><i class="icon icon-home"></i> 首页</a></li>
+        <li class="active">404错误</li>
+      </ol>
+
+
+<div class="main_cont1 main_cont2 container">
+	
+	<div class="listdet_l col-xs-12 col-sm-9">
+        <div class="Navigation" style=" padding:0;">
+        <div class="col-md-12 col-sm-12" data-id='1'>
+            <div class="panel" data-url=''>
+            <div class="panel-heading"><b><a>404错误</a></b></div>
+            <div class=" pull-right sub_tit"> <a title="默认" href="javascript:changeSize(14)" class="pull-right"><i class="icon icon-check-circle">14</i></a> <a title="缩小" href="javascript:changeSize('smaller')" class="pull-right"><i class="icon icon-minus-sign"></i></a> <a  title="放大" href="javascript:changeSize('larger')" class="pull-right"><i class="icon icon-plus-sign"></i></a>
+                <div class=" pull-right">字号：</div>
+              </div>
+            <!-- <img class="center-block" style="margin-top: 50px;" src="images/content/s_2015012614522571.jpg"> -->
+            <div class="panel-body Nav_yyjs" id="zoom">
+                   <h2>{{$error[0]->content}}</h2>
+      1.请检查您输入的地址是否正确; <br>
+      2.如果您不能确认您输入的网址,请进入<a href="{{$WEBSITE}}">[网站首页]</a> 浏览更多精彩文章。</div>
+              </div>
+          </div>
+          </div>
+        <!-- <div class="listdet_xgyd">
+        <h3><strong>推荐阅读</strong><a href="#" target="_blank">查看更多>></a></h3>
+        <ul>
+            {{foreach from=$NewsTag->getList(1,10) item=v}}
+        	<li class="col-xs-12 col-sm-6"><a class="col-xs-7" href="/{{$v->id}}.html">{{$v->subject|truncate:15}}</a><span class="col-xs-5">「{{date('Y-m-d',$obj->plushtime)}}」</span></li>
+            {{/foreach}}
+        </ul>
+        </div> -->
+    </div> 
+    {{include file=$layout_right}}
+</div>
+{{/block}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

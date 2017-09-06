@@ -1,0 +1,76 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/map.css" />
+  {{/block}}
+  {{block name="body"}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}/sitemap.html">网站地图</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <h2>网站地图</h2>
+      <div class="map">
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/introduce.html'>医院简介</a></h3>
+            </div>        
+            <div class="linkbox">
+                <h3><a target="_blank" href='/doctor/index.html'>专家团队</a></h3>	
+			</div>						
+				
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/environment/index.html'>医院环境</a></h3>
+			</div>				
+				
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/device/index.html'>先进设备</a></h3>	
+			</div>
+			
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/honor/index.html'>医院荣誉</a></h3>	
+    		</div>
+    		                
+            <div class="linkbox">
+                <h3><a target="_blank" href='/technology/index.html'>特色技术</a></h3>	
+            </div>
+            
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/success/index.html'>成功案例</a></h3>		
+			</div>	                
+                
+            <div class="linkbox">
+                <h3><a target="_blank" href='/ask/index.html'>在线问答</a></h3>	
+			</div>
+			
+            <div class="linkbox">
+                <h3><a target="_blank" href="{{$WEBSITE}}/reservation/index.html">在线预约</a></h3>
+            </div>                
+
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/news/index.html'>医院新闻</a></h3>	
+             </div>
+				
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/media/index.html'>媒体报道</a></h3>		
+            </div>
+
+            <div class="linkbox">
+                <h3><a target="_blank" href='/hospital/movie/index.html'>视频新闻</a></h3>	
+			</div>	
+						
+			{{foreach $SiteMapTag->getDepartment() as $vo}}
+            <div class="linkbox">
+                <h3><a target="_blank" href='{{$WEBSITE}}/{{$vo->url}}/index.html'>{{$vo->name}}</a></h3>	
+                <ul class="f6">		
+         		{{foreach $SiteMapTag->getDiease({{$vo->id}}) as $vo2}}           
+                    <li><a target="_blank" href='{{$WEBSITE}}/{{$vo->url}}/{{$vo2->url}}/index.html'>{{$vo2->name}}</a></li>
+				{{/foreach}}
+                </ul>
+            </div>
+			{{/foreach}}
+      </div>
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  {{/block}}

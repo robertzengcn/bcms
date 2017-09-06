@@ -1,0 +1,115 @@
+<?php
+
+ini_set("display_errors", "On");
+include './HM.php';
+
+class Clientmanager extends HM {
+	public function __construct(){
+		if(!session_id()) session_start();
+		parent::__construct();
+	}
+	/**
+	 * 取用户列表
+	 * */
+	protected function __clientlist(){
+		
+		
+		$clientser=new ClientService();
+	
+		
+		$result=$clientser->getdatabyworkid($_SESSION['work_id'])->data;
+		if($result){
+			$this->msgPut(true,null,$result,0);
+		}else{
+			$this->msgPut(false,'没有数据',null,'1');
+		}
+
+		
+	}
+	
+	/**
+	 * 取用户具体信息接口
+	 * @param $_REQUEST['client_id'] 用户的client_id
+	 * */
+	protected function __clientinfo(){
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		if(!$client_id){
+			$this->msgPut(false,'缺少id参数',null,'2');
+		}
+		
+		$clientser=new ClientService();
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		$client=new Client();
+		$client->id=$client_id;
+		$client=$clientser->get($client_id,$client)->data;
+		if($client){
+			$this->msgPut(true,null,$client,0);
+		}else{
+			$this->msgPut(false,'没有找到用户',null,4);
+		}
+		
+	}
+	
+	/**
+	 * 取用户客服记录
+	 * @param $_REQUEST['client_id'] $_REQUEST['page'] $_REQUEST['size']
+	 * */
+	protected function __getrecord(){
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		$page=isset($_REQUEST['page'])&&strlen($_REQUEST['page'])>0?(int)$_REQUEST['page']:0;
+		$size=isset($_REQUEST['size'])&&strlen($_REQUEST['size'])>0?(int)$_REQUEST['size']:10;
+		if(!$client_id){
+			$this->msgPut(false,'缺少id参数',null,'2');
+		}
+		$clientser=new ClientService();
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		$num=$clientser->getrecordnum($client_id)->data;
+		
+		$records=$clientser->getclientrecord($client_id,$page,$size)->data;
+		$result=array('total'=>$num,'records'=>array_merge($records));
+		
+		if(!empty($result)){
+			$this->msgPut(true,null,$result,0);
+		}else{
+			$this->msgPut(false,'没有数据',null,4);
+		}
+	}
+	/**
+	 * 取患者预约记录
+	 * */
+	public function __getclientres(){
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		
+		if(!$client_id){
+			$this->msgPut(false,'缺少id参数',null,'2');
+		}
+		$clientser=new ClientService();
+		$client=new Client();
+		$client->id=$client_id;
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		
+		$client=$clientser->get($client_id,$client)->data;
+		if(!$client){					
+			$this->msgPut(false,'没有找到患者数据',null,4);
+		}
+		if(!$client->telephone){
+			$this->msgPut(false,'患者没有留电话，无法查询',null,4);
+		}
+		$resbookser=new ResBookingInfoService();
+		$result=$resbookser->getbookinginfobytelephone($client->telephone)->data;
+		$this->msgPut(true,null,$result,0);
+		
+	}
+}
+new Clientmanager();
+?>

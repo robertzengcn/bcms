@@ -1,0 +1,71 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/article.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您当前位置：<a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> >
+  <a target='_blank' href='{{$WEBSITE}}/{{$department->url}}/'>{{$department->name}}</a> >
+  <a target='_blank' href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/index.html">{{$disease.name}}</a>>
+  <a>文章详情</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+      {{$article = $ArticleTag->get($id)}}
+    <div class="par-main">
+        {{article id=$id assign="article"}}
+      <div class="content_title">
+        <h1>{{$article->subject}}</h1>
+        <p class="add-time">发布时间：{{'Y-m-d'|date:$article->plushtime}}</p>
+        <p>来源地址：{{$article->source}}</p>
+        <p class="top-zx"><a target='_blank' href="{{$ContactTag->get('swt')}}">立即咨询专家</a></p>
+      </div>
+      <div class="article_content">
+          {{$article->content}}
+      </div>
+        <div class="par-guide">
+            {{$ArticlePage = $ArticleTag->getArticleIds($department->id,$id)}}
+            {{if $ArticlePage.nextA==0}}
+            <span>下一篇：无</span>
+            {{else}}
+            {{article id=$ArticlePage.nextA assign="next"}}
+            {{$depar= $DepartmentTag->get($next->department_id)}}
+            {{$disea = $DiseaseTag->get($next->disease_id)}}
+            {{$content = $ArticleTag->get($ArticlePage.nextA)}}
+            <span>下一篇：<a href="{{$WEBSITE}}/{{$depar->url}}/{{$disea->url}}/{{$ArticlePage.nextA}}.html">{{$content->subject}}</a></span>
+            {{/if}}
+
+            {{if $ArticlePage.beforeA==0}}
+            上一篇：无
+            {{else}}
+            {{article id=$ArticlePage.beforeA assign="pre"}}
+            {{$depar= $DepartmentTag->get($pre->department_id)}}
+            {{$disea = $DiseaseTag->get($pre->disease_id)}}
+
+            {{$content = $ArticleTag->get($ArticlePage.beforeA)}}
+            上一篇：<a href="{{$WEBSITE}}/{{$depar->url}}/{{$disea->url}}/{{$ArticlePage.beforeA}}.html">{{$content->subject}}</a>
+            {{/if}}
+        </div>
+
+      <div class="par_info">
+        <h6>{{$ContactTag->get('name')}}温馨提示：</h6>
+        <p>想了解更多健康信息您可以拨打健康热线：{{$ContactTag->get('tel')}} 还可以进入在线咨询，{{$ContactTag->get('name')}}专家为您提供实时在线咨询及问答。友情提示：如需转载，请标注转自{{$ContactTag->get('name')}}。</p>
+      </div>
+      <div class="par_article">
+        <div>想了解<strong>{{$department->name}}</strong>可以参考{{$ContactTag->get('name')}}其它的相关链接：</div>
+        <ul>
+            {{$relation = $ArticleTag->getByRelation({{$article->id}})}}
+            {{foreach $relation as $v}}
+            <li>·<a target='_blank' href="{{$v->id}}.html">{{$v->subject|truncate:20}}</a></li>
+            {{/foreach}}
+        </ul>
+      </div>
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}
+

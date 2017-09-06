@@ -1,0 +1,22 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class HmToken extends Entity {
+
+	var $id;
+
+	var $name;
+
+	var $token;
+	
+	var $expire_time;
+
+	
+
+
+
+
+	public function validate() {
+	
+	}
+}

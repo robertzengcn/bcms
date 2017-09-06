@@ -1,0 +1,292 @@
+<?php
+
+/**
+ * 资讯(Article)DAO
+ *
+ * @author Administrator
+ *
+ */
+class ArticleDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_ARTICLE;
+        $this->recommendlistName = TABLENAME_RECOMMENDLIST;
+    }
+
+    /**
+     * 根据ids获取对象数据
+     */
+    public function getByIds() {
+        $ids = (isset($_REQUEST['ids']) && $_REQUEST['ids'] != '') ? $_REQUEST['ids'] : array();
+        $result = $this->getBatch($ids);
+
+        $articles = array();
+        foreach ($result as $key => $value) {
+            if ($value->id != 0) {
+                $article = new Article();
+                $article->generateFromRedBean($value);
+                $articles[] = $article;
+            }
+        }
+        //krsort($articles);
+
+        return $articles;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where, $flag) {
+        if (isset($_SESSION['group']) && $_SESSION['group'] == 2) {
+            $where['worker_id'] = $_SESSION['id'];
+        }
+        
+        DTExpression::ge('plushtime', $where, 'start_time', $this->tableName);
+        DTExpression::le('plushtime', $where, 'end_time', $this->tableName);
+        DTExpression::eq('isbidding', $where, $this->tableName);
+        DTExpression::eq('department_id', $where, $this->tableName);
+        DTExpression::eq('disease_id', $where, $this->tableName);
+        DTExpression::eq('doctor_id', $where, $this->tableName);
+        DTExpression::eq('worker_id', $where, $this->tableName);
+        DTExpression::like('subject', $where, $this->tableName);
+        if (isset($where['subjectnonin']) && $where['subjectnonin']) {
+        	if(is_array($where['subjectnonin'])){
+        		$moresql="";
+        		foreach($where['subjectnonin'] as $key=>$val){
+        			$moresql.=" and subject not like '%".$val."%'";
+        		}
+        		DTExpression::$sql .= $moresql;
+        		
+        	}elseif(is_string($where['subjectnonin'])){
+        		DTExpression::$sql .= " and subject not like '%".$where['titlenonin']."%'";
+        
+        	}
+        	 
+        }
+
+        if (isset($_REQUEST['search']) && $_REQUEST['search'] == 'true') {
+        	$where['content'] = $where['subject'];
+        	DTExpression::like('content', $where, $this->tableName);
+        }
+        DTExpression::page($where);
+        if (DTOrder::$is_true == true) {
+            DTOrder::$is_true = false;
+        }
+        if (isset($where['order']) &&  $where['order']) {
+            DTOrder::$sql = $where['order'];
+        } else {
+            DTOrder::desc($this->tableName . '.plushtime');
+        }
+        
+        switch ($flag) {
+            case 'makehtml':
+                $sql = ORMMap::$sqlMap['article_makehtml'] . ' where ' . DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+                break;
+            default:
+                if (isset($where['show_position']) && $where['show_position']) {
+                    $show_position = str_replace('show_position', $this->tableName . '.show_position', stripslashes($where['show_position']));
+                    DTExpression::$sql .= " and " . $show_position;
+                }
+                $sql = ORMMap::$sqlMap['article_relation'] . ' where ' . DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+                break;
+        }
+        $array = $this->getJoin($sql);
+        foreach ($array as $key => $value){
+        	if( ! isset( $value->doctor_name ) || $value->doctor_name == '' || is_null( $value->doctor_name ) ) {
+        		$array[$key]->doctor_name = 'admin';
+        	}
+        }
+        
+        return $array;
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::eq('isbidding', $where);
+        DTExpression::eq('department_id', $where);
+        DTExpression::eq('disease_id', $where);
+        DTExpression::eq('doctor_id', $where);
+        DTExpression::eq('worker_id', $where);
+        DTExpression::like('subject', $where);
+        if (isset($where['show_position']) && $where['show_position']) {
+        	$show_position = str_replace('show_position', $this->tableName . '.show_position', stripslashes($where['show_position']));
+        	DTExpression::$sql .= " and " . $show_position;
+        }
+        if (isset($where['titlenonin']) && $where['titlenonin']) {
+        	if(is_array($where['titlenonin'])){
+        		$moresql="";
+        		foreach($where['titlenonin'] as $key=>$val){
+        			$moresql.="and title not like '%".$val."%'";
+        		}
+        		DTExpression::$sql .= $moresql;
+        	}elseif(is_string($where['titlenonin'])){
+        		DTExpression::$sql .= $where['titlenonin'];
+        		
+        	}
+        	
+        }
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 获得各种总数
+     *
+     * @param array $para
+     *            return object $arr
+     */
+    public function otherRows($data) {
+        // 获得今日发布总数
+        DTExpression::ge('plushtime', $data, 'today_start');
+        DTExpression::le('plushtime', $data, 'today_end');
+        DTExpression::eq('worker_id', $data);
+        $totalRows1 = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        // 获得昨日发布总数
+        DTExpression::ge('plushtime', $data, 'yestoday_start');
+        DTExpression::le('plushtime', $data, 'yestoday_end');
+        DTExpression::eq('worker_id', $data);
+        $totalRows2 = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        // 获得本周发布数
+        DTExpression::ge('plushtime', $data, 'week_start');
+        DTExpression::le('plushtime', $data, 'week_end');
+        DTExpression::eq('worker_id', $data);
+        $totalRows3 = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        // 获得本月发布数
+        DTExpression::ge('plushtime', $data, 'month_start');
+        DTExpression::le('plushtime', $data, 'month_end');
+        DTExpression::eq('worker_id', $data);
+        $totalRows4 = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        return array(
+            'today' => $totalRows1,
+            'yestoday' => $totalRows2,
+            'week' => $totalRows3,
+            'month' => $totalRows4
+        );
+    }
+
+    /**
+     * 根据前台获取各种状态文章内容
+     *
+     * @param unknown $order
+     * @param unknown $limit
+     * @param unknown $where
+     * @param string $field
+     * @return Ambigous <multitype:Recommendlist, multitype:, multitype:Ambigous <RedBean_OODBBean, mixed, multitype:RedBean_OODBBean > >
+     */
+    public function getRecommend($field, $ids, $order) {
+        DTExpression::in($field, $ids);
+        DTOrder::sort($order);
+        DTExpression::$params = $ids;
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql);
+    }
+
+    /**
+     * 根据疾病id获取资讯
+     *
+     * @param unknown_type $disease_id
+     */
+    public function getByDisease($disease_id) {
+        $articles = R::find($this->tableName, 'disease_id=' . $disease_id);
+        $articleArray = array();
+        foreach ($articles as $value) {
+            foreach ($value as $key => $value1) {
+                $array[$key] = $value1;
+            }
+            $articleArray[] = $array;
+        }
+        return $articleArray;
+    }
+    
+    /**
+     * 根据疾病id获取资讯
+     *
+     * @param unknown_type $disease_id
+     */
+//     public function getByDiseaseorder($arr) {
+//     	$articles = R::find($this->tableName, 'disease_id=:disease order by id limit :limit :num' . $arr);
+//     	$articleArray = array();
+//     	foreach ($articles as $value) {
+//     		foreach ($value as $key => $value1) {
+//     			$array[$key] = $value1;
+//     		}
+//     		$articleArray[] = $array;
+//     	}
+//     	return $articleArray;
+//     }
+    
+
+    /**
+     * 根据科室来获取资讯
+     *
+     * @param unknown_type $department_id
+     * @return Ambigous <multitype:, Article>
+     */
+    public function getByDepartmentID($department_id, $page, $limit, $order) {
+        $start = ($page - 1) * $limit;
+        $result = R::find($this->tableName, 'department_id=' . $department_id . " order by id {$order} limit {$start}," . $limit);
+        $articles = array();
+        foreach ($result as $key => $value) {
+            if ($value->id != 0) {
+                $article = new Article();
+                $article->generateFromRedBean($value);
+                $articles[] = $article;
+            }
+        }
+        return $articles;
+    }
+
+    /**
+     * 获取热点文章
+     *
+     * @param unknown_type $limit
+     * @return Ambigous <multitype:, Article>
+     */
+    public function getByClick($limit) {
+        $beans = R::find($this->tableName, '1=1 order by click_count desc limit ' . $limit);
+        $articles = array();
+        foreach ($beans as $bean) {
+            $article = new Article();
+            $article->generateFromRedBean($bean);
+            $articles[] = $article;
+        }
+        return $articles;
+    }
+
+    /**
+     * @param $department_id
+     * @return array
+     * 根据科室ID获取所属文章ID
+     */
+    public function getArticleIds($department_id){
+        $beans = R::find($this->tableName,'department_id='.$department_id);
+        $articles =array();
+        foreach($beans as $bean){
+            $article = new Article();
+            $article->generateFromRedBean($bean);
+            $articles[] = $article;
+        }
+        $ids = array();
+        foreach($articles as $value){
+            $ids[] = $value->id;
+        }
+        return $ids;
+    }
+    
+
+}

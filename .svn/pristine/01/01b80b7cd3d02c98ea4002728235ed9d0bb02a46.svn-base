@@ -1,0 +1,130 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+
+<link href="lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" type="text/css" href="css/boyicms/index.css">
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>后台首页</title>
+</head>
+<body>
+<div class="pd-20" style="padding-top:20px;">
+  <p class="f-20 text-success"><i class="Hui-iconfont">&#xe625;</i><span class="f-14"></span>&nbsp;数据统计</p>
+  <p>上次登录时间：<span id="loginDate"></span></p>  
+</div>
+
+<div class="mainbox">
+    
+    <div class="mainleft">
+    	<div class="leftinfo">
+            <div class="listtitle"><a href="#" class="more1">▌</a>信息完整度检查</div>
+            <ul>
+            	<a href="javascript:void(0)" _href="department/list.html" path="department" flag="department"><li id="departmentItem">科室信息</li></a>
+                <a href="javascript:void(0)" _href="doctor/list.html" path="doctor" flag="doctor"><li id="doctorItem">专家信息</li></a>
+                <a href="javascript:void(0)" _href="disease/list.html" path="disease" flag="disease"><li id="diseaseItem" >疾病信息</li></a>
+                <a href="javascript:void(0)" _href="page/head-nav.html" path="navigation" flag="nav"><li id="navigationItem">导航信息</li></a>
+                <a href="javascript:void(0)" _href="pic/picList.html" path="logo" flag="picList"><li id="logoItem">网站logo</li></a>
+                <a href="javascript:void(0)" _href="pic/pic_scroll.html" path="pic" flag="picScroll"><li id="picItem">头部通栏图片</li></a>
+                <a href="javascript:void(0)" _href="hospital/introduce.html" path="introduce" flag="introduce"><li id="introduceItem">医院简介</li></a>
+                <a href="javascript:void(0)" _href="hospital/honors.html" path="honor" flag="honor"><li id="honorItem">医院荣誉</li></a>
+                <a href="javascript:void(0)" _href="hospital/environments.html" path="environment" flag="environment"><li id="environmentItem">医院环境</li></a>
+                <a href="javascript:void(0)" _href="hospital/devices.html" path="device" flag="device"><li id="deviceItem">医院设备</li></a>
+                <a href="javascript:void(0)" _href="hospital/medias.html" path="mediareport" flag="media"><li id="mediareportItem">媒体报道</li></a>
+                <a href="javascript:void(0)" _href="article/list.html" path="article" flag="information"><li id="articleItem">资讯信息</li></a>
+                <a href="javascript:void(0)" _href="clinicaltrials/list.html" path="success" flag="successCase"><li id="successItem">成功案例</li></a>
+                <a href="javascript:void(0)" _href="seo/seotag.html" path="seo" flag="seoSet"><li id="seoItem">SEO设置</li></a>
+                <a href="javascript:void(0)" _href="hospital/contacts.html" path="swt" flag="concat"><li id="swtItem">商务通</li></a>
+                <a href="javascript:void(0)" _href="ask/list.html" path="ask" flag="ask"><li id="askItem">问答回复</li></a>
+                <a href="javascript:void(0)" _href="hospital/contacts.html" path="contact" flag="concat"><li id="contactItem">联系方式</li></a>
+            </ul>
+            <div class="health">
+            	<a href="javascript:void(0);" id="PEIS" name="PEIS"><span>系统体检</span></a>
+            	
+            </div> 
+			<div style="width:100%;height:10px;clear:both;"></div>           
+        </div>
+    <!--leftinfo end-->
+    	<div class="leftinfos">
+    		<div class="listtitle"><a href="#" class="more1">▌</a>功能演示</div>
+            <embed src="http://www.tudou.com/v/hCkw2RppZo8/&bid=05&resourceId=0_05_05_99/v.swf" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" wmode="opaque" width="90%" height="500" style=""></embed>    
+      	</div>
+    </div>
+    <!--mainleft end-->
+    <div class="mainright">
+    	<div class="dflist">
+    		<div class="listtitle"><a href="#" class="more1">▌</a>全站数据流量统计</div>
+				<div class="pd-20">
+					<div id="container" style="min-width:90%;height:300px"></div>
+				</div>
+
+        </div>
+    	<div class="dflist1">
+    		<div class="listtitle"><a href="#" class="more1">▌</a>业界资讯</div>
+            <div class='slider'>
+                <ul class='slider_pic'>
+                    <li><a href="" title=""><img src="images/boyicms/temp/1423450754876.jpg"></a></li>
+                    <li><a href="" title=""><img src="images/boyicms/temp/1423450754876.jpg"></a></li>
+                    <li><a href="" title=""><img src="images/boyicms/temp/1423450827421.jpg"></a></li>
+                </ul>
+                 <div class='slider_btn'>
+                    <span  class='cur'>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    
+                 </div>
+			</div>    
+        </div>
+        <div class="dflist2">
+    		<div class="listtitle"><a href="#" class="more1">▌</a>新闻阅读</div>  
+            <ul>
+            	<li><a href="">1、网站首页设计有何要求</a></li>
+                <li><a href="">2、利于seo优化的站点我们应该如何考虑求</a></li>
+                <li><a href="">3、百度搜索引擎网页质量白皮书</a></li>
+                <li><a href="">4、百度搜索引擎优化指南2.0</a></li>
+                <li><a href="">5、百度移动搜索优化指南2.0</a></li>
+            </ul>  
+        </div>
+	</div>
+    <!--mainright end-->
+</div>
+
+<footer class="footer">
+  <p>医院网站智能建设系统(BoyiCMS)   客户服务热线： 0591-88889955,QQ:188611966   官方网站www.boyicms.com
+
+<br>Copyright © 2014 福州网健天下网络科技有限公司版权所有<br>
+本后台系统由<a href="http://www.h-ui.net/" target="_blank" title="H-ui前端框架">H-ui前端框架</a>提供前端技术支持</p>
+</footer>
+<script type="text/javascript" src="/hcc/lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="/hcc/js/H-ui.js"></script>
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/js/boyicms/welcome.js"></script>
+<!--控制饼状图-->
+<script type="text/javascript" src="/hcc/lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="/hcc/js/H-ui.admin.js"></script>
+<script type="text/javascript" src="/hcc/lib/Highcharts/4.1.7/js/highcharts.js"></script>
+<script type="text/javascript" src="/hcc/lib/Highcharts/4.1.7/js/modules/exporting.js"></script>
+<script type="text/javascript">
+var slide=new slider('slider');
+var gWelcome = new Welcome();
+gWelcome.setThisName('gWelcome');
+gWelcome.init();
+
+</script>     
+</body>
+</html>

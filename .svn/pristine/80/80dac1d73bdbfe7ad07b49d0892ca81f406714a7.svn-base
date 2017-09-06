@@ -1,0 +1,86 @@
+<?php
+
+/**
+ *
+ * 
+ * @author Administrator
+ *
+ */
+class PatientDataDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_PATIENTDATA;
+    }
+   /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+		
+        DTExpression::eq('id', $where);
+        DTExpression::eq('daytime', $where);
+        DTExpression::eq('week', $where);
+        DTExpression::ge('daytime', $where, 'start_time');
+        DTExpression::le('daytime', $where, 'end_time');
+        DTExpression::page($where);
+
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql);
+	}
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::eq('daytime', $where);
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+    /**
+     * 修改数据
+     *
+     * @param object $entity
+     * @return boolean
+     */
+    public function update($entity) {
+        $bean = R::load($this->tableName, $entity->id);
+
+        if ($bean->id == 0) {
+            return new Result(false, 78, ErrorMsgs::get(78), NULL);
+        }
+        $entity->generateRedBean($bean);
+        $entity->id= R::store($bean);
+
+        return new Result(true, 0, '', NULL);
+    }
+	
+   public function getDataByTime($time) {
+		$result = R::getRow('select * from '.$this->tableName.' where daytime=:daytime', array(':daytime' => $time));
+    	return $result;	
+	}	
+    /**
+     * 就诊人数统计
+     *
+     */
+   public function getVisitByTime($where) {
+		$result = R::getRow('select group_concat(pids_1) as pids_1, group_concat(pids_2) as pids_2,sum(customer_1_sex_1) as customer_1_sex_1, sum(customer_1_sex_2) as customer_1_sex_2,sum(customer_2_sex_1) as customer_2_sex_1,sum(customer_2_sex_2) as customer_2_sex_2, sum(total_money) as total_money, sum(total_num) as total_num from '.$this->tableName.'  where daytime between :start_time and :end_time', array(
+			':start_time' => $where['start_time'], ':end_time' => $where['end_time']));
+    	return $result;	
+	}
+	/**
+	 * 按时间获取每天就诊数据
+	 * */
+   public function getPeopleByDate($where) {
+		$result = R::getRow('select customer_1_sex_1,customer_1_sex_2,customer_2_sex_1,customer_2_sex_2, daytime from '.$this->tableName.'  where daytime between :start_time and :end_time', array(
+			':start_time' => $where['start_time'], ':end_time' => $where['end_time']));
+    	return $result;	
+	}	 
+}

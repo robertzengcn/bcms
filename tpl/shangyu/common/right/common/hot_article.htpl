@@ -1,0 +1,13 @@
+
+  <h3>热点文章</h3>
+    <div class="par_div par_hot">
+      <ul>
+        {{$articles=$ArticleTag->getByClick(9)}}
+        {{foreach $articles as $v}}
+        {{department id=$v->department_id assign="department"}}
+        {{disease id=$v->disease_id assign="disease"}}
+        <li>·<a target="_blank" href="{{$smarty.const.NETADDRESS}}/{{$department->url}}/{{$disease->url}}/{{$v->id}}.html">
+        {{$v->subject|truncate:"10"}}</a></li>
+        {{/foreach}}
+      </ul>
+    </div>

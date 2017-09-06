@@ -1,0 +1,731 @@
+function Hospital() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	this.initNews = function() {
+		$(function(){
+			//table加载数据
+			self.fillNewsDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				var data=$("#frm_post").frmVal({});
+				//console.log(data);
+				//$("#grid").grid({qry_para:data});
+			});
+		});
+	}
+	
+	this.initNew = function() {
+		$(function(){
+			$('.skin-minimal input').iCheck({
+				checkboxClass: 'icheckbox-blue',
+				radioClass: 'iradio-blue',
+				increaseArea: '20%'
+			});
+			/*缩略图操作*/
+			$('div.thumbnailbox').on('mouseenter',function(){
+				$(this).find('div.img-btn').stop().animate({height:"30px"});
+			}).on('mouseleave', function() {
+				$(this).find('div.img-btn').stop().animate({height:"0px"});
+			});
+			$('div.img-btn').find('span').on('mouseenter',function(){
+				$(this).stop().css("background-position","-46px 0px");
+			}).on('mouseleave',function(){
+				$(this).stop().css("background-position","-46px -22px");
+			});
+			var defaultsrc=$('div.thumbnailbox img').attr('flag');
+			$('span#delete-thisimg').on('click',function(){
+				$thumbnail_img=$(this);
+				layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+					$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+					layer.msg('已删除!',1);
+				});
+			});
+			/*缩略图操作完结*/
+			
+			
+			//数据加载
+			self.fillNew();
+			
+			//保存
+			$('#save').click(function(){
+				self.newsSave();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	// {{{ function fillNew()
+	
+	/**
+	 * 填充编辑新闻数据
+	 * */
+	this.fillNew = function() {
+		self.cmd(gHttp,{controller:'News',method:'getAll'},function(ret){
+			if(ret.statu){
+				//推荐位置
+				var position='';
+				$.each(ret.data.re,function(i,obj){
+					position += '<div class="check-box">';
+					position += '<input type="checkbox" id="checkbox-moban'+obj.id+'" name="recommendposition['+i+']" value="'+obj.id+'">';
+					position += '<label for="checkbox-moban'+obj.id+'">'+obj.name+'</label>';					
+				    position += '</div>';
+				});
+				$('#recommendposition').html(position);	
+			}
+		});	
+		
+		self.getImgSize('newssize');
+		
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+		if (para.id != undefined) {
+			//有id，则是编辑
+			$("#id").val(para.id);
+			
+			self.cmd(gHttp,{controller:'News',method:'get',id:para.id},function(result1){
+				if(result1.statu){
+					$('#newEdit').frmFill('',result1.data);
+					$('#recommendposition').find('input[name^=recommendposition]').each(function(){
+						var checkbox = $(this);
+						$.each(result1.data.recommend,function(i,obj){
+							if(checkbox.val() == obj.recommendposition_id){
+								checkbox.attr('checked','checked');
+							}
+						});
+					});	
+					
+					editor.ready(function(){
+						editor.setContent(result1.data.content);
+					});
+					
+					if(result1.data.pic != ''){
+						$('#thumbnail').attr('src',result1.data.src);
+						self.setImgSize('newssize');
+					}
+				}else{
+					$('#message').message(result1.msg);
+				}
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function fillNewsDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillNewsDataTable = function() {
+		self.cmd(gHttp,{controller:'News',method:'query'},function(ret) {
+			var data = ret.rows;
+			var total = ret.ttl;
+			$("#total").html(total);
+			$("#dataTable").DataTable({
+				bStateSave:true,
+				data:data,
+				columns: [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+                            { data: 'id' },
+				            { data: 'subject' },
+				            { data: 'description',},
+				            { data: 'plushtime' },
+				            { data: 'click_count' },
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+								  str += '<a style="text-decoration:none" target="_blank" href="/controller/?controller=ViewHtml&method=news&op=news&id='+id+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>'; 
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gHospital.newsEdit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gHospital.delNews(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ]
+			});
+		});
+		
+		
+	}
+	
+	// }}}
+	//医院简介
+	this.introduce = function(para){
+			self.cmd(gHttp,{controller:'Introduce',method:'getInfo'},function(result1){
+				if(result1.statu){
+					$('#id').val(result1.data.id);
+					$('#pic').val(result1.data.pic);
+					editor.ready(function(){
+						editor.setContent(result1.data.content);
+					});			
+					self.getImgSize('hospitalsize');
+					if(result1.data.src != undefined){
+						$('#img').attr('src',result1.data.src);
+						$('#pic').val(result1.data.pic);
+						self.setImgSize('hospitalsize');
+					}
+					
+				}else{
+					layer.alert(result1.msg);
+				}
+			});
+
+			//保存
+			$('#save').click(function(){
+				$('#frm_post').frmPost({controller:'Introduce',method:'save'},function(result1){
+					if(result1.statu){
+						layer.alert('操作成功!');
+					}else{
+						layer.alert(result1.msg);
+					}
+					return false;
+				});
+			});
+
+			$('#frm_post').on('click','.del_pic',function(){
+				$('#img').removeAttr('src');
+				$('#pic').val('');
+				$(this).remove();
+			});
+			
+	}
+
+	//新闻动态
+	this.news = function(para){
+		var self = this;
+		$('#container').tpl('hospital/news',function(result1){
+			Back.PushChild('news',para);
+			$('#grid').grid({
+				size : 10,
+				order : true,
+				para : {controller:'News',method:'query'},
+				check : true,
+				field : [
+				    {text:'标题',name:'subject'},
+					{text:'更新时间',name:'plushtime',width:75},
+					{text:'点击量',name:'click_count',width:45},
+				    {text:'操作',name:'id',width:162,
+				    	render:function(value){
+				    		var str='<a id="'+value+'" class="button btn_del" href="javascript:void(0)" style="margin-left:3px;"><span>删除</span></a>';
+				    		str+='<a class="button btn_edit" id="'+value+'" href="javascript:void(0)" style="margin-left:8px;"><span>编辑</span></a>';
+				    		str+='<a class="button btn_look" id="'+value+'" href="/controller/?controller=ViewHtml&method=news&op=news&id='+value+'" style="margin-left:8px;" target="_blank"><span>预览</span></a>';
+				    		return str;
+				    	}
+				    }
+				]
+			});
+			//查询
+			$("#qry").click(function(){
+				var data=$("#frm_post").frmVal({});
+				$("#grid").grid({qry_para:data});
+			});
+			//刷新
+			$("#refresh").click(function(){
+				$('#grid').grid('reload');
+			});
+			//添加
+			$("#add").click(function(){
+				self.newsEdit({method:'add'});
+			});
+			//编辑
+			$("#grid").on('click','.btn_edit',function(){
+				$("#loading").addClass("loading");
+				var id=$(this).attr("id");
+				self.newsEdit({id:id,method:'edit'});
+			});
+			//删除
+			$("#grid").on('click','.btn_del',function(){
+				var id=$(this).attr('id');
+				if(window.confirm('真的要删除吗')){
+					dd.cmd({controller:'News',method:'del',id:id},function(result1){
+						if(result1.statu){
+							layer.alert('删除成功!',function(index){
+								$('#grid').grid('reload');
+								layer.close(index);
+							});
+						}else{
+							layer.alert('删除失败!');
+						}
+						return false;
+					});
+				}
+			});
+			//批量删除
+			$("#del").click(function(){
+				var data=$("#grid").grid('getRows');
+				if(data.length<=0){
+					layer.alert('请选择您要删除的选项!');
+				}else{
+					var ids=new Array();
+					if(window.confirm("确定要删除吗？")){
+						$.each(data,function(i,obj){
+							ids[i]=obj.id;
+						});
+						dd.cmd({controller:'News',method:'del',id:ids},function(result1){
+							if(result1.statu){
+								$('#message').message('删除成功!',function(){
+									$('#grid').grid('reload');
+								});
+							}else{
+								$('#message').message('删除失败!');
+							}
+						});
+					}
+				}
+				return false;
+			});
+			
+		});
+		
+	}
+	
+	//单个删除
+	this.delNews = function(obj, id) {
+		self.openDel(obj,{controller:'News',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delNewsBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'News',method:'del',id:ids});
+	}
+
+	//动态新闻编辑
+	this.newsEdit = function(id){
+		self.openEdit('编辑新闻','new.html?id=' + id);
+	}
+	
+	//编辑新闻
+	this.newsSave = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'News',method:'add'};
+		} else {
+			post = {controller:'News',method:'edit',id:id};
+		}
+		$('#newEdit').frmPost(post,function(result1){
+			if(result1.statu){
+				layer.alert('操作成功!');	
+				layer_close();
+				
+			}else{
+				layer_alert(result1.msg);
+			}
+			return false;
+		});
+	}
+	
+	//媒体报道
+	this.media = function(para){
+		var self = this;	
+		$('#container').tpl('hospital/media',function(result1){
+			Back.PushChild('media',para);
+			$('#grid').grid({
+				size : 10,
+				para : {controller:'MediaReport',method:'query'},
+				check : true,
+				order : true,
+				field : [
+					{text:'标题',name:'subject'},
+					{text:'更新时间',name:'plushtime',width:75},
+					{text:'点击量',name:'click_count',width:45},
+					{text:'操作',name:'id',width:162,
+						render : function(value,rowData,rowIndex){
+							var str='<a id="'+value+'" class="button btn_del" href="javascript:void(0)" style="margin-left:3px;"><span>删除</span></a>';
+							str+='<a class="button btn_edit" id="'+value+'" href="javascript:void(0)" style="margin-left:8px;"><span>编辑</span></a>'; 
+							str+='<a class="button btn_look" id="'+value+'" href="/controller/?controller=ViewHtml&method=mediaReport&op=mediaReport&id='+value+'" style="margin-left:8px;" target="_blank"><span>预览</span></a>';
+							return str;
+						}
+					}
+				]
+			});
+			//查询
+			$('#qry').click(function(){
+				var data = $('#frm_post').frmVal({});
+				$('#grid').grid({qry_para:data});
+			});
+
+			//刷新
+			$('#refresh').click(function(){
+				$('#grid').grid('reload');
+			});
+
+			//添加
+			$('#add').click(function(){
+				self.mediaEdit({method:'add'});
+			});
+
+			//编辑
+			$('#grid').on('click','.btn_edit',function(){
+				$('#loading').addClass('loading');
+				var id = $(this).attr('id');
+				self.mediaEdit({id:id,method:'edit'});
+			});
+				
+			//删除
+			$('#grid').on('click','.btn_del',function(){
+				var id = $(this).attr('id');
+				if(window.confirm('真的要删除么?')){
+					dd.cmd({controller:'MediaReport',method:'del',id:id},function(result1){
+						if(result1.statu){
+							$('#message').message('删除成功!',function(){
+								$('#grid').grid('reload');
+							});
+						}else{
+							$('#message').message('删除失败!');
+						}
+						return false;
+					});
+				}
+			});
+
+			///批量删除
+			$('#del').click(function(){
+				var data = $('#grid').grid('getRows');
+				var ids = [];
+				if(data.length <= 0){
+					$('#message').message('请选择您要删除的选项!');
+				}else{
+					if(window.confirm('真的要删除么?')){
+						$.each(data,function(i,obj){
+							ids[i] = obj.id;
+						});	
+
+						dd.cmd({controller:'MediaReport',method:'del',id:ids},function(result1){
+							if(result1.statu){
+								$('#message').message('删除成功!',function(){
+									$('#grid').grid('reload');
+								});
+							}else{
+								$('#message').message('删除失败!');
+							}
+							
+						});
+					}
+				}
+				return false;
+			});
+		});
+	}
+		
+	//动态新闻编辑
+    this.mediaEdit = function(para){
+		var self = this;	
+		$('#hospital').tpl('hospital/medias',function(result1){
+			Back.PushChild('mediaEdit',para);
+			dd.cmd({controller:'News',method:'getAll'},function(ret){
+				if(ret.statu){
+					//推荐位置
+					var position='';
+					$.each(ret.data.re,function(i,obj){
+						position += '<input type="checkbox" name="recommendposition['+i+']" value="'+obj.id+'" />'+obj.name+'&nbsp;&nbsp;';
+						if((i%3)==2){
+							position += '<br/>';
+						}
+					});
+					$('#recommendposition').html(position);	
+				}
+			});				
+			
+			self.getImgSize('mediasize');
+			var post = {};
+			if(para.method == 'add'){
+				post = {controller:'MediaReport',method:'add'};
+				$('#editor').ckeditor({width:800,height:370},function(){
+					$('.cke_toolbox').append('<span class="cke_toolbar"><span class="cke_combo_button"><div style="margin-top:3px;"><a style="color:#666666" id="set" href="javascript:void(0)">网络相册</a></div></span</span>');
+				});
+			}else{
+				dd.cmd({controller:'MediaReport',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#mediaEdit').frmFill('',result1.data);
+						$('#editor').ckeditor({width:800,height:370},function(){
+							$('.cke_toolbox').append('<span class="cke_toolbar"><span class="cke_combo_button"><div style="margin-top:3px;"><a style="color:#666666" id="set" href="javascript:void(0)">网络相册</a></div></span</span>');
+						});
+						if(result1.data.pic != ''){
+							$('#img').attr('src',result1.data.src);
+							self.setImgSize('mediasize');
+							$('#img').before('<div class="del_div" style="margin-bottom:5px;"><a class="del_pic" href="javascript:void(0)">删除图片</a></div>');
+						}
+						$('#recommendposition').find('input[name^=recommendposition]').each(function(){
+							var checkbox = $(this);
+							$.each(result1.data.recommend,function(i,obj){
+								if(checkbox.val() == obj.recommendposition_id){
+									checkbox.attr('checked','checked');
+								}
+							});
+						});							
+						
+					}else{
+						$('#message').message(result1.msg);
+					}
+				});
+				post = {controller:'MediaReport',method:'edit',id:para.id};
+			}
+
+			$('#mediaEdit').on('click','.del_pic',function(){
+				$('#img').removeAttr('src');
+				$('#pic').val('');
+				$('.del_pic').remove();
+			});
+			
+				
+			//保存
+			$('#save').click(function(){
+				$('#mediaEdit').frmPost(post,function(result1){
+					if(result1.statu){
+						$('#message').message('操作成功!');
+						self.media();
+					}else{
+						$('#message').message(result1.msg);
+					}
+					return false;
+				});
+			});
+
+			$('#file_upload').uploadify({
+				uploader : '../../controller/index.php?controller=Upload&method=uploadPic&dir=media', 
+				swf : './public/js/uploadify.swf',
+				fileTypeExts : '*.jpg;*.gif;*.png;*.jpeg',
+				buttonText : '',
+				width : 116,
+				height : 30,
+				onUploadSuccess : function(file,data,response){
+					var obj = eval('['+data+']');
+					$('#img').prev('.del_div').remove();
+					if(obj[0].result){
+						$('#pic').val(obj[0].url);
+						$('#img').attr('src',obj[0].path);
+						self.setImgSize('mediasize');
+						$('#img').before('<div class="del_div" style="margin-bottom:5px;"><a class="del_pic" href="javascript:void(0)">删除图片</a></div>');
+					}else{
+                        $('#message').message('图片上传失败!请上传3M以下图片');
+					}
+				}
+			});
+
+			//相册选择
+			$('#mediaEdit').on('click','#set',function(){
+				$('#network_pic').pic_dialog('show');
+				$('#network_pic').pic_dialog({editor:'#editor',para:{controller:'NetworkPic',method:'getPic'},size:12,page:1,message:'message'});	
+			});
+
+			//相册选择
+			$('.select_xc').click(function(){
+				$('#network_pic').pic_dialog('show');	
+				$('#network_pic').pic_dialog({para:{controller:'NetworkPic',method:'getPic'},size:12,page:1,img:'#img',input:'#pic',message:'message'});
+				self.setImgSize('mediasize');
+			});
+
+			//返回
+			$('#back').click(function(){
+				self.media();
+			});
+
+			if(!$.browser.msie){
+				$('#network_pic').picDrag('message');
+			}
+		});
+	}
+
+	//医院荣誉
+	this.honor =  function(para){
+		var self = this;
+		$('#container').tpl('hospital/honor',function(result1){
+			Back.PushChild('honor',para);
+			$('#grid').grid({
+				size : 10,
+				para : {controller:'Honor',method:'query'},
+				check : true,
+				order : true,
+				field : [
+					{text:'标题',name:'subject'},
+					{text:'更新时间',name:'plushtime',width:75},
+					{text:'点击量',name:'click_count',width:45},
+					{text:'操作',name:'id',
+						render : function(value,rowData,rowIndex){
+							var str='<a id="'+value+'" class="button btn_del" href="javascript:void(0)"  style="margin-left:3px;"><span>删除</span></a>';
+							str+='<a class="button btn_edit" id="'+value+'" href="javascript:void(0)"  style="margin-left:8px;"><span>编辑</span></a>'; 
+							str+='<a class="button btn_look" id="'+value+'" href="/controller/?controller=ViewHtml&method=honor&op=honor&id='+value+'" style="margin-left:8px;" target="_blank"><span>预览</span></a>';
+							return str; 
+						},width:162
+					}
+				]
+			});
+
+			//查询
+			$('#qry').click(function(){
+				var data = $('#frm_post').frmVal({});
+				$('#grid').grid({qry_para:data});
+			});
+				
+			//刷新
+			$('#refresh').click(function(){
+				$('#grid').grid('reload');
+			});
+
+			//添加
+			$('#add').click(function(){
+				self.honorEdit({method:'add'});
+			});
+
+			//编辑
+			$('#grid').on('click','.btn_edit',function(){
+				$('#loading').addClass('loading');
+				var id = $(this).attr('id');
+				self.honorEdit({id:id,method:'edit'});
+			});
+			
+			//删除
+			$('#grid').on('click','.btn_del',function(){
+				var id = $(this).attr('id');
+				if(window.confirm('真的要删除么?')){
+					dd.cmd({controller:'Honor',method:'del',id:id},function(result1){
+						if(result1.statu){
+							$('#message').message('删除成功!',function(){
+								$('#grid').grid('reload');
+							});
+						}else{
+							$('#message').message('删除失败!');
+						}
+					
+						return false;
+					});
+				}
+				
+			});
+
+			///批量删除
+			$('#del').click(function(){
+				var data = $('#grid').grid('getRows');
+				var ids = [];
+				if(data.length <= 0){
+					$('#message').message('请选择您要删除的选项!');
+				}else{
+					if(window.confirm('真的要删除么?')){
+						$.each(data,function(i,obj){
+							ids[i] = obj.id;
+						});	
+
+						dd.cmd({controller:'Honor',method:'del',id:ids},function(result1){
+							if(result1.statu){
+								$('#message').message('删除成功!',function(){
+									$('#grid').grid('reload');
+								});
+							}else{
+								$('#message').message('删除失败!');
+							}
+						
+						});
+					}
+				}
+				return false;
+			});
+		});
+	}
+	//荣誉编辑
+    this.honorEdit = function(para){
+		var self = this;
+		$('#hospital').tpl('hospital/honors',function(result1){
+			Back.PushChild('honorEdit',para);
+			self.getImgSize('honorsize');
+			var post = {};
+			
+			if(para.method == 'add'){
+				post = {controller:'Honor',method:'add'};
+				$('#editor').ckeditor({width:800,height:370},function(){
+					$('.cke_toolbox').append('<span class="cke_toolbar"><span class="cke_combo_button"><div style="margin-top:3px;"><a style="color:#666666" id="set" href="javascript:void(0)">网络相册</a></div></span</span>');
+				});
+			}else{
+				dd.cmd({controller:'Honor',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#honor_edit').frmFill('',result1.data);
+						$('#editor').ckeditor({width:800,height:370},function(){
+							$('.cke_toolbox').append('<span class="cke_toolbar"><span class="cke_combo_button"><div style="margin-top:3px;"><a style="color:#666666" id="set" href="javascript:void(0)">网络相册</a></div></span</span>');
+						});
+						if(result1.data.pic != ''){
+							$('#img').attr('src',result1.data.src);
+							self.setImgSize('honorsize');
+							$('#img').before('<div class="del_div" style="margin-bottom:5px;"><a class="del_pic" href="javascript:void(0)">删除图片</a></div>');
+						}
+					}else{
+						$('#message').message(result1.msg);
+					}
+				});
+				post = {controller:'Honor',method:'edit',id:para.id};
+			}
+
+			$('#honor_edit').on('click','.del_pic',function(){
+				$('#img').removeAttr('src');
+				$('#pic').val('');
+				$('.del_pic').remove();
+			});
+			
+			//保存
+			$('#save').click(function(){
+				$('#honor_edit').frmPost(post,function(result1){
+					if(result1.statu){
+						$('#message').message('操作成功!');
+						self.honor();
+					}else{
+						$('#message').message(result1.msg);
+					}
+					return false;
+				});
+			});
+
+			$('#file_upload').uploadify({
+				uploader : '../../controller/index.php?controller=Upload&method=uploadPic&dir=honor', 
+				swf : './public/js/uploadify.swf',
+				fileTypeExts : '*.jpg;*.gif;*.png;*.jpeg',
+				buttonText : '',
+				width : 116,
+				height : 30,
+				onUploadSuccess : function(file,data,response){
+					var obj = eval('['+data+']');
+					$('#img').prev('.del_div').remove();
+					if(obj[0].result){
+						$('#pic').val(obj[0].url);
+						$('#img').attr('src',obj[0].path);
+						self.setImgSize('honorsize');
+						$('#img').before('<div class="del_div" style="margin-bottom:5px;"><a class="del_pic" href="javascript:void(0)">删除图片</a></div>');
+					}else{
+                        $('#message').message('图片上传失败!请上传3M以下图片');
+					}
+				}
+			});
+
+			//相册选择
+			$('#honor_edit').on('click','#set',function(){
+				$('#network_pic').pic_dialog('show');
+				$('#network_pic').pic_dialog({editor:'#editor',para:{controller:'NetworkPic',method:'getPic'},size:12,page:1,message:'message'});		
+			});
+
+			//相册选择
+			$('.select_xc').click(function(){
+				$('#network_pic').pic_dialog('show');	
+				$('#network_pic').pic_dialog({para:{controller:'NetworkPic',method:'getPic'},size:12,page:1,img:'#img',input:'#pic',message:'message'});
+				self.setImgSize('honorsize');
+			});
+
+			if(!$.browser.msie){
+				$('#network_pic').picDrag('message');
+			}
+
+			//返回
+			$('#back').click(function(){
+				self.honor();
+			});
+		});
+	}
+}

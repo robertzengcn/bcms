@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link href="{{$RESOURCE}}/css/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+{{include file="Common/right.html"}}
+<div id="background_box">
+	<div class="background_1">
+        <img class="background" src="{{$RESOURCE}}/images/icon2.png">   
+        <span class="tooth">
+        
+         {{$i=1}} 
+         {{foreach from=$mobileNav['ParNav']  item=nav}} 
+        	<a href="{{$nav->url}}"><span class="btn{{$i}}">{{$nav->subject}}</span></a>
+         {{$i=$i+1}}
+         {{/foreach}} 
+        </span>
+            
+        <div class="logo"> 
+        {{$LOGO=$PicManagerTag->getMobilePic(appLogo,app)}} 
+        <a><img class="logo" src="{{$LOGO->src}}" ></a></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{{extends file='../Common/layout.html'}} 
+{{block name=title}}找回密码{{/block}} 
+{{block name=body}}
+<div class="am-u-md-8 am-u-sm-centered section">
+	<form class="am-form" id="changepass">
+		<fieldset class="am-form-set" id="formcontent">
+			<div class="am-form-group">
+				<input placeholder="输入手机号码" type="text" name="mobile"
+					datatype="*6-30" nullmsg="输入手机号码" errormsg="手机号码错误" id="phone">
+				<div></div>
+			</div>
+			<div class="am-form-group">
+				<input placeholder="输入新密码" type="password" name="userpassword"
+					datatype="*6-30" nullmsg="请输入新密码" errormsg="输入密码不正确" id="newpass">
+				<div></div>
+			</div>
+			<div class="am-form-group">
+				<input placeholder="重复新密码" type="password" name="twopassword"
+					recheck="userpassword" datatype="*6-30" nullmsg="重复新密码错误"
+					errormsg="两次密码输入不一致" id="newpasstwo">
+				<div></div>
+			</div>
+			<div class="am-form-group captcha">
+				<input class="am-form-field am-input-lg" name="verify" id="captcha"
+					datatype="*" nullmsg="请输入验证码" placeholder="验证码" type="text">
+				<div></div>
+				<img id="mpdc4_ckcode" src="/public/img/verify.php" height="36">
+			</div>
+
+			<div class="am-form-group" style="position: relative;">
+				<input placeholder="输入短信验证码" type="text" name="tcode"
+					datatype="*6-30" nullmsg="请输入短信验证码" errormsg="短信验证码错误">
+				<div></div>
+				<btn class="am-btn am-btn-success radius  bt-normal" id="getcode"
+					style="position: absolute;right:0; top:0;" href="javascript:;">
+				<i class="am-icon-envelope "></i> 获取验证码</btn>
+			</div>
+		</fieldset>
+		<button type="button"
+			class="am-btn am-btn-primary am-center my_infbtn2" id="submitbtn">提交</button>
+
+	</form>
+</div>
+{{/block}} 
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+	var gShangyu = new Shangyu();
+	gShangyu.findpass();
+</script>
+
+{{/block}}
+

@@ -1,0 +1,27 @@
+/* CSS Document */
+
+
+
+
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;height:50px;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+#page header h1 span img{ vertical-align:middle;padding:0px 6px;}
+.homenav {float:right;padding:15px 6px;}
+
+
+/* header over*/
+
+.listbox{width:100%;text-align:left;}
+.listbox ul {width:90%;margin:0 auto;}
+.listbox h2{font-size:18px;height:50px;line-height:50px;padding:0px 8px;}
+.listbox ul li{width:30%;float:left;margin:3px 2px;border:1px solid #c7e3ef;border-radius:8px;-moz-border-radius:25px; /* Old Firefox */ background:#f0f8fb;text-align:center;font-size:15px;height:35px;line-height:35px;cursor:pointer;}
+.listbox ul li a{color:#25a8da;font-size:15px;}
+
+
+/* body over*/
+#search,#searchform{width:100%;height:36px;line-height:36px;}
+#search{position:fixed;bottom:0px;}
+.searchbox{background:url(../i/search-bg.png) no-repeat;height:36px;line-height:36px;width:304px;margin:0 auto;text-align:left;}
+.searchbox input{background:none;height:32px;font-size:14jpx;color:#999999;border:none;}
+.searchbox a{font-size:16px;color:#ffffff;padding:0 8px;}

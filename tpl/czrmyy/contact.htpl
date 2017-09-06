@@ -1,0 +1,37 @@
+﻿{{extends file='./common/layout/layout.htpl'}}
+{{block name=body}}
+ <div class="Navigation" style=" padding:0;">
+        <div class="col-md-12 col-sm-12" data-id='1'>
+            <div class="panel" data-url=''>
+            <div class="panel-heading" style="overflow:hidden"><b class="pull-left"><a  href="#">来院路线</a></b></div>
+            
+
+            <div class="panel-body Nav_liebiao" id="zoom">
+                <ul>
+                <br>
+                <li>电    话：{{$ContactTag->get(tel)}}</li>
+                <li>Q  Q：  {{$ContactTag->get(qq)}}</li>
+                <li>网    址： {{$WEBSITE}}</li>
+                <li>邮    箱： {{$ContactTag->get(email)}}</a> </li>
+                <br><br>
+                <li>邮    编： {{$ContactTag->get(postcode)}}</li>
+                <li>地    址： {{$ContactTag->get(address)}}</li>
+                <li>乘车路线：{{$ContactTag->get(route)}}</li>
+              </ul>
+              </div>
+          </div>
+          </div>
+      </div>
+      </div>
+  </div>
+  </div>
+<script>
+function changeSize(size) {
+	var canSize = parseInt($("#zoom").css("fontSize"));
+	if(size=="larger")$("#zoom").css({"fontSize":canSize+1,"line-height":(canSize+1)*1.5+"px"});
+	if(size=="smaller")$("#zoom").css({"fontSize":canSize>10?(canSize-1):10,"line-height":(canSize>10?(canSize-1):10)*1.5+"px"});
+	if(typeof(size)=="number")$("#zoom").css({"fontSize":size,"line-height":""});
+	
+}
+</script> 
+{{/block}}

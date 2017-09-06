@@ -1,0 +1,128 @@
+<?php
+
+class CommodityRuleController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service   此积分规则控制器为管理员操作，必须登录管理！
+     */
+    function __construct() {
+        parent::__construct();
+        $this->service = new CommodityRuleService();
+        
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        //$filterService->addFunc($filterService::$FILERPLUSHTIME);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除单笔数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+        	
+            $commoditys= $_REQUEST['id'];
+        } else {
+        	$arr = explode(',',$_REQUEST['id']);
+        	
+            $commoditys = $arr;
+        }
+        
+       
+        $result = $this->service->deleteBatch($commoditys);
+
+        echo json_encode($result);
+    }
+    
+    public function get_type(){
+    	$scorecateser=new CommodityRuleTitleService();
+    	$result=$scorecateser->query($_REQUEST);
+    	echo json_encode($result);
+    }
+    
+    
+    
+
+    
+
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+  
+        $result = $this->service->query($_REQUEST);
+        $totalRows = count($result->data);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows
+        ));
+    }
+
+    /**
+     * 获得单笔动态数据
+     */
+    public function get() {
+        $this->blindParams($scorerule = new CommodityRule());
+        $result = $this->service->get($scorerule);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+
+        $this->blindParams($scorerule = new CommodityRule());
+//         print_r($commodity);
+//         exit();
+        $result = $this->service->update($scorerule);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+    	
+        if(isset($_REQUEST['type'])&&$_REQUEST['type']!=null){//检查type是否已经存在
+        	
+        	$array=$this->service->getbytype((int)$_REQUEST['type']);
+        
+        	if(!empty($array->data)){
+        		throw new ValidatorException(179);
+        	}else{
+
+        		$this->blindParams($scorerule = new CommodityRule());
+        		$result = $this->service->save($scorerule);
+        		
+        		echo json_encode($result);
+        	}
+        	
+        }else{
+        	throw new ValidatorException(160);
+        }
+        
+
+    }
+    
+
+
+}

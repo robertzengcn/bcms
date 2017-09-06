@@ -1,0 +1,14 @@
+			{{foreach from=$plist key=k item=value}}
+    <div class="item player_box">
+        <div class="outline">
+			<div class="pic">
+				<i class="number">{{$value->id}}号</i>
+				<a href="./vote.php?method=xiangqing&id={{$value->vid}}&vid={{$value->id}}"><img src="{{$value->startpicurl1}}"></a>
+				<p id="itid{{$value->id}}">{{$value->vcount}}票</p>
+			</div>
+           <div class="vote">
+				<p>{{$value->item}}</p><a href="javascript:;" data-itid="{{$value->id}}">投票</a>
+            </div>
+		</div>
+    </div>
+			{{/foreach}}

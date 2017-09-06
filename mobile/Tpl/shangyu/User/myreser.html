@@ -1,0 +1,25 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}我的挂号{{/block}}
+{{block name=body}}
+
+
+<div id="resercontent">
+
+</div>
+<div id="pages" class="am-pagination-centered">
+</div>
+
+    
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.getreser();
+
+
+</script>
+{{/block}}

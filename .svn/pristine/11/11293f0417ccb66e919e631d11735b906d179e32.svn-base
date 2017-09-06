@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * 商城购物订单记录DAO
+ *
+ * @author Administrator
+ *
+ */
+class CommodityOrderDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_COMMODITYORDER;
+    }
+	
+	//查询用户订单记录
+	public function query($where) {
+        DTExpression::eq('uid', $where, $this->tableName);
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+		$sql =  'SELECT * FROM '.$this->tableName.' WHERE '.DTExpression::$sql . DTOrder::$sql . DTExpression::$limit;
+        return $this->getJoin($sql);		
+	 }
+     /**
+     * 保存订单记录
+     *
+     * @see DBBaseDAO::save()
+     */
+    public function orderSave($order) {
+/*         $orderBean = R::dispense($this->tableName);
+        $order->generateRedBean($orderBean);
+        R::store($orderBean);		
+        return true; */
+        $result = R::exec("insert into ".$this->tableName."(orders,uid) values('".$order[0]."','".$order[1]."')");
+        if($result){
+            return true;
+        }else{
+            return false;
+        }
+    }   
+	
+}
+

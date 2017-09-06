@@ -1,0 +1,309 @@
+/**
+ * SEO管理-友情链接设置
+ * */
+function User() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+		});
+	}
+	
+	// }}}
+	// {{{ function initEdit()
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			
+			
+
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);
+				$("#pass").attr('name', 'pass_confirm');
+				$("#div_acl").hide(); //修改只允许修改密码，故不显示
+				$('input[type=password]').removeAttr('datatype');//编辑状态下允许密码为空
+				
+				self.cmd(gHttp,{controller:'Worker',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						$("#pwd").val('');
+						if (result1.data.acls != ''&&result1.data.acls != null) {
+							$.each(result1.data.acls,function(m,v){
+								$("input[value='"+m+"']").attr('checked',true);
+								$.each(v,function(i,vv){
+									$("input[value='"+vv+"']").attr('checked',true);
+								});
+							});
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}			
+			self.onloadthisCss();
+			
+			//保存
+			$('#save').click(function(){
+				if(para.id != undefined){//如果在编辑状态下密码为空，则不提交密码
+					var pass=$('#pwd').val();
+					if(pass==""){
+						$('input[type=password]').removeAttr('name');
+					}
+				}
+				self.save();
+			});
+			
+			$('input[name="group"]').change(function(){
+				var value=$(this).val();
+				$('div[id^="div_ac"]').hide();
+				$('div#div_ac'+value).show();
+			});
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			self.checkwebsite();
+			
+			
+		});
+	}
+	
+	// }}}
+    // {{{ function onloadCss()
+	
+	/**
+	 * 加载css
+	 * */
+	this.onloadthisCss = function() {
+		$(".permission-list dt input:checkbox").click(function(){
+			$(this).closest("dl").find("dd input:checkbox").prop("checked",$(this).prop("checked"));
+		});
+		$(".permission-list2 dd input:checkbox").click(function(){
+			var l =$(this).parent().parent().find("input:checked").length;
+			var l2=$(this).parents(".permission-list").find(".permission-list2 dd").find("input:checked").length;
+			if($(this).prop("checked")){
+				$(this).closest("dl").find("dt input:checkbox").prop("checked",true);
+				$(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked",true);
+			}
+			else{
+				if(l==0){
+					$(this).closest("dl").find("dt input:checkbox").prop("checked",false);
+				}
+				if(l2==0){
+					$(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked",false);
+				}
+			}
+			
+		});
+		$('.skin-minimal input').iCheck({
+			checkboxClass: 'icheckbox-blue',
+			radioClass: 'iradio-blue',
+			increaseArea: '20%'
+		});
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Worker',method:'query'},
+			initSort : [[1, "asc"]],
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'name' },
+			            { data: 'group',render : function(value,type,row){return value==1?'<span class="label label-success radius">超级管理员</span>':'<span class="label label-default  radius">工作人员</span>';}},
+			            { data: 'plushtime' },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" onClick="gUser.edit('+id+');" href="javascript:;" title="修改密码"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              if(row.group == 2){
+				            	  str += '<a style="text-decoration:none" class="ml-5" onClick="gUser.del('+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+				              }
+				              
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+		
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(id) {
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Worker',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function() {
+		var ids = $("#dataTable").getSelectedAll();
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Worker',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEditWID('编辑用户', 'user_info.html?id=' + id,'800','460');
+	}
+	
+	// {{{ function save()
+	
+	/**
+	 * 保存
+	 * */
+	this.save = function(){
+		var sname=$('#name').val();
+		var sid=$('#id').val();
+		self.cmd(gHttp,{controller:'Worker',method:'query',name:sname},function(res){
+			if(res.ttl!=0 && sid == '' ){
+				parent.layer.msg('该用户名己被人使用，请更换用户名！',{icon:2});				
+				}else if(res.ttl==1 && sname!=res.rows[0].name){
+					parent.layer.msg('该用户名己被人使用，请更换用户名！',{icon:2});	
+				}else{
+					var post = {};
+					var id = $("#id").val();
+					if (id == '') {
+						post = {controller:'Worker',method:'add'};
+					} else {
+						post = {controller:'Worker',method:'edit',id:id};
+					}
+					
+					var group = $('input[name="group"]:checked').val();
+					var acls = [];
+					if (group == '1') { //管理员拥有所有权限
+						$('#acls').val('');
+					} else {
+						$('#div_ac' + group).find('input[type="checkbox"]:checked').each(function(){
+							var key = $(this).parents(".permission-list").find("dt").first().find("input:checkbox").val();
+							var value = $(this).val();
+							if (key == value) {
+								acls[key] = [];
+							} else {
+								var index = acls[key].length;
+								acls[key][index] = value;
+							}
+						});
+						
+						if (acls.leng == 0) {
+							layer.msg('请为普通工作人员分配权限');
+							return false;
+						}
+						
+						//转化成json串
+						var str = '';
+						for(var i in acls) {
+							str += '"'+i+'":[';
+							var d = acls[i];
+							for(var q in d){
+								str += '"'+d[q]+'",';
+							}
+							str = str.substr(0,str.length-1);
+							str += '],';
+						}
+						str = '{' + str.substr(0,str.length-1) + '}';			
+						$('#acls').val(str);
+					}
+					
+					var formObj=$('#formEdit').checkAndSubmit('save',post,function(result1){
+						if(result1.statu){
+							if (id == '') {
+								layer.msg('添加成功!',function(){
+									window.parent.gUser.fillDataTable();
+									layer_close();
+								});
+							} else {
+								self.cmd(gHttp,{controller : 'Login',method : 'getLoginUserInfo'},function(res){
+									if (res.statu) {
+										var loginUser = res.data.name;
+										if (loginUser == sname) {
+											//只有修改当前登录用户才需要重新登录
+											layer.msg('资料修改成功,请重新登录系统!',function(){
+												self.cmd(gHttp,{controller:'Login',method:'logout'},function(ret){
+													if(ret.code){
+														top.window.location.href = '/hcc/login.html';
+														layer_close();
+													}
+												});
+											});
+										} else {
+											layer.msg('资料修改成功!',function(){
+												layer_close();
+											});
+										}
+									}
+								});
+								
+							}
+							
+						}else{
+							layer.alert(result1.msg);
+						}
+					});
+					if(id == ''){//如果是新增
+				
+						if(!formObj.check('false','#name')||!formObj.check('false','#telephone')||!formObj.check('false','#nick_name')){			
+							$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+						}else if(!formObj.check('false','#pwd')||!formObj.check('false','#pass')){
+							$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","1");	
+						}
+					}else{//编辑
+						if(!formObj.check('false','#name')||!formObj.check('false','#telephone')||!formObj.check('false','#nick_name')){			
+							$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+						}
+					}
+	
+					
+					$('#formEdit').submit();
+					
+					}
+		});
+		
+		
+	}
+	
+	//检查网站是否已在总控注册
+	this.checkwebsite=function(){
+		self.cmd(gHttp,{controller:'BoyiManager',method:'checkwebsite'},function(res){
+			if(res.stute){
+				$('#boyilogin').hide();
+			}else{
+				$('#boyilogin').show();
+				$('#goim').attr('disabled','true');
+				
+			}
+		});
+	}
+	
+	// }}}
+}

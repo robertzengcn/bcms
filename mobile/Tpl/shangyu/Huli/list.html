@@ -1,0 +1,20 @@
+{{extends file='../Common/layout.html'}}
+
+
+
+
+{{block name=title}}{{$name}}{{/block}}
+{{block name=body}}
+
+<div class="am-list-news am-list-news-default main_otg am-no-layout" data-am-widget="list_news"> 
+  <div class="am-list-news-bd">
+    <ul class="am-list">
+    {{foreach $list as $v}}
+      <li class="am-g am-list-item-dated"> <a class="am-list-item-hd " href="/mobile/channel.php?method=get&id={{$v->id}}">{{$v->subject|truncate:20}}</a> <span class="am-list-date">{{$v->updatetime|date_format:"%Y-%m-%d %H:%M"}}</span> </li>
+    {{/foreach}}  
+    </ul>
+  </div>
+</div>
+{{include file='../Common/page.html'}}
+    
+{{/block}}

@@ -1,0 +1,194 @@
+<?php
+/**
+ * 
+ * 专题tag标签管理
+ * @author Administrator
+ *
+ */
+class TopicTag extends CommonTag {
+	
+	/**
+	 * 
+	 * 构造方法
+	 */
+	function __construct() {
+		$this->service = new TopicService ();
+		parent::__construct( get_class() );
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取对应的数据
+	 * {{foreach $tagOb->getList($cur) as $v}}
+	 * {{/foreach}}
+	 * @param  int $current  当前页
+	 * @param  boolean $sort 排序规则,true为时间降序
+	 * @return array list
+	 */
+	public function getList($current,$sort = true) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.分页数
+		$pageCount = ceil( $count / $this->tagConfig['pageSize']);
+		#.组合条件进行数据查询
+		$limit = array ("page" => $current, "size" => $this->tagConfig['pageSize'] );
+		$field = '*';
+		$where = array ('1' => 1 );
+		$order = $sort === true ? "plushtime desc" : "plushtime asc";
+		$data = $this->getPage ( $field, $where, $limit, $order );
+		return $data;
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取分页html
+	 * {{$tagOb->getPageHtml($cur)}}
+	 * @param int $current 当前页
+	 */
+	public function getPageHtml($current) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.生成html信息
+		return $this->setPageHtml($current, $this->tagConfig['pageSize'] , $count );
+	}
+	
+	/**
+	 * 
+	 * 根据唯一id获取该id的详细信息
+	 * {{$news = $tagOb->get($id)}}
+	 * @param int $id 唯一id
+	 */
+	public function get($id) {
+		$id = (int)$id <= 0 ? 0 : (int)$id;
+		$where = array( "id" => $id );
+		$result = $this->service->findOne( $where , '*' );
+		$entity = new Topic();
+		$entity->generateFromRedBean( $result );
+		return $entity;
+	}
+	
+	/**
+	 * 根据推荐位置获取文章列表 ...
+	 * @param unknown_type $recommend_id
+	 */
+	public function getByRecommend($recommend,$disease,$size,$name='topic_id'){
+		if (!is_numeric($recommend)){
+			$position = new RecommendPositionService();
+			$result = $position->getByName($recommend);
+			$recommend_id = $result->id;
+		}else{
+			$recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+		}
+		$recommendObj = new RecommendListService();
+		$topicIds = $recommendObj->getByRecommendID($recommend_id,$name);
+		$_REQUEST['ids'] = array();
+		foreach ($topicIds as $val){
+			$_REQUEST['ids'][] = $val->$name;
+		}
+		$result = $this->service->getByIds();
+		$arr = array();
+		if (!is_numeric($disease)){
+			$diseaseObj = new DiseaseService();
+			$where = array();
+			$where['name'] = $disease;
+			$rs = $diseaseObj->query($where)->data;
+			foreach ($rs as $v){
+				if ($v->name == $disease){
+					$disease_id = $v->id;
+				}
+			}
+		}else{
+			$disease_id = (int)$disease <=0 ? 0 : (int)$disease;
+		}
+		foreach ($result->data as $value) {
+			if ($value->disease_id == $disease_id){
+				$arr[] = $value;
+			}
+		}
+		$array = array();
+		$i=1;
+		foreach ($arr as $v){
+			if ($i<=$size){
+				$array[] = $v;
+			}
+			$i++;
+		}
+		return $array;
+	}
+	
+	/**
+	 * 获取置顶资讯
+	 * @param unknown_type $recommend_id
+	 * @param unknown_type $disease_id
+	 * @param unknown_type $is_top
+	 * @param unknown_type $name
+	 * @return Ambigous <multitype:, unknown>
+	 */
+	public function getByTop($recommend,$disease,$is_top=1,$name='topic_id'){
+		if (!is_numeric($recommend)){
+			$position = new RecommendPositionService();
+			$result = $position->getByName($recommend);
+			$recommend_id = $result->id;
+		}else{
+			$recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+		}
+		$recommendObj = new RecommendListService();
+		$topicIds = $recommendObj->getByTop($recommend_id,$is_top,$name);
+		$_REQUEST['ids'] = array();
+	    foreach ($topicIds as $val){
+			$_REQUEST['ids'][] = $val->$name;
+		}
+		$result = $this->service->getByIds();
+		if (!is_numeric($disease)){
+			$diseaseObj = new DiseaseService();
+			$where = array();
+			$where['name'] = $disease;
+			$rs = $diseaseObj->query($where)->data;
+			foreach ($rs as $v){
+				if ($v->name == $disease){
+					$disease_id = $v->id;
+				}
+			}
+		}else{
+			$disease_id = (int)$disease <=0 ? 0 : (int)$disease;
+		}
+		foreach ($result->data as $value) {
+			if ($value->disease_id == $disease_id){
+				$obj = $value;
+			}
+		}
+		return $obj;
+	}
+	
+	/**
+	 * 获取用户变量的值...
+	 * @param unknown_type $name
+	 * @param unknown_type $topic
+	 * @return Ambiguous
+	 */
+	public function getTopicVar($name,$topic){
+		$pattern = '/^[a-zA-Z]+$/';
+		$where = array();
+		if (preg_match($pattern, $name)){
+			$where['var_name'] = $name;
+		}else{
+			$where['name'] = $name;
+		}
+		if (!is_numeric($topic)){
+			$arr = array();
+			$arr['subject'] = $topic;
+			$rs = $this->service->query($arr)->data;
+			$where['pid'] = $rs[0]->id;
+		}else{
+			$where['pid'] = $topic;
+		}
+		$userVarObj = new UserVarService();
+		$result = $userVarObj->query($where)->data;
+		//print_r($result);
+		return $result;
+	}
+}

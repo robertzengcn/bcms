@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<Name>患者管理</Name>
+	<ByName>patient</ByName>
+	<Discription>通过患者管理插件，实现医患的互动，便于医院能够更加全面的了解患者的就诊情况和医生的坐诊情况，以便医院及医生能够高效合理的安排时间</Discription>
+	<Author>联医科技</Author>
+	<ByVersion>v2.0</ByVersion>
+	<HccinletHtml>index</HccinletHtml>
+	<SqlFile>run.sql</SqlFile>
+	<UnInstall>PatientService:uninstall</UnInstall>
+	<Kernel>
+		<Controller>PatientController.php:controller/PatientController.php</Controller>
+		<Service>PatientService.php:kernel/PatientService.php</Service>
+		<Dao>PatientDAO.php:kernel/dao/PatientDAO.php</Dao>
+		<Entity1>Patient.php:kernel/entity/Patient.php</Entity1>
+		<Entity2>PatientCase.php:kernel/entity/PatientCase.php</Entity2>
+		<Entity3>PatientDataSource.php:kernel/entity/PatientDataSource.php</Entity3>
+		<Entity4>PatientDiagnosisDetail.php:kernel/entity/PatientDiagnosisDetail.php</Entity4>
+		<Entity5>PatientDiagnosisFee.php:kernel/entity/PatientDiagnosisFee.php</Entity5>
+		<Entity6>PatientManager.php:kernel/entity/PatientManager.php</Entity6>
+		<Entity7>PatientReceptionist.php:kernel/entity/PatientReceptionist.php</Entity7>
+		<Entity8>PatientReturnVisit.php:kernel/entity/PatientReturnVisit.php</Entity8>
+		<Entity9>PatientVipLevel.php:kernel/entity/PatientVipLevel.php</Entity9>
+		<Entity10>PatientExamineItem.php:kernel/entity/PatientExamineItem.php</Entity10>
+		<Entity11>PatientDepartment.php:kernel/entity/PatientDepartment.php</Entity11>
+		<Entity12>PatientDisease.php:kernel/entity/PatientDisease.php</Entity12>
+		<Entity13>PatientDoctor.php:kernel/entity/PatientDoctor.php</Entity13>
+		<Entity14>PatientPrescription.php:kernel/entity/PatientPrescription.php</Entity14>
+		<Entity15>PatientPrescriptionDetail.php:kernel/entity/PatientPrescriptionDetail.php</Entity15></Kernel>
+</plugin>

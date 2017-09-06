@@ -1,0 +1,227 @@
+<?php
+class ReservationTag extends CommonTag{
+	protected $where = array();
+	protected $pagesize = 10;
+	/**
+	 * 构造方法...
+	 */
+	function __construct() {
+		$this->service = new ReservationService();
+		parent::__construct( get_class() );
+	}
+	
+	/**
+	 *
+	 * 根据页码获取对应的数据
+	 * {{foreach $tagOb->getList($cur) as $v}}
+	 * {{/foreach}}
+	 * @param  int $current  当前页
+	 * @param  boolean $sort 排序规则,true为时间降序
+	 * @return array list
+	 */
+	public function getDocList($current=1,$limit='',$sort = true) {
+	    $limit = $limit == '' ? $this->tagConfig['pageSize'] : $limit;
+	    #.第几页
+	    $current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+	    #.组合条件进行数据查询
+	    $limit = array ("page" => $current, "size" => $limit );
+	    $where = array ('1' => 1 );
+	    $order = $sort === true ? "plushtime desc" : "plushtime asc";
+	    
+	    $data = $this->service->getDocList ( $where, $limit, $order );
+	    return $data;
+	}
+	
+	/**
+	 *
+	 * 根据页码获取对应的数据
+	 * {{foreach $tagOb->getList($cur) as $v}}
+	 * {{/foreach}}
+	 * @param  int $current  当前页
+	 * @param  boolean $sort 排序规则,true为时间降序
+	 * @return array list
+	 */
+	public function getList($current=1,$limit='',$sort = true) {
+		$limit = $limit == '' ? $this->tagConfig['pageSize'] : $limit;
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.分页数
+		$pageCount = ceil( $count / $this->tagConfig['pageSize']);
+		#.组合条件进行数据查询
+		$limit = array ("page" => $current, "size" => $limit );
+		$field = '*';
+		$where = array ('1' => 1 );
+		$order = $sort === true ? "doctor_id asc,date desc" : "doctor_id asc,date desc";
+		$data = $this->getPage ( $field, $where, $limit, $order );
+		foreach ( $data as $key => $value ){
+			$data[$key]->date = date('Y-m-d',$value->date);
+		}
+		return $data;
+	}
+	
+	/**
+	 * 获取出指定时间内所有的医生相关数据
+	 * @param unknown_type $start
+	 * @param unknown_type $end
+	 * @return Ambigous <multitype:, number, unknown>
+	 */
+	public function getLimitAll($start='',$end='',$model=1){
+		$where = array();
+		if ($start)$where['start'] = strtotime($start);
+		if ($end)$where['end'] = strtotime($end);
+		$result = $this->service->query($where)->data;
+		$array = array();
+		$doctor_id = 0;
+		foreach ($result as $reservation){
+			foreach ($reservation as $key=>$value){
+				if ($doctor_id != $reservation->doctor_id){
+					$doctor_id = $reservation->doctor_id;
+					$num = 0;
+				}
+				if ($key != 'doctor_id'){
+					if ($key != 'date' && $key != 'morning' && $key != 'afternoon' && $key != 'night' && $key != 'approximately'){
+						$array[$doctor_id][$key] = $value;
+					}
+					if ($key == 'date'){
+						if ($model == 2){
+							$value = date('m/d',strtotime($value));
+						}
+						$array[$doctor_id][$key][$value]['morning'] = $reservation->morning == '-' ? '' : $reservation->morning;
+						$array[$doctor_id][$key][$value]['afternoon'] = $reservation->afternoon == '-' ? '' : $reservation->afternoon;
+						$array[$doctor_id][$key][$value]['night'] = $reservation->night == '-' ? '' : $reservation->night;
+					}
+					if ($key == 'approximately'){
+						$arr = explode('<br/>', $value);
+                        $val = $arr[0]+$arr[1]+$arr[2];
+						$num += $val;
+						$array[$doctor_id][$key] = $num;
+					}
+				}
+			}
+		}
+		foreach ($array as $key=>$value){
+			if (is_array($value['date'])){
+				$array[$key]['date'] = array_reverse($value['date']);
+			}
+		}
+		
+		/*
+		foreach ($array as $key=>$value){
+			$array[$key] = (object)$value;
+		}
+		*/
+		return $array;
+	}
+	
+	
+	/**
+	 * 获取单个医生排班
+	 */
+	function getDocReservation($department,$doctor, $start = '', $end = ''){
+	    $where = array();
+	    $where['department_id'] = $department;
+	    $where['name'] = $doctor;
+	    $where['page']=1;
+	    $where['size']=10;
+	    
+	    if ($start) {
+	    	$where['startdate'] = $start;
+	    }
+	    
+	    if ($start) {
+	        $where['enddate'] = $end;
+	    }
+	    $this->where = $where;
+	    $result = $this->service->queryTag($where);
+	    return $result->data;
+	}
+	
+	/**
+	 * 获取详细的上班时间表
+	 * @param unknown_type $department
+	 * @param unknown_type $doctor
+	 * @param unknown_type $date
+	 * @param unknown_type $times
+	 */
+	function getDetailList($department,$doctor,$date,$times){
+		$array = explode('-', $times);
+		$where = array();
+		$where['start'] = strtotime($date.' '.$array[0]);
+		$where['end'] = strtotime($date.' '.$array[1]);
+		$where['department_id'] = $department;
+		$where['doctor_id'] = $doctor;
+		$where['date'] = strtotime($date);
+		$where['page'] = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
+		$where['size'] = $this->pagesize;
+		$this->where = $where;
+		$result = $this->service->getDetail($where);
+		//print_r($result->data);
+		return $result->data;
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取分页html
+	 * {{$tagOb->getPageHtml($cur)}}
+	 * @param int $current 当前页
+	 */
+	public function getPageHtml() {
+		#.第几页
+		$current   = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
+		if ($current<1){
+			$current = 1;
+		}
+		$pagesize = $this->pagesize;
+		#.查询总条数
+		$count  = $this->service->getCount ($this->where)->data;
+		$pageCount = ceil($count/$pagesize);
+		if ($current>$pageCount){
+			$current = $pageCount;
+		}
+		$str = '总共&nbsp;'.$pageCount.'&nbsp;页,第'.$current.'页&nbsp;'.'<a href="http://www.hiwbs.com/yylist.php?department_id=11&doctor_id=6&date=10/30&times=8:00-12:00">首页</a>';
+		if ($current == 1){
+			$str .= '&nbsp;上一页';
+		}else{
+			$str .= '&nbsp;<a href="http://www.hiwbs.com/yylist.php?department_id=11&doctor_id=6&date=10/30&times=8:00-12:00&page='.($current-1).'">上一页</a>';
+		}
+		for($i=1;$i<=$pageCount;$i++){
+			$str .= '&nbsp;<a href="http://www.hiwbs.com/yylist.php?department_id=11&doctor_id=6&date=10/30&times=8:00-12:00&page='.$i.'">'.$i.'</a>&nbsp;';
+		}
+		if ($current == $pageCount){
+			$str .= '&nbsp;下一页';
+		}else{
+			$str .= '&nbsp;<a href="http://www.hiwbs.com/yylist.php?department_id=11&doctor_id=6&date=10/30&times=8:00-12:00&page='.($current+1).'">下一页</a>';
+		}
+		$str .='&nbsp;<a href="http://www.hiwbs.com/yylist.php?department_id=11&doctor_id=6&date=10/30&times=8:00-12:00&page=3">末页</a>';
+		return $str;
+	}
+	
+	/**
+	 *
+	 * 根据页码获取分页html
+	 * {{$tagOb->getPageHtml($cur)}}
+	 * @param int $current 当前页
+	 */
+	public function getDocPageHtml($current, $size) {
+	    #.第几页
+	    $current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+	    #.查询总条数
+	    //$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+	    $data = $this->service->getDocList ( array ('1' => 1 ), '', '' );
+	    $count = count($data);
+	    #每页显示条数
+	    $size = empty($size) ? $this->tagConfig['pageSize'] : $size;
+	    #.生成html信息
+	    return $this->setPageHtml($current, $size , $count , 'reservation' );
+	}
+	
+	/**
+	 * 获取已约用户
+	 * */
+	public function getUserList() {
+	    $detailService = new ReservationDetailService();
+	    return $detailService->getDetailAll();
+	}
+}

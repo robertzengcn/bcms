@@ -1,0 +1,81 @@
+<!doctype html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>数据统计选择</title>
+
+  <!-- Set render engine for 360 browser -->
+  <meta name="renderer" content="webkit">
+
+  <!-- No Baidu Siteapp-->
+  <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+  <link rel="icon" type="image/png" href="i/favicon.png">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="i/app-icon72x72@2x.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Amaze UI"/>
+  <link rel="apple-touch-icon-precomposed" href="i/app-icon72x72@2x.png">
+
+  <!-- Tile icon for Win8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="i/app-icon72x72@2x.png">
+  <meta name="msapplication-TileColor" content="#0e90d2">
+
+  <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+  <!--
+  <link rel="canonical" href="http://www.example.com/">
+  -->
+
+  <link rel="stylesheet" href="css/amazeui.min.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，Amaze UI 暂不支持。 请 <a
+  href="http://browsehappy.com/" target="_blank">升级浏览器</a>
+  以获得更好的体验！</p>
+<![endif]-->
+
+<ul class="am-tab-panel am-active main_stacho" id="statItems">
+  <li flag="1"><a href="#"><img src="i/icon/icon1.png"><span>综合统计</span></a></li>
+  <li flag="2"><a href="#"><img src="i/icon/icon2.png"><span>周及时间段</span></a></li>
+  <li flag="3"><a href="#"><img src="i/icon/icon3.png"><span>前台接诊</span></a></li>
+  <li flag="4"><a href="#"><img src="i/icon/icon4.png"><span>病患来源</span></a></li>
+  <li flag="5"><a href="#"><img src="i/icon/icon5.png"><span>医生接诊</span></a></li>
+  <li flag="6"><a href="#"><img src="i/icon/icon6.png"><span>科室疾病</span></a></li>
+  <li flag="7"><a href="#"><img src="i/icon/icon7.png"><span>财务统计</span></a></li>
+  <li flag="8"><a href="#"><img src="i/icon/icon8.png"><span>诊疗项目</span></a></li>
+</ul>
+
+<!--[if lt IE 9]>
+<script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://cdn.staticfile.org/modernizr/2.8.3/modernizr.js"></script>
+<script src="js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="js/jquery.min.js"></script>
+<!--<![endif]-->
+<script src="js/amazeui.min.js"></script>
+
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/tmp/js/patient.js"></script>
+<script type="text/javascript">
+var gPatient = new Patient();
+gPatient.setThisName('gPatient');
+gPatient.initStatItems();
+</script>
+
+</body>
+</html>

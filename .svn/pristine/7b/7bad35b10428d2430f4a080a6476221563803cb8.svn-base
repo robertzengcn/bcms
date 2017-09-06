@@ -1,0 +1,202 @@
+<?php
+
+//ini_set("display_errors", "On");
+include './HM.php';
+
+class Clientmanager extends HM {
+	public function __construct(){
+		if(!session_id()) session_start();
+		parent::__construct();
+	}
+	/**
+	 * 取用户列表
+	 * */
+	protected function __clientlist(){
+		$page=isset($_REQUEST['page'])&&strlen($_REQUEST['page'])>0?(int)$_REQUEST['page']:0;
+		$size=isset($_REQUEST['size'])&&strlen($_REQUEST['size'])>0?(int)$_REQUEST['size']:10;
+		
+		$clientser=new ClientService();
+		//$num=$clientser->gettotal_work($_SESSION['work_id'])->data;
+		
+		$result=$clientser->getdatabyworkid($_SESSION['work_id'],$page,$size)->data;
+	
+		$this->msgPut(true,null,$result,0);
+
+
+		
+	}
+	
+	/**
+	 * 取用户具体信息接口
+	 * @param $_REQUEST['client_id'] 用户的client_id
+	 * */
+	protected function __clientinfo(){
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		if(!$client_id){
+			$this->msgPut(false,'缺少id参数',null,'2');
+		}
+		
+		$clientser=new ClientService();
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		$client=new Client();
+		$client->id=$client_id;
+		$client=$clientser->get($client_id,$client)->data;
+		if(isset($client->source)&&$client->source){//如果客户来源不为空
+			$patientser=new PatientService();
+			$sourcedata=$patientser->getsourcename($client->source)->data;
+			if($sourcedata->title){
+				$client->source_name=$sourcedata->title;
+			}else{
+				$client->source_name=null;
+			}
+			
+		}else{
+			$client->source_name=null;
+		}
+		if($client){
+			$this->msgPut(true,null,$client,0);
+		}else{
+			$this->msgPut(false,'没有找到用户',null,4);
+		}
+		
+	}
+	
+	/**
+	 * 取用户客服记录
+	 * @param $_REQUEST['client_id'] $_REQUEST['page'] $_REQUEST['size']
+	 * */
+	protected function __getrecord(){
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		$page=isset($_REQUEST['page'])&&strlen($_REQUEST['page'])>0?(int)$_REQUEST['page']:0;
+		$size=isset($_REQUEST['size'])&&strlen($_REQUEST['size'])>0?(int)$_REQUEST['size']:10;
+		if(!$client_id){
+			$this->msgPut(false,'缺少id参数',null,'2');
+		}
+		$clientser=new ClientService();
+		
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		$num=$clientser->getrecordnum($client_id)->data;
+		
+		$records=$clientser->getclientrecord($client_id,$page,$size)->data;
+		$result=array('total'=>$num,'records'=>array_merge($records));
+		
+		if(!empty($result)){
+			$this->msgPut(true,null,$result,0);
+		}else{
+			$this->msgPut(false,'没有数据',null,4);
+		}
+	}
+	/**
+	 * 取患者预约记录
+	 * */
+	protected function __getclientres(){
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		
+		if(!$client_id){
+			$this->msgPut(false,'缺少client id参数',null,'2');
+		}
+		$clientser=new ClientService();
+		$client=new Client();
+		$client->id=$client_id;
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		
+		$client=$clientser->get($client_id,$client)->data;
+		if(!$client){					
+			$this->msgPut(false,'没有找到患者数据',null,4);
+		}
+		if(!$client->telephone){
+			$this->msgPut(false,'患者没有留电话，无法查询',null,5);
+		}
+		$resbookser=new ResBookingInfoService();
+		$result=$resbookser->getbookinginfobytelephone($client->telephone)->data;
+		$this->msgPut(true,null,$result,0);
+		
+	}
+	/**
+	 * 修改到诊状态评估
+	 * @param $_REQUEST['statu']状态，用户自定义
+	 * @param $_REQUEST['id']预约排班表的id
+	 * 
+	 * */
+	protected function __changeresstu(){
+		$statu=isset($_REQUEST['statu'])&&strlen($_REQUEST['statu'])>0?$_REQUEST['statu']:null;
+		if(!$statu){
+			$this->msgPut(false,'状态参数为空',null,5);
+		}
+		$id=isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0?(int)$_REQUEST['id']:null;
+		if(!$id){
+			$this->msgPut(false,'id 参数为空',null,6);
+		}
+		$resbookser=new ResBookingInfoService();
+		$resbookinfo=new ResBookingInfo();
+		$resbookinfo->id=$id;
+		
+		$resbookinfo=$resbookser->get($resbookinfo)->data;
+		if(!$resbookinfo){
+			$this->msgPut(false,'没有找到预约信息',null,9);
+		}
+		if(!isset($resbookinfo->tel)||!$resbookinfo->tel){
+			$this->msgPut(false,'用户未留电话，无法修改信息',null,7);
+		}
+		$clientser=new ClientService();
+		$client=new Client();
+		$client=$clientser->getclientbytel($resbookinfo->tel)->data;
+		if(!$client){
+			$this->msgPut(false,'未找到该用户信息',null,8);
+		}
+	
+		$res=$clientser->workclientres($_SESSION['work_id'],$client->id)->data;
+		
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		$resbookser->changestatuname($id,$statu);
+		$this->msgPut(true,'修改成功',null,0);
+	}
+	/**
+	 * 保存患者客服记录
+	 * @param $_POST['content']
+	 * */
+	protected function __savecontent(){
+		$content=isset($_REQUEST['content'])&&strlen($_REQUEST['content'])>0?$_REQUEST['content']:null;
+		if(!$content){
+			$this->msgPut(false,'缺少content字段',null,1);
+		}
+		$client_id=isset($_REQUEST['client_id'])&&strlen($_REQUEST['client_id'])>0?$_REQUEST['client_id']:null;
+		
+		if(!$client_id){
+			$this->msgPut(false,'缺少client id参数',null,'2');
+		}
+		$clientser=new ClientService();
+		$res=$clientser->workclientres($_SESSION['work_id'],$client_id)->data;
+		
+		if(!$res){
+			$this->msgPut(false,'该患者未被您关注',null,'3');
+		}
+		
+		
+		$clientrecord=new ClientRecord();
+		$clientrecord->client_id=$client_id;
+		$clientrecord->content=$content;
+		$clientrecord->recordtime=date('Y-m-d',time());
+		$clientrecord->reception_id=$_SESSION['work_id'];						
+		$clientser->saveclientrecord($clientrecord);
+		
+		$this->msgPut(true,'添加成功',null,0);
+		
+	}
+	
+}
+new Clientmanager();
+?>

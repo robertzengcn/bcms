@@ -1,0 +1,31 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+<!--正文-->
+<div class="clear h8"></div>
+<div class="main">
+<!--左边-->
+<div class="par-main">
+{{movie id=$id assign="movie"}} 
+<div id="breadcrumb"><div><span>您的当前位置：<a href="{{$WEBSITE}}">{{$ContactTag->get('name')}}</a>>><a href="{{$WEBSITE}}/hospital/movie/index.html">视频新闻</a>>><a href="#" onclick="return false;">视频新闻详情</a></span></div></div>     
+      <h2 class="title">视频新闻详情</h2>
+      <div class="device_par">
+        <div>
+       <embed height="400px" width="550px" src="{{$movie->link}}" type="application/x-shockwave-flash" ></embed>        
+        </div>
+        <h3>{{$movie->subject}}</h3>
+      </div>   
+      <div class="device_par_content">
+      <p>{{$movie->content}}</p>
+      </div>
+</div>
+<!--左边end--> 
+   
+<!--右边-->
+{{include file="../common/right/doctor_right.htpl"}}
+<!--右边end--> 
+   
+</div>
+{{/block}}

@@ -1,0 +1,7 @@
+.par-main h2{margin-bottom:0px;}
+.fenye{padding-top:0px;}
+.pic{clear:both;margin:0px 10px;}
+.pic ul{}
+.pic ul li{float:left;width:142px;height:160px;padding:30px 18px 0px 18px;line-height:24px;text-align:center;display:inline;border-bottom:1px dashed #ddd;}
+.pic ul li img{width:140px;height:110px;border:1px solid #d2d6db;display:block;margin-bottom:3px;}
+.pic ul li a{color:#666;}

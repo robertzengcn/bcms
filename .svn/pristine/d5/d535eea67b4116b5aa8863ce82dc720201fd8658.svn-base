@@ -1,0 +1,892 @@
+<?php
+ define('IS_AJAX',isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+//载入入口文件
+include_once 'wechat.php';
+
+/**
+ * 
+ * 投票
+ * @author Administrator
+ *
+ */
+class voteWechat extends Wechat {
+
+	public $action  = 'wechat';	//模块名称
+	public $appId;				
+	public $appSecret;
+	public $wxId;				//微信openId
+	public $isGz;				//是否关注
+	public $checks;				//除详细页外浏览量
+	public $dcount;				//详细页浏览量
+	//public $userInfo;			//微信用户信息
+	/**
+	 * 
+	 * 构造方法,通过method方法,调取对应的输出函数
+	 * @param unknown_type $method
+	 */
+	public function __construct() {
+		parent::__construct();
+		//$this->appId = 'wx8e4bea2a1132b1ac';
+		//$this->appSecret = 'af88509b64670348669e640b50874324';
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		$this->InitAppIdAppSecret($id);			//获取公众号
+		$this->_InjectWXData();       				//更新access_token与注入分享   
+/* 		$is_weixin = $this->is_weixin();
+		if($is_weixin ==false){
+			$this->error("错误，只允许通过微信访问，请在微信打开本链接");			
+		} */
+		$method = $_REQUEST['method'];
+		$array = array('signUpHandle');
+		if(in_array($method, $array) || (isset($_REQUEST['type']) && $_REQUEST['type'] =='view')){
+		
+		}else{
+			$this->wxId = $this->getWxUserOpenId($id);		//获取微信用户openId 并cookie存储			
+		}
+		//$this->isGz = $this->getWxUserIsGz();       //判断是否关注
+		//$this->initAddView();					    //自动增加浏览量 +1
+		$this->excute();	
+	}
+	 
+	/**
+	 *  增加浏览量 +1
+	 */
+	private function initAddView(){
+		switch($_REQUEST['method']){
+			case 'cansai' :
+			case 'jiangpin' :
+			case 'paiming' :
+			case 'index' : 
+				//$this->checks = $this->initAddChecksJson(intval($_REQUEST['id']));
+				//$this->getServiceMethod('Vote','initAddView',array('id'=>intval($_REQUEST['id'])));
+				break;
+			case 'xiangqing' :
+				//$this->dcount = $this->initAddDcountJson(intval($_REQUEST['id']),intval($_REQUEST['vid']));
+				//$this->getServiceMethod('VoteItem','initAddView',array('id'=>intval($_REQUEST['vid']))); 
+				break;
+			default : break;
+		}
+	}
+
+	/**
+	 *  可以换成Redis 存储 (减少服务器请求)  checks(首页)
+	 */
+	private function initAddChecksJson($id){
+		$abspath = rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' );
+		$viewdir = $abspath.'/data/vote/'.$id.'/';
+		$viewurl = $abspath.'/data/vote/'.$id.'/checks.json';
+		if(file_exists($viewurl)){
+			$data = json_decode(file_get_contents($viewurl));
+			if($data ==''){
+				$data->checks = 1;
+				$fp = fopen($viewurl, "w");
+				fwrite($fp, json_encode($data));
+				fclose($fp);
+				return 1;					
+			}else{
+				$data->checks = $data->checks + 1;
+				$fp = fopen($viewurl, "w");
+				fwrite($fp, json_encode($data));
+				fclose($fp);
+				return $data->checks;			
+			}
+			
+		}else{
+			$data = array("checks"=>1);
+			$content = json_encode($data);
+			$this->createdir($viewdir);
+			file_put_contents($viewurl, $content);
+			return 1;
+		}		
+	}
+	/**
+	 *  可以换成Redis 存储 (减少服务器请求)  dcount(详细)
+	 */
+	private function initAddDcountJson($id,$vid){
+		$abspath = rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' );
+		$viewdir = $abspath.'/data/vote/'.$id.'/';
+		$viewurl = $abspath.'/data/vote/'.$id.'/dcount.json';
+		if(file_exists($viewurl)){
+			$data = json_decode(file_get_contents($viewurl));
+			if($data==''){
+				$data->$vid = 1;
+				$fp = fopen($viewurl, "w");
+				fwrite($fp, json_encode($data));
+				fclose($fp);
+				return 1;				
+			}else{
+				$data->$vid = (isset($data->$vid) ? $data->$vid : 0)  + 1;
+				$fp = fopen($viewurl, "w");
+				fwrite($fp, json_encode($data));
+				fclose($fp);
+				return $data->$vid;				
+			}
+		}else{
+			$data = $this->getServiceMethod('VoteItem','getIdsDcount',intval($_REQUEST['id']));
+			$content = json_encode($data);
+			$this->createdir($viewdir);
+			file_put_contents($viewurl, $content);
+			return $data[$vid];		
+		}		
+	}
+	/**
+	 * 
+	 *  获取微信appId、appSecret
+	 *  
+	 */
+	private function InitAppIdAppSecret($id ){
+		if($id){
+		$abspath = rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' );
+		$appwdir = $abspath.'/data/vote/'.$id.'/';
+		$appurl = $abspath.'/data/vote/'.$id.'/share.json';
+			if(file_exists($appurl)){
+				$data = json_decode(file_get_contents($appurl));
+				$this->appId  = $data->shareId;
+				$this->appSecret = 	$data->shareSet;			
+			}else{
+				$data = $this->getServiceMethod('VoteWxsz','getAppsecret',$id);
+		    	$array= array('shareId'=>$data->appid,'shareSet'=>$data->appsecret);
+				$content = json_encode($array);
+				$this->createdir($appwdir);
+				file_put_contents($appurl, $content);
+				$this->appId  = $data->appid;
+				$this->appSecret = 	$data->appsecret;
+			}	
+		}
+	}
+	/**
+	 * 确保当前用户是在微信中打开，并且获取用户信息
+	 *
+	 * @param string $url 获取到微信授权临时票据（code）回调页面的URL
+	 */
+	private function getWxUserOpenId($id) {
+ 		$wxId = $this->_getcookie('wx_id_'.$this->appId.'_'.$id);
+		//先看看本地cookie里是否存在微信唯一标记，
+		if (!empty($wxId)) {
+			return $wxId;
+		}else{
+			$code = isset($_GET['code']) ? $_GET['code'] : '';
+			if(empty($code)){
+				//获取授权临时票据（code）
+				$url = rtrim('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], '/');
+				//到WxModel.php里获取到微信授权请求URL,然后redirect请求url
+				header("Location:".$this->getOAuthUrl($url));			
+			}		
+			$result = $this->getOauthAccessToken($_GET['code']);
+			$result = json_decode($result,true);
+			//如果发生错误
+			if (isset($result['errcode'])) {
+				return array('msg'=>'授权失败,请联系客服','result'=>$result);
+			}
+			$this->wxId = $result['openid'];
+			//$accessToken = $result['access_token'];
+			//$openId = $result['openid'];
+			//将openid和accesstoken存入cookie中
+			$this->_setcookie('wx_id_'.$this->appId.'_'.$id, $this->wxId, 60*60*24*7);
+			//$this->_setcookie('access_token', $accessToken,$result['expires_in']);
+			/*******************通过access_token调用接口，取出用户信息***********************/
+/* 				$accessToken = $this->getAccessToken();	
+			$userInfo = $this->getUserInfo($openId, $accessToken);
+
+			if($userInfo){
+				$is_add = $this->getServiceMethod('VoteWxUser','query',$openId);
+				if(!$is_add->data){
+					$this->getServiceMethod('VoteWxUser','addWxUser',$userInfo);		
+				}
+			} */
+			//自定义微信唯一标识符
+			//$wxSign =substr(md5($this->wxId.'a1b2c3'), 8, 16);
+			//将其存到cookie里
+			//$this->_setcookie('wxSign', $wxSign, 60*60*24*7);
+			//$this->_setcookie("wxsign_{$wxSign}", $userInfo, 60*60*24*7);	
+			return $this->wxId;
+			
+		}
+	}
+	/**
+	 * 判断是否微信关注
+	 */	
+	public function getWxUserIsGz($id){
+		$openId = $this->_getcookie('wx_id_'.$this->appId.'_'.$id);		
+		$accessToken = $this->getAccessToken();	
+		$userInfo = $this->getUserInfo($openId, $accessToken);
+	    if(isset($userInfo[0]) && $userInfo[0]['errcode']=='40001'){
+			$abspath = rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' );
+			$tokenurl = $abspath.'/weixindb/access_token_'.$this->appId.'.json';
+			$ticketurl = $abspath.'/weixindb/jsapi_ticket_'.$this->appId.'.json';
+			@unlink($tokenurl);
+			@unlink($ticketurl);
+			//$this->setAccessToken();
+			//$accessToken = $this->getAccessToken();
+			//$userInfo = $this->getUserInfo($openId, $accessToken);
+		}
+		if($userInfo['subscribe']==1){
+			return 1;
+		}else{
+			return 0;	
+		}		
+	}
+	/**
+	 * 判断是否微信登录
+	 */
+	public function is_weixin(){  
+		if ( strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false ) {  
+				return true;  
+		}    
+		return false;  
+	}	
+	/**
+	 * 首页
+	 */
+	public function index() {
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+			$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+			$type = isset($_GET['type']) ? intval($_GET['type']) : 1;
+			switch($type){
+				case 1 : $order = ' order by dcount desc';break;
+				case 2 : $order = ' order by vcount desc';break;
+				case 3 : $order = ' order by id desc';break;
+				default: break;
+			}
+			$size=6;
+			//$stat = 1+($page-1)*$size;
+			
+			//$end = $page*$size;
+			$arr = array('vid'=>$id,'order'=>$order,'size'=>$size,'page'=>$page);
+			$plist = $this->getServiceMethod('VoteItem','getPlayersListByType',$arr);
+		if (IS_AJAX) {
+			if(count($plist)>0)	{	
+				$this->smarty->assign('plist', $plist);               //选手列表
+				$this->smarty->display( 'Vote/ajaxload' . TPLSUFFIX );
+				die;
+			}else{
+				die();				
+			}
+		}
+        $this->blindParams($vote = new Vote());
+		$voteinfo=$this->getServiceMethod('Vote','get',$vote);
+		$voteinfo->data->url = NETADDRESS . '/'. $this->action	. '/vote.php?method=index&id=' . $voteinfo->data->id;
+		$vicount=$this->getServiceMethod('VoteItem','getSignUpCount',array("vid" =>$id));
+		$totalvd = $this->getServiceMethod('VoteItem','getTotalVotesClicks',$id);
+		
+		if($voteinfo->data->ed_dcount){
+			$field = date('Y-m-d', time());
+			$ed_dcount = unserialize($voteinfo->data->ed_dcount);
+
+			if(in_array($field, array_keys($ed_dcount))){
+				$ed_dcount[$field] = $ed_dcount[$field] +1;
+			}else{
+				$ed_dcount[$field] = 1;			
+			}
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));			
+		}else{
+			$field = date('Y-m-d', time());
+			$ed_dcount = array();
+			$ed_dcount[$field] = 1;	
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));		
+		}
+		
+		$vicount = $voteinfo->data->xnbms + $vicount;		
+		$totalcheck = $totalvd['dcount'] + $voteinfo->data->xncheck + $voteinfo->data->checks;
+		$totalvotes = $totalvd['vcount'] + $voteinfo->data->xntps;
+		$remtime = strtotime($voteinfo->data->enddate) - time();
+
+		$piclist = explode("|", $voteinfo->data->wappicurl);
+		
+		
+		
+		$this->smarty->assign('id', $id);                  //活动id
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板
+		$this->smarty->assign('wxgz', $this->isGz);  
+		$this->smarty->assign('openid', md5($this->wxId)); 		
+		$this->smarty->assign('voteinfo', $voteinfo->data);//活动内容
+
+		$this->smarty->assign('plist', $plist);          //选手列表
+		$this->smarty->assign('remtime', $remtime);        //活动结束剩余时间		
+		$this->smarty->assign('vicount', $vicount);                //已报名人数
+		$this->smarty->assign('totalvotes', $totalvotes);           //累积投票	
+		$this->smarty->assign('totalcheck', $totalcheck);            //累积访问量
+		$this->smarty->assign('piclist', $piclist);            //活动图片			
+		$this->smarty->display( 'Vote/index' . TPLSUFFIX );
+	}
+	/**
+	 * 参赛
+	 */
+	public function cansai() {	
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+		$this->isGz = $this->getWxUserIsGz($id);       //判断是否关注
+		//$this->isGz = 6;
+		//$this->wxId = "1aakldsa111111112321";
+        $this->blindParams($vote = new Vote());
+		$voteinfo=$this->getServiceMethod('Vote','get',$vote);
+		if($voteinfo->data->ed_dcount){
+			$field = date('Y-m-d', time());
+			$ed_dcount = unserialize($voteinfo->data->ed_dcount);
+
+			if(in_array($field, array_keys($ed_dcount))){
+				$ed_dcount[$field] = $ed_dcount[$field] +1;
+			}else{
+				$ed_dcount[$field] = 1;			
+			}
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));			
+		}else{
+			$field = date('Y-m-d', time());
+			$ed_dcount = array();
+			$ed_dcount[$field] = 1;	
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));		
+		}
+		$pid = 0;
+                if (strtotime($voteinfo->data->start_time) > time()) {
+                    $bmzt = 1;
+                } elseif (strtotime($voteinfo->data->over_time) < time()) {
+                    $bmzt = 2;
+                }else{	
+                    if($this->isGz==0) {
+                        $bmzt = 3;	//未关注						
+                    }else{
+						$is_cs=$this->getServiceMethod('VoteItem','getPlayerStatusByOpenid',array('vid'=>$id,'openid'=>md5($this->wxId)));
+						if(isset($is_cs['status']) && $is_cs['status']==1){
+							$bmzt = 4;
+							$pid = (int)$is_cs['id'];
+						}elseif(isset($is_cs['status']) && $is_cs['status']==0){
+							$bmzt = 5;						
+						}else{
+							$bmzt = 6;					
+						}
+					}			
+				}
+		
+		$color = array('green'=>'#09BB07','blue'=>'#5677FC','orange'=>'#FF9800','pink'=>'#FF6D94','red'=>'#E51C23');
+		
+		$voteinfo->data->url = NETADDRESS . '/'. $this->action	. '/vote.php?method=index&id=' . $voteinfo->data->id;
+		$this->smarty->assign('pid', $pid); 
+		$this->smarty->assign('popcolor', $color[$voteinfo->data->moban]); 
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板		
+		$this->smarty->assign('voteinfo', $voteinfo->data);//活动内容
+        $this->smarty->assign('bmzt', $bmzt);
+		$this->smarty->assign('id', $id);                  //活动id	
+		$this->smarty->assign('wxid', md5($this->wxId));                  //活动id	
+		$this->smarty->display( 'Vote/signup' . TPLSUFFIX );
+	}
+	/**
+	 * 参赛报名处理
+	 */
+	public function signUpHandle() {	
+		if($_POST){		
+			$id = intval($_POST['id']);
+			$map = array();
+			$map['vid'] = $id;
+			$map['wechat_id'] = $_POST['wxid'];
+			$map['item'] = strip_tags($_POST['username']);
+			$map['phone'] = $_POST['telphone'];
+			$map['intro'] = strip_tags($_POST['xuanyan']);
+			$map['vcount'] = 0;
+			$map['dcount'] = 0;
+			$map['rank'] = 0;
+			$map['status'] = 0;
+			$map['addtime'] = time();
+			$field = date('Y-m-d', time());
+			$ed_dcount = array();
+			$ed_dcount[$field] = 0;	
+			$ed_dcount = serialize($ed_dcount);
+			$map['ed_dcount'] = $ed_dcount;
+
+ 		  if(!empty($_POST['fileup'])) {
+				foreach ($_POST['fileup'] as $key => $value) {
+					if ($key == 0) {
+						$map['startpicurl1'] = $this->savepic($value, $id);
+					}
+					if ($key == 1) {
+						$map['startpicurl2'] = $this->savepic($value, $id);
+					}
+					if ($key == 2) {
+						$map['startpicurl3'] = $this->savepic($value, $id);
+					}
+					if ($key == 3) {
+						$map['startpicurl4'] = $this->savepic($value, $id);
+					}
+					if ($key == 4) {
+						$map['startpicurl5'] = $this->savepic($value, $id);
+					}
+				}
+			} 
+
+			$add = $this->getServiceMethod('VoteItem','addVoteItem',$map);
+			if($add){
+ 						$url = NETADDRESS . '/'. $this->action	. '/vote.php?method=success&id=' . $id; 
+				echo json_encode(array('statu'=>true,'msg'=>'报名成功','code'=>0,'url'=>$url));			
+			}else{
+				echo json_encode(array('statu'=>false,'msg'=>'报名失败','code'=>0,'data'=>''));				
+			}
+		}else{
+			$this->error("出错了...");			
+		}
+	}
+	/**
+	 * 成功
+	 */
+	public function success() {
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+ 		$url = NETADDRESS . '/'. $this->action	. '/vote.php?method=index&id=' . $id;
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板
+		$this->smarty->assign('id', $id);
+		$this->smarty->assign('url', $url);
+		$this->smarty->display( 'Vote/success' . TPLSUFFIX );
+	}
+	/**
+	 * 奖品
+	 */
+	public function jiangpin() {
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+        $this->blindParams($vote = new Vote());
+		$voteinfo=$this->getServiceMethod('Vote','get',$vote);
+		$voteinfo->data->url = NETADDRESS . '/'. $this->action	. '/vote.php?method=index&id=' . $voteinfo->data->id;
+
+		if($voteinfo->data->ed_dcount){
+			$field = date('Y-m-d', time());
+			$ed_dcount = unserialize($voteinfo->data->ed_dcount);
+
+			if(in_array($field, array_keys($ed_dcount))){
+				$ed_dcount[$field] = $ed_dcount[$field] +1;
+			}else{
+				$ed_dcount[$field] = 1;			
+			}
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));			
+		}else{
+			$field = date('Y-m-d', time());
+			$ed_dcount = array();
+			$ed_dcount[$field] = 1;	
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));		
+		}
+
+		$piclist = explode("|", $voteinfo->data->wappicurl);
+		
+		$this->smarty->assign('voteinfo', $voteinfo->data);//活动内容		
+		$this->smarty->assign('id', $id);
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板
+		$this->smarty->assign('piclist', $piclist);            //活动图片			
+		$this->smarty->display( 'Vote/prize' . TPLSUFFIX );
+	}
+	/**
+	 * 排名
+	 */
+	public function paiming() {	
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+        $this->blindParams($vote = new Vote());
+		$voteinfo=$this->getServiceMethod('Vote','get',$vote);
+		$piclist = explode("|", $voteinfo->data->wappicurl);
+		
+		$plist = $this->getServiceMethod('VoteItem','getPlayersRanking',$id);
+	
+		if($voteinfo->data->ed_dcount){
+			$field = date('Y-m-d', time());
+			$ed_dcount = unserialize($voteinfo->data->ed_dcount);
+
+			if(in_array($field, array_keys($ed_dcount))){
+				$ed_dcount[$field] = $ed_dcount[$field] +1;
+			}else{
+				$ed_dcount[$field] = 1;			
+			}
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));			
+		}else{
+			$field = date('Y-m-d', time());
+			$ed_dcount = array();
+			$ed_dcount[$field] = 1;	
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('Vote','initAddView',array('id'=>$id,'ed_dcount'=>$ed_dcount));		
+		}		
+		
+		$remtime = strtotime($voteinfo->data->enddate) - time();
+		$voteinfo->data->url = NETADDRESS . '/'. $this->action	. '/vote.php?method=index&id=' . $voteinfo->data->id;	
+		$this->smarty->assign('plist', $plist);          //选手列表		
+		$this->smarty->assign('id', $id);
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板
+		$this->smarty->assign('remtime', $remtime);
+		$this->smarty->assign('piclist', $piclist);	
+		$this->smarty->assign('voteinfo', $voteinfo->data);		
+		$this->smarty->display( 'Vote/ranking' . TPLSUFFIX );
+	}
+	/**
+	 * 详情
+	 */
+	public function xiangqing() {
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+		$vid = isset($_GET['vid']) ? intval($_GET['vid']) : '';
+		if(empty($vid)){
+			$this->error("呣，未找到相关参赛人员信息...");			
+		}
+		$playerinfo = $this->getServiceMethod('VoteItem','getPlayerInfo',array('vid'=>$id,'id'=>$vid,'status'=>1));
+		if(empty($playerinfo->data)){
+			$this->error("呣，未找到相关参赛人员信息...");			
+		}
+		if($playerinfo->data->ed_dcount){
+			$field = date('Y-m-d', time());
+			$ed_dcount = unserialize($playerinfo->data->ed_dcount);
+
+			if(in_array($field, array_keys($ed_dcount))){
+				$ed_dcount[$field] = $ed_dcount[$field] +1;
+			}else{
+				$ed_dcount[$field] = 1;			
+			}
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('VoteItem','initAddView',array('id'=>$vid,'ed_dcount'=>$ed_dcount));			
+		}else{
+			$field = date('Y-m-d', time());
+			$ed_dcount = array();
+			$ed_dcount[$field] = 1;	
+			$ed_dcount = serialize($ed_dcount);
+			$this->getServiceMethod('VoteItem','initAddView',array('id'=>$vid,'ed_dcount'=>$ed_dcount));			
+		}  
+        $this->blindParams($vote = new Vote());
+		$voteinfo=$this->getServiceMethod('Vote','get',$vote);
+		$remtime = strtotime($voteinfo->data->enddate) - time();
+		
+		$voteinfo->data->url = NETADDRESS . '/'. $this->action	. '/vote.php?method=xiangqing&id=' . $id . '&vid='. $vid;
+		$voteinfo->data->fxbt = "我刚参加了" . $voteinfo->data->title ."活动，我是-".$vid."号-参赛选手，请大家多多支持";
+		$voteinfo->data->fxms = $playerinfo->data->intro;
+		$voteinfo->data->hdbt = "我是".$vid."号".$playerinfo->data->item."正在参加".$voteinfo->data->title."活动呢，赶紧给我投一票吧";
+		
+		$mingci = $this->getServiceMethod('VoteItem','getPlayerRanking',array('id'=>$vid));
+		$dcount = $playerinfo->data->dcount;
+		
+			$abspath = rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' );
+		$voteseturl = $abspath.'/data/vote/'.$id.'/setvote.json';
+		$data = json_decode(file_get_contents($voteseturl));
+		$i = 1;
+		$is_zs = $data->$i;		
+		$this->smarty->assign('is_zs', $is_zs);	   //开启钻石	
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板		
+		$this->smarty->assign('mingci', $mingci);	   //名次
+		$this->smarty->assign('remtime', $remtime);	
+		$this->smarty->assign('voteinfo', $voteinfo->data);
+		$this->smarty->assign('playerinfo', $playerinfo->data);			
+		$this->smarty->assign('vid', $vid);	
+		$this->smarty->assign('id', $id);	
+		$this->smarty->assign('wxgz', $this->isGz);  
+		$this->smarty->assign('openid', md5($this->wxId));
+		$this->smarty->display( 'Vote/details' . TPLSUFFIX );
+	}
+	
+	/**
+	 * 钻石
+	 */
+	public function zuanshi() {	
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+		$this->smarty->assign('id', $id);
+		$this->smarty->assign('color', $voteinfo->data->moban);     //模板		
+		$this->smarty->display( 'Vote/diamond' . TPLSUFFIX );
+	}
+	/**
+	 * 引导
+	 */
+	public function wxyd(){
+		$id = isset($_GET['id']) ? intval($_GET['id']) : '';
+		if(empty($id)){
+			$this->error("呣，未找到相关活动...");			
+		}
+        $this->blindParams($vote = new Vote());
+		$voteinfo=$this->getServiceMethod('Vote','get',$vote);
+		$this->smarty->assign('voteinfo', $voteinfo->data);		
+		$this->smarty->assign('id', $id);
+		$this->smarty->display('Vote/wxyd' . TPLSUFFIX );
+	}
+	//错误提示
+	public function error($msg){
+		$index = NETADDRESS . '/'. $this->action .'/';
+		$this->smarty->assign('INDEX',$index);
+		$this->smarty->assign('errormsg', $msg);
+		$this->smarty->display('Vote/error' . TPLSUFFIX );
+		exit;
+	}
+	/**
+	 * 
+	 * 注入微信分享公共数据
+	 */
+	public function _InjectWXData() {
+		require_once 'jssdk.php';                       //微信分享
+		$jssdk = new JSSDK($this->appId, $this->appSecret); 
+		$signPackage = $jssdk->GetSignPackage();
+		$this->smarty->assign('signPackage', $signPackage);			
+	}
+	/**
+	 * 
+	 * 重新获得access_token
+	 */
+	public function setAccessToken() {
+		require_once 'jssdk.php';                       //微信分享
+		$jssdk = new JSSDK($this->appId, $this->appSecret); 
+		$signPackage = $jssdk->GetSignPackage();		
+	}
+	//图片base64转换
+    private function savepic($pic_str, $id)
+    {
+        $Ymd = date('Ymd');
+        $uploads_vote = $_SERVER['DOCUMENT_ROOT'] . '/uploads/vote/' . $id . '/' . $Ymd;
+        if (!file_exists($uploads_vote) || !is_dir($uploads_vote)) {
+            $this->createdir($uploads_vote);
+        }
+        $pic_name = date('YmdHis') . '_' . rand(10000, 99999) . '.jpeg';
+        $pic_url = '/uploads/vote/' . $id . '/' . $Ymd . '/' . $pic_name;
+        $root_url = $_SERVER['DOCUMENT_ROOT'] . $pic_url;		
+        $site_url = 'http://' . $_SERVER['HTTP_HOST'] . $pic_url;
+        $pic_str = base64_decode($pic_str);
+        $pic_con = file_put_contents($root_url, $pic_str);
+        if ($pic_con) {
+            return $site_url;
+        }
+    }
+	//getcookie
+	public function _getcookie($name){
+		if(empty($name)){return false;}
+		if(isset($_COOKIE[$name])){
+			return $_COOKIE[$name];
+		}else{		
+			return false;
+		}
+	}
+	//setcookie
+	public function _setcookie($name,$value,$time=0,$path='/',$domain=''){		
+		if(empty($name)){return false;}
+		$_COOKIE[$name]=$value;				
+		$s = $_SERVER['SERVER_PORT'] == '443' ? 1 : 0;
+		if(!$time){
+			return setcookie($name,$value,0,$path,$domain,$s);
+		}else{
+			return setcookie($name,$value,time()+$time,$path,$domain,$s);
+		}
+	}	
+
+	/**
+	 * 获取微信授权url
+	 * @param string 授权后跳转的URL
+	 * @param bool 是否只获取openid，true时，不会弹出授权页面，但只能获取用户的openid，而false时，弹出授权页面，可以通过openid获取用户信息
+	 *   
+	*/
+	public function getOAuthUrl($redirectUrl, $openIdOnly, $state = '123') {
+		$redirectUrl = urlencode($redirectUrl);
+		$scope = $openIdOnly ? 'snsapi_userinfo' : 'snsapi_base';
+		$oAuthUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$this->appId}&redirect_uri={$redirectUrl}&response_type=code&scope={$scope}&state={$state}#wechat_redirect";
+		return $oAuthUrl;
+	}
+
+
+	/**
+	* 获取access_token
+	*/
+	public function getoAuthAccessToken($code) {
+		return file_get_contents("https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code");
+	}
+
+	/**
+	* 获取用户信息  
+	*/
+	public function getUserInfo($openId, $accessToken) {
+		$url = 'https://api.weixin.qq.com/cgi-bin/user/info';
+		//获取用户微信账号信息
+		$userInfo = $this->callApi("$url?access_token=$accessToken&openid=$openId&lang=zh-CN");
+		if (isset($userInfo['errcode']) && $userInfo['errcode']) {
+			return array('msg'=>'获取用户信息失败，请联系客服', $userInfo);
+		}
+		return $userInfo;
+	}
+  private function getAccessToken() {
+ 	$abspath = rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' );
+	$tokenurl = $abspath.'/weixindb/access_token_'.$this->appId.'.json';
+	$data = json_decode(file_get_contents($tokenurl));
+	$access_token = $data->access_token;		
+    return $access_token;
+  }
+	/**
+	 * 发起Api请求，并获取返回结果
+	 * @param string 请求URL
+	 * @param mixed 请求参数 (array|string)
+	 * @param string 请求类型 (GET|POST)
+	 * @return array        
+	 */
+	public function callApi($apiUrl, $param = array(), $method = 'GET') {
+		$error = false;
+		$result = $this->curl_request_json($error, $apiUrl, $params, $method);
+		//假如返回的数组有错误码,或者变量$error也有值
+		if (!empty($result['errcode'])) {
+			$errorCode = $result['errcode'];
+			$errorMsg = $result['errmsg'];
+		} else if ($error != false) {
+			$errorCode = $error['errorCode'];
+			$errorMsg = $error['errorMessage'];
+		}
+
+		if (isset($errorCode)) {
+			//将其插入日志文件
+			//file_put_contents("/data/error.log", "callApi:url=$apiUrl,error=[$errorCode]$errorMsg");
+
+			if ($errorCode === 40001) {
+				//尝试更正access_token后重试
+				try {
+					$pos = strpos(strtolower($url), 'access_token=');
+					if ($pos !==false ) {
+						$pos += strlen('access_token=');
+						$pos2 = strpos($apiUrl, '&' ,$pos);
+						$accessTokened = substr($apiUrl, $pos, $pos2 === false ? null : ($pos2 - $pos));
+						return $this->callApi(str_replace($accessTokened, $this->getAccessToken(), $apiUrl), $param, $method);
+					}
+				}catch (Exception $e) { 
+						//这里抛出异常，具有的就不详说了
+						throw new Exception($errorMessage, $errorCode);
+				}
+			}
+
+		}
+		return $result;
+	}
+
+    /**
+     *   发起一个HTTP(S)请求，并返回json格式的响应数据
+     *   @param array 错误信息  array($errorCode, $errorMessage)
+     *   @param string 请求Url
+     *   @param array 请求参数
+     *   @param string 请求类型(GET|POST)
+     *   @param int 超时时间
+     *   @param array 额外配置
+     *   
+     *   @return array
+     */ 
+    public function curl_request_json(&$error, $url, $param = array(), $method = 'GET', $timeout = 10, $exOptions = null) {
+        $error = false;
+        $responseText = $this->curl_request_text($error, $url, $param, $method, $timeout, $exOptions);
+        $response = json_decode($responseText, true);
+        return $response;
+    }
+
+    /**
+    *  发起一个HTTP(S)请求，并返回响应文本
+    *   @param array 错误信息  array($errorCode, $errorMessage)
+    *   @param string 请求Url
+    *   @param array 请求参数
+    *   @param string 请求类型(GET|POST)
+    *   @param int 超时时间
+    *   @param array 额外配置
+    *   
+    *   @return string
+    */
+    public function curl_request_text(&$error, $url, $param = array(), $method = 'GET', $timeout = 15, $exOptions = NULL) {
+        //判断是否开启了curl扩展
+        if (!function_exists('curl_init')) exit('please open this curl extension');
+
+        //将请求方法变大写
+        $method = strtoupper($method);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        if (isset($_SERVER['HTTP_USER_AGENT'])) curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        if (isset($_SERVER['HTTP_REFERER'])) curl_setopt($ch, CURLOPT_REFERER, $_SERVER['HTTP_REFERER']);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+        switch ($method) {
+            case 'POST':
+                curl_setopt($ch, CURLOPT_POST, true);
+                if (!empty($param)) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, (is_array($param)) ? http_build_query($param) : $param);
+                }
+                break;
+            
+            case 'GET':
+            case 'DELETE':
+                if ($method == 'DELETE') {
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                }
+                if (!empty($param)) {
+                    $url = $url.(strpos($url, '?') ? '&' : '?').(is_array($param) ? http_build_query($param) : $param);
+                }
+                break;
+        }
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        //设置额外配置
+        if (!empty($exOptions)) {
+            foreach ($exOptions as $k => $v) {
+                curl_setopt($ch, $k, $v);
+            }
+        }
+        $response = curl_exec($ch);
+
+        $error = false;
+        //看是否有报错
+        $errorCode = curl_errno($ch);
+        if ($errorCode) {
+            $errorMessage = curl_error($ch);
+            $error = array('errorCode'=>$errorCode, 'errorMessage'=>$errorMessage);
+            //将报错写入日志文件里
+            $logText = "$method $url: [$errorCode]$errorMessage";
+            if (!empty($param)) $logText .= ",$param".json_encode($param);
+            file_put_contents('/data/error.log', $logText);
+        }
+
+        curl_close($ch);
+
+        return $response;
+    }
+	  private function httpGet($url) {
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_TIMEOUT, 500);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_URL, $url);
+
+		$res = curl_exec($curl);
+		curl_close($curl);
+
+		return $res;
+	  }
+    /*验证文件夹是否存在
+     * @param $path 文件夹地址
+     * return 0表示文件夹已经存在,1表示创建成功，2表示创建失败
+     * **/
+   private function createdir($path){
+        if (file_exists($path)){			//判断目录存在否，存在不创建
+            return 0;
+        }else{ 							//不存在创建
+            $re=mkdir($path,0777,true); //第三个参数为true即可以创建多极目录
+            if ($re){
+                chmod($path,0777);
+                return 1;
+            }else{
+                return 2;
+            }
+        }
+    }
+}
+
+new voteWechat();
+?>

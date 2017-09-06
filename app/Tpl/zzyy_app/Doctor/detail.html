@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/doctor.css">
+
+</head>
+<body>
+  {{include file="Common/right.html"}}
+      {{$doc=$PicManagerTag->getMobilePic(appdoctor,app)}}
+	  <img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;">       
+      <div id="frame" style="padding-top:20px;">
+      <a href=""><span style="border-radius:40px;"><h2><img src="{{$smarty.const.UPLOAD}}{{$data->pic}}" ></h2>
+      <h1><b >{{$data->name}}</b>&nbsp;&nbsp;&nbsp;{{$data->position}}</h1>
+      <p class="text_one" >擅长：{{$data->specialty|truncate:150}}</p>
+      <p class="text_two"   >{{$data->description}}</p>
+      <!--<div class="btn1" ></div>-->
+      </span></a></div>
+</body>
+</html>

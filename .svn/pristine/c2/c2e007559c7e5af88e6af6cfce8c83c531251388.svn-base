@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>检查报告单解读_检查详细分类</title>
+<meta name="keywords" content="检查详细分类" />
+<meta name="description" content="检查详细分类" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0" name="viewport" />
+<link rel="stylesheet" href="../public/css/base.css?v=20160701">
+<link rel="stylesheet" href="../public/css/jk.css?v=20160701">
+<script type="text/javascript" src="../public/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript">
+$(function(){
+	bgdjd.inspectionlist();
+})
+</script>
+</head>
+<body>
+<header class="clearfix header">
+  <a href="javascript:history.go(-1)" class="icons head_back"></a>
+  <h2></h2>
+</header>
+<h3 class="jbh3 bgGray linebottom"><span>检查类型</span><span>详细分类</span></h3>
+<section class="clearfix arrlist jbtype">
+  <div class="fl">
+		<a href="#" class="current">病原体PCR</a>
+		<a href="#">传染病检查</a>
+		<a href="#">粪便检查</a>
+		<a href="#">肝病检查</a>
+		<a href="#">骨髓检查</a>						
+		<a href="#">免疫学检查</a>						
+		<a href="#">男性不育</a>
+		<a href="#">女性不孕</a>
+		<a href="#">优生优育</a>						
+		<a href="#">脑脊液检查</a>
+		<a href="#">前列腺常规</a>
+		<a href="#">妊娠期检查</a>
+		<a href="#">心脏病检查</a>
+		<a href="#">性病检查</a>
+		<a href="#">胸腹水检查</a>						
+		<a href="#">内分泌疾病</a>										
+		<a href="#">尿液检查</a>
+		<a href="#">肾病检查</a>
+		<a href="#">生化检查</a>
+		<a href="#">糖代谢检查</a>						
+		<a href="#">微生物检查</a>
+		<a href="#">微量元素</a>						
+		<a href="#">细菌检查</a>
+		<a href="#">真菌检查</a>					
+		<a href="#">血液检查</a>
+		<a href="#">引流液检查</a>	
+  </div>
+  <div class="fr"></div>
+</section>
+</body>
+</html>

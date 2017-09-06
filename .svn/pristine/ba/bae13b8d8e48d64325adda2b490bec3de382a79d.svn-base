@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * 频道文章DAO
+ *
+ * @author Administrator
+ *
+ */
+class ChannelArticleDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_CHANNELARTICLE;
+        $this->channelName = TABLENAME_CHANNEL;
+    }
+
+    /**
+     * 获取频道
+     *
+     * @param Channel() $channel
+     *            $channel->id
+     * @return bean
+     */
+    public function getChannel($channel) {
+        $channelBean = R::load($this->channelName, $channel->id);
+        $channel->generateFromRedBean($channelBean);
+
+        return $channelBean;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::eq('id', $where);
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('subject', $where);
+        DTExpression::eq('channel_id', $where);
+        DTExpression::page($where);
+        DTOrder::desc('plushtime');
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::eq('channel_id', $where);
+        DTExpression::like('subject', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+}

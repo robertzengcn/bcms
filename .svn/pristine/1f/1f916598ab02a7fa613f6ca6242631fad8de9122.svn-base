@@ -1,0 +1,388 @@
+<?php
+
+class UploadController extends Controller {
+
+    /**
+     * 拖拽文件上传
+     */
+    function drag() {
+        $file = $_FILES['files'];
+        $path = ABSPATH . '/upload';
+
+        // 创建目录
+        if (! file_exists($path)) {
+            mkdir($path, 0777);
+        }
+
+        $path = $path . '/' . $_GET['dir'];
+        if (! file_exists($path)) {
+            mkdir($path, 0777);
+        }
+
+        $url = NETADDRESS . '/upload';
+        $array = array();
+        $networkPicService = new NetworkPicService();
+        foreach ($file['name'] as $key => $value) {
+            $tmpName = $file['tmp_name'][$key];
+            $fileName = $this->name($value);
+            $filePath = $path . '/' . $fileName;
+            $urlPath = $url . '/' . $_GET['dir'] . '/' . $fileName;
+            $id = $networkPicService->add($_GET['dir'] . '/' . $fileName);
+            move_uploaded_file($tmpName, $filePath);
+            $array[] = array(
+                'id' => $id->data->id,
+                'result' => true,
+                'path' => $urlPath,
+                'url' => $_GET['dir'] . '/' . $fileName
+            );
+        }
+        echo json_encode($array);
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 文件上传
+     */
+    public function uploadPic() {
+            $path = ABSPATH . '/upload/';
+            $url = NETADDRESS . '/upload/';
+            
+            // 创建目录
+            if (! file_exists($path)) {
+                mkdir($path, 0777);
+            }
+            $path = $path . '/' . $_GET['dir'];
+            $uploadPath = GENERATEPATH . 'upload/' . $_GET['dir'];
+            
+            if (! file_exists($uploadPath)) {
+                mkdir($uploadPath, 0777);
+            }
+            if (! file_exists($path)) {
+                mkdir($path, 0777);
+            }
+            
+            if(!isset($_FILES['file'])){                 //判断图片是否有存在
+                $array = array(
+                    'result' => false,
+                );
+                echo json_encode($array);
+                exit;
+            }
+            $file = $_FILES['file'];
+
+            $filesizes = filesize($file['tmp_name'])/1024/1024;   //判断图片大小是否超过限定大小
+            if($filesizes >= 1){
+                $array = array(
+                    'result' => false,'mes'=>'上传图片超过限定大小1M，请缩小图片'
+                );
+                echo json_encode($array);
+                exit;
+            }
+
+			$array = explode('.',$file['name']);
+	        $hz = array_pop($array);
+	        if ($hz!="png"&&$hz!="jpg") {
+	            $array = array(
+	    			'result' => false,'mes'=>'只能上传png或jpg格式的图片'
+	    		);
+	    		echo json_encode($array);
+	    		exit;
+	        }
+
+
+            $fileName = $this->name($file['name']);
+            $filePath = $path . '/' . $fileName;
+            $urlPath = $url . '/' . $_GET['dir'] . '/' . $fileName;
+            $tmpName = $file['tmp_name'];
+            if (is_uploaded_file($tmpName)) {
+                if (move_uploaded_file($tmpName, $filePath)) {
+                    if (isset($_REQUEST['num']) && $_REQUEST['num']) {
+                        $array = array(
+                            'result' => true,
+                            'path' => $urlPath,
+                            'url' => $_GET['dir'] . '/' . $fileName,
+                            'num' => $_REQUEST['num']
+                        );
+                    } else {
+                        $array = array(
+                            'result' => true,
+                            'path' => $urlPath,
+                            'url' => $_GET['dir'] . '/' . $fileName
+                        );
+                    }
+                } else {
+                    $array = array(
+                        'result' => false,'mes'=>'文件上传失败，请检查网络，重先上传'
+                    );
+                }
+            } else {
+                $array = array(
+                    'result' => false,'mes'=>'文件上传失败，请检查网络，重先上传'
+                );
+            }
+            echo json_encode($array);
+    }
+    /**
+     * 二维码上传
+     */
+    public function uploadQr() {
+
+    	$path = COMPILEDIR . 'temporaryPic';  //临时目录
+    	$url = NETADDRESS . '/upload/apk';  //文件上传目录，http://localhost/upload/apk
+    	
+    	if (! file_exists(COMPILEDIR)) {
+    	    mkdir(COMPILEDIR, 0777);
+    	}
+    	
+    	// 创建目录
+    	if (! file_exists($path)) {
+    		mkdir($path, 0777);
+    	}
+    	$path = $path . '/' . $_GET['dir'];
+    	$uploadPath = GENERATEPATH . 'upload/apk/' . $_GET['dir'];
+    	if (! file_exists($uploadPath)) {
+    		mkdir($uploadPath, 0777);
+    	}
+    	if (! file_exists($path)) {
+    		mkdir($path, 0777);
+    	}
+    	if(!isset($_FILES['Filedata'])){                    //判断图片是否有存在
+    		$array = array(
+    				'result' => false
+    		);
+    		echo json_encode($array);
+    		exit;
+    	}
+    	$file = $_FILES['Filedata'];
+
+    	$filesizes = filesize($file['tmp_name'])/1024/1024;   //判断图片大小是否超过3M
+    	if($filesizes >= 3){
+    		$array = array(
+    			'result' => false,'mes'=>'上传图片超过限定大小3M，请缩小图片'
+    		);
+    		echo json_encode($array);
+    		exit;
+    	}
+
+    	$array = explode('.', $file['name']);
+        $hz = array_pop($array);
+        if ($hz!='png') {
+            $array = array(
+    			'result' => false,'mes'=>'只能上传png格式的图片'
+    		);
+    		echo json_encode($array);
+    		exit;
+        }
+    	$fileName = 'logo'. '.png';
+    	$filePath = $uploadPath . '/' . $fileName;
+    	$urlPath = $url . '/' . $_GET['dir'] . '/' . $fileName;
+    	$tmpName = $file['tmp_name'];
+    	if (is_uploaded_file($tmpName)) {
+    		if (move_uploaded_file($tmpName, $filePath)) {
+    			if (isset($_REQUEST['num']) && $_REQUEST['num']) {
+    				$array = array(
+    						'result' => true,
+    						'path' => $urlPath,
+    						'url' => $_GET['dir'] . '/' . $fileName,
+    						'num' => $_REQUEST['num']
+    				);
+    			} else {
+    				$array = array(
+    						'result' => true,
+    						'path' => $urlPath,
+    						'url' => $_GET['dir'] . '/' . $fileName
+    				);
+    			}
+    		} else {
+    			$array = array(
+    					'result' => false,
+    			);
+    		}
+    	} else {
+    		$array = array(
+    				'result' => false,
+    		);
+    	}
+    	echo json_encode($array);
+    }
+    /**
+     * ckeditor文件上传
+     */
+    public function uploadCkeditor() {
+        $path = ABSPATH . '/upload';
+        $url = NETADDRESS . '/upload';
+        
+        if (! file_exists(COMPILEDIR)) {
+            mkdir(COMPILEDIR, 0777);
+        }
+        
+        // 创建目录
+        if (! file_exists($path)) {
+            mkdir($path, 0777);
+        }
+
+        $path = $path . '/img';
+        if (! file_exists($path)) {
+            mkdir($path, 0777);
+        }
+
+        $fn = $_GET['CKEditorFuncNum'];
+        $size = 5000000;
+
+        if (empty($fn)) {
+            $this->uploadMessage($fn, '', '错误的功能调用请求');
+        }
+        $file = $_FILES['upload'];
+        $type = array(
+            'gif',
+            'jpg',
+            'png',
+            'jpeg'
+        );
+        $name = $file['name'];
+        $array = explode('.', $name);
+        $hz = array_pop($array);
+        if (! in_array($hz, $type)) {
+            $this->uploadMessage($fn, '', '不允许上传' . $hz . '类型的文件!');
+        }
+
+        if ($file['size'] > $size) {
+            $this->uploadMessage($fn, '', '文件上传的大小不得超过5MB');
+        }
+
+        $fileName = $this->name($file['name']);
+        $filePath = $path . '/' . $fileName;
+        $urlPath = $url . '/img/' . $fileName;
+        $tmpName = $file['tmp_name'];
+        if (is_uploaded_file($tmpName)) {
+            if (move_uploaded_file($tmpName, $filePath)) {
+                $this->uploadMessage($fn, $urlPath, '上传成功!');
+            } else {
+                $this->uploadMessage($fn, '', '上传失败!');
+            }
+        } else {
+            $this->uploadMessage($fn, '', '不是上传类的文件!');
+        }
+    }
+
+    /**
+     * 消息的输出
+     *
+     * @param unknown $fn
+     * @param string $url
+     * @param string $message
+     */
+    private function uploadMessage($fn, $url = '', $message = '') {
+        $str = '<script>window.parent.CKEDITOR.tools.callFunction(' . $fn . ',"' . $url . '","' . $message . '");</script>';
+
+        exit($str);
+    }
+
+    /**
+     * 设置文件名称
+     *
+     * @param unknown $para
+     * @return string
+     */
+    private function name($para) {
+        $filename = date('YmdHis') . rand(0, 1000);
+        $array = explode('.', $para);
+        $hz = $array[count($array) - 1];
+
+        return $filename . '.' . $hz;
+    }
+    
+    /**
+     * 获取图片管理分类
+     * */
+    public function getCategory() {
+    	$category = array(
+    		'article' => '文章',
+    	    'device' => '设备',
+    	    'disease' => '疾病',
+    	    'doctor' => '医生',
+    	    'environment' => '环境',
+    	    'honor' => '荣誉',
+    	    'hospital' => '医院',
+    	    'introduce' => '简介',
+    	    'img' => '图片',
+    	    'link' => '链接',
+    	    'media' => '媒体',
+    	    'movie' => '视频',
+    	    'nav' => '导航',
+    	    'news' => '新闻',
+    	    'page_effect' => '分页',
+    	    //'pd' => '',
+    	    'picmanager' => '图片管理',
+    	    'success' => '成功',
+    	    'technology' => '技术',
+    	    'topic' => '主题'
+    	);
+    	echo json_encode($category);
+    }
+    
+    /**
+     * 获取目录下upload目录下所有子文件
+     * 
+     * */
+    public function getPic() {
+        $path = ABSPATH . '/upload/';
+        $url = NETADDRESS . '/upload/';
+        
+        if ($_REQUEST['type'] != 'all') {
+            $path .= $_REQUEST['type'];
+            $url .= $_REQUEST['type'];
+        }
+        
+        $this->directoryiterator($path,$url,$files);
+        echo json_encode(array('data'=>$files));
+    } 
+    
+    
+    private function directoryiterator($path, $url, &$files = array())
+    {
+        if (!is_file($path) && !is_dir($path)) {
+        	return $files;
+        }
+            
+        $iterator = new DirectoryIterator($path);
+        foreach ($iterator as $fileinfo) {
+            if(!$fileinfo->isDot())
+            {
+                if($fileinfo->isDir())
+                {
+                    $path = stripslashes(ABSPATH . '/upload/'.DIRECTORY_SEPARATOR.$fileinfo);
+                    $url = stripslashes(NETADDRESS . '/upload/'.$fileinfo);
+                    $this->directoryiterator($path, $url, $files);
+                }
+                else
+                {
+                    $files[] = $url . '/' . $fileinfo->getFilename();
+                }
+            }
+        }
+        return $files;
+    }
+    
+    public function delPic() {
+        $file = parse_url($_REQUEST['file'], PHP_URL_PATH);
+        $file = ABSPATH . $file;
+    	if (is_file($file)) {
+    		unlink($file);
+    	}
+    	
+    	echo json_encode(new Result(true, '', '', ''));
+    }
+}

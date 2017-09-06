@@ -1,0 +1,43 @@
+<?php
+
+/*
+ * 登陆页面模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", "0");
+include_once ABSPATH.'/mod/Mod.php';
+
+class Reservation extends Mod{
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 *
+	 *登录类方法
+	 */
+	public function index() {//预约挂号页面可以写在这里
+		
+	
+		
+	}
+	
+	public function getreservation(){//预约挂号方法可以写在这里
+		$_REQUEST['normaldate']=$_REQUEST['date'];
+		$_REQUEST['date'] = strtotime($_REQUEST['date']);
+		$reser=new ReservationService();
+		$result = $reser->getDetail($_REQUEST);
+		
+		echo json_encode($result);
+		exit();		
+	}
+	
+
+	
+	
+}
+new Reservation();

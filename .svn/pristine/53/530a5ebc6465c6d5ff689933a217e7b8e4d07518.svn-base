@@ -1,0 +1,224 @@
+function Welcome(){
+	BaseFunc.call(this);
+	
+	var self = this;
+	
+	this.init = function() {
+		$(function(){
+			//加入上次登录时间
+			self.lastLogin();
+			
+			//信息完整度检查
+			self.healthCheck();
+			
+			$('#PEIS').on('click',function(){
+				self.healthCheck();
+			});
+			
+			//导入
+			$('#cloudsync').on('click', function(){
+				$('#a_cloudsync').click();
+			});
+			
+			//显示饼图
+			self.showChart();
+			
+			//控制轮播图和新闻阅读数据填充，调用总控js实现，故需要在总控上修改样式
+			//业界咨询
+			self.showHomeAdvert();
+			
+			//新闻阅读
+			self.showHomeNews();
+		});
+	}
+	
+	// {{{ function showHomeAdvert()
+	
+	/**
+	 * 业界咨询
+	 * */
+	this.showHomeAdvert = function () {
+		self.cmd(gHttp,{controller:'Plugin',method:'getRemoteHomeAdvert'},function(ret){
+			if (ret.statu) {
+				var ulHtml = '<ul class="slider_pic">';
+				var sliderBtn = '<div class="slider_btn">';
+				var index = 1;
+				var btnClass = '';
+				$.each(ret.data, function(i,v) {
+					ulHtml += '<li><a target="_blank" href="'+v.url+'" title=""><img src="' + v.ad_pic + '"></a></li>';
+					if (index == 1) {
+						btnClass = 'class="cur"';
+					} else {
+						btnClass = '';
+					}
+					sliderBtn += '<span '+btnClass+'>'+index+'</span>';
+					index++;
+				});
+				ulHtml += '</ul>';
+				sliderBtn += '</div>';
+				
+				$('#homeAdvert').html(ulHtml + sliderBtn);
+				
+				var slide=new slider('slider');
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function showHomeNews()
+	
+	/**
+	 * 新闻阅读
+	 * */
+	this.showHomeNews = function () {
+		self.cmd(gHttp,{controller:'Plugin',method:'getRemoteHomeNews'},function(ret){
+			console.log(ret);
+			if (ret.statu) {
+				var liHtml = '';
+				var index = 1;
+				$.each(ret.data, function(i,v) {
+					liHtml += '<li><a target="_blank" href="'+v.url+'" title="">'+index + '、' + v.title+'</a></li>';
+					index++;
+				});
+				
+				$('#homeNews').html(liHtml);
+			}
+		});
+	}
+	
+	// }}}
+    // {{{ function latestLogin()
+	
+	/**
+	 * 上次登录时间
+	 * */
+	
+	this.lastLogin = function() {
+		self.cmd(gHttp,{controller:'WorkerLogHistory',method:'lastLogin'},function(date){
+			$('#loginDate').html(date);
+		});
+	}
+    
+	// }}}
+	// {{{ function healthCheck()
+	
+	/**
+	 * 信息完整度检查
+	 * */
+	this.healthCheck = function() {
+		var tableNames = '';
+        $('.leftinfo').find('ul a').each(function(){                 //遍历获取需要查询的path名
+        	var path = $(this).attr('path');
+        	if (path != undefined) {
+        		tableNames += ',' + path;
+        	}
+        });
+        
+        var para = {controller:'Home',method:'health',tableNames:tableNames};
+        self.cmd(gHttp,para,function(data){
+        	$.each(data,function(key,value){
+                if(value == '0'){
+                    $('#'+key+'Item').addClass('incorrectness');
+                }
+           })
+        });
+	}
+	
+	// }}}
+	// {{{ function showChart()
+	
+	/**
+	 * 显示饼图
+	 * */
+	this.showChart = function() {
+		var para = {controller:'StatisticsLog',method:'mothDistributed'};
+		self.cmd(gHttp,para,function(result1){
+			if(result1.statu){
+				$('#container').highcharts({
+		            chart: {
+		                zoomType: 'x',
+		                spacingRight: 20
+		            },
+		            title: {
+		                text: '30天内新老访客趋势'
+		            },
+		            subtitle: {
+		                text: document.ontouchstart === undefined ?
+		                    'Click and drag in the plot area to zoom in' :
+		                    'Pinch the chart to zoom in'
+		            },
+		            xAxis: {
+		            	type: 'datetime',
+		            	categories:result1.data.visittime,
+                        dateTimeLabelFormats: {
+                        	day: '%Y-%m-%d',
+                        	month: '%Y-%m-%d',
+                        	year: '%Y-%m-%d'
+                        },
+		                title: {
+		                    text: null
+		                }
+		            },
+		            yAxis: {
+		                title: {
+		                    text: '流量（个）'
+		                }
+		            },
+		            tooltip: {
+		                shared: true
+		            },
+		            legend: {
+		                enabled: false
+		            },
+		            plotOptions: {
+		                area: {
+		                    fillColor: {
+		                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1},
+		                        stops: [
+		                            [0, Highcharts.getOptions().colors[0]],
+		                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+		                        ]
+		                    },
+		                    lineWidth: 1,
+		                    marker: {
+		                        enabled: false
+		                    },
+		                    shadow: false,
+		                    states: {
+		                        hover: {
+		                            lineWidth: 1
+		                        }
+		                    },
+		                    threshold: null
+		                }
+		            },
+		
+		            series: [
+		                {
+			                type: 'area',
+			                name: '新访客',
+			                color: 'red',
+			                data: result1.data.newnum
+		                }
+		                ,
+		                {
+			                type: 'area',
+			                name: '老访客',
+			                color: 'green',
+			                data: result1.data.oldnum
+		                }
+		                
+		            ]
+		        });
+				
+			}else{
+				layer.alert(result1.msg);
+			}
+			return false;
+		});
+		
+	}
+	
+	// }}}
+	
+}

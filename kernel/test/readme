@@ -1,0 +1,63 @@
+基于在测试及安装过程中出现的问题，总结以下几点供参考，请大家注意下：
+1、安装：
+       正确安装phpunit+xdebug 
+       在php安装目录下执行phpunit，有信息打印则成功
+       在php安装目录下执行php -m 或页面打印phpinfo(),能看到xdebug模块则成功
+
+2、配置环境变量：
+       配置phpunit的快捷方式，如：d:\wamp\bin\php\phpX.X.X\phpunit 只需要在任何目录下输入phpunit即可
+       （注：这里主要是为了web上进行测试而不需要输入命令去测试，即使用命令也不需要写全路径，后面会讲到）
+
+3、所有环境配置好后最好重启下（有的貌似不重启没生效）
+
+4、更新目录
+       在kernel/test/目录下新生成了一个WebCmd.php的一个文件，用于web端的测试
+
+5、配置需要测试的测试文件到classes.xml （如果不配置可以进行单个文件测试）
+
+6、当前主要目录及文件说明
+   kernel -- test ----xdebug            报表目录
+                  | 
+                  ----AllTests.php      多文件测试入口
+                  |
+                  ----classes.xml       多文件测试配置
+                  |
+                  ----WebCmd.php        web端测试入口，自动调用命令
+                  |
+                  PicServiceTest.php    单个测试文件
+                      .
+                      .
+                      .
+
+7、开始测试
+   7.1、web端通过界面测试：
+
+       直接通过浏览器访问，如 http://10.0.0.189/kernel/test/WebCmd.php
+       那么将会自动调用命令执行测试，并将结果写入到test/xdebug下
+
+       根据页面提示点击“查看测试结果”进入报表
+
+     
+       WebCmd.php内容很简单，就是一个系统命令的调用而已：
+       <?php
+       /**
+        * web测试入口
+        * */
+       echo '开始测试...<br/>';
+
+       //调用系统命令，因为大家的phpunit安装目录不确定性，所以直接用phpunit，这也是上面要配置环境变量的原因所在
+       echo exec('phpunit --coverage-html ./xdebug AllTests.php');  
+
+       //查看结果的入口
+       echo ("<br/>测试完成!&nbsp;<a href='./xdebug/index.html'>查看测试结果</a>");
+
+    7.2、服务器端命令行测试
+         //测试所有指定文件，需配置classes.xml
+         phpunit AllTests.php   
+
+         //测试单个文件
+         phpunit XXXTest.php
+
+         //测试某个目录下所有测试文件
+         phpunit XXX/
+       

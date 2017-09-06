@@ -1,0 +1,255 @@
+<?php
+
+class ContactService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new ContactDAO();
+    }
+
+    /**
+     * 根据Name获得数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $contacts = $this->dao->query($where);
+       
+        return $this->success($contacts);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function get($contact) {
+        if (! $contact->id) {
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($contact->id, $contact);
+
+        return $this->success($contact);
+    }
+
+    /**
+     * 通过flag返回数据
+     * 获取联系方式
+     */
+    public function getContact($flag) {
+        return $this->success($this->dao->getContact($flag));
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function save($contact) {
+        $contact->validate();
+        // 获取class对象并插入数据
+        $this->dao->save($contact);
+
+        return $this->success();
+    }
+
+    /**
+     * 更改数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function update($contact) {
+        $contact->validate();
+        if (! $contact->id) {
+            throw new ValidatorException(7);
+        }
+        return $this->dao->update($contact);
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        return $this->dao->deleteBatch($ids);
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function delete($contact) {
+        if (! $contact->id) {
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($contact->id, $contact);
+        if ($contact->id == 0) {
+            throw new ValidatorException(16);
+        }
+        if ($contact->is_retain == 1) {
+            throw new ValidatorException(18);
+        }
+
+        $this->dao->delete($contact->id);
+
+        return $this->success();
+    }
+    
+    /*
+     * 更新微博app key
+     * @param array()
+     * */
+    public function updateweiappkey($arr){
+    	$result=$this->dao->updateweiappkey($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新 app key失败');
+    	}     
+    }
+    
+    /*
+     * 更新微博app secret
+    * @param array()
+    * */
+    public function updateweiappsecret($arr){
+    	$result=$this->dao->updateweiappkey($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新 app secret失败');
+    	}   	 
+    }
+    
+    /*
+     * 获取微博app key
+     * */
+    public function getappkey(){
+    	return $result=$this->dao->getappkey();
+    }
+    
+    /*
+     * 获取微博app secret
+    * */
+    public function getappsecret(){
+    	return $result=$this->dao->getappsecret();
+    }
+    
+    /*
+     * 获取微博app code
+    * */
+    public function getappcode(){
+    	return $result=$this->dao->getappcode();
+    }
+    
+    /*
+     * 更新微博code
+     * */
+    public function updateweibocode($arr){
+    	$result=$this->dao->updateweibocode($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新 app code失败');
+    	}
+    }
+    
+    /*
+     * 更新短信接口url
+    * */
+    public function updatemsg_url($arr){
+    	$result=$this->dao->updatemsg_url($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新短信url接口失败');
+    	}
+    }
+    
+    /*
+     * 更新短信接口cid
+    * */
+    public function updatemsg_cid($arr){
+    	$result=$this->dao->updatemsg_cid($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新短信cid接口失败');
+    	}
+    }
+    
+    /*
+     * 更新短信接口cid
+    * */
+    public function updatemsg_pwd($arr){
+    	$result=$this->dao->updatemsg_pwd($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新短信pwd接口失败');
+    	}
+    }
+    
+    /*
+     * 更新短信接口cell
+    * */
+    public function updatemsg_cell($arr){
+    	$result=$this->dao->updatemsg_cell($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新短信cell接口失败');
+    	}
+    }
+    
+    /*
+     * 获取短信接口url
+    * */
+    public function getmsgurl(){
+    	return $result=$this->dao->getmsgurl();
+    }
+    
+    /*
+     * 获取短信接口cid
+     * */
+    public function getmsgcid(){
+    	return $result=$this->dao->getmsgcid();
+    }
+    
+    /*
+     * 获取短信接口pwd
+    * */
+    public function getmsgpwd(){
+    	return $result=$this->dao->getmsgpwd();
+    }
+    
+    /*
+     * 获取短信接口cell
+    * */
+    public function getmsgcell(){
+    	return $result=$this->dao->getmsgcell();
+    }
+    
+    /*
+     * 更新udesk url
+     * */
+    public function updateudesk($arr){
+    	$result=$this->dao->updateudesk($arr);
+    	if($result>0){
+    		return $this->success();
+    	}else{
+    		return $this->fail(15, '更新短信cell接口失败');
+    	}
+    }
+}

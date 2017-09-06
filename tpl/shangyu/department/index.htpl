@@ -1,0 +1,173 @@
+﻿{{extends file='../common/layout/dep.htpl'}}
+{{block name=body}}
+<div class="header">
+  <div class="head_top">
+    <div class="container">
+      <div class="pull-left"><a href="/index.html">网站首页</a>
+        <p class="text-muted">|&nbsp;&nbsp;&nbsp;欢迎访问{{contactlist  flag='name' }}[field:val/]{{/contactlist}}官方网站</p>
+        <a href="#">请登录</a> | <a href="#">新用户注册</a></div>
+      <div class="pull-right"><a href="/mobile">手机版</a>|<a href="/app">APP版</a></div>
+    </div>
+  </div>
+  <div class="head_logo">
+    <div class="container">
+      <div class="col-xs-12 col-sm-8 pull-left">
+      {{logopic}}<img class="pull-left" src="[field:src/]">{{/logopic}}<h1 class="pull-left">{{deptinfo name_or_id=$id}}[field:name/]{{/deptinfo}}</h1></div>
+      <div class="col-xs-12 col-sm-4 pull-right wd_keshi">
+        <a class="wd_btn" href="javascript:void(0);" data-toggle="dropdown"><i class="icon icon-list-ul"></i>科室导航<i class="icon icon-angle-down"></i></a>
+        <ul class="dropdown-menu" role="menu">
+          {{deptlist page='1' pagesize='30'}}
+          <li><a href="[field:url/]">[field:name/]</a></li>
+          {{/deptlist}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="nav">
+  <div class="container">
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse" aria-expanded="false"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar_collapse" style=" width:100%;">
+        <ul id="jsddm" class="nav navbar-nav nav-justified">
+          <li class="mainlevel"><a href="/index.html" target="_self">网站首页</a></li>
+          <li class="mainlevel"><a href="/{{deptinfo}}[field:url/]{{/deptinfo}}" target="_self">科室首页</a></li>
+          <li class="mainlevel"><a href="/ksjs/index.html?id={{$id}}" target="_self">科室介绍</a></li>
+          <li class="mainlevel"><a href="/ysjs/index.html?department_id={{$id}}" target="_self">医师介绍</a></li>
+          <li class="mainlevel"><a href="/jcjlc/index.html?department_id={{$id}}" target="_self">检查及流程</a></li>
+          <li class="mainlevel"><a href="/tpjj/index.html?department_id={{$id}}" target="_self">图片锦集</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<script type="text/javascript"> 
+    var has_slide = '0';
+    
+    $(document).ready(function(){
+        $('#jsddm li.mainlevel').mouseenter(function(){
+            if(has_slide == 1){
+                $(this).find('ul').slideDown("fast");
+            }else{
+                $(this).find('ul').show();
+            }
+        });
+        $('#jsddm li.mainlevel').mouseleave(function(){
+            if(has_slide == 1){
+                $(this).find('ul').slideUp("fast");
+            }else{
+                $(this).find('ul').hide();
+            }
+        });
+    });
+    
+</script>
+<div class="banner">
+{{$depname = $DepartmentTag->get($id)}}
+{{deptinfo}}
+<img class="hidden-xs" src="/upload[field:pic/]">
+<!-- <img class="visible-xs" src="images/banner/banner2_2.jpg"> -->{{/deptinfo}}
+</div>
+<div class="mian_wd1 container">
+	<div class="main_tit"><strong class="pull-left"><a href="/ksjs/index.html?id={{$id}}" target="_blank">科室介绍</a></strong></div>
+	<div class="row">
+    	<div class="col-xs-12 col-sm-12 col-md-4 mwd1_l">
+    		
+            <div id="myNiceCarousel4" class="carousel slide " data-ride="carousel">
+              <!-- 圆点指示器 -->
+              <ol class="carousel-indicators">
+                  {{arcsbyrecommend department=$depname->name recommend_name="首页头版头条" assign="art"}}{{/arcsbyrecommend}}
+                  {{foreach from=$arc item=v  name=arts}}
+                  {{if $smarty.foreach.arts.iteration eq 1}} {{$active='active'}} {{else}} {{$active=''}} {{/if}}
+                  <li data-target="#myNiceCarousel4" data-slide-to="{{$smarty.foreach.arts.iteration-1}}" class="{{$active}}"></li>
+                  {{/foreach}}
+              </ol>
+              <!-- 轮播项目 -->
+              <div class="carousel-inner">
+                  {{foreach from=$arc item=v  name=arts}}
+                  {{if $smarty.foreach.arts.iteration eq 1}} {{$active='active'}} {{else}} {{$active=''}} {{/if}}
+                  <div class="item {{$active}}"><a href="{{$v->url}}"><img src="{{$v->pic}}" style="width:367px;height:246px;"><p>{{$v->subject}}</p></a></div>
+                  {{/foreach}}
+              </div>
+              </div>
+            
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 mwd1_r">
+        <p>{{deptinfo}}[field:content|length:460/]{{/deptinfo}}<a href="/ksjs/index.html?department_id={{$id}}">查看详情</a></p>
+        
+        </div>
+    </div>
+</div>
+
+<div class="mian_wd2 container">
+	<div class="main_tit"><strong class="pull-left"><a href="/ysjs/index.html?department_id={{$id}}" target="_blank">医师介绍</a></strong></div>
+    <div class="row">
+        {{doctorsbydept department=$depname->name assign="abc"}}{{/doctorsbydept}}
+        {{foreach from=$abc name=deps item=v}}
+        {{if $smarty.foreach.deps.iteration lt 4}}
+    	<div class="col-xs-12 col-sm-12 col-md-4">
+        	<div class="mwd2_img"><a href="{{$v->url}}"><img src="{{$v->pic}}"><p>{{$v->name}}</p></a></div>
+            <div class="mwd2_info">
+            	<h2><a href="{{$v->url}}" target="_blank">{{$v->name}}</a></h2>
+                <h5>{{$v->position}}</h5>
+                <p>个人简介：{{$v->description|truncate:71}}<a href="{{$v->url}}" target="_blank">&lt;详情&gt;</a></p>
+            </div>
+        </div>
+        {{/if}}
+        {{/foreach}}
+    </div>
+</div>
+
+<div class="main_hos2 main_wd3 container">
+	<div class="row">
+    	<div class="main_hos2_l col-xs-12 col-sm-12 col-md-6">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/jcjlc/index.html?department_id={{$id}}" target="_blank">检查及流程</a></strong></div>
+                <ul>
+                    {{arcsbydisease department=$depname->name disease="检查及流程" limit="2" page=1}} 
+                	<li><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"Y-m-d"/]</span></li>
+                    {{/arcsbydisease}}
+                </ul>
+            </div>
+        </div>
+        <div class="main_hos2_r col-xs-12 col-sm-12 col-md-6">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/jkjy/index.html?department_id={{$id}}" target="_blank">健康教育</a></strong></div>
+                <ul>
+                	{{arcsbydisease department=$depname->name disease="健康教育" limit="2" page=1}} 
+                	<li><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"Y-m-d"/]</span></li>
+                    {{/arcsbydisease}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main_wd4 container">
+	<div class="main_tit"><strong class="pull-left"><a href="/tpjj/index.html?department_id={{$id}}" target="_blank">图片集锦</a></strong></div>
+    <ul>
+        {{arcsbydisease department=$depname->name disease="图片集锦" limit="4" page=1}} 
+    	<li><a href="[field:url/]"><img src="[field:pic/]"></a><p>[field:subject/]</p></li>
+        {{/arcsbydisease}}
+    </ul>
+</div>
+
+{{/block}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

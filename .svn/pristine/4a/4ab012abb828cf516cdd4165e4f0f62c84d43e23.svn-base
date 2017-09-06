@@ -1,0 +1,60 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class DoctorManager extends Entity {
+
+    var $id;
+
+    var $name;
+
+    var $pic;
+
+    var $birthday;
+
+    var $gender;
+
+    var $content;
+
+    var $certificate;
+
+    var $specialty;
+
+    var $cultural;
+
+    var $university;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $click_count;
+
+    var $department_id;
+
+    var $position;
+
+    public function validate() {
+        if ($this->name == '' || strlen($this->name) == 0) {
+            throw new ValidatorException(71);
+        }
+        if ($this->content == '' || strlen($this->content) == 0) {
+            throw new ValidatorException(126);
+        }
+        if ($this->specialty == '' || strlen($this->specialty) == 0) {
+            throw new ValidatorException(123);
+        }
+        if ($this->birthday == '' || strlen($this->birthday) == 0) {
+            throw new ValidatorException(122);
+        }
+        if (! $this->isNum($this->department_id) || strlen($this->department_id) == 0) {
+            throw new ValidatorException(72);
+        }
+        if ($this->position == '' || strlen($this->position) == 0) {
+            throw new ValidatorException(157);
+        }
+    }
+}

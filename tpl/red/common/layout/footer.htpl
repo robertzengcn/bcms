@@ -1,0 +1,38 @@
+<!--footer-->
+<div class="clear h8"></div>
+<div id="footer">
+    <div>
+        {{navigations order="cate asc,sort asc" limit="6" pid="0" cate="3" is_display="1" assign="nav"}}
+        {{$count=$nav|@count}}
+        {{foreach $nav as $key=>$v}}
+        <a href="{{$WEBSITE}}/{{$v->url}}" target="_blank">{{$v->subject}}</a>|&nbsp;&nbsp;
+        {{/foreach}}
+    </div>
+
+    <p>
+ 	<span>
+	 	<strong>{{$ContactTag->get('name')}}网址：
+            <a href="#">{{$WEBSITE}}</a>&nbsp;就诊咨询电话：{{$ContactTag->get('tel')}}</strong>
+	</span><br />
+        {{$ContactTag->get('name')}}版权所有：<a href="http://www.qqyy.com">全球医院网</a>&nbsp;|&nbsp;ICP备案信息:<a rel="nofollow" href="http://www.miit.gov.cn/n11293472/index.html">{{$ContactTag->get('icp')}}</a><br />
+        本站内图片及商标权属本站所有未经授权请勿复制及转载<br />
+        <span><a href="http://www.qqyy.com">全球医院网</a>|<a href="http://www.boyicms.com" class="mrleft"> 医院网站智能建设系统</a></span></p>
+
+<!--body end-->
+<div class="clear"></div>
+
+<div class="bar">
+    <div style="color:#000;" class="title">{{$ContactTag->get('name')}}，权威专家在线坐诊为您解答！</div>
+    <div style="color:#000;" class="user">目前已有<strong style="color:#ff41ab;><span id="number2">5</span></strong>位患者与医生交流</div>
+    <div style="color:#ff41ab;" class="time"><strong>咨询电话：{{$ContactTag->get('tel')}}</strong></div>
+    <div class="bar-ask"><a href="{{$WEBSITE}}/reservation.html" target="_blank"><img src='{{$RESOURCE}}/images/bar/consulting.gif' /></a></div>
+</div>
+</div>
+<script type="text/javascript">
+    var GetRandomnVal = 2;
+    function GetRandom(n){GetRandomnVal=Math.floor(Math.random()*n+1)}
+    GetRandom("4");
+    document.getElementById('number1').innerHTML=GetRandomnVal;
+    document.getElementById('number2').innerHTML=GetRandomnVal;
+</script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/layout.js"></script>

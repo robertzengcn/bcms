@@ -1,0 +1,1470 @@
+/**
+ * 患者管理
+ * */
+function Patient() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	// {{{ function init()
+	
+	/**
+	 * 初始化页面
+	 * */
+	this.init = function() {
+		$(function(){
+			self.checkPwd();
+			
+			self.fillDiagnoseList();
+		});
+	}
+	
+	// }}}
+	// {{{ function checkPwd()
+	
+	/**
+	 * 检查密码
+	 * */
+	this.checkPwd = function() {
+		//这里要先弹出一个框来输入管理密码，默认是admin的登录密码
+		var flag = false;
+		
+		var content = '';
+		content += '<div class="row cl" >';
+		//content += '<label class="form-label am-u-sm-3">密码：</label>';
+		content += '<div class="formControls am-u-sm-11">';
+		content += '<input type="password" class="input-text" id="password" name="password" style="width:100%"/>';
+		content += '</div>';
+		content += '<label style="color:red;padding-left:14px;font-size: 12px;" id="error">默认后台初始密码</label>';
+		content += '</div>';
+		layer.open({
+			closeBtn:0,
+			content:content,
+			//offset: ['100px', '30px'],
+			area:['80%'],
+			title:'登入密码',
+			shade:[1,'#b3b3b3'],
+			success:function(){
+				$("#password").focus();
+			},
+			yes:function(index) {
+				var password = $("#password").val();
+				if (password == '') {
+					$("#error").html("请输入密码");
+					return false;
+				}
+				self.cmd(gHttp,{controller:'Patient',method:'loginPatient',password:password},function(ret){
+					if(ret.statu){
+						flag = true;
+					}else{
+						$("#error").html(ret.msg);
+						flag = false;
+					}
+				});
+				
+				if (!flag) {
+					return false;
+				}
+				
+				layer.close(index);
+				//初始化数据列表
+				//self.fillDiagnoseList();
+			},
+//			cancel:function(index){
+//		    	var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+//		    	parent.layer.close(index); //再执行关闭
+//		    }
+			cancel: function(index){ 
+				    layer.close(index)
+				}    
+		});
+	}
+	
+	// }}}
+	// {{{ function fillDiagnoseList()
+	
+	/**
+	 * 填充患者列表
+	 * */
+	this.fillDiagnoseList = function() {
+		self.cmd(gHttp,{controller:'Patient',method:'getListPatientCase',is_first:'1'},function(ret){
+			var html = '';
+			if (ret.ttl != undefined && ret.ttl>0) {
+				var data = ret.rows;
+				$.each(data, function(k,v){
+					html += '<tr onclick="window.open(\'detail.html?id='+v.id+'&detail_id='+v.detail_id + '\',\'_self\')" style="cursor:hand;">';
+					html += '<td>' + v.username + '</td>';
+					html += '<td>' + v.disease_name + '</td>';
+					html += '<td>' + v.visit_time_str + '</td>';
+					html += '</tr>';
+				});
+			}
+			$("#dataTable").html(html);
+		});
+
+	}
+	
+	// }}}
+    // {{{ function patientDetail()
+	
+	/**
+	 * 初始化详情
+	 * */
+	this.initDetail = function(){
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+		var id = para.detail_id;
+		var dataStr = '';
+		if (id != undefined) {
+			self.cmd(gHttp,{controller:'Patient',method:'patientDetail',id:id},function(ret){
+				if(ret.statu){
+					var data = ret.data;
+					dataStr = data.detail_id + ':' + data.username;
+					
+                    $.each(data,function(i,v) {
+                    	if (i == 'visit_time') {
+                    		$("#" + i).val(self.getTimeStr(v));
+                    		var left_days = Math.floor((new Date() - new Date(self.getTimeStr(v)))/1000/60/60/24);
+                    		$("#left_days").html(left_days);
+                    	} else if (i == 'return_time') {
+                    		if (v != '0' && v != '') {
+                    			var str = self.getTimeStr(v);
+                    			var left_days = Math.floor((new Date() - new Date(self.getTimeStr(v)))/1000/60/60/24);
+                    			
+                    			if (left_days > 0) {
+                    				str += '（还有' + left_days + '天）';
+                    			} else {
+                    				str += '（已过期）';
+                    			}
+                    			
+                    			$("#" + i).html(str);
+                    		}
+                    	} else {
+                    		$("#" + i).html(v);
+                    	}
+					});
+				}
+			});
+            
+			//填充处方
+			self.cmd(gHttp,{controller:'Patient',method:'getPrescriptionsByDetailId',id:id}, function(result) {
+				if (result.statu) {
+					var html = '';
+					$.each(result.data,function(k,v) {
+						html += v.name + ',';
+					});
+					html = html.substr(0,html.length-1);
+					$("#prescriptionList").html(html);
+				}
+			});
+			
+			//查看回访记录
+			$("#reviewList").click(function(){
+				window.open('review.html?data=' + dataStr ,'_self');
+			});
+	    }
+	
+	}
+	
+	// }}}
+    // {{{ function initReview()
+	
+	/**
+	 * 回访记录
+	 * */
+	this.initReview = function() {
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+		var data = para.data;
+		var arr = data.split(':');
+		var detail_id = arr[0];
+		var username = arr[1];	
+		self.cmd(gHttp,{controller:'Patient',method:'getReturnVisitList',detail_id:detail_id},function(ret){
+			var html = '';
+			if (ret.ttl != undefined && ret.ttl>0) {
+				var data = ret.rows;
+				$.each(data, function(k,v){
+					html += '<li><span class="am-badge">'+v.return_time+'</span><a href="#" class="am-text-truncate am-strong">' + v.message + '</a></li>';
+				});
+			}
+			$("#dataTable").html(html);
+		});
+
+	}
+	
+	// }}}
+    // {{{ function getTimeStr()
+	
+	/**
+	 * 将时间撮转换成时间串
+	 * */
+	this.getTimeStr = function(timestamp, isAll) {
+		var timestamp = new Date(parseInt(timestamp)*1000);
+		var year = timestamp.getFullYear();
+		var month = timestamp.getMonth() + 1;
+		month = month>10 ? month : '0' + month;
+		var day = timestamp.getDate();
+		day = day>10 ? day : '0' + day;
+		var hour = timestamp.getHours();
+		var minute = timestamp.getMinutes();
+		var second = timestamp.getSeconds();
+		if (isAll) {
+			return year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+		}
+		return year+'-'+month+'-'+day;
+	};
+	// }}}
+	// {{{ function initStatDetail()
+	
+	/**
+	 * 初始化统计详情
+	 * */
+	this.initStatDetail = function() {
+		$(function(){
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			var id = para.id;
+			var type = para.type;
+			var start = para.start;
+			var end = para.end;
+			switch(type) {
+			    case '1'://就诊人数详情
+			    	if (para.title == undefined) {
+			    		self.statByPeopleDetail(id,start,end,para.ids);
+			    	} else {
+			    		self.statByPeopleType(id,start,end,para.title,para.showType);
+			    	}
+			        break;
+			    case '3'://前台接诊详情
+			    	self.statByReceptionistDetail(id,start,end);
+				    break;
+			    case '5': //医生接诊详情
+			    	self.statByDoctorDetail(id,start,end);
+			    	break;
+				default:
+					break;
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function statByPeopleType()
+	
+	/**
+	 * 就诊人数详细统计图
+	 * */
+	this.statByPeopleType = function(type_id,start,end,title,showType){
+		var header = '<tr class="text-c">';
+		header += '<th width="140">病症</th>';								
+		header += '<th width="100">0-10岁</th>';
+		header += '<th width="100">10-20岁</th>';	
+		header += '<th width="100">20-30岁</th>';
+		header += '<th width="100">30-40岁</th>';
+		header += '<th width="100">40-50岁</th>';
+		header += '<th width="100">50-60岁</th>';
+		header += '<th width="100">60-70岁</th>';
+		header += '<th width="100">70-80岁</th>';
+		header += '<th width="110">80岁以上</th>';
+		header += '</tr>';
+		$('#header').html(header);
+		
+		var url = {controller:'Patient',method:'getStatData',type_id:type_id,type:'1',start:start,end:end};
+        self.cmd(gHttp,url,function(ret){
+        	var ttl = ret.ttl;
+        	var data = ret.rows;
+        	
+        	$('#list').grid({
+        		ttl:ttl,
+				showPage : false,
+				tableInfo : false,
+				order : false,
+				filter : false,
+    			data : data,				
+    			field : [
+    				{data:'disease_name'},
+    				{data:'10'},
+    				{data:'20'},
+    				{data:'30'},
+    				{data:'40'},
+    				{data:'50'},
+    				{data:'60'},
+    				{data:'70'},
+    				{data:'80'},
+    				{data:'90'}
+    			]
+    		});
+        	
+            //格式化数据
+    		var statData = self.formatStatData(data,'1','detail',showType);
+    		//显示统计图
+    		self.showStatImg(statData, 'statImg', '就诊人数', '就诊人数统计','',showType);
+        });
+	}
+	
+	// }}}
+	// {{{ function statByReceptionistDetail()
+	
+	/**
+	 * 前台接待详情
+	 * */
+	
+	this.statByReceptionistDetail = function(receptionist_id, start, end){
+		var header = '<tr class="text-c">';
+		header += '<th width="140">姓名</th>';								
+		header += '<th width="80">就诊日期</th>';
+		header += '<th width="80">成交</th>';	
+		header += '<th width="80">原因</th>';
+		header += '<th width="80">性别</th>';
+		header += '<th width="80">年龄</th>';
+		header += '</tr>';
+		$('#header').html(header);		
+        var url = {controller:'Patient',method:'getStatDetail',receptionist_id:receptionist_id,type:'3',start:start,end:end};
+        $('#list').grid({
+			para : url,
+			field : [
+				{data:'username'},
+				{data:'visit_time'},
+				{data:'is_finished',render:function(v){var str=(v==1)?'<span class="label label-success radius">是</span>':'<span class="label label-default radius">否</span>';return str;}},
+				{data:'reason',render:function(value){return value.substr(0,16)+'...';}},
+				{data:'gender',render:function(v){var str=(v==1)?'<span class="label label-success radius">女</span>':'<span class="label label-secondary radius">男</span>'; return str;}},
+				{data:'age'}
+			]
+		});
+	}
+	
+	// }}}
+	// {{{ function statByDoctorDetail()
+	
+	/**
+	 * 医生接待详情
+	 * */
+	this.statByDoctorDetail = function(doctor_id, start, end){
+		var header = '<tr class="text-c">';
+		header += '<th width="140">姓名</th>';								
+		header += '<th width="80">性别</th>';
+		header += '<th width="80">年龄</th>';
+		header += '</tr>';
+		$('#header').html(header);
+		
+		var url = {controller:'Patient',method:'getStatDetail',doctor_id:doctor_id,type:'5',start:start,end:end};
+        $('#list').grid({
+			para : url,
+			field : [
+				{data:'username'},
+				{data:'gender',render:function(v){var str=(v==1)?'<span class="label label-success radius">女</span>':'<span class="label label-secondary radius">男</span>';return str;}},
+				{data:'age'}
+			]
+		});
+	}
+	
+	// }}}
+	// {{{ function statByPeopleDetail()
+	
+	/**
+	 * 就诊人数详情
+	 * */
+	this.statByPeopleDetail = function(type_id,start,end,ids){
+		var header = '<tr class="text-c">';
+		header += '<th width="140">姓名</th>';
+		header += '<th width="120">病历号</th>';
+		header += '<th width="80">性别</th>';
+		header += '<th width="80">年龄</th>';
+		header += '</tr>';
+		$('#header').html(header);
+		
+		var url = {controller:'Patient',method:'getStatDetail',type_id:type_id,type:'1',start:start,end:end, ids:ids};
+        $('#list').grid({
+			para : url,
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]}
+							],
+			field : [
+				{data:'username'},
+				{data:'case_number'},
+				{data:'gender',render:function(value){return value=='0'?'<span class="label label-secondary radius">男</span>':'<span class="label label-success  radius">女</span>';}},
+				{data:'age'}
+			]
+		});
+	}
+	
+	// }}}
+    // {{{ function initStatItems()
+	
+	/**
+	 * 统计选项
+	 * */
+	this.initStatItems = function() {
+		self.checkPwd();
+		$("#statItems li").click(function(){
+			var type = $(this).attr("flag");
+			window.open('statlist.html?type=' + type ,'_self');
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function stat()
+	
+	/**
+	 * 统计
+	 * */
+	this.stat = function() {
+		initTimeMonth('start', 'end');
+		
+		$("#timeField a").click(function(){
+			$("a.am-btn").removeClass('am-active');
+			var time = $(this).attr('flag');
+			$(this).addClass('am-active');
+			if ('free' != $(this).attr("id")) {
+				if (time != "") {
+					var time = parseInt(time);
+					var myDate = new Date();//当前时间
+					var oneDay = 1000 * 60 * 60 * 24;
+					var lastDate = new Date(myDate - oneDay * time);
+				    var lastYear = lastDate.getFullYear();
+				    var lastMonth = lastDate.getMonth() + 1;
+				    var lastDay = lastDate.getDate();
+				    var str = lastYear + '-' + lastMonth + '-' + lastDay;
+					$("#start").val(str);
+					self.statData();
+				}
+			}
+			
+		});
+		//自定义时间
+		$("#confirm").click(function(){
+			var start = $('#start').val();
+			//console.log(start.valueOf());
+			var end = $('#end').val();
+			$('#start_time').val(start);
+			$('#end_time').val(end);
+			if(start.valueOf() >= end.valueOf()){
+				$('#doc-modal-1').find('p').eq(1).text('开始日期应小于结束日期！').end().show();
+			}else{
+				$('#doc-modal-1').modal('close');
+				
+				$('#dataTable').find('tbody').empty();
+				$('.dropload-down').remove();
+				self.statData();
+			}
+		});
+		
+		
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+        var type = para.type;
+        
+		$("span[id^='span_stat_']").hide();
+		$("span[id^='span_stat_" + type + "']").show();
+		
+		switch (type) {
+		    case '1': //就诊人数统计
+		    	self.statByPeople();
+			    break;
+		    case '2': //周及就诊时间段统计
+				self.statByWeek();
+			    break;
+		    case '3': //前台接诊统计
+		    	self.statByReceptionist();
+			    break;
+		    case '4': //来源统计
+		    	self.statBySource();
+			    break;
+		    case '5': //医生接诊统计
+		    	self.statByDoctor();
+			    break;
+		    case '6': //科室疾病统计
+		    	self.statByDepartmentAndDisease();
+		    	break;
+		    case '7': //财务统计
+		    	self.statByFinancial();
+		    	break;
+		    case '8': //治疗方案
+		    	self.statByExamineItems();
+		    	break;
+		    default:
+			    break;
+		}
+	}
+	
+	// }}}
+	this.statData = function() {
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+        var type = para.type;
+        
+		$("span[id^='span_stat_']").hide();
+		$("span[id^='span_stat_" + type + "']").show();
+		
+		switch (type) {
+		    case '1': //就诊人数统计
+		    	self.statByPeople();
+			    break;
+		    case '2': //周及就诊时间段统计
+				self.statByWeek();
+			    break;
+		    case '3': //前台接诊统计
+		    	self.statByReceptionist();
+			    break;
+		    case '4': //来源统计
+		    	self.statBySource();
+			    break;
+		    case '5': //医生接诊统计
+		    	self.statByDoctor();
+			    break;
+		    case '6': //科室疾病统计
+		    	self.statByDepartmentAndDisease();
+		    	break;
+		    case '7': //财务统计
+		    	self.statByFinancial();
+		    	break;
+		    case '8': //治疗方案
+		    	self.statByExamineItems();
+		    	break;
+		    default:
+			    break;
+		}
+	}
+	// {{{ function statByPeople()
+	
+	/**
+	 * 就诊人数统计
+	 * */
+	this.statByPeople = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'1',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			
+			var html = '';
+			$.each(data, function(k,v){
+				if(k < 2){
+					html += '<tr class="am-primary">';
+					html += '<td>' + v.title + '</td>';
+					html += '<td>' + v.male + '</td>';
+					html += '<td>' + v.female + '</td>';
+					html += '<td>' + v.num + '</td>';
+					//html += '<td>' + v.money + '</td>';
+					html += '</tr>';
+				}else if(k == 2){
+					var data1 = data[0];
+					var data2 = data[1];
+					var male1 = parseInt(data1.male)+parseInt(data2.male);
+					var fmale1 = parseInt(data1.female)+parseInt(data2.female);
+					html += '<tr class="am-primary">';
+					html += '<td>总计</td>';
+					html += '<td>'+male1+'</td>'
+					html += '<td>'+fmale1+'</td>'
+					html += '<td>'+data[3]+'</td>'
+					html += '</tr>';
+				}
+			});
+			$("#listAll1 tbody").html(html);
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'1');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg1', '就诊人数', '就诊人数统计');
+		});
+		
+		//按天统计人数
+		self.cmd(gHttp,{controller:'Patient',method:'statByDate',action:'people',start:start,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					if (showType == 'pie') {
+						var num = v['people'] + v['old'] + v['new'] + v['first'] + v['second'] + v['never'];
+						statData.push({
+							'name':k,
+							'value':num
+						});
+					} else {
+						statData.push({
+							'group':'就诊人数',
+							'name':k,
+							'value':v['people']
+						});
+						statData.push({
+							'group':'老客户',
+							'name':k,
+							'value':v['old']
+						});
+						statData.push({
+							'group':'新客户',
+							'name':k,
+							'value':v['new']
+						});
+						statData.push({
+							'group':'初诊人数',
+							'name':k,
+							'value':v['first']
+						});
+						statData.push({
+							'group':'复诊人数',
+							'name':k,
+							'value':v['second']
+						});
+						statData.push({
+							'group':'未如期复诊',
+							'name':k,
+							'value':v['never']
+						});
+					}
+				});
+				
+				var title = '每天就诊人数统计 (默认统计最近30天的就诊情况)';
+				
+				//显示统计图
+				self.showStatImg(statData, 'statImg1_2', '就诊人数', title);
+			}else{
+				$("#statImg1_2").html('');
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function statByWeek()
+	
+	/**
+	 * 周及就诊时间段统计
+	 * */
+	this.statByWeek = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'2',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			data = data.reverse();
+			//console.log(data);
+			var html = '';
+			var arrs = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日'];
+			var arr = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+			$.each(arrs, function(k,b){
+				html += '<tr class="am-primary">';
+				html += '<td>'+b+'</td>';
+				$.each(arr,function(i,v){
+					if(i < 4){
+						var day = data[i];
+						//console.log(v);
+						console.log(day[v]);
+						html += '<td>' + day[v] + '</td>';
+					}
+				});
+				html += '</tr>';
+			});
+			$("#listAll2 tbody").html(html);
+			
+			//格式化数据
+			var statData = self.formatStatData(data,'2');
+			//显示统计图
+			self.showStatImg(statData, 'statImg2', '就诊人数', '周就诊人员组成统计','','bar');
+		});
+	}
+	
+	// }}}
+	// {{{ function statByReceptionist()
+	
+	/**
+	 * 前台接诊统计
+	 * */
+	this.statByReceptionist = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'3',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			var header='<tr class="text-c"><th width="120">姓名&nbsp;<b>/</b>&nbsp;统计项目</th>';
+			header += '<th width="90">成交（人）</th>';
+			header += '<th width="90">未成交（人）</th>';
+			header += '</tr>';
+			var tbody = '';
+			$.each(data,function(i,v){
+				tbody += '<tr "text-c">';
+				tbody += '<th>'+v.user_name+'</th>';
+				tbody += '<td class="text-c">'+v.deal_num+'</td>';
+				tbody += '<td class="text-c">'+v.not_deal_num+'</td>';
+				tbody += '</tr>';
+			});
+			$('#listAll3').find('thead').html(header);
+			$('#listAll3').find('tbody').html(tbody);
+			//格式化数据
+			//var statData = self.formatStatData(data,'3');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg3', '人数', '前台接待工作统计','','bar');
+		});
+		
+		//按天统计
+		self.cmd(gHttp,{controller:'Patient',method:'statByDate',action:'receptionist',start:start,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					$.each(v, function(i, d){
+						statData.push({
+							'group':i,
+							'name':k,
+							'value':d
+						});
+					});
+				});
+				
+				var title = '每天就诊人数统计 (默认统计最近30天的就诊情况)';
+				//显示统计图
+				self.showStatImg(statData, 'statImg3_2', '人数', title);
+			}else{
+				$("#statImg3_2").html('');
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function statBySource()
+	
+	/**
+	 * 来源统计
+	 * */
+	this.statBySource = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'4',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;			
+			var header='<tr class="text-c"><th width="140">来源名称&nbsp;<b>/</b>&nbsp;统计项目</th>';
+		    header +='<th width="90" class="text-c">到诊（人）</th>';			
+		    header +='<th width="90" class="text-c">营收（元）</th>';
+		    header +='<th width="90" class="text-c">营收占比（%）</th>';
+		    header +='</tr>';
+		    var tybody = '';
+			$.each(data,function(i,v){
+				tybody += '<tr class="text-c">';
+				tybody +='<td width="90" class="text-c">'+v.title+'</td>';
+				tybody +='<td class="text-c">'+v.visit_num+'</td>';
+				tybody +='<td class="text-c">'+v.income+'</td>';
+				tybody +='<td class="text-c">'+v.percent+'</td>';
+				tybody +='</tr>';
+			});
+			$('#listAll4').find('thead').html(header);
+			$('#listAll4').find('tbody').html(tybody);
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'4');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg4', '营收比例', '来源营收统计','','pie');
+		});
+		
+		//按天统计
+		self.cmd(gHttp,{controller:'Patient',method:'statByDate',action:'source',start:start,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					$.each(v, function(i, d){
+						statData.push({
+							'group':i,
+							'name':k,
+							'value':d
+						});
+					});
+				});
+				
+				var title = '来源到诊量时间曲线 (默认统计最近30天的就诊情况)';
+				//显示统计图
+				self.showStatImg(statData, 'statImg4_2', '人数', title);
+			}else{
+				$("#statImg4_2").html('');
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function statByDoctor()
+	
+	/**
+	 * 医生接诊统计
+	 * */
+	this.statByDoctor = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var page = 0;
+		//上拉加载
+		var header ='<tr class="text-c"><th width="140">医生名称</th>';
+		header +='<th class="text-c">新客户（人）</th>';			
+		header +='<th class="text-c">老客户（人）</th>';
+		header +='<th class="text-c">复诊（人次）</th>';
+	    header +='</tr>';
+	    $('#listAll5').find('thead').html(header);
+	    $('#listAll5').find('tbody').empty();
+	    $('.dropload-down').remove();
+		$('#listAll5').dropload({
+		    scrollArea : window,
+		    loadDownFn : function(me){
+		    	page ++;
+				url = {controller:'Patient',method:'getStatData',type:'5',start:start,end:end,page:page,size:5};
+		    	self.cmd(gHttp,url,function(result) {
+		    		var ttl = result.ttl;
+					var data = result.rows;
+					var tbody ='';
+					$.each(data,function(i,v){
+						tbody +='<tr class="text-c">';
+						tbody+='<td width="90">'+v.doctor_name+'</td>';
+						tbody+='<td class="text-c">'+v.new_num+'</td>';
+						tbody+='<td class="text-c">'+v.old_num+'</td>';
+						tbody+='<td class="text-c">'+v.re_visit+'</td>';
+						tbody+='</tr>';
+					});
+					if(page >= Math.ceil(ttl/5)){
+                        // 锁定
+                        me.lock();
+                        // 无数据
+                        me.noData();
+                        me.resetload();
+                    }
+					setTimeout(function(){
+                        $('#listAll5').append(tbody);
+                        // 每次数据加载完，必须重置
+                        me.resetload();
+                    },1000);
+		    	});
+	        }
+		});	
+		//按天统计
+		self.cmd(gHttp,{controller:'Patient',method:'statByDate',action:'doctor',start:start,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					$.each(v, function(i, d){
+						statData.push({
+							'group':i,
+							'name':k,
+							'value':d
+						});
+					});
+				});
+				
+				var title = '医生接诊量时间曲线 (默认统计最近30天的就诊情况)';
+				//显示统计图
+				self.showStatImg(statData, 'statImg5_2', '就诊人数', title);
+			}else{
+				$("#statImg5_2").html('');
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function statByDepartmentAndDisease()
+	
+	/**
+	 * 疾病科室统计
+	 * */
+	this.statByDepartmentAndDisease = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'6',flag:'department',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			var header='<tr><th>科室名称</th>';
+			header +='<th>新客户（人）</th>';
+			header +='<th>老客户（人）</th>';
+			header +='<th>复诊（人次）</th>';
+			header +='<th>营收</th>';
+			header +='<th>营收占比（%）</th>';
+			header+='</tr>';
+			//var new_client='<tr class="am-primary"><td>新客户（人）</td>';			
+			var tbodyer ='';
+			$.each(data,function(i,v){
+				tbodyer+='<tr class="am-primary">'
+				tbodyer+='<td class="text-c">'+v.department_name+'</td>';
+				tbodyer+='<td class="text-c">'+v.new_num+'</td>';
+				tbodyer+='<td class="text-c">'+v.old_num+'</td>';
+				tbodyer+='<td class="text-c">'+v.re_visit+'</td>';
+				tbodyer+='<td class="text-c">'+v.income+'</td>';
+				tbodyer+='<td class="text-c">'+v.percent+'</td>';
+                tbodyer+= '</tr>';				
+			});		
+			$('#listAll6').find('thead').html(header);
+			$('#listAll6').find('tbody').html(tbodyer);
+			
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'6','department');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg6', '人数', '医生接诊统计');
+		});
+		
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'6',flag:'disease',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			
+			var html = '';
+			$.each(data, function(k,v){
+				html += '<tr class="am-primary">';
+				html += '<td>' + v.disease_name + '</td>';
+				html += '<td>' + v.new_num + '</td>';
+				html += '<td>' + v.old_num + '</td>';
+				html += '<td>' + v.re_visit + '</td>';
+				html += '</tr>';
+			});
+			$("#listAll6_2 tbody").html(html);
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'6','disease');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg6_2', '人数', '疾病综合统计');
+		});
+		
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'6',flag:'month',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			/*
+			$('#listAll6_3').grid({
+				ttl : ttl,
+				showPage : false,
+				tableInfo : false,
+				order : false,
+				filter : false,
+				data : data,
+				field : [
+	         				{data:'disease_name'},
+							{data:'January'},
+							{data:'February'},
+							{data:'March'},
+							{data:'April'},
+							{data:'May'},
+							{data:'June'},
+							{data:'July'},
+							{data:'August'},
+							{data:'September'},
+							{data:'October'},
+							{data:'November'},
+							{data:'December'}
+	        			]
+			});
+			*/
+			//格式化数据
+			var statData = self.formatStatData(data,'6','month');
+			//显示统计图
+			self.showStatImg(statData, 'statImg6_3', '人数', '按月份和疾病统计');
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function statByFinancial()
+	
+	/**
+	 * 财务统计
+	 * */
+	this.statByFinancial = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'7',flag:'disease',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			
+			var html = '';
+			$.each(data, function(k,v){
+				html += '<tr class="am-primary">';
+				html += '<td>' + v.disease_name + '</td>';
+				html += '<td>' + v.money + '</td>';
+				html += '<td>' + v.percent + '</td>';
+				html += '<td>' + v.average + '</td>';
+				html += '</tr>';
+			});
+			$("#listAll7 tbody").html(html);
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'7','disease');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg7', '收入', '按病症统计');
+		});
+		
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'7',flag:'department',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			
+			var html = '';
+			$.each(data, function(k,v){
+				html += '<tr class="am-primary">';
+				html += '<td>' + v.department_name + '</td>';
+				html += '<td>' + v.money + '</td>';
+				html += '<td>' + v.percent + '</td>';
+				html += '<td>' + v.average + '</td>';
+				html += '</tr>';
+			});
+			$("#listAll7_2 tbody").html(html);
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'7','department');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg7_2', '收入', '按科室分类统计');
+		});
+		
+		self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'7',flag:'doctor',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			
+			var html = '';
+			$.each(data, function(k,v){
+				html += '<tr class="am-primary">';
+				html += '<td>' + v.doctor_name + '</td>';
+				html += '<td>' + v.money + '</td>';
+				html += '<td>' + v.percent + '</td>';
+				html += '<td>' + v.average + '</td>';
+				html += '</tr>';
+			});
+			$("#listAll7_3 tbody").html(html);
+			
+			//格式化数据
+			//var statData = self.formatStatData(data,'7','doctor');
+			//显示统计图
+			//self.showStatImg(statData, 'statImg7_3', '收入', '按医生统计');
+		});
+		
+		//按天统计
+		self.cmd(gHttp,{controller:'Patient',method:'statByDate',action:'money',start:start,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					$.each(v, function(i, d){
+						statData.push({
+							'group':i,
+							'name':k,
+							'value':d
+						});
+					});
+				});
+				
+				var title = '每天收入统计 (默认统计最近30天的就诊情况)';
+				//显示统计图
+				self.showStatImg(statData, 'statImg7_4', '收入', title);
+			}else{
+				$("#statImg7_4").html('');
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function statByExamineItems()
+	
+	/**
+	 * 诊疗项目
+	 * */
+	this.statByExamineItems = function() {
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var page = 0;
+	    //$('#listAll5').find('thead').html(header);
+	    $('#listAll8').find('tbody').empty();
+	    $('.dropload-down').remove();
+		$('#listAll8').dropload({
+		    scrollArea : window,
+		    loadDownFn : function(me){
+		    	page ++;
+				url = {controller:'Patient',method:'getStatData',type:'8',start:start,end:end,page:page,size:10};
+		    	self.cmd(gHttp,url,function(result) {
+		    		var ttl = result.ttl;
+					var data = result.rows;
+					
+					var html = '';
+					$.each(data, function(k,v){
+						html += '<tr class="am-primary">';
+						html += '<td>' + v.item_name + '</td>';
+						html += '<td>' + v.male + '</td>';
+						html += '<td>' + v.female + '</td>';
+						html += '<td>' + v.num + '</td>';
+						html += '<td>' + v.money + '</td>';
+						html += '</tr>';
+					});
+					//格式化数据
+					var statData = self.formatStatData(data,'8');
+					//显示统计图
+					self.showStatImg(statData, 'statImg8', '就诊人数', '按诊疗项目统计');
+					if(page >= Math.ceil(ttl/10)){
+                        // 锁定
+                        me.lock();
+                        // 无数据
+                        me.noData();
+                        me.resetload();
+                    }
+					setTimeout(function(){
+                        $('#listAll8 tbody').append(html);
+                        // 每次数据加载完，必须重置
+                        me.resetload();
+                    },1000);
+		    	});
+	        }
+		});	
+		/*self.cmd(gHttp,{controller:'Patient',method:'getStatData',type:'8',start:start,end:end}, function(result) {
+			var ttl = result.ttl;
+			var data = result.rows;
+			
+			var html = '';
+			$.each(data, function(k,v){
+				html += '<tr class="am-primary">';
+				html += '<td>' + v.item_name + '</td>';
+				html += '<td>' + v.male + '</td>';
+				html += '<td>' + v.female + '</td>';
+				html += '<td>' + v.num + '</td>';
+				html += '<td>' + v.money + '</td>';
+				html += '</tr>';
+			});
+			$("#listAll8 tbody").html(html);
+			
+			//格式化数据
+			var statData = self.formatStatData(data,'8');
+			//显示统计图
+			self.showStatImg(statData, 'statImg8', '就诊人数', '按诊疗项目统计');
+		});*/
+		
+	}
+	
+	// }}}
+	// {{{ function formatStatData()
+	
+	/**
+	 * 格式化统计数据
+	 * */
+	this.formatStatData = function(data,statType,field_flag,type) {
+		if (type == undefined) {
+			var type = $('#showType').val();
+		}
+		var statData = [];
+		if (statType == '1') {
+			$.each(data, function(k, v) {
+				if (field_flag == 'detail') {
+					var age_arr = [];
+					age_arr['10'] = '0-10岁';
+					age_arr['20'] = '10-20岁';
+					age_arr['30'] = '20-30岁';
+					age_arr['40'] = '30-40岁';
+					age_arr['50'] = '40-50岁';
+					age_arr['60'] = '50-60岁';
+					age_arr['70'] = '60-70岁';
+					age_arr['80'] = '70-80岁';
+					age_arr['90'] = '80岁以上';
+					var age_str = '';
+					var title = v['disease_name'];
+					var j = 0;
+					for (var i in age_arr) {
+						if (j>8) {
+							continue;
+						}
+						
+						age_str = age_arr[i];
+						var str = v[i];
+						var arr = str.match(/\d/g);
+						var num = parseInt(arr[0]) + parseInt(arr[1]);
+						statData.push({
+							'group':title,
+							'name':age_str,
+							'value':num
+						});
+						j++;
+					}
+				} else {
+					if (type == 'pie') {
+						if (k>0) {
+							statData.push({
+								'name':v['title'],
+								'value':v['num']
+							});
+						}
+					} else {
+						statData.push({
+							'group':'总人数',
+							'name':v['title'],
+							'value':v['num']
+						});
+						
+						statData.push({
+							'group':'男性',
+							'name':v['title'],
+							'value':v['male']
+						});
+						
+						statData.push({
+							'group':'女性',
+							'name':v['title'],
+							'value':v['female']
+						});
+					}
+				}
+			});
+		} else if (statType == '2') {
+			var weeks = [];
+			weeks['Monday'] = '周一';
+			weeks['Tuesday'] = '周二';
+			weeks['Wednesday'] = '周三';
+			weeks['Thursday'] = '周四';
+			weeks['Friday'] = '周五';
+			weeks['Saturday'] = '周六';
+			weeks['Sunday'] = '周日';
+			$.each(data, function(k, v) {
+				var week_str = '';
+				var title = v['title'];
+				var j = 0;
+				for (var i in weeks) {
+					if (type == 'pie') {
+						if (k<3) {
+							continue;
+						}
+					}
+					if (j>6) {
+						continue;
+					}
+					week_str = weeks[i];
+					var str = v[i];
+					var arr = str.match(/\d/g);
+					var num = parseInt(arr[0]) + parseInt(arr[1]);
+					statData.push({
+						'group':title,
+						'name':week_str,
+						'value':num
+					});
+					j++;
+				}
+			});
+		} else if (statType == '3') {
+			if (type == 'pie') {
+				var deal_num = 0;
+				var not_deal_num = 0;
+				$.each(data, function(k, v) {
+					deal_num += v['deal_num'];
+					not_deal_num += v['not_deal_num'];
+				});
+				
+				statData.push({
+					'name':'成交',
+					'value':deal_num
+				});
+				
+				statData.push({
+					'name':'未成交',
+					'value':not_deal_num
+				});
+				
+			} else {
+			$.each(data, function(k, v) {
+				statData.push({
+					'name':v['user_name'],
+					'group':'成交',
+					'value':v['deal_num']
+				});
+				
+				statData.push({
+					'name':v['user_name'],
+					'group':'未成交',
+					'value':v['not_deal_num']
+				});
+			});
+			}
+		} else if (statType == '4') {
+			$.each(data, function(k, v) {
+				statData.push({
+					'name':v['title'],
+					'group':'营收',
+					'value':v['income']
+				});
+			});
+		} else if (statType == '5') {
+			$.each(data, function(k, v) {
+				if (type == 'pie') {
+					var num = v['new_num'] + v['old_num'];
+					statData.push({
+						'name':v['doctor_name'],
+						'value':num
+					});
+				} else {
+					statData.push({
+						'group':'新客户',
+						'name':v['doctor_name'],
+						'value':v['new_num']
+					});
+					statData.push({
+						'group':'老客户',
+						'name':v['doctor_name'],
+						'value':v['old_num']
+					});
+					statData.push({
+						'group':'复诊人数',
+						'name':v['doctor_name'],
+						'value':v['re_visit']
+					});
+				}
+			});
+		} else if (statType == '6') {
+			if (field_flag == 'month') {
+				var months = [];
+				months['January'] = '1月';
+				months['February'] = '2月';
+				months['March'] = '3月';
+				months['April'] = '4月';
+				months['May'] = '5月';
+				months['June'] = '6月';
+				months['July'] = '7月';
+				months['August'] = '8月';
+				months['September'] = '9月';
+				months['October'] = '10月';
+				months['November'] = '11月';
+				months['December'] = '12月';
+				
+				if (type == 'pie') {
+					var numArr = [];
+					numArr['January'] = 0;
+					numArr['February'] = 0;
+					numArr['March'] = 0;
+					numArr['April'] = 0;
+					numArr['May'] = 0;
+					numArr['June'] = 0;
+					numArr['July'] = 0;
+					numArr['August'] = 0;
+					numArr['October'] = 0;
+					numArr['November'] = 0;
+					numArr['December'] = 0;
+					$.each(data, function(k, v) {
+						for(var i in months) {
+							if (i=='contains') {
+								continue;
+							}
+							numArr[i] += v[i];
+						}
+					});
+					
+					for(var i in months) {
+						if (i=='contains') {
+							continue;
+						}
+						statData.push({
+							'name':months[i],
+							'value':numArr[i]
+						});
+					}
+				} else {
+					$.each(data, function(k, v) {
+						for(var i in months) {
+							if (i=='contains') {
+								continue;
+							}
+							statData.push({
+								'group':v['disease_name'],
+								'name':months[i],
+								'value':v[i]
+							});
+						}
+					});
+				}
+				
+				
+			} else {
+				field_flag = field_flag + '_name';
+				if (type == 'pie') {
+					$.each(data, function(k, v) {
+						var num = v['new_num'] + v['old_num'];
+						statData.push({
+							'name':v[field_flag],
+							'value':num
+						});
+					});
+				} else {
+					$.each(data, function(k, v) {
+						statData.push({
+							'group':'新客户',
+							'name':v[field_flag],
+							'value':v['new_num']
+						});
+						statData.push({
+							'group':'老客户',
+							'name':v[field_flag],
+							'value':v['old_num']
+						});
+						statData.push({
+							'group':'复诊人数',
+							'name':v[field_flag],
+							'value':v['re_visit']
+						});
+					});
+				
+				}
+			}
+		} else if (statType == '7') {
+			field_flag = field_flag + '_name';
+			$.each(data, function(k, v) {
+				statData.push({
+					'group':v[field_flag],
+					'name':v[field_flag],
+					'value':v['money']
+				});
+			});
+		} else if (statType == '8') {
+			if (type == 'pie') {
+				$.each(data, function(k, v) {
+					statData.push({
+						'name':v['item_name'],
+						'value':v['num']
+					});
+				});
+			} else {
+				$.each(data, function(k, v) {
+					statData.push({
+						'group':'男性',
+						'name':v['item_name'],
+						'value':v['male']
+					});
+					
+					statData.push({
+						'group':'女性',
+						'name':v['item_name'],
+						'value':v['female']
+					});
+					
+					statData.push({
+						'group':'总计',
+						'name':v['item_name'],
+						'value':v['num']
+					});
+				});
+			}
+		}
+		
+		return statData;
+	}
+	
+	// }}}
+	// {{{ function showStatImg()
+	
+	/**
+	 * 显示统计图
+	 * */
+	this.showStatImg = function(statData, showId, des, title, field_flag,type){
+		if (type == undefined) {
+			var type = 'line';//$("#showType").val();
+		}
+		
+		if (statData.length>0) {
+			if (type == 'pie') {
+				var opt = HighChart.ChartOptionTemplates.Pie(statData,des,title);
+			} else if (type == 'line') {
+				var opt = HighChart.ChartOptionTemplates.Line(statData,des,title);
+			} else if (type == 'bar') {
+				var statType = $("#type").val();
+				if (statType == '1'&&field_flag != 'detail') {
+					var opt = HighChart.ChartOptionTemplates.Bar(statData,des,title);
+				} else {
+					var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,des,title);
+				}
+				
+			}
+			
+			var container = $("#" + showId);
+		    HighChart.RenderChart(opt, container);
+		}
+		
+	}
+	
+	// }}}
+}

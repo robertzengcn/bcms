@@ -1,0 +1,54 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}医患交流{{/block}}
+{{block name=body}}
+<div class="main_dpp am-container">
+	<a href="javascript:void(0)" id="questionlist" class="am-btn am-btn-primary my_persbtn2">查看我的问题</a>
+    <h2>我要提问:</h2>
+
+    <hr class="am-divider-dashed am-margin-top-xs am-no-layout" data-am-widget="divider">
+    <div class="am-alert-danger am-alert">注意：请不要重复提问，管理员会定期回复，网上咨询回复仅作参考，如需准确诊断病情，请前往医院相应科室就诊，祝您健康！</div>
+<form class="am-form" id="submitques">
+
+        <div class="am-form-group row">
+                         
+                         <div class="col-md-6">
+                         <input class="form-control" placeholder="标题" id="subject" nullmsg="标题不能为空！" datatype="*1-50" name="subject" type="text"/>
+                         </div>
+                         <div></div>
+	</div>
+
+	<div class="am-form-group row">
+                         
+                    	<div class="col-md-6">
+                         <select id="gender" class="form-control" name="gender" datatype="*" nullmsg="性别不能为空！">
+                         
+                         <option value="0">女</option>
+                         <option value="1">男</option>
+                         </select>
+                         </div>
+	</div>
+
+	<div class="am-form-group row">
+                         <div class="col-md-6">
+                         <input class="form-control" placeholder="请输入您的年龄" id="age" nullmsg="年龄输入错误！" datatype="n" name="age" type="number" min="0" max="200"/>
+                         </div>
+                         
+                         <div></div>
+        </div>
+
+    	<div class="am-form-group"><div class="col-md-6"><textarea cols="100" rows="8" id="doc-vld-ta-1" nullmsg="问题不能为空！" datatype="*" name="description"></textarea></div></div><div></div>
+        <button type="button" id="questionsubmit" class="am-btn am-btn-primary am-center my_btnbg014">提交问题</button>
+    </form>
+</div>
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.ask();
+
+</script>
+{{/block}}

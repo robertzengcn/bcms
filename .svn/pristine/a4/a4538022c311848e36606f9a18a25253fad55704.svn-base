@@ -1,0 +1,516 @@
+function Doctormanager(){
+	BaseFunc.call(this);
+	var self = this;
+
+
+    //医生管理
+	this.doctor_manager = function(para){
+        var self = this;
+		
+		this.checkdate();
+		
+			var departtable=$("#doctormanagertable").DataTable({			
+			bStateSave:false,
+			serverSide: false,
+			processing: true,
+			searching: true,
+			//data:retd.rows,
+			ajax:{
+				'url':'/controller/?controller=DoctorManager&method=query',
+				//'dataSrc': 'data',
+				'type':'POST',				
+				'dataType':'json',
+				'dataSrc': function(json){
+					
+					return json.data;
+					
+				}
+				
+			},
+			order: [[ 1, "desc" ]],
+			aoColumnDefs : [
+				{sClass:'text-l',aTargets:[5]}
+							],
+
+			columns: [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	},
+				            	name: 'xuanze',
+				            	orderable:false
+				            },
+                            { data: 'id',name:'id' },
+				            { data: 'name',name:'name' },
+				            { data: 'pic',name:'pic',
+				            	render:function(id, type, row){
+				            		if(id!=""){
+				            		var picth='';
+				            		picth +='<img width="90px" height="100px" src="/upload'+row.pic+'" />';
+				            		return picth;
+				            		}else{
+				            			return null;
+				            		}
+				            	},
+				            	orderable:false
+				            	},
+							{ data: 'department_name',name:'department_name' },	
+				            { data: 'content',name:'content',
+				            	render:function(id, type, row){
+				            		var contents=id.substring(0,60);
+				            		return contents;
+				            	}
+				            	},							
+							{ data: 'resernum',name:'resernum' },
+							{ data: 'mark',name:'mark' },
+				            { data : 'id',
+							  render : function(id, type, row){
+								
+								  var str = '';
+								  str += '<a class="ml-5 editdoctor" title="编辑" style="text-decoration:none" dataid="'+row.id+'"><i class="Hui-iconfont">&#xe6df;</i></a>';
+								  str += '<a style="text-decoration:none" class="ml-5 docman"  dataid="'+row.id+'" href="javascript:;" title="展示医生管理"><i class="Hui-iconfont">&#xe62b;</i></a>';
+								  str += '<a title="删除" class="ml-5 deldo" dataid="'+row.id+'" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  },
+							  orderable:false
+							 }
+				        ]
+
+
+		
+		});
+		
+		$('body').on('click','.reflash',function(){
+			troad('#doctormanagertable');	
+			self.checkdate();
+		});
+		
+		$('body').on('click','#submitbutton', function () {
+			var table = $('#doctormanagertable').DataTable();
+			var name=$.trim($('#searchkey').val());
+			 table.columns(2).search(name).draw();			
+		});
+		
+		$('body').on('click', '#datadel',function() {
+			var ids = $("#doctormanagertable_wrapper").getSelectedAll();
+			if(ids.length <= 0){
+				layer.msg('请选择需要删除的选项!',{icon:2}); 
+			}else{				
+				layer.confirm('真的要删除么？', {icon: 3, title:'提示'}, function(index){				  	
+				    layer.close(index);				
+					self.cmd(gHttp,{controller:'DoctorManager',method:'del',id:ids},function(ret){
+						if(ret.statu){
+							layer.msg('删除成功!',{icon:1}); 
+							troad('#doctormanagertable');
+							$('.firstone').attr('checked', false);
+
+						}else{							
+							layer.msg(ret.msg,{icon:2}); 							
+						}
+					});
+				});
+				
+			}
+			return false; 
+			});
+			
+			
+		$('body').on('click','.deldo',function(){
+			var id=$(this).attr('dataid');
+			layer.confirm('真的要删除么？', {icon: 3, title:'提示'}, function(index){
+				layer.close(index);
+				self.cmd(gHttp,{controller:'DoctorManager',method:'del',id:id},function(ret){
+					if(ret.statu){							
+						layer.msg('删除成功!',{icon:1}); 
+						troad('#doctormanagertable');
+						self.checkdate();
+					}else{							
+						layer.msg(ret.msg,{icon:2}); 							
+					}
+					return false;
+				});
+			});
+			
+		});
+			
+			
+		
+		
+		$('#searchkey').on( 'keyup click', function () {   // for text boxes
+			var table = $('#doctormanagertable').DataTable();
+		    var v =$(this).val();  // getting search input value
+		    table.columns(2).search(v).draw();
+		});
+		
+		$('body').on('click','#adddoctor',function(){
+			layer.open({
+				type:2,	
+				area: ['900px', '500px'],
+			    content: 'edit-doctor.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			        iframeWin.editdoctor.adddoctorframe();//这里
+			    }
+			});
+		});
+		
+
+		$('body').on("click",'#exp',function(){
+			
+			self.cmd(gHttp,{controller:'DoctorManager',method:'exportdate'},function(ret){
+				if(ret.stutes){
+					var html='';
+					html+='<div class="row cl text-c pd-10">数据己准备完毕...</div><div class="row cl"><div class="col-12 text-c"><a href="'+ret.url+'" class="btn btn-success radius"><i class="Hui-iconfont">&#xe641;</i> 开始下载</a></div></div>';
+					layer.open({
+						type:1,							
+					    content: html,
+					    title:'下载数据',
+						area: ['252px', '120px'],
+					});
+					
+				
+					
+				}else{					
+					layer.alert('导出数据失败!请重试',{icon:2}); 
+				}
+			});	
+			
+
+		});	
+			
+			
+			
+			
+			
+			$('body').on('click','#imp',function(){			
+				self.cmd(gHttp,{controller:'DoctorManager',method:'importdate'},function(ret){
+					if(ret.stutes){
+						$('#grid').grid('reload');
+						$('#imp').hide();
+						$('#exp').show();						
+					}else{
+						layer.msg('导入数据成功!',function(){
+							troad('#doctormanagertable');
+							this.checkdate();
+						});
+					}
+				});
+			});
+			
+			$('body').on('click','.editdoctor',function(){
+				var id=$(this).attr('dataid');
+				layer.open({
+				type:2,	
+				area: ['900px', '500px'],
+			    content: 'edit-doctor.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+					iframeWin.editdoctor.adddoctorframe({id: id});
+			    }
+			});
+			});
+			
+		
+		
+		
+		
+		
+		  }
+
+	this.checkdate=function(){
+				self.cmd(gHttp,{controller:'DoctorManager',method:'checkdate'},function(ret){
+			if(ret.stutes){
+
+				$('#exp').show();
+				$('#imp').hide();
+
+			}else{
+				$('#imp').show();
+				$('#exp').hide();
+			
+			}
+		});
+	}
+	
+	this.adddoctorframe=function(para){
+		self.onloadCss();
+		var post='';
+		if (para == undefined) {
+			self.cmd(gHttp, {
+				controller: 'DepartmentManager',
+				method: 'getDepartments'
+			}, function(ret){
+				var html = '';
+				if (ret.statu) {
+					departments = ret.data;
+					
+					if(departments.length>0){					
+					$.each(ret.data, function(i, obj){
+						html += '<option value="' + obj.id + '">' + obj.name + '</option>';
+					});
+					
+					$('#department_id').html(html);
+					}else{
+						
+						layer.msg('添加医生前必须先添加科室,请返回先添加科室', function(){		
+							var parindex = parent.layer.getFrameIndex(window.name);
+						
+							parent.layer.close(parindex);
+							//$(window.parent.document).find('#setdep').trigger("click");
+							});
+						
+						
+					}
+				}
+				else {
+					layer.alert(ret.msg);
+				}
+				return false;
+			});
+			post={controller:'DoctorManager',method:'add'};			
+		}else{
+			self.cmd(gHttp, {controller:'DepartmentManager',method:'getDepartments'}, function(ret){
+				var html = '';
+				if (ret.statu) {					
+					departments = ret.data;
+					if(departments.length>0){	
+					$.each(ret.data, function(i, obj){
+						html += '<option value="' + obj.id + '">' + obj.name + '</option>';
+					});
+					$('#department_id').html(html);
+				}else{
+					layer.msg('修改医生前必须先添加科室,请返回先添加科室', function(){		
+						var parindex = parent.layer.getFrameIndex(window.name);					
+						parent.layer.close(parindex);
+						//$(window.parent.document).find('#setdep').trigger("click");
+					});
+					}	
+				
+					
+				self.cmd(gHttp,{controller:'DoctorManager',method:'get',id:para.id},function(ret){
+				if(ret.statu){
+					$('#department_id').children("option").each(function(){  
+		               var dotemp_value = $(this).val();
+		              if(dotemp_value == ret.data.departmentmanager_id){		            	
+		                    $(this).attr("selected","selected");  
+		              }  		              
+		         });
+				 $('#doctorform').append('<input type="hidden" value="'+para.id+'" name="id" />')				 
+				 $("#thumbnail_doc").attr("src", '/upload'+ret.data.pic); 
+				 $("#thumbnail_prove").attr("src", 	'/upload'+ret.data.certificate);				 
+				 $('#thumbnail_prove_value').val(ret.data.pic);
+				 $('#thumbnail_doc_value').val(ret.data.certificate);				 
+				 $('#doctorname').val(ret.data.name);
+				 $('#birthdate').val(ret.data.birthday);
+				 if(ret.data.gender==0){
+				 	$('#sex-1').iCheck('check');
+				 }else{
+				 	$('#sex-2').iCheck('check');
+				 }
+				  $('#pic').attr('src','/upload/'+ret.data.pic); 
+				  $('#certify').attr('src','/upload/'+ret.data.certificate); 
+				  $('#university').val(ret.data.university);
+				  $('#cultural').val(ret.data.cultural);
+				  $('#position').val(ret.data.position);
+				  $('#specialty').val(ret.data.specialty);
+				  $('#content').val(ret.data.content);
+				  
+				 editor.ready(function() {
+    				editor.setContent(ret.data.fulldescript);
+				 });				 
+				}				
+			});			
+			}else {
+					layer.alert(ret.msg,{icon:2});
+				}
+				return false;
+			});
+			post={controller:'DoctorManager',method:'edit'};			
+		}
+		$('#savedoc').on('click',function(){			
+			self.saveDoctor(post);			
+		});	
+	}
+
+	this.saveDoctor=function(post){
+		$('#doctorform').checkAndSubmit('savedoc',post,function(ret){
+			if(ret.statu){
+				var url=parent.location.href;				
+				parent.layer.msg('操作成功!',{icon: 1});		
+				parent.location.replace(url);						
+				layer_close();
+				
+			}else{
+				layer.alert(ret.msg,{icon: 2});
+			}
+
+		});
+		
+		$('#doctorform').submit();
+		
+	}
+	
+	$('body').on('click','.docman', function () {
+		var id=$(this).attr('dataid');	
+		layer.open({
+			type:2,	
+			title:'关联展示医生',
+			area: ['900px', '400px'],
+		    content: 'doctor-to-doctor.html',
+		    success: function(layero,index){
+		        layer.setTop(layero); 
+		        var body = layer.getChildFrame('body', index);
+		        var iframeWin = window[layero.find('iframe')[0]['name']];
+		      iframeWin.doctormanager.doctorrelate(id);//这里
+		    }
+		});
+		
+	});
+	
+	this.doctorrelate=function(id){
+    	$("#id").val(id);
+    	$("#doctortodepartment tbody").empty();
+    	if(id!=undefined){    		
+			var t=$("#doctortodepartment").DataTable({				
+				bStateSave:false,
+				serverSide: false,
+				processing: true,
+				ordering: false,
+				paging:false,
+				searching:false,
+				info:false,
+				ajax:{
+					'url':'/controller/?controller=Doctor&method=query',
+					'type':'POST',
+					'data': {'reserve_id':id,},
+					'dataType':'json',
+					'dataSrc': function(json){
+						return json.rows;
+					}			
+				},
+				order: [[ 1, "desc" ]],
+				columns: [
+                            { data: 'id',name:'id' },
+				            { data: 'name',name:'name' },
+				            { data: 'pic',name:'pic',
+				            	render:function(value){
+				            		if(value!=""){
+				            		var picth='';
+				            		picth +='<img width="90px" height="100px" src="/upload/'+value+'" />';
+				            		return picth;
+				            		}else{
+				            			return null;
+				            		}
+				            	},
+				            	orderable:false
+				            	},
+				            { data: 'description',name:'description',
+				            	render:function(value){
+				            		var contents=value.substring(0,30);
+				            		return contents;
+				            	}
+				            	},
+				            { data : 'id',				            
+							  render : function(value){								
+								  var str = '';
+								  str += '<a title="清除关联医生" class="deldo" dataid="'+value+'" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  },
+							  orderable:false
+							 }
+				        ]
+			});
+	
+    	}	
+    	t.destroy();
+    }
+	
+	/**
+	 * 展示医生列表
+	 */
+	$('body').on('click','#newdoctor',function(){ 
+		$("#department_id").fillDepartment();
+		self.cmd(gHttp,{controller:'Doctor',method:'query'},function(re){
+				var str='';
+				$.each(re.rows, function(idx, obj) {
+					str+='<li class="clinic_item"><input type="radio" value="'+obj.id+'" name="doctorother" >&nbsp;'+obj.name+'</li>'; 
+				});															
+				$('#doctor_list').html(str);
+		});
+	})
+	
+	/**
+	 * 自动搜索
+	 */
+	$('#keywordin, #searchbu').on( 'keyup click change', function () { 
+		var name=$.trim($('#keywordin').val()); // getting search input value
+		var department_id = $("#department_id").val();  console.log(department_id);
+		self.cmd(gHttp,{controller:'Doctor',method:'query',name:name,department_id:department_id},function(re){
+				var str='';
+				$.each(re.rows, function(idx, obj) {
+					str+='<li class="clinic_item"><input type="radio" value="'+obj.id+'" calss="doctorother" >&nbsp;'+obj.name+'</li>'; 
+				});															
+				$('#doctor_list').html(str);
+		});
+	});
+	
+	/**
+	 * 设置关联医生
+	 */
+	$('body').on('click','#chooseitem',function(){
+		var reserve_id = $("#id").val();
+	    var doctor_id = $('#doctor_list').find("input[type='radio']:checked").val();
+	    self.cmd(gHttp,{controller:'Doctor',method:'updateReserve',id:doctor_id,reserve_id:reserve_id},function(re){
+	    	if(re.statu){
+	    		layer.msg('设置成功');
+	    		//console.log(reserve_id);
+	    		$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+				self.doctorrelate(reserve_id);
+	    		
+	    	}else{
+				layer.msg(re.msg, function(){					
+				}); 
+	    	}
+	   });
+	})
+
+	/**
+	 * 删除关联医生
+	 */
+	$('body').on('click','.deldo',function(){  
+		var reserve_id = $("#id").val();
+		var id=$(this).attr('dataid');
+		self.cmd(gHttp,{controller:'Doctor',method:'updateReserve',id:id,reserve_id:0},function(re){
+			if(re.statu){
+				layer.msg('操作成功',{icon:1});
+				self.doctorrelate(reserve_id);
+				
+				
+			}else{
+				layer.msg(re.msg,{icon:2}); 
+			}
+			
+		});
+		
+	});
+	
+	/**
+	 * 按科室获取医生
+	 */
+	this.docbydep = function(id){
+		if(typeof(id) != 'undefined'){
+			self.cmd(gHttp,{controller:'Doctor',method:'query',department_id:id},function(re){
+				var str='';
+				$.each(re.rows, function(idx, obj) {
+					str+='<li class="clinic_item"><input type="radio" value="'+obj.id+'" calss="doctorother" >&nbsp;'+obj.name+'</li>'; 
+				});															
+				$('#doctor_list').html(str);
+		});
+		}
+	}
+}

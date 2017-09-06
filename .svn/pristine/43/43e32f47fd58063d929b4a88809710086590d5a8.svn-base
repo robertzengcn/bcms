@@ -1,0 +1,24 @@
+{{include file="Common/header.html"}}
+    <link href="{{$RESOURCE}}/css/yangshi.css" rel="stylesheet" type="text/css">
+</div>
+<!--栏目开始 -->
+
+<!-- <div class="lanmu1">
+    <h2>康复案例</h2>
+</div> -->
+<div class="crumb" style="width:318px;margin:0 auto;background-color: #00632A;color: #fff;height: 37px;line-height: 37px;
+	text-indent: 10px;margin-top:40px;">当前位置：<a href="{{$MOBILE}}" style="color: #fff;">主页</a>&gt; <a href="{{$MOBILE}}/success.php?method=query" style="color: #fff;">康复案例</a>
+	</div>
+<div class="liebiao">
+    {{foreach from=$list item=value name=name}}
+    <div class="liebiao1">
+        <h3><a href="{{$MOBILE}}/success.php?method=get&id={{$value->id}}"><b>{{$value->subject}}</b></a></h3>
+        <p><a href="{{$MOBILE}}/success.php?method=get&id={{$value->id}}">{{$value->description|truncate:28}}</a>...</p>
+    </div>
+    {{/foreach}}
+</div>
+<div class="fenye">
+
+</div>
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/index_footer.html"}}

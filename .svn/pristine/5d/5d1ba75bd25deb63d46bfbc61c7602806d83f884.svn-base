@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+
+{{$dos=$DoctorTag->getDocByDepartment($id)}}
+
+<body>   
+<section id="body">
+	
+	{{foreach $dos as $key}}	
+    	<a href=""><article class="dmenu">
+        <img src="{{$UPLOAD}}{{$key->pic}}" width="50" height="50"><span></span>
+        <b><h1><a href="doctor.php?method=get&id={{$key->id}}">{{$key->name}}</a>&nbsp;&nbsp;&nbsp;{{$key->position}}</h1><h2>擅长：{{$key->content|strip_tags:false|truncate:20}}</h2></b>	
+        </article></a>
+	{{/foreach}}
+        
+        
+           
+    </section>
+    
+
+    
+</body>
+</html>

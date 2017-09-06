@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>{{$seo->title}}</title>
+<meta name="keywords" content="{{$seo->keywords}}" />
+<meta name="description" content="{{$seo->description}}" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+{{include file="Common/common.html"}}
+   <script type="text/javascript" src="{{$RESOURCE}}/js/ask.js"></script>
+</head>
+
+
+<body>
+<!-- header -->
+{{include file="Common/header.html"}}
+<div class="main w320">
+
+  
+ <!-- 主要内容-->
+  <div class="content"> 
+
+    <!-- 第四部分-->
+    <div class="part4">
+      <div class="part_til">在线问答</div>
+      <div class="part4_p w300">    
+            <form id="ask_form" name="addcontent" onsubmit="return check();" >
+                <input type="hidden" name="method" value="save" />
+                <p> <font class='ask-font1'>姓名：</font><input type="text" class="ask-input1" name="name" value=""></p>
+                <p><font class='ask-font1'>年龄：</font><input type="text" class="ask-input1" name="age" value=""></p>
+                <p><font class='ask-font1'>性别：</font><input type="radio" class="ask-input2" style="width:20px;color:black;" name="gender" value="1" checked="checked"/><label>男</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" class="ask-input2" style="width:20px;color:black;" name="gender" value="0" /><label>女</label>
+                </p>
+                <p><font class='ask-font1'>标题：</font><input type="text" class="ask-input1" name="subject" value=""></p>
+                <p><font class='ask-font1'>科室：</font><select class="ask-input1" name="departmentID" style="width:130px;">
+                    <option value="0">请选择科室</option>
+                    {{foreach $department as $v}}
+                    <option value="{{$v->id}}">{{$v->name}}</option>
+                    {{/foreach}}
+                    </select>
+                <p><font class='ask-font1'>疾病：</font><select class="ask-input1" name="diseaseID" style="width:130px;"></select>
+                </p>
+                
+                <font class='ask-font1'>内容：</font>
+                <div class="textarea1">
+                    	<textarea class="ask-text" name="description" style="width:230px;height:100px;"></textarea>
+                </div>
+
+                <div class="btn">
+                    <input class='ask-font1' id="submitBtn" type="submit" value="提 交" >
+                </div>
+            </form>      
+      
+      
+      
+      
+      
+      <div class="cle"></div>
+ 
+
+    
+      <div class="lianxi">
+        <a href="{{$contact.swt_link}}" target="_blank">
+        <img src="{{$RESOURCE}}/images/p45-1.jpg" width="112" height="32" /></a>
+        <a href="tel:{{$contact.tel}}">
+        <img src="{{$RESOURCE}}/images/p45.jpg" width="112" height="32" /></a> 
+      </div>
+        
+      </div>
+    </div>
+ 
+  </div>
+ 
+
+
+
+</div>
+
+
+
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</body>
+
+
+</html>

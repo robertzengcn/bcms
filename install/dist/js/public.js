@@ -1,0 +1,414 @@
+var LOAD       = 0;
+var TempLate   = '';//模版代码
+var ISTempLate = {};//是否已正确下载模版(以数组加模版ID为组合，记录是否已下载)
+/**
+ * 消息展示
+ * @param Msg
+ */
+function ShowMsg( Msg ) {
+	 layer.open({skin: 'demo-class',content: Msg})
+}
+/**
+ * 切换步骤
+ * @param Setp
+ */
+function SetpSwitch( Setp ) {
+	$("div.col-md-9 div").hide();
+	$("div#div_"+Setp).show();
+	$("div#div_"+Setp+" div").show();
+	ListSwitch( Setp );
+}
+/**
+ * 切换左侧动态栏目
+ * @param Setp
+ */
+function ListSwitch( Setp ){
+	var len = $('ul.list-unstyled li img').length;
+	for(var i = 1; i <= len ; i++){
+		$('img#left_img_' + i).attr('src','dist/img/' + i + i + '.png');
+	}
+	$('img#left_img_' + Setp ).attr('src','dist/img/' + Setp + '.png');
+	location.hash = 'setp?=' + Setp;
+}
+/**
+ * 执行实际安装过程
+ */
+function Install(){
+	//Begin:执行安装过程
+	LoadingStatus(1,'安装开始');
+	//install-1:配置数据库信息
+	LoadingStatus(2,'正在配置数据库信息');
+	Cmd('DB',function( result ){
+		//install-2:安装数据库结构(获取)
+		LoadingStatus(5,'正在安装数据库结构');
+		Cmd('DT',function( result ){
+			//install-2.1:安装数据库结构(分步安装)
+			DTD((result.msg.sum-1),0,function(){
+				//install-3:设置网站联系方式
+				LoadingStatus(65,'正在设置网站联系方式');
+				Cmd('HS',function( result ){
+					//install-4:设置管理员初始帐号密码信息
+					LoadingStatus(70,'正在初始化管理员账户信息');
+					Cmd('AD',function( result ){
+						//install-5:安装初始化数据
+						LoadingStatus(75,'正在安装初始化数据包');
+						Cmd('DD',function( result ){
+							//install-5:安装用户选择模版
+							LoadingStatus(80,'正在安装用户选择模版');
+							Cmd('TP',function( result ){
+								//install-6:生成网站页面
+								LoadingStatus(90,'正在生成网站页面');
+								Cmd('IN',function( result ){
+									//Begin:完成安装
+									LoadingStatus(100,'安装完成');
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+}
+/**
+ * 获取每一步所需数据
+ * @param Method
+ * @returns
+ */
+function GetData( Method ) {
+	var Data = {};
+	switch( Method ) {
+		case 'DB':
+			return $("#FORM_" + Method ).serialize();
+			break;
+		case 'HS':
+			return $("#FORM_" + Method ).serialize();
+			break;
+		case 'AD':
+			return $("#FORM_" + Method ).serialize();
+			break;
+		case 'DD':
+			if( $('input[name="dd_checkbox"]').is(":checked") ){
+				Data['install'] = 'true';
+			}else{
+				Data['install'] = 'false';
+			}
+			break;
+		case 'TP':
+			Data['id'] = TempLate;//模版id
+			break;
+		case 'IN':
+			Data['tp'] = TempLate;//模版id
+			break;
+	}
+	return Data;
+}
+/**
+ * 遍历表结构,进行安装活动
+ * @param sum
+ * @param i
+ * @param Function
+ */
+function DTD(sum,i,Function) {
+	$.ajax({
+		url   : '../install/install.inc.php?method=DTD',
+		data  : {i:i},
+		async : true,
+		cache : false,
+		type  : 'post',
+		dataType : 'json',
+		timeout : 80000,
+		error : function(obj,error){
+			if(error == 'timeout'){
+				ShowMsg('请求超时.');
+			}
+		},
+		success : function(result){
+			if( ! result.statu ) {
+				ShowMsg( result.msg );
+				LoadingStatus(0,'安装失败,请刷新页面重试!');
+				//安装失败后,同时显示回退按钮
+				$("#install_danger").show();
+			}else{
+				LOAD = 5 + i;
+				LoadingStatus( ( LOAD ) , result.msg );
+				if( sum > i ){
+					DTD(sum,i+1,Function);
+				}else{
+					Function( result );
+				}
+			}
+		}
+	});
+}
+/**
+ * AJAX动态安装流程
+ * @param Method
+ * @param Function
+ */
+function Cmd(Method,Function){
+	$.ajax({
+		url   : '../install/install.inc.php?method=' + Method,
+		data  : GetData( Method ),
+		async : true,
+		cache : false,
+		type  : 'post',
+		dataType : 'json',
+		timeout : 80000,
+		error : function(obj,error){
+			if(error == 'timeout'){
+				ShowMsg('请求超时,请刷新页面重试!');
+			}
+		},
+		success : function(result){
+			if( ! result.statu ) {
+				ShowMsg( result.msg );
+				LoadingStatus(0,'安装失败,请刷新页面重试!');
+				//安装失败后,同时显示回退按钮
+				$("#install_danger").show();
+			}else{
+				Function(result);
+			}
+		}
+	});
+}
+/**
+ * 进度条状态实时更新(安装)
+ * @param Percent
+ * @param Trip
+ */
+function LoadingStatus( Percent , Trip ) {
+	var d    = new Date();
+	var strD = "["+d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+"] ";
+	$('.progress-bar-install').css('width',Percent+'%');
+	$('.progress-bar-install').html( Percent + '%' );
+	$('#div_5 div.panel-heading').html( Trip );
+	if( $('#div_5 textarea').val() == '' ){
+		$('#div_5 textarea').val( strD + Trip + "...\r\n" );
+	}else{
+		$('#div_5 textarea').val( strD + Trip  + "\r\n" + $('#div_5 textarea').val());
+	}
+	if( 100 == Percent ) {
+		Install_Success();
+	}
+}
+/**
+ * 进度条状态实时更新(模版下载)
+ * @param Percent
+ */
+function LoadingStatusTemplate( Percent , Trip ){
+	$('.progress-bar-template').css('width',Percent+'%');
+	$('.progress-bar-template').html( Trip );
+}
+/**
+ * 模版下载成功
+ * @param id
+ */
+function TemplateDownloadSuccess( id ){
+	ISTempLate[id] = true;
+	LoadingStatusTemplate( 100 , "模版下载成功,请点击下一步以继续安装." );
+}
+/**
+ * 所有流程安装成功
+ */
+function Install_Success(){
+	//如不选择模版,则只显示后台按钮
+	if( TempLate == '' || TempLate == 'none' ){
+		$('#setp6_button_index').hide();
+	}
+	SetpSwitch( 6 );
+}
+/**
+ * 安装界面载入
+ */
+$(document).ready(function(){
+	//默认页面
+	SetpSwitch( 1 );
+	//setp1(下一步):
+	$('#setp1_button_next').click(function(){
+		if( $('input[name="readed"]').is(":checked") ){
+			SetpSwitch( 2 );
+		}else{
+			ShowMsg('您必须同意此协议才能继续安装.');
+			return false;
+		}
+	});
+	//setp2(上一步):
+	$('#setp2_button_prev').click(function(){
+		SetpSwitch( 1 );
+	});
+	//setp2(下一步)：
+	$('#setp2_button_next').click(function(){
+		//版本是否正常
+		if( $.trim( $('#php_version').val() ) == '530' ) {
+			ShowMsg('安装失败：PHP版本必须 >= 5.3.0 ');return false;
+		}
+		SetpSwitch( 3 );
+	})
+	//setp3(上一步):
+	$('#setp3_button_prev').click(function(){
+		SetpSwitch( 2 );
+	});
+	//setp3(下一步)：
+	$('#setp3_button_next').click(function(){
+		/* 数据库链接信息 */
+		var DBHOST = $('input[name="DBHOST"]').val();
+		var DBUSER = $('input[name="DBUSER"]').val();
+		var DBNAME = $('input[name="DBNAME"]').val();
+		if( DBHOST == '' ){ShowMsg('请填写数据库链接地址');return false;}
+		if( DBNAME == '' ){ShowMsg('请填写数据库名称');return false;}
+		if( DBUSER == '' ){ShowMsg('请填写数据库链接用户名');return false;}
+		/* 检测数据库能否正常链接 */
+		$.ajax({
+			url   : '../install/install.inc.php?method=TESTCONNECT',
+			data  : GetData( 'DB' ),
+			async : true,
+			cache : false,
+			type  : 'post',
+			dataType : 'json',
+			timeout : 80000,
+			error : function(obj,error){
+				if(error == 'timeout'){
+					ShowMsg('请求超时,请刷新页面重试!');
+				}
+			},
+			success : function(result){
+				/* 验证数据库链接与创建情况 */
+				if( ! result.statu ) {
+					ShowMsg( result.msg );
+				}else{
+					/* 管理员账户信息 */
+					var AD_USER   = $('input[name="AD_USER"]').val();
+					var AD_PASS   = $('input[name="AD_PASS"]').val();
+					var AD_REPASS = $('input[name="AD_REPASS"]').val();
+					if( AD_USER == '' ){ShowMsg('请填写后台超级管理员账户名称');return false;}
+					if( AD_PASS.length < 6 ){ShowMsg('密码长度不得小于6位');return false;}
+					if( AD_PASS == '' || ( AD_PASS != AD_REPASS ) ){ShowMsg('请正确输入密码与确认密码');return false;}
+					SetpSwitch( 4 );
+					/* 隐藏下载模版下载框 */
+					$('#template_div_download').hide();
+				}
+			}
+		});
+	})
+	//setp4(上一步)
+	$('#setp4_button_prev').click(function(){
+		SetpSwitch( 3 );
+	});
+	//setp4(模版被选择)
+	$('div.template').click(function(){
+		$('div.template .thumbnail').removeClass('template_select');
+		$('div.template:eq('+ $(this).index() +') .thumbnail').addClass('template_select');
+		TempLate = $(this).attr('id');
+	});
+	//setp4(下一步)
+	$('#setp4_button_next').click(function(){
+		if( $('input[name="templateSelect"]').is(":checked") ){
+			TempLate = "none";/* 不需要模版 */
+		}else{
+			if( TempLate == '' ) {
+				ShowMsg('请选择一套你喜欢的模版风格!');return false;
+			}
+			if( ! ISTempLate[ TempLate ] ){
+				/* 启动下载机制 */
+				$('div#template_div_download').show();
+				LoadingStatusTemplate(1,'准备下载...');
+				$('#template_download').attr('src','./download.php?id=' + TempLate);
+				return true;
+			}
+		}
+		SetpSwitch( 5 );
+		Install();
+	});
+	//setp6(前台)
+	$('#setp6_button_index').click(function(){
+		location.href = '/index.html?from=install';
+	});
+	//setp6(后台)
+	$('#setp6_button_admin').click(function(){
+		location.href = '/hcc/index.html';
+	});
+	
+	
+	//输入数据库密码光标移开
+	$('input[name="DBPASSWORD"]').blur(function(){
+		check_roor_pass();
+	});
+	$('input[name="DBNAME"]').blur(function(){
+		check_roor_pass();
+	});
+})
+/*
+ * 输入数据库密码光标移开后检测数据库帐号密码是否正确 
+ */
+function check_roor_pass(){
+	/* 数据库链接信息 */
+	var DBHOST = $('input[name="DBHOST"]').val();
+	var DBUSER = $('input[name="DBUSER"]').val();
+	var DBNAME = $('input[name="DBNAME"]').val();
+	/* 检测数据库能否正常链接 */
+	$.ajax({
+		url   : '../install/install.inc.php?method=TESTCONNECT&mode=test',
+		data  : GetData( 'DB' ),
+		async : true,
+		cache : false,
+		type  : 'post',
+		dataType : 'json',
+		timeout : 80000,
+		error : function(obj,error){
+			if(error == 'timeout'){
+				ShowMsg('请求超时,请刷新页面重试!');
+			}
+		},
+		success : function(result){
+			/* 验证数据库链接与创建情况 */
+			if( ! result.statu ) {
+				$('span.must_red_dbpassword').html( "<font color='red'>*" + result.msg + "</font>" );
+			}else{
+				$('span.must_red_dbpassword').html( "<font color='green'>*数据库链接正确!</font>" );
+			}
+		}
+	});
+}
+
+/*
+*验证密码的合法性
+*/
+
+$(document).ready(function(){
+							   
+	$("input[name='AD_USER']").change(function(){	   
+		var value=$(this).val();
+		var reg = /^[A-Za-z]{1}[A-Za-z0-9]+$/; 
+		if(!reg.test(value)){
+			$(this).next("span").html("*用户名必须是英文或数字，以字母开头！").css("color","red");		
+		}
+		else{
+			$(this).next("span").html("*&nbsp;用户名必须以字母开头").css("color","black");
+		}
+	});					   
+	$("input[name='AD_PASS']").change(function(){
+		var value=$(this).val();
+		var reg = /^[A-Za-z0-9]+$/; 
+		if(value.length<6){
+			$(this).next("span").html("*密码不得小于6位！").css("color","red");
+			}
+		else if(!reg.test(value)){
+			$(this).next("span").html("*密码必须是英文或数字，以字母开头！").css("color","red");		
+		}
+		else{
+			$(this).next("span").html("*&nbsp;密码不得小于6位").css("color","black");
+		}
+	});
+	$("input[name='AD_REPASS']").change(function(){
+		var value=$(this).val();
+		var fval=$("input[name='AD_PASS']").val();
+		if(value!=fval){
+			$(this).next("span").html("*两个密码不一致！").css("color","red");	
+		}
+		else{
+			$(this).next("span").html("*&nbsp;前后密码必须一致").css("color","black");
+		}								   
+	});
+	
+	});

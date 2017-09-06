@@ -1,0 +1,57 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link type="text/css" rel="stylesheet" href="{{$RESOURCE}}/css/keshi.css">
+
+</head>
+
+<body>
+{{include file="Common/right.html"}}
+
+<script>
+$(".print img").hide().eq(0).show()
+$("#position li").removeClass("on").eq(0).addClass("on")
+var n =0
+function time(){
+	(n<$(".print img").length-1)?n=n+1:n=0
+	$("..print img").hide().eq(n).fadeIn(500)
+	$("#position li").removeClass("on").eq(n).addClass("on")
+}
+t=setInterval(time,4000)
+$("#print_box").mouseenter(function(){
+	clearInterval(t)	
+}).mouseleave(function(){
+	t=setInterval(time,4000)
+})
+
+$("#position li").click(function(){
+	n=$(this).index()
+	$(".print img").hide().eq(n).fadeIn(500)
+	$("#position li").removeClass("on").eq(n).addClass("on")
+	})
+</script> 
+{{$doc=$PicManagerTag->getMobilePic(appkeshi,app)}}
+<img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+
+
+<div id="menu_box">
+     <ul>
+	{{$department=$DepartmentTag->get($id)}}
+	{{$Diseases = $DiseaseTag->getByDeparment($department->id)}}
+	{{foreach from=$Diseases key=key item=v}}
+	{{if $key<12}}
+    	<li class="btn{{$key+1}}"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$v->id}}">{{$v->name|truncate:5}}</a></li>
+    	{{/if}}
+	{{/foreach}}
+	{{$data = array(1,2,3,4,5,6,7,8,9,0,1,2)}}   
+	{{section name=button loop=$data start=$key}}
+	{{$key=$key+1}}
+	{{if $key<12}}
+	<li class="btn{{$key+1}}"><a>&nbsp;</a></li>
+	{{/if}}
+	{{/section}} 		
+    </ul>
+</div>
+</body>
+</html>

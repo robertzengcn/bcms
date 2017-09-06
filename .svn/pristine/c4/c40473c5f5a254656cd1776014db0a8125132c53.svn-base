@@ -1,0 +1,584 @@
+/**
+ * 专题制作
+ * */
+
+function Topic() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.init = function() {
+		$(function(){
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			
+			//默认本地模板
+			self.getLocalTemplateList();
+			
+			$(".tabBar span").click(function(){
+				var index = $(this).index();
+				switch(index) {
+					case 0:
+						//本地模板
+						self.getLocalTemplateList();
+						break;
+					case 1:
+						//在线模板
+						self.getRemoteTemplateList();
+						break;
+					case 2:
+						//上传模板
+						self.readPostMaxValue();
+						break;
+				}
+			});
+		});
+	}
+
+	// }}}
+	// {{{ function initList()
+	
+	/**
+	 * 初始化专题列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	// }}}
+// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Topic',method:'query'},
+			order : false,
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+			            { data: 'subject' },
+			            { data: 'description',render:function(value){return value.substr(0,60)+'...';}},
+			            { data: 'link' },
+			            { data: 'plushtime' },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var viewUrl = "/controller/?controller=ViewHtml&method=topic&op=topic&id="+row['topiclistid']+"&html="+row['url']+"|"+row['link']+"|"+row['id'];
+							  var str = '';
+							  str += '<a style="text-decoration:none" target="_blank" href="'+viewUrl+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>'; 
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gTopic.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gTopic.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+	// {{{ function del()
+	
+	/**
+	 * 单个删除
+	 * */
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'Topic',method:'del',id:id});
+	}
+	
+	// }}}
+	// {{{ function delBatch()
+	
+	/**
+	 * 批量删除
+	 * */
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Topic',method:'del',id:ids});
+	}
+
+	// }}}
+	// {{{ function edit()
+	
+	/**
+	 * 动态编辑
+	 * */
+	this.edit = function(id){
+		self.openEdit('编辑专题','topic-edit.html?id=' + id);
+	}
+	
+	// }}}
+	// {{{ function save()
+	
+	/**
+	 * 保存
+	 * */
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Topic',method:'add'};
+		} else {
+			post = {controller:'Topic',method:'edit',id:id};
+		}
+		$('#formEdit').frmPost(post,function(result1){
+			if(result1.statu){				
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.alert('操作成功!',{icon: 1});	
+				layer_close();
+				
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+			return false;
+		});
+	}
+	
+	// }}}
+	// {{{ function templateSwitch
+	
+	/**
+	 * 模版切换操作
+	 */
+	this.templateSwitch = function ( used , acls ){
+		if( $('#template_div_'+used+' a.atxt').html() == '当前使用' ){
+			layer.alert('当前正在使用该模版');return true;
+		}
+		if( ! confirm('确定要使用该模版吗?') ){
+			return true;
+		}
+		$("#loading").addClass("loading");
+		self.cmd(gHttp,{controller:'Template',method:'templateSwitch',used:used},function(result){
+			switch(result.statu){
+				case true:
+					$('.template_div').removeClass('templateList');
+					$('.template_div').removeClass('templateList_used');
+					$('.template_div').addClass('templateList');
+					$('.template_div a.atxt').html('使用');
+					$('.template_div a.atxt').css('color','#666');
+					$('#template_div_'+used+' a.atxt').css('color','#CD5C5C');
+					$('#template_div_'+used+' a.atxt').html('当前使用');
+					$('#template_div_'+used).addClass('templateList_used');
+					break;
+				case false:
+					layer.alert(result.msg);return true;
+					break;
+				default:
+					break;
+			}
+			$("#loading").removeClass("loading");
+		});
+	}
+	
+	// }}}
+	// {{{ function templateDelete
+	
+	/**
+	 * 模版删除操作
+	 */
+	this.templateDelete = function ( used ) {
+		layer.confirm('确定删除该模板吗？', {icon: 3, title:'提示'}, function(index) {
+			self.cmd(gHttp,{controller:'Template',method:'templateDelete',used:used},function(result){
+				switch(result.statu){
+					case true:
+						$('#template_div_'+used).hide(1000,function(){
+							$('#template_div_'+used).remove();
+						});
+						break;
+					case false:
+						layer.alert('删除失败：' + result.msg);
+						break;
+					default:
+						break;
+				}
+				layer.close(index);
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function bindItemEvent()
+	
+	this.bindItemEvent = function() {
+		$('li.item').on('mouseenter',function(){
+			$(this).find('div.temp-title').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.temp-title').stop().animate({height:"0px"});
+		});
+	}
+	
+	// }}}
+	// {{{ function templateTabSwitch()
+	
+	/**
+	 * 此方法暂时未用
+	 * 选项卡切换以及切换后的连续动作
+	 * @param index
+	 */
+	this.templateTabSwitch = function ( index ) {
+		$('.unitBox').hide();
+		$('.unitBox:eq('+index+')').show();
+		var idName = $('.unitBox:eq('+index+')').attr('id');
+		switch(idName){
+			//切换到本地模版选项卡
+			case 'template_unitBox':
+				getLocalTemplateList();
+				break;
+			//切换到在线模版选项卡
+			case 'remote_unitBox':
+				getRemoteTemplateList();
+				break;
+			//切换到上传模版
+			case 'upload_unitBox':
+				readPostMaxValue();
+				break;
+			//切换到本地模版选项卡
+			case 'local_topic_unitBox':
+				getLocalRemoteTopicList();
+				break;
+			//切换到在线专题模版
+			case 'remote_topic_unitBox':
+				getRemoteTopicList();
+				break;
+			//切换到上传专题模版
+			case 'upload_topic_unitBox':
+				readPostMaxValue();
+				break;
+			default:break;
+		}
+	}
+	
+	// }}}
+	// {{{ function template_titleSwitch()
+	
+	/**
+	 * 卡片切换
+	 */
+	this.template_titleSwitch = function ( index ) {
+		$('.template_title a').removeClass('used');
+		$('.template_title a:eq('+index+')').addClass('used');
+	}
+	
+	// }}}
+	// {{{ function getLocalTemplateList()
+	
+	/**
+	 * 获取本地模版
+	 */
+	this.getLocalTemplateList = function (){
+		var index = layer.msg('正在加载本地模版,请稍后...');
+		self.cmd(gHttp,{controller:'Template',method:'getLocalTemplateList'},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';var cls = '';var acls = '';var atxt = '';
+				for(var i = 0 ; i < len ; i++){
+					switch(result.data[i].currentUsed){
+						case 0:
+							cls  = '';
+							acls = '';
+							atxt = '使用';
+							break;
+						case 1:
+							cls  = 'style="color:red;"';
+							acls = 'used';
+							atxt = '当前使用';
+							break;
+					}
+					
+					html += '<li class="item" id="template_div_'+result.data[i].config.Shorthand+'">';
+					html += '<div class="Tdetial">';
+					html += '<div class="temp-title text-l">'+ result.data[i].config.Name +'</div>';							
+					html += '<div class="picbox">';									
+					html += '<img src="'+ result.data[i].config.Face +'"/>';								
+					html += '</div>';
+					html += '<div class="bt-area">';
+					html += '<a href="javascript:;" ' + cls + ' onclick="templateSwitch(\''+result.data[i].config.Shorthand+'\',\''+acls+'\');">' + atxt + '</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTemplate.templateDelete(\''+result.data[i].config.Shorthand+'\');">删除</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTemplate.viewImg(\'图片预览\',\''+ result.data[i].config.Screenshot+'\');">预览</a>';
+					html += '</div>';							
+					html += '</div>';
+					html += '</li>';
+				}
+				$('#template_unitBox').empty().append( html );
+				self.bindItemEvent();
+				layer.close(index);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function getRemoteTemplateList()
+	
+	/**
+	 * 获取在线模版
+	 */
+	this.getRemoteTemplateList = function (){
+		var index = layer.msg('正在加载在线模版,请稍后...');
+		self.cmd(gHttp,{controller:'Template',method:'getRemoteTemplateList'},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';var cls = '';var acls = '';var atxt = '';
+				for(var i = 0 ; i < len ; i++){
+					html += '<li class="item">';
+					html += '<div class="Tdetial">';
+					html += '<div class="temp-title text-l">'+result.data[i].pro_name+'</div>';								
+					html += '<div class="picbox">';									
+					html += '<img src="'+ result.data[i].cover +'"/>';								
+					html += '</div>';
+					html += '<div class="bt-area">';
+					html += '<a href="javascript:;" onclick="gTemplate.viewImg(\'图片预览\',\''+result.data[i].view+'\');">预览</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTemplate.getRemoteProductAuth('+result.data[i].id+',\'在线安装\',4);">安装</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTemplate.getRemoteProductAuth('+result.data[i].id+',\'下载\',2);">下载</a>';
+					html += '</div>';
+					html += '</div>';
+					html += '</li>';
+					
+				}
+				$('#remote_unitBox').empty().append( html );
+				self.bindItemEvent();
+				layer.close(index);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function getLocalRemoteTopicList()
+	
+	/**
+	 * 获取本地专题模版
+	 */
+	this.getLocalRemoteTopicList = function (){
+		$('div.unitBox').hide();
+		$('p.load_p').html('正在加载本地专题模版,请稍后...');
+		templateLoadding('load');
+		self.cmd(gHttp,{controller:'Topic',method:'getLocalRemoteTopicList'},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';
+				for(var i = 0 ; i < len ; i++){
+					html += '<div class="template_div templateList">';
+						html += '<dl title="'+result.data[i].Title+'" tag="'+result.data[i].Title+'">';
+							html += '<dt>'+ result.data[i].Title +'</dt>';
+							html += '<dd><img src="'+ result.data[i].Face +'" /></dd>';
+							html += '<dd class="btn">';	
+								html += '<a href="javascript:;" style="display:inline-block;padding-top:5px;" onclick="localTopicDelete(\''+result.data[i].ID+'\');">删除</a> ';
+							html += '</dd>';
+						html += '</dl>';
+					html += '</div>';
+				}
+				templateLoadding('remove');
+				$('#local_topic_unitBox').empty().append( html );
+			}
+		});
+		templateLoadding('remove');
+		$('#local_topic_unitBox').show();
+	}
+	
+	// }}}
+	// {{{ function localTopicDelete()
+	
+	/**
+	 * 本地专题模版删除
+	 */
+	this.localTopicDelete = function (id){
+		if(confirm('确定删除该模版吗？')){
+			self.cmd(gHttp,{controller:'Topic',method:'deleteLocalRemoteTopicList',id:id},function(result){
+				layer.alert('专题模版删除成功!');
+				templateTabSwitch( 3 );
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function getRemoteTopicList()
+	
+	/**
+	 * 获取在线专题模版
+	 */
+	this.getRemoteTopicList = function (){
+		$('div.unitBox').hide();
+		$('p.load_p').html('正在加载在线专题模版,请稍后...');
+		templateLoadding('load');
+		$('div.template_div').remove();
+		self.cmd(gHttp,{controller:'Template',method:'getRemoteTopicList'},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';var cls = '';var acls = '';var atxt = '';
+				for(var i = 0 ; i < len ; i++){
+					html += '<div class="template_div templateList">';
+						html += '<dl title="'+result.data[i].pro_name+'" tag="'+result.data[i].pro_name+'">';
+							html += '<dt>'+ result.data[i].pro_name +'</dt>';
+							html += '<dd><img src="'+ result.data[i].cover +'" /></dd>';
+							html += '<dd class="btn">';	
+								html += '<a href="javascript:;" onclick="getRemoteProductAuth('+result.data[i].id+',\'下载\',2);">下载</a> | ';
+								html += '<a href="javascript:;" onclick="gTemplate.picView(\''+result.data[i].view+'\');">预览</a> | ';
+								html += '<a href="javascript:;" onclick="getRemoteProductAuth('+result.data[i].id+',\'在线安装\',5);">在线安装</a>';
+							html += '</dd>';
+						html += '</dl>';
+					html += '</div>';
+				}
+				templateLoadding('remove');
+				$('#remote_unitBox').empty().append( html );
+			}
+		});
+		templateLoadding('remove');
+		$('#remote_unitBox').show();
+	}
+	
+	// }}}
+	// {{{ function productInstall()
+	
+	/**
+	 * download页面下载成功后进行回调
+	 * @param zipFile
+	 */
+	this.productInstall = function ( zipFile ){
+		layer.msg('正在安装模版,请稍后...');
+		self.cmd(gHttp,{controller:'Template',method:'templateInstall',zipFile:zipFile},function(result){
+			if(result.statu){
+				layer.closeAll();
+				layer.alert('已完成产品安装!',function(index) {
+					layer.close(index);
+					
+					$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+					//默认本地模板
+					self.getLocalTemplateList();
+				});
+			}else{
+				layer.alert(result.msg);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function templateLocalUpload()
+	
+	/**
+	 * 模版安装包上传之后
+	 * @param boolean
+	 * @param zip
+	 */
+	this.templateLocalUpload = function (boolean,zip,msg){
+		if(boolean){
+			$('#template_upload_url').val( zip );
+			$('div.trip').show(1500);
+		}else{
+			layer.alert(msg);
+		}
+	}
+	
+	// }}}
+	// {{{ function template_zip_install()
+	
+	/**
+	 * 安装模版包
+	 */
+	this.template_zip_install = function (){
+		var thisResult = result;
+		$("#loading").addClass("loading");
+		var url = $('#template_upload_url').val();
+		if(url != ''){
+			self.cmd(gHttp,{controller:'Template',method:'templateInstall',zipFile:url},function(result){
+				switch(result.statu){
+					case true:
+						$('div.trip').hide(1500);
+						$('#template_upload_url').val('');
+						templateTabSwitch(0);
+						template_titleSwitch(0);
+						$("#tempSelectG_1").html('<option value="88">请选择</option><option value="0" selected="selected">本地模版</option><option value="1">在线模版</option><option value="2">上传模版安装包</option>');
+						$("#tempSelectG_2").html('<option value="89">请选择</option><option value="3">本地专题</option><option value="4">在线专题</option><option value="5">上传专题安装包</option>');
+						break;
+					case false:
+						layer.alert('安装失败：' + result.msg);
+						break;
+					default:
+						break;
+				}
+				$("#loading").removeClass("loading");
+				$('div.trip').hide(1500);
+			});
+		}else{
+			$("#loading").removeClass("loading");
+		}
+	}
+	
+	// }}}
+	// {{{ function template_zip_delete()
+	
+	/**
+	 * 上传了但不需要进行安装，所以进行删除临时存放包
+	 */
+	this.template_zip_delete = function (){
+		$("#loading").addClass("loading");
+		var url = $('#template_upload_url').val();
+		if(url != ''){
+			self.cmd(gHttp,{controller:'Template',method:'templateZipDelete',zipFile:url},function(result){
+				switch(result.statu){
+					case true:
+						layer.alert('删除成功');
+						$('#template_upload_url').val('');
+						break;
+					case false:
+						layer.alert(result.msg);
+						break;
+					default:
+						break;
+				}
+				$("#loading").removeClass("loading");
+				$('div.trip').hide(1500);
+			});
+		}else{
+			$("#loading").removeClass("loading");
+		}
+	}
+	
+	// }}}
+	// {{{ function templateLoadding()
+	
+	/**
+	 * loadding操作
+	 */
+	this.templateLoadding = function ( flag ) {
+		switch(flag){
+		case 'load':
+			$('div#loadding_unitBox').fadeIn(500);
+			break;
+		case 'remove':
+			$('div#loadding_unitBox').fadeOut();
+			break;
+		}
+	}
+	
+	// }}}
+	// {{{ function readPostMaxValue()
+	
+	/**
+	 * 读取最大post上传限制
+	 */
+	this.readPostMaxValue = function () {
+		self.cmd(gHttp,{controller:'Template',method:'readPostMaxValue'},function(result){
+			if(result.statu){
+				$('#post_max_value').html(result.data);
+			}
+		});
+	}
+	
+	// }}}
+}

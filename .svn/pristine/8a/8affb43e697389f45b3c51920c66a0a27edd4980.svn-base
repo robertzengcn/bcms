@@ -1,0 +1,397 @@
+<?php
+
+class ArticleService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->dao = new ArticleDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $articles = $this->dao->getBatch($ids);
+
+        $files = array();
+        $this->dao->beginTrans();
+        $recommendDao = new RecommendListDAO();
+        try {
+            foreach ($articles as $article) {
+                $filename = GENERATEPATH . 'article/' . $article->id . '.html';
+                if ($article->id == 0) {
+                    throw new ValidatorException('78');
+                }
+                $files[] = $filename;
+                $recommendDao->deleteById('article_id', $article->id);
+            }
+
+            foreach ($files as $file) {
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+            $this->dao->deleteBeans($articles);
+            $this->dao->commitTrans();
+        } catch (ValidatorException $ve) {
+            $this->dao->rollbackTrans();
+            throw new ValidatorException($ve->getCode());
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $article
+     * @return Result
+     */
+    public function get($article) {
+        if (! $article->id) {
+            throw new ValidatorException(7);
+        }
+
+        $this->dao->get($article->id, $article);
+        if ($article->pic) {
+            $article->src = UPLOAD . $article->pic;
+        }
+
+        $recommendListDao = new RecommendListDAO();
+        $article->recommendlist = $recommendListDao->getById('article_id', $article->id);
+        $tagsService = new TagService();
+        $article->tags = $tagsService->getTags($article->plushtime);
+
+        return $this->success($article);
+    }
+
+    /**
+     * 获取相关数据
+     *
+     * @return Result
+     */
+    public function getAssociatedData() {
+        $departmentDao = new DepartmentDAO();
+        $departments = $departmentDao->getDepartments();
+
+        $diseaseDao = new DiseaseDAO();
+        $disease = $diseaseDao->getAllDisease();
+
+        $doctorDao = new DoctorDAO();
+        $doctors = $doctorDao->getDoctors();
+
+        $recommendPositionDao = new RecommendPositionDAO();
+        $recommendPosition = $recommendPositionDao->getList();
+
+        $array = array();
+        $array['departments'] = $departments;
+        $array['disease'] = $disease;
+        $array['doctors'] = $doctors;
+        $array['recommendposition'] = $recommendPosition;
+
+        return $this->success($array);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @param string $flag
+     *            标识(可用于makehtml)
+     * @return Result
+     */
+    public function query($where, $flag = '') {
+        $articles = $this->dao->query($where, $flag);
+        /* foreach ($articles as $key => $value) {
+            $value->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+        } */
+
+        return $this->success($articles);
+    }
+
+    /**
+     * 根据ids获取对象数据
+     */
+    public function getByIds() {
+        $articles = $this->dao->getByIds();
+
+        $departmentsDao = new DepartmentDAO();
+        $diseaseDao = new DiseaseDAO();
+        $doctorDao = new DoctorDAO();
+        $workerService = new WorkerService();
+
+        foreach ($articles as $key => $value) {
+            //$value->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+            $departments = new Department();
+            $departments->id = $value->department_id;
+            $departmentsDao->getDepartmentByID($departments);
+            $value->department = $departments->name;
+            $value->disease = $diseaseDao->getDiseaseById($value->disease_id);
+            $value->doctor = $doctorDao->getDoctorById($value->doctor_id);
+
+            $worker = new Worker();
+            $worker->id = $value->worker_id;
+            $result = $workerService->get($worker);
+            $value->author = $result->data->name;
+        }
+
+        return $this->success($articles);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $para
+     * @return Result
+     */
+    public function totalRows($where) {
+        if ($_SESSION['group'] == 2) {
+            $where['worker_id'] = $_SESSION['id'];
+        }
+
+        $totalRows = $this->dao->totalRows($where);
+
+        return $this->success($totalRows);
+    }
+
+    /**
+     * 获得统计
+     */
+    public function getStat($para) {
+        $para['end_time'] = $para['end_time'];
+
+        if ($_SESSION['group'] == 2) {
+            $para['worker_id'] = $_SESSION['id'];
+        }
+        $totalRows = $this->dao->totalRows($para);
+
+        $days = floor(($para['end_time'] - $para['start_time']) / 24 / 3600 + 1);
+        $begin = $para['start_time'];
+        $step = floor($days / 7) + 1;
+        $title = date('Y-m-d', $para['start_time']) . '~' . date('Y-m-d', $para['end_time']) . '的资讯文章发布统计图';
+        $statData = array();
+        for ($i = 0; $i < $days; $i ++) {
+            $start = $begin + $i * 86400;
+            $para['end_time'] = $start + 86399;
+            $para['start_time'] = $start;
+            $statData['categories'][$i] = date('Y-m-d', $start);
+
+            $result = $this->dao->totalRows($para);
+
+            $data[$i] = array(
+                date('Y-m-d', $start),
+                $result
+            );
+        }
+
+        $statData['data'] = array(
+            'name' => '资讯文章发表数',
+            'data' => $data,
+            'tooltip' => '篇'
+        );
+        $statData['step'] = $step;
+        $statData['title'] = $title;
+
+        return $this->success(array(
+            $totalRows,
+            $statData
+        ));
+    }
+
+    /**
+     * 获得各种情况下的总数
+     *
+     * @param array $para
+     * @return Result
+     */
+    public function otherRows() {
+        $data = array();
+        // 获得今日时间
+        $today = date('Y-m-d', time());
+        $time = strtotime($today);
+        $data['today_start'] = $time;
+        $data['today_end'] = $time + 24 * 3600 - 1;
+
+        // 获得昨日时间
+        $data['yestoday_start'] = $time - 24 * 3600;
+        $data['yestoday_end'] = $time - 1;
+
+        // 获得本周时间
+        if (date('w') == 0) {
+            $week = mktime(0, 0, 0, date('m'), date('d') - 6, date('y'));
+        } else {
+            $week = mktime(0, 0, 0, date('m'), date('d') - date('w') + 1, date('y'));
+        }
+        $data['week_start'] = $week;
+        $data['week_end'] = $week + 7 * 24 * 3600 - 1;
+
+        // 获得本月时间
+        $month = mktime(0, 0, 0, date('m'), 1, date('y'));
+        $day = date('t'); // 月份中的天数
+        $data['month_start'] = $month;
+        $data['month_end'] = $month + $day * 24 * 3600 - 1;
+
+        if ($_SESSION['group'] == 2) {
+            $data['worker_id'] = $_SESSION['id'];
+        }
+        $totalRows = $this->dao->otherRows($data);
+
+        return $this->success($totalRows);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $article
+     * @return Result
+     */
+    public function save($article) {
+        $article->plushtime = time();
+        $article->updatetime = time();
+        $article->validate(); // 数据校验
+        $article->click_count = rand(30, 1000);
+        $article->worker_id = isset($_SESSION['id']) ? $_SESSION['id'] : 0;
+
+        $this->dao->beginTrans();
+        try {
+            $tagsService = new TagService();
+            $tagsService->tagsSave($article->plushtime);
+
+            // 获取class对象并插入数据
+            $this->dao->save($article);
+            $recommendListDAO = new RecommendListDAO();
+            if (isset($_REQUEST['recommendposition'])) {
+                $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+                $recommendposition = $_REQUEST['recommendposition'];
+                foreach ($recommendposition as $value) {
+                    if (is_numeric($value)) {
+                        $recommendlist = new RecommendList();
+                        $recommendlist->is_top = $article->is_top;
+                        $recommendlist->recommendposition_id = $value;
+                        $recommendlist->article_id = $article->id;
+                        $recommendlist->is_tomobile = $is_tomobile;
+                        $recommendListDAO->save($recommendlist);
+                    }
+                }
+            }
+
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $article
+     * @return Result
+     */
+    public function update($article) {
+        $article->updatetime = time();
+        $article->validate(); // 数据校验
+        $article->worker_id = $_SESSION['id'];
+        if (! $article->id) {
+            throw new ValidatorException(7);
+        }
+
+        $this->dao->beginTrans();
+        try {
+
+            $tagsService = new TagService();
+            $tagsService->tagsClear($article->plushtime);
+            $tagsService->tagsSave($article->plushtime);
+
+            $result = $this->dao->update($article);
+
+            $recommendListDAO = new RecommendListDAO();
+            $recommendListDAO->deleteById('article_id', $article->id);
+
+            if (isset($_REQUEST['recommendposition'])) {
+                $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+                $recommendposition = $_REQUEST['recommendposition'];
+                foreach ($recommendposition as $value) {
+                    if (is_numeric($value)) {
+                        $recommendlist = new RecommendList();
+                        $recommendlist->is_top = $article->is_top;
+                        $recommendlist->recommendposition_id = $value;
+                        $recommendlist->article_id = $article->id;
+                        $recommendlist->is_tomobile = $is_tomobile;
+                        $recommendListDAO->save($recommendlist);
+                    }
+                }
+            }
+
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * 获取各种条件推荐文章
+     */
+    public function getRecommend($field, $ids, $order) {
+        return $this->dao->getRecommend($field, $ids, $order);
+    }
+
+    /**
+     * Enter description here .
+     * ..
+     *
+     * @param unknown_type $disease_id
+     */
+    public function getByDisease($disease_id) {
+        $array = $this->dao->getByDisease($disease_id);
+
+        return $this->success($array);
+    }
+
+    /**
+     * 根据科室获取资讯
+     *
+     * @param unknown_type $deparment_id
+     * @return Result
+     */
+    public function getByDepartmentID($deparment_id, $page, $limit, $order) {
+        $array = $this->dao->getByDepartmentID($deparment_id, $page, $limit, $order);
+
+        return $this->success($array);
+    }
+
+    /**
+     * 获取热点文章
+     *
+     * @param unknown_type $limit
+     */
+    public function getByClick($limit) {
+        return $this->dao->getByClick($limit);
+    }
+
+    /**
+     * @param $department_id
+     * @return array
+     * 根据传入的科室ID获取所属文章ID
+     */
+    public function  getArticleIds($department_id){
+         return $this->dao->getArticleIds($department_id);
+    }
+}

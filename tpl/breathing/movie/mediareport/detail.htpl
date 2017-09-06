@@ -1,0 +1,39 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/article.css" />
+  {{/block}}
+  {{block name="body"}}
+  {{$media = $tagOb->get($id)}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}{{$HTMLURL}}">媒体列表</a>><a target="_blank" href="#" class="current">{{$media->subject}}</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <div class="content_title">
+        <h1>{{$media->subject}}</h1>
+        <p class="add-time">发布时间：{{'Y-m-d'|date:$media->plushtime}}</p>
+        <p>来源地址：{{$media->source}}</p>
+        <p class="top-zx"><a target="_blank" href="javascript:Layout.openWindow('chat')">立即咨询专家</a></p>
+      </div>
+      <div class="article_content">
+        {{$media->content}}
+      </div>
+      <div class="par-guide">
+      {{media id=$id+1 assign="next"}}
+      {{if $next->id == ''}} 
+      <span>下一篇：无</span>
+      {{else}}
+      <span>下一篇：<a target="_blank" href="{{$WEBSITE}}/hospital/media/{{$next->id}}.html">{{$next->subject|truncate:12}}</a></span>
+      {{/if}}
+      {{media id=$id-1 assign="pre"}}
+      {{if $pre->id != $id and $pre->id != ''}}
+                     上一篇：<a target="_blank" href="{{$WEBSITE}}/hospital/media/{{$pre->id}}.html">{{$pre->subject|truncate:12}}</a></div>
+      {{else}}
+                    上一篇：无</div>
+      {{/if}}                           
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  {{/block}}

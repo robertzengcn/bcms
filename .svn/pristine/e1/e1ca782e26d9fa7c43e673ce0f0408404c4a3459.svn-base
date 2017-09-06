@@ -1,0 +1,887 @@
+<?php
+
+/**
+ *
+ * 客服管理（咨询管理）模块dao层
+ * @author Administrator
+ *
+ */
+class ClientDAO extends DBBaseDAO {
+
+    private $recordTable = 'clientrecord';
+    private $clienttoworker='clienttoworker';
+    
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = 'client';
+    }
+    
+    /**
+     * 保存咨询预约关系
+     * 
+     * 一(client)对多(clientrecord)添加
+     * */
+    public function saveClient($client) {    	
+    	$clientBean = R::dispense($this->tableName);    	
+    	$client->generateRedBean($clientBean);    	    	
+    	R::store($clientBean);    	  	
+    	return $clientBean->id;//返回数据成功添加后的ID
+    }
+    
+    /**
+     * 保存clientrecord
+     * */
+    public function saveclientrecord($clientrecord){
+    	$clientrecordBean = R::dispense($this->recordTable);
+    	$clientrecord->generateRedBean($clientrecordBean);
+    
+    	R::store($clientrecordBean);
+    }
+    
+    /**
+     * 修改咨询预约关系
+     *
+     * 一(client)对多(clientrecord)修改
+     * */
+    public function updateClient($client) {    	
+        $clientBean = R::load($this->tableName, $client->id);
+        $client->generateRedBean($clientBean);        
+//         foreach ($clientRecords as $clientRecord) {
+//             $clientRecordBean = R::load($this->recordTable, $clientRecord->id);
+//             $clientRecord->generateRedBean($clientRecordBean);
+//             if ($clientRecordBean->plushtime == '') {
+//                 $clientRecordBean->plushtime = time();
+//             }
+//             $clientRecordBean->focus_id = $clientRecord->focus_id;
+//             $clientRecordBean->reception_id = $clientRecord->reception_id;            
+//             $clientRecordBean->source = $clientRecord->source;
+//             $clientBean->ownClientRecordList[] = $clientRecordBean;
+//         }
+        
+        R::store($clientBean);
+        return $clientBean->id;
+    }
+    
+    /**
+     * 根据$client_id 删除所有记录
+     * @param $client_id
+     * */
+    public function deleteclientrecord($client_id){
+    	$array=array('client_id'=>$client_id);
+    	$clientrecord = R::findAll($this->recordTable,'client_id=:client_id',$array);
+    	$result=R::trashAll($clientrecord);
+    	R::close();
+    }
+    
+    /**
+     * 根据$client_id删除所有记录
+     * 
+     * */
+    public function deleteclientwork($client_id){
+    	$array=array('client_id'=>$client_id);
+    	$clientrecord = R::findAll($this->clienttoworker,'client_id=:client_id',$array);
+    	$result=R::trashAll($clientrecord);
+    	R::close();
+    }
+    
+    /**
+     * 删除咨询预约关系
+     *
+     * 一(client)对多(clientrecord)删除
+     * */
+    public function deleteClient($ids) {
+        if (!is_array($ids)) {
+        	$ids = array($ids);
+        }
+        
+        foreach ($ids as $id) {
+            $clientBean = R::load($this->tableName, $id);
+            $beans = R::findAll($this->recordTable, 'client_id=' . $id);
+            R::trashAll($beans);
+            R::trash($clientBean);
+        }
+        
+    }
+    
+    /**
+     *
+     * 写入预约记录 @$client_id
+     */
+    public function addrescode($resbookID,$client_id) {
+    	$clientBean = R::load($this->tableName, $client_id);
+    	if($clientBean->res_code!=''){
+    		$clientBean->res_code.='@'.$resbookID;
+    	}else{
+    		$clientBean->res_code=$resbookID.'@';
+    	}    	
+    	R::store ($clientBean);    	
+    	return $clientBean->res_code;
+    }
+    
+    
+    /**
+     *
+     *
+     * 根据$client_id获取咨询记录
+     *
+     * @param int $client_id
+     */
+    public function getRecord($client_id) {
+        return R::findAll($this->recordTable, 'client_id=' . $client_id);
+    }
+
+    /**
+     *
+     *
+     * 获取多条数据
+     *
+     * @param $params 参数包
+     */
+    public function query($params) {
+        if ($params['start'] && !is_numeric($params['start'])) {
+            $params['start'] = strtotime($params['start']);
+        }
+        if ($params['end'] && !is_numeric($params['end'])) {
+            $params['end'] = strtotime($params['end']);
+        }
+        
+        DTExpression::like('username', $params, $this->tableName);
+        DTExpression::eq('telephone', $params, $this->tableName);        
+        DTExpression::eq('last_reception', $params, $this->tableName);
+        DTExpression::eq('source', $params, $this->tableName);
+        DTExpression::ge('plushtime', $params, 'start', $this->tableName);
+        DTExpression::le('plushtime', $params, 'end', $this->tableName);
+        
+        DTExpression::page($params);
+        
+        $result = R::findAll($this->tableName, DTExpression::$sql . DTExpression::$limit, DTExpression::$params);      
+      
+       
+        $array = array();
+        foreach ($result as $k => $bean) {
+        	
+            $entity = new Client();
+            $entity->generateFromRedBean($bean); 
+           
+            
+            //最新预约记录ID
+//             if($entity->res_code!=''){
+//             	$arrID=explode('@',$entity->res_code);
+//             	//预约次数
+//             	$entity->resNum=count(array_filter($arrID));
+//             	$arrID=array_filter($arrID);//去掉因裂解可能导致的空值
+//             	$resbook_id[0]=end($arrID);            	
+//             	//根据ID查询预约记录
+//             	$resdao=new ResBookingInfoDAO();
+//             	$result=end($resdao->detailBatch($resbook_id));  
+//             	fb($result);          	  	       	
+//             	$entity->date = date('Y-m-d H:i', $result->times); 
+//             	$entity->statu=$result->statu;            	
+//             	//科室
+//             	$department = R::load(TABLENAME_DEPARTMENTMANAGER, $result->department_id);
+            	
+//             	$entity->department_name = $department->name;            	
+//             	//医生
+//             	$doctor = R::load(TABLENAME_DOCTORMANAGER, $result->doctor_id);
+            	
+//             	$entity->doctor_name = $doctor->name;
+//             }else{//没有预约记录
+//             	$entity->statu='未预约';
+//             	$entity->date='未预约';
+//             	$entity->department_name='未预约';
+//             	$entity->doctor_name='未预约';
+//             }
+            //渠道
+            $source = R::load('patientdatasource', $entity->last_source);
+            $entity->source_name = $source->title;
+            
+            //咨询员
+            $reception = R::load('patientreceptionist', $entity->last_reception);
+            $entity->reception_name = $reception->user_name;
+            
+            $array[] = $entity;
+        }
+       
+        return $array;
+    }
+
+    /**
+     *
+     *
+     * 获取数据总数
+     *
+     * @param $params 参数包
+     */
+    public function totalRows($params) {
+       if ($params['start'] && !is_numeric($params['start'])) {
+            $params['start'] = strtotime($params['start']);
+        }
+        if ($params['end'] && !is_numeric($params['end'])) {
+            $params['end'] = strtotime($params['end']);
+        }
+        
+        DTExpression::eq('username', $params, $this->tableName);
+        DTExpression::eq('telephone', $params, $this->tableName);        
+        DTExpression::eq('reception_id', $params, $this->tableName);
+        DTExpression::eq('source', $params, $this->tableName);
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 获取所有患者列表
+     * */
+    public function getAllPerson() {
+    	$sql = '1=1 ';
+    	if (isset($_REQUEST['username']) && $_REQUEST['username']) {
+    		$sql .= " and username like '%" . $_REQUEST['username'] . "%'";
+    	}
+    
+    	if (isset($_REQUEST['telephone']) && $_REQUEST['telephone']) {
+    		$sql .= " and telephone like '%" . $_REQUEST['telephone'] . "%'";
+    	}
+    	$n = isset($_REQUEST['size']) ? $_REQUEST['size'] : 10;
+    	$page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
+    	$m = ($page-1)*$n;
+    	DTExpression::limit($m, $n);
+    	$count = R::count('client', $sql);
+    	$sql .= DTExpression::$limit;
+    	$data = $this->dealFindOperator('client', $sql);
+    	return array('rows'=>$data,'ttl'=>$count);
+    }
+    
+    
+    /**
+     * 获取所有信息
+     * */
+    public function get($id,$client) {
+        $bean = R::load($this->tableName, $client->id);
+        $client = new Client();
+        $client->generateFromRedBean($bean);
+		$client->telephone = ($client->telephone == 0) ? '' : $client->telephone;
+		$client->qq = ($client->qq == 0) ? '' : $client->qq;
+		$client->email = ($client->email == 0) ? '' : $client->email;
+			
+        //获取关注人信息
+//         $focus_ids = explode(',', $client->focus_id);
+//         $client->focus_users = array();
+//         if (!empty($focus_ids)) {
+//         	$userBeans = R::loadAll(TABLENAME_WORKER, $focus_ids);
+//         	foreach ($userBeans as $bean) {
+//         		$user = new Worker();
+//         		$user->generateFromRedBean($bean);
+//         		$client->focus_users[$user->id] = $user->name;
+//         	}
+//         }
+			$arr=array('client_id'=>(int)$id);
+        $client->records = array();
+        $recordBeans = R::findAll($this->recordTable, 'client_id=:client_id' ,$arr);
+        foreach ($recordBeans as $bean) {
+        	$record = new ClientRecord();
+        	$record->generateFromRedBean($bean);        	
+        	$client->records[] = $record;
+        }
+       
+        return $client;
+    }
+    
+    /**
+     * 根据关注者id获取关注者信息
+     * */
+    public function getUsersByIds($ids) {
+    	if (empty($ids)) return array();
+    	$userBeans = R::loadAll(TABLENAME_WORKER, $ids);
+    	$users = array();
+    	foreach ($userBeans as $bean) {
+    		$user = new Worker();
+    		$user->generateFromRedBean($bean);
+    		$users[] = $user;
+    	}
+    	return $users;
+    }
+    
+    /**
+     * 获取来源信息
+     * */
+    public function getDataSource() {
+        return $this->dealFindOperator('PatientDataSource');
+    }
+    
+    /**
+     * 保存来源信息
+     * */
+    public function saveDataSource($entity) {
+        $where = array('title' => $entity->title);
+        if($this->isExists('patientdatasource', $where)) {
+            throw new Exception('标题已存在！');
+        }
+        return $this->dealAddOperator($entity, 'patientdatasource');
+    }
+    
+    /**
+     * 删除来源信息
+     * */
+    public function delDataSource($ids) {
+        $beans = R::batch('patientdatasource', $ids);
+        R::trashAll($beans);
+        return true;
+    }
+    
+    /**
+     * 修改来源信息
+     * */
+    public function modSource($entity) {
+        return $this->dealAddOperator($entity, 'patientdatasource');
+    }
+    
+    /**
+     * 获取前台接待员
+     * */
+    public function getReceptionist() {
+        $n = isset($_REQUEST['size']) ? $_REQUEST['size'] : 10;
+        $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
+        $m = ($page-1)*$n;
+        DTExpression::limit($m, $n);
+        return $this->dealFindOperator('PatientReceptionist', DTExpression::$sql . DTExpression::$limit);
+    }
+    
+    /**
+     * 获取前台接待员数据条数
+     * */
+    public function getReceptionistCount() {
+        return R::count('patientreceptionist');
+    }
+    
+    /**
+     * 保存前台接待信息
+     * */
+    public function addReceptionist($entity) {
+        return $this->dealAddOperator($entity, 'patientreceptionist');
+    }
+    
+    /**
+     * 修改前台接待信息
+     * */
+    public function modReceptionist($entity) {
+        return $this->dealAddOperator($entity, 'patientreceptionist');
+    }
+    
+    /**
+     * 删除前台接待信息
+     * */
+    public function delReceptionist($ids) {
+        $beans = R::batch('patientreceptionist', $ids);
+        R::trashAll($beans);
+        return true;
+    }
+    
+    /**
+     * 处理简单查询
+     * */
+    protected function dealFindOperator($className, $sql='', $binds = '') {
+        $tablename = strtolower($className);
+        if (empty($binds)) {
+            $beans = R::find($tablename, $sql);
+        } else {
+            $beans = R::find($tablename, $sql, $binds);
+        }
+    
+        $array = array();
+        foreach($beans as $bean){
+            $obj = new $className();
+            $obj->generateFromRedBean($bean);
+            $array[] = $obj;
+        }
+        return $array;
+    }
+    
+    /**
+     * 处理添加操作
+     * */
+    protected function dealAddOperator($entity, $tablename, $isReturnId = false) {
+        if ($entity->id) {
+            $entity->validate();
+            $bean = R::load($tablename, $entity->id);
+            $entity->generateRedBean ( $bean );
+        } else {
+            $entity->validate();
+            $bean = R::dispense($tablename);
+            $entity->generateRedBean($bean);
+        }
+        $insertId = R::store ( $bean );
+        $entity->generateFromRedBean ( $bean );
+         
+        if ($isReturnId) {
+            return $insertId;
+        }
+        return $entity;
+    }
+    
+    /**
+     * 获取统计数据
+     * */
+    public function getStatData($where = '') {
+        $type = isset($where['type']) ? $where['type'] : '1';
+        $start = isset($where['start']) ? $where['start'] : '';
+        $end = isset($where['end']) ? $where['end'] : '';
+        if ($start && $end) {
+            $start = strtotime($start);
+            $end = strtotime($end);
+            if ($end-$start < 0) {
+                throw new Exception('开始时间不能大于终止时间');
+            }
+        }
+        switch ($type) {
+        	case '1': //来源
+        	    $data = $this->statBySource($start, $end);
+        	    break;
+        	case '2': //咨询
+        	    $data = $this->statByReceptionist($start, $end);
+        	    break;
+        	case '3': //科室
+        	    $flag = isset($_REQUEST['flag']) ? $_REQUEST['flag'] : 'department';
+        	    if ('department' == $flag) {
+        	        $data = $this->statByDepartment($start, $end);
+        	    } else {
+        	        //按月份
+        	        $data = $this->statByMonth($start, $end);
+        	    }
+        	    break;
+        	default:
+        	    break;
+        }
+        return $data;
+    }
+    
+    /**
+     * 来源统计
+     * */
+    public function statBySource($start = '', $end = '') {
+        $data = array();
+        $sql = 'select id, title from patientdatasource';
+        $result = R::getAll($sql);
+        foreach ($result as $value) {
+            if ($value['title']) {
+                $data[$value['id']]['yes'] = 0;
+                $data[$value['id']]['maybe'] = 0;
+                $data[$value['id']]['unsure'] = 0;
+                $data[$value['id']]['no'] = 0;
+                $data[$value['id']]['arrive'] = 0;
+                $data[$value['id']]['total_num'] = 0;
+                 
+                $data[$value['id']]['title'] = $value['title'];
+                $data[$value['id']]['source_id'] = $value['id'];
+            }
+        }
+         
+        DTExpression::ge('date', array('start'=>$start));
+        DTExpression::le('date', array('end'=>$end));
+        $result = R::findAll($this->tableName, DTExpression::$sql, DTExpression::$params);
+        
+        $type = array('yes','maybe','unsure','no','arrive');
+//         fb($result);
+//         foreach ($result as $value) {//is_used已经被删掉了，找不到这个字段，这里先注释
+        	
+//             $key = intval($value['is_used']);
+//             $data[$value['source']][$type[$key]] += 1;
+//             $data[$value['source']]['total_num'] += 1;
+//         }
+        
+        //分页
+        if (isset($_REQUEST['page']) && $_REQUEST['page']) {
+        	
+            $ttl = count($data);
+            $start = (intval($_REQUEST['page'])-1)*intval($_REQUEST['size']);
+            $data = array_slice($data, $start, intval($_REQUEST['size']));
+            return array('rows'=>array_values($data), 'ttl'=>$ttl);
+        }
+        
+        return array_values($data);
+    }
+    
+    /**
+     * 前台接诊统计
+     * */
+    public function statByReceptionist($start = '', $end = '') {
+        $data = array();
+        $sql = 'select id, user_name from patientreceptionist';
+        $result = R::getAll($sql);
+        foreach ($result as $value) {
+            if ($value['user_name']) {
+                $data[$value['id']]['arrive'] = 0;
+                $data[$value['id']]['total_num'] = 0;
+                 
+                $data[$value['id']]['user_name'] = $value['user_name'];
+                $data[$value['id']]['reception_id'] = $value['id'];
+            }
+        }
+         
+		$start = date('Y-m-d',$start); 
+		$end=date('Y-m-d',$end);
+	    $sql = "select kefu from clientdata where 1=1";
+	    if ($start && $end) {
+	        $sql .= " and daytime between '" . $start . "' and '" . $end ."'";
+	    }	
+	    $resultReception = R::getAll($sql);
+		if($resultReception){  	
+			foreach ($resultReception as $key=>$value) {
+					$reception = unserialize($value['kefu']);						
+				foreach($reception as $k=>$v){
+						$data[$k]['total_num'] += $v;
+				}
+			}
+		}		
+         
+        //分页
+        if (isset($_REQUEST['page']) && $_REQUEST['page']) {
+            $ttl = count($data);
+            $start = (intval($_REQUEST['page'])-1)*intval($_REQUEST['size']);
+            $data = array_slice($data, $start, intval($_REQUEST['size']));
+            return array('rows'=>array_values($data), 'ttl'=>$ttl);
+        }
+        return array_values($data);
+    }
+    /**
+     * 科室
+     * */
+    public function statByDepartment($start, $end) {
+        $data = array();
+        $sql = 'select id, name from ' . TABLENAME_DEPARTMENTMANAGER;
+        $result = R::getAll($sql);
+        foreach ($result as $value) {
+            if ($value['name']) {
+                $data[$value['id']]['yes'] = 0;
+                $data[$value['id']]['maybe'] = 0;
+                $data[$value['id']]['unsure'] = 0;
+                $data[$value['id']]['no'] = 0;
+                $data[$value['id']]['arrive'] = 0;
+                $data[$value['id']]['total_num'] = 0;
+                 
+                $data[$value['id']]['name'] = $value['name'];
+                $data[$value['id']]['department_id'] = $value['id'];
+            }
+        }
+		
+ 		$start = date('Y-m-d',$start); 
+		$end=date('Y-m-d',$end);
+	    $sql = "select department,daytime from clientdata where 1=1";
+	    if ($start && $end) {
+	        $sql .= " and daytime between '" . $start . "' and '" . $end ."'";
+	    }	
+	    $result = R::getAll($sql);       
+        //$type = array('yes','maybe','unsure','no','arrive');
+		if($result){
+			foreach ($result as $key=>$value) {
+				$department = unserialize($value['department']);						
+				foreach($department as $k=>$v){
+					$data[$k]['yes'] = (isset($data[$k]['yes']) ? (int)$data[$k]['yes'] : 0 ) + (int)$v[1];
+					$data[$k]['maybe'] = (isset($data[$k]['maybe']) ? (int)$data[$k]['maybe'] : 0 ) + (int)$v[2];
+					$data[$k]['unsure'] = (isset($data[$k]['unsure']) ? (int)$data[$k]['unsure'] : 0 ) + (int)$v[3];
+					$data[$k]['no'] = (isset($data[$k]['no']) ? (int)$data[$k]['no'] : 0 ) + (int)$v[4];
+					$data[$k]['arrive'] = (isset($data[$k]['arrive']) ? (int)$data[$k]['arrive'] : 0 ) + (int)$v[5];
+					$data[$k]['total_num'] += (int)$v[1]+ (int)$v[2]+ (int)$v[3]+ (int)$v[4]+ (int)$v[5];
+				}
+			}
+		}
+         
+        //分页
+        if (isset($_REQUEST['page']) && $_REQUEST['page']) {
+            $ttl = count($data);
+            $start = (intval($_REQUEST['page'])-1)*intval($_REQUEST['size']);
+            $data = array_slice($data, $start, intval($_REQUEST['size']));
+            return array('rows'=>array_values($data), 'ttl'=>$ttl);
+        }
+         
+        return array_values($data);
+    }
+    
+    /**
+     * 科室月份
+     * */
+    public function statByMonth($start, $end) {
+        $sql = 'select id, name from ' . TABLENAME_DEPARTMENTMANAGER;
+        $result = R::getAll($sql);
+        $columns = array();
+        foreach ($result as $value) {
+            if ($value['name']) {
+                $columns[$value['id']] = $value['name'];
+            }
+        }
+        $return = $this->initArray($start, $end, $columns);
+        
+        //一定到诊统计
+		$start = date('Y-m-d',$start); 
+		$end=date('Y-m-d',$end);
+	    $sql = "select daytime,department from patientdata where 1=1";
+	    if ($start && $end) {
+	        $sql .= " and daytime between '" . $start . "' and '" . $end ."'";
+	    }	
+	    $result= R::getAll($sql);       
+		if($result){
+			foreach ($result as $key=>$value) {
+				$department = unserialize($value['department']);						
+				foreach($department as $k=>$v){
+					$return[$value['daytime']][$k] += (int)$v[1]+ (int)$v[2]+ (int)$v[3]+ (int)$v[4]+ (int)$v[5];
+				}
+			}
+		}
+        return $return;
+    }
+    
+    /**
+     * 按时间统计
+     * */
+    public function statByDate($where) {
+        $action = isset($where['action']) ? $where['action'] : 'source';
+        $start = isset($where['start']) ? $where['start'] : date('Y-m-01', strtotime(date("Y-m-d")));
+        $start = strtotime($start . ' 00:00:00');
+        $end = isset($where['end']) ? strtotime($where['end'] . ' 23:59:59') : time();
+    
+        switch ($action) {
+        	case 'receptionist':
+        	    return $this->getRecptionistByDate($start, $end);
+        	    break;
+        	case 'source':
+        	    return $this->getSourceByDate($start, $end);
+        	    break;
+        	default:
+        	    break;
+        }
+        return false;
+    }
+    
+    /**
+     * 按时间获取来源每天接待到诊的客户量
+     * */
+    protected function getSourceByDate($start, $end) {
+        $sql = 'select id, title from patientdatasource';
+        $result = R::getAll($sql);
+        $columns = array();
+        foreach ($result as $value) {
+            if ($value['title']) {
+                $columns[$value['id']] = $value['title'];
+            }
+        }
+        $return = $this->initArray($start, $end, $columns);
+        
+        //一定到诊统计
+        DTExpression::ge('date', array('start'=>$start));
+        DTExpression::le('date', array('end'=>$end));
+        DTExpression::eq('is_used', array('is_used'=>0));
+        $result = R::findAll($this->tableName, DTExpression::$sql, DTExpression::$params);
+        
+        foreach ($result as $value) {
+            $key = date('Y-m-d', $value['date']);
+            if ($value['date']) {
+                if (isset($columns[$value['source_id']])) {
+                    $return[$key][$columns[$value['source_id']]] += 1;
+                }
+            }
+        }
+        return $return;
+    }
+    
+    /**
+     * 按时间获取咨询员每天接待到诊的客户量
+     * */
+    protected function getRecptionistByDate($start, $end) {
+        $sql = 'select id, user_name from patientreceptionist';
+        $result = R::getAll($sql);
+        $columns = array();
+        foreach ($result as $value) {
+            $columns[$value['id']] = $value['user_name'];
+        }
+         
+        $return = $this->initArray($start, $end, $columns);
+        
+        //一定到诊统计
+		$start = date('Y-m-d',$start); 
+		$end=date('Y-m-d',$end);
+	    $sql = "select kefu,daytime from clientdata where 1=1";
+	    if ($start && $end) {
+	        $sql .= " and daytime between '" . $start . "' and '" . $end ."'";
+	    }	
+	    $result = R::getAll($sql);
+		if($result){
+			foreach ($result as $key=>$value) {
+				$kefu = unserialize($value['kefu']);						
+				foreach($kefu as $k=>$v){
+					$return[$value['daytime']][$columns[$k]] = (isset($return[$value['daytime']][$columns[$k]]) ?  (int)$return[$value['daytime']][$columns[$k]] : 0) + (int)$v;
+				}
+			}
+		} 
+        return $return;
+    }
+    
+    /**
+     * 格式化时间
+     * 
+     * @$day 间隔天数，默认1天，即每天都统计
+     * */
+    public function initArray($starTime, $endTime, $columns=array()) {
+        $array = array();
+        for ($i = $starTime; $i <= $endTime;) {
+            $j = $i + 86400;
+            $field = date('Y-m-d', $i);
+			foreach($columns as $val){
+				$array[$field][$val] = 0;
+			}
+            $i = $j;
+        }       
+        return $array;
+    }
+    
+    /**
+     * 保存关注组的信息
+     * */
+    public function saveGroup($group) {
+        //查看组是否存在
+        $result = R::findOne('clientgroup', 'name="' . $group->name . '"');
+        if (!empty($result) && $result->id != '') {
+        	throw new ValidatorException('222', '组名已存在');
+        }
+        return $this->dealAddOperator($group, 'clientgroup', true);
+    }
+    
+    /**
+     * 获取组信息
+     * */
+    public function getGroups() {
+        return $this->dealFindOperator('ClientGroup');
+    }
+    
+    /**
+     * 获取组下用户信息
+     * */
+    public function getGroupUsers($groupid) {
+        if ($groupid == 'all') {
+        	$sql = '';
+        } else {
+        	$sql = 'belonggroups="' . $groupid . '"';
+        }
+        
+        return $this->dealFindOperator('Worker', $sql);
+    }
+
+
+	/**
+     * 保存ClientData
+     * 
+     * */
+    public function saveClientData($clientdata) {    	
+    	$clientdataBean = R::dispense(TABLENAME_CLIENTDATA);    	
+    	$clientdata->generateRedBean($clientdataBean);    	    	
+    	R::store($clientdataBean);    	  	
+    	return $clientdataBean->id;//返回数据成功添加后的ID
+    }
+    /**
+     * 修改数据
+     *
+     * @param object $entity
+     * @return boolean
+     */
+    public function updateClientData($entity) {
+        $bean = R::load(TABLENAME_CLIENTDATA, $entity->id);
+
+        if ($bean->id == 0) {
+            return new Result(false, 78, ErrorMsgs::get(78), NULL);
+        }
+        $entity->generateRedBean($bean);
+        $entity->id= R::store($bean);
+
+        return new Result(true, 0, '', NULL);
+    }
+	/*
+	 * 检验数据存在
+	 * */
+	public function checkDataIsAdd($time){
+		$result=R::findOne( TABLENAME_CLIENTDATA, 'daytime =:daytime', array('daytime'=>date('Y-m-d',$time)));	
+		if($result!=null){
+			return $result;
+		}
+		return '';
+	}
+
+    
+    /**
+     * 保存用户关注者
+     * @param $entity clientwork
+     * */
+    public function saveclientwork($clientwork){
+    	$clientworkBean = R::dispense($this->clienttoworker);
+    	$clientwork->generateRedBean($clientworkBean);
+    	
+    	R::store($clientworkBean);
+    }
+    /**
+     * 取关注者
+     * */
+    public function getclientworker($arr){
+    	$result=R::findAll($this->clienttoworker,'client_id=:client_id',$arr);
+    	$arr=array();
+    	if(!empty($result)){
+    		foreach($result as $key=>$val){
+    			$entity = new ClientWorker();
+    			$entity->generateFromRedBean($val);
+    			$arr[] = $entity;
+    		}    		
+    	}
+    	
+    	return $arr;
+    }
+    /**
+     * 通过workid获取数据
+     * @param array('work_id'=>$workid)
+     * */
+    public function getbyworkid($arr){
+    	$result=R::findAll($this->clienttoworker,'work_id=:work_id',$arr);
+    	$arr=array();
+    	if(!empty($result)){
+    		foreach($result as $key=>$val){
+    			$entity = new ClientWorker();
+    			$entity->generateFromRedBean($val);
+    			$arr[] = $entity;
+    		}    		
+    	}
+    	
+    	return $arr;
+    }
+    /**
+     * 查看用户和关注者之间的关联关系
+     * @param array('client_id','work_id')
+     * */
+    public function workclientres($arr){
+    	$result=R::findOne($this->clienttoworker,'work_id=:work_id and client_id=:client_id',$arr);
+    return $result;
+    }
+    
+    /**
+     * 取用户记录来访
+     * */
+    public function getclientrecord($arr){
+    	if(isset($arr['page'])&&isset($arr['size'])){
+    		$result=R::findAll($this->recordTable,'client_id=:client_id LIMIT :page, :size',$arr);
+    		
+    	}else{
+    		$arrs=array('client_id'=>$arr['client_id']);
+    		$result=R::findAll($this->recordTable,'client_id=:client_id',$arrs);
+    	}
+    	$arr=array();
+    	if(!empty($result)){
+    		foreach($result as $key=>$val){
+    			$entity = new ClientWorker();
+    			$entity->generateFromRedBean($val);
+    			$arr[] = $entity;
+    		}
+    	}
+    	
+    	return $arr;
+    }
+    /**
+     * 取客服记录中符合条件的总数
+     * */
+    public function getrecordnum($arr){
+    	$result=R::count($this->clienttoworker,'client_id=:client_id',$arr);
+    	return $result;
+    }
+ 
+}

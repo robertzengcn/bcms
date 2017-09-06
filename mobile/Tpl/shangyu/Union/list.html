@@ -1,0 +1,41 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}我的提问{{/block}}
+{{block name=body}}
+<div class="am-tabs am-margin-0 main_irm am-no-layout" data-am-widget="tabs">
+  <nav class="am-tabs-nav am-cf">
+      <li class="am-active"><a href="[data-tab-panel-0]">我的提问<b class="am-badge am-round cart-num">{{$questionnum}}</b></a></li>
+      <li class=""><a href="[data-tab-panel-1]">已回答<b class="am-badge am-round cart-num">{{$answerquestion}}</b></a></li>
+      <li class=""><a href="[data-tab-panel-2]">未回答<b class="am-badge am-round cart-num">{{$unanseerquestion}}</b></a></li>
+  </nav>
+  <div class="am-tabs-bd" style="-moz-user-select: none;">
+ 	 <div data-tab-panel-0="" class="float_none am-container am-tab-panel am-active am-in">
+     	<ul class="question" id="myquestion">
+        	
+        </ul>
+    </div>
+     <div data-tab-panel-1="" class="float_none am-container am-tab-panel">
+     	<ul class="question" id="answerquestion">
+        	
+        </ul>
+    </div>
+    <div data-tab-panel-2="" class="float_none am-container am-tab-panel">
+     	<ul class="question" id="noanswerquestion">
+        	
+        </ul>
+    </div>
+     
+
+  </div>
+  </div>
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.questionlist();
+
+</script>
+{{/block}}

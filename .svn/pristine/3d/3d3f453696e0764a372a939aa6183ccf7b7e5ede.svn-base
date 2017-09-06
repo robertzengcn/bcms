@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class CommodityDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_COMMODITY;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+    	
+        DTExpression::ge('start_time', $where, 'start_time');		
+        if (isset($where['query_type']) &&  $where['query_type']=='shop') {//积分商城
+           DTExpression::ge('end_time', $where, 'end_time');
+		   DTExpression::limit(0,$where['num']);
+        } else {
+           DTExpression::le('end_time', $where, 'end_time');
+        }
+        DTExpression::eq('isbidding', $where);
+        DTExpression::like('subject', $where);
+        DTExpression::eq('categories_id', $where);
+        DTExpression::eq('status', $where);
+        DTExpression::eq('exchange', $where);
+        DTExpression::page($where);
+        if (isset($where['order']) &&  $where['order']) {
+            DTOrder::$sql = $where['order'];
+        } else {
+            DTOrder::desc('plushtime');
+        }
+	
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('start_time', $where, 'start_time');
+        DTExpression::le('end_time', $where, 'end_time');
+        DTExpression::eq('isbidding', $where);
+        DTExpression::like('subject', $where);
+        DTExpression::eq('shelf', $where);
+        //DTExpression::eq('pattern', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+    
+    public function getcatbyid($arr){
+    	$result=R::findAll($this->tableName,'categories_id=:categories_id and status=1 and quantity>0',$arr);
+    	$array = array();
+    	$class = ORMMap::$classes[$this->tableName];
+    	foreach ($result as $k => $bean) {
+    		$entity = new $class();
+    		$entity->generateFromRedBean($bean);
+    		$array[] = $entity;
+    	}
+    	
+    	return $array;
+    	
+    }
+
+}
+

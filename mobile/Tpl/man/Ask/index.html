@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="format-detection" content="telephone=no"/>
+    <title>在线咨询_{{$WEBTITLE}}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- style -->
+    {{include file="Common/common.html"}}
+    <style type="text/css">
+        .txtList{height:27px;border-bottom:1px solid #d8d8d8; background:url({{$RESOURCE}}/images/txtListBg.png) repeat-x;border-bottom:1px solid #d8d8d8;border-top:1px solid #EAEAEA; }
+        .txtList p{height:27px;line-height:30px;background:url({{$RESOURCE}}/images/spritr.png) no-repeat 8px -130px;padding-left:30px; }
+        .txtList p a,.txtList p{color:#949494;}
+        .content{ text-align: center;}
+        .form1{width: 60%;float:left;text-align:left;}
+        .form1 p{line-height: 60px}
+        .textarea1{width: 100%;min-height: 50px}
+        .textarea1 textarea{width:350px;min-height: 50px}
+        .ask-input1{background:#f4f4f4; border:1px solid #d2d2d2; box-shadow: 0 2px 2px -2px #DDD inset; border-radius:4px; height:34px; line-height:34px; width:300px; padding:0 10px;}
+        .ask-text{background:#f4f4f4; border:1px solid #d2d2d2; box-shadow: 0 2px 2px -2px #DDD inset; border-radius:4px; height:34px; line-height:60px; width:100%; padding:0 10px;}
+        .ask-input2{background:#f4f4f4; border:1px solid #d2d2d2;height: 20px;width: 20px}
+        .btn{clear:both;margin-left:100px;padding-top:30px;padding-bottom: 20px}
+        .btn .submitBtn{ width:83px; height:34px; background:url({{$RESOURCE}}/images/bg2.png) no-repeat; border:none 0; text-indent:-99988px;}
+    </style>
+    <script type="text/javascript" src="{{$RESOURCE}}/js/ask.js"></script>
+</head>
+<body>
+<a name="top"></a>
+<div class="main" id="main_id">
+    <div id="scroller">
+        <!-- header -->
+        {{include file="Common/header.html"}}
+       <!--  <div class="txtList"><p><a href="{{$MOBILE}}">首页</a> &gt; 在线咨询</p></div> -->
+       <div class="crumb">当前位置：<a href="{{$MOBILE}}" >主页</a>&gt; <a href="">在线咨询</a></div>
+       <!--  <div class="content">
+            <div style="width: 20%;min-height: 300px;float:left"></div>
+            <div class="form1">
+            <form id="ask_form" name="addcontent" onsubmit="return check();" >
+                <input type="hidden" name="method" value="save" />
+                <p>姓名：<input type="text" class="ask-input1" name="name" value=""></p>
+                <p>年龄：<input type="text" class="ask-input1" name="age" value=""></p>
+                <p>性别：<input type="radio" class="ask-input2" style="width:20px;color:black;" name="gender" value="1" checked="checked"/><label>男</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" class="ask-input2" style="width:20px;color:black;" name="gender" value="0" /><label>女</label>
+                </p>
+                <p>标题：<input type="text" class="ask-input1" name="subject" value=""></p>
+                <p>科室：<select class="ask-input1" name="departmentID" style="width:130px;">
+                    <option value="0">请选择科室</option>
+                    {{foreach $department as $v}}
+                    <option value="{{$v->id}}">{{$v->name}}</option>
+                    {{/foreach}}
+                    </select>
+                <p>疾病：<select class="ask-input1" name="diseaseID" style="width:130px;"></select></p>
+                内容:&nbsp; 
+                <div class="textarea1">
+                    	<textarea class="ask-text" name="description" style="height:100px;"></textarea>
+                </div>
+                <div class="btn">
+                    <input class="submitBtn" id="submitBtn" type="submit" value="提 交" >
+                </div>
+            </form>
+            </div>
+            <div style="width: 20%;min-height:300px;float: left"></div>
+        </div> -->
+        <!-- foot_nav -->
+        {{include file="Common/foot_nav.html"}}
+        <!-- footer -->
+        {{include file="Common/bootom_ph.html"}}
+        {{include file="Common/footer.html"}}
+    </div>
+</div>
+</body>
+</html>

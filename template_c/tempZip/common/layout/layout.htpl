@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{{$SEO_TITLE}}</title>
+    <meta name="keywords" content="{{$SEO_KEYWORDS}}" />
+    <meta name="description" content="{{$SEO_DESCRIPTION}}" />
+    <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/layout.css">
+    {{block name=css}}{{/block}}
+    <script type="text/javascript" src="{{$RESOURCE}}/js/MSClass.js"></script>
+    <script type="text/javascript" src="{{$RESOURCE}}/js/jquery1.42.min.js"></script>
+    <script type="text/javascript" src="{{$RESOURCE}}/js/showtab.js"></script>
+    {{block name=js}}{{/block}}
+</head>
+<body>
+	<div class="wrapper">
+		<!--head-->
+		{{include file=$layout_header}}
+		<div class="clear"></div>
+		<!-- center -->
+		{{block name=body}}body{{/block}}
+		<div class="clear"></div>
+		<!-- footer -->
+		{{include file=$layout_footer}}
+		<div class="clear"></div>
+	</div>
+</body>
+</html>

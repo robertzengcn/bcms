@@ -1,0 +1,481 @@
+<?php
+
+/**
+ *
+ * 静态页面自动生成控制器
+ * @author Administrator
+ *
+ */
+
+require_once './AutoMakeHtml.php';
+class AutoMakeHtmlController  extends AutoMakeHtml {
+    //private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+		$configFile = ABSPATH . '/config.json';
+		if (file_exists($configFile)) {
+			$content = file_get_contents($configFile);
+            $config = json_decode($content);
+			$this->timeout = $config->mtime;
+			$this->automake = $config->openType;	
+		}
+    }
+	//首页自动生成
+    public function index() {
+		$fileurl = GENERATEPATH . 'index' . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) <  $this->timeout || $this->automake == "dynamic"){
+			self::autoMakeInit('index');
+			$this->setSinglePageSeo($this->config['key']);
+			$this->tagFetch($this->config['tpl'],$fileurl);
+		}
+		echo file_get_contents($fileurl);
+		exit;
+	}
+   /**
+     * 方法(method) hospital/article
+     * 
+     */
+    public function method() {
+		$id = ($_GET['id'] == "") ? 'index' : trim( $_GET['id'] );
+		$filename = $id . '.html';
+		$method1 = stripslashes( trim( $_GET['type'] ) );
+		$method2 = stripslashes( trim( $_GET['type1'] ) );
+		$fileurl = GENERATEPATH . $method1 . '/' . $method2 . '/' . $filename;	
+ 		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic" ){
+			if( $method1 == 'hospital' ){
+				$this->hospital( $id, $method2 );
+			}else{
+			    $this->article( $id, $method1, $method2 );
+			}
+		} 
+		echo file_get_contents( $fileurl );
+		exit;	
+	}
+
+   /**
+     * 方法2(control) hospital/article
+     * 
+     */
+    public function control() {
+		$id = ($_GET['id'] == "") ? 'index' : trim( $_GET['id'] );
+		$filename = $id . '.html';
+		$method = stripslashes( trim( $_GET['type'] ) );
+		$fileurl = GENERATEPATH . $method . '/' . $filename;
+ 		if( !file_exists($fileurl) || ( filemtime($fileurl) <= $this->timeout || $this->automake == "dynamic" ) ){
+			if( $method == 'doctor' ){
+				$this->doctor( $id );
+			}elseif( $method == 'technology' ){		//特色技术
+			    $this->technology( $id );
+			}elseif( $method == 'reservation' ){
+				$this->reservation( $id );	   //在线预约
+			}elseif( $method == 'departments' ){
+				$this->departments( $id );	    //科室首页
+			}elseif( $method == 'ask' ){
+				$this->ask( $id, $method );	     //在线问答
+			}else{
+				$channel_id = $this->getChannelId( $method );
+				if($channel_id){
+					$this->channel( $id, $method, $channel_id);	    //自定义频道					
+				}else{
+					$this->department( $id, $method );	//科室					
+				}
+
+			}
+		} 
+		echo file_get_contents( $fileurl );
+		exit;	
+	}	
+   /**
+     * 疾病文章(article)
+     * 
+     */
+    public function article( $id, $method1, $method2 ) {
+
+		//获取diseaseID
+		$diseaseDAO = new DiseaseDAO();
+		$diseaseID = $diseaseDAO->getIdByUrl( $method2 );
+		if($diseaseID  == '' ){
+			$this->error();		
+		}
+
+		if( is_numeric( $id ) ){
+			//判断是否有这则文章
+			$articleDAO = new ArticleDAO();
+			if( $articleDAO->isTrueByArticleId( $id, $method1, $method2 ) == false ){
+				$this->error();		
+			}
+			self::autoMakeInit('article');
+			$this->autoMakeArticleHtmlById( $method1, $method2, intval( $id )  );		
+		}else{
+			self::autoMakeInit('disease');
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );                                                                
+			$this->autoMakeDiseaseHtmlIndexOrList($method1,$method2, $diseaseID, $i );				
+		}
+	
+	}
+   /**
+     * 科室首页(department)
+     * 
+     */
+    public function departments( $id ) {
+			self::autoMakeInit('department');
+		if( is_numeric( $id )  ) {
+			$this->autoMakeHtmlById(new DepartmentService(),  Null );
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );
+			$this->autoMakeHtmlIndexOrList(new DepartmentService(),  $i );
+		}	
+	}	
+   /**
+     * 科室首页(department)
+     * 
+     */
+    public function department( $id, $method ) {
+
+		//获取departmentID
+			$DepartmentDAO = new DepartmentDAO();
+			$departmentID = $DepartmentDAO->getIdByUrl( $method );
+			if($departmentID  == '' ){
+				$this->error();		
+			}
+			self::autoMakeInit('department');
+			$this->autoMakeDepartmentHtmlIndex(new DepartmentService(), $method, $departmentID);					
+	}
+   /**
+     * 科室详情(department)
+     * 
+     */
+    public function hdepartment( $id ) {
+
+			if($id  == '' ){
+				$this->error();		
+			}
+			self::autoMakeInit('department');
+			$this->autoMakeDepartmentHtmlId(new DepartmentService(), new DepartmentTag(), $this->dirMakeDepartment( 'hospital/department'), intval($id) );					
+	}
+   /**
+     * 医院(hospital)
+     */
+	public function hospital( $id, $method ) {
+			switch( $method ){
+				case 'news' : $this->news( $id );break;			     //新闻
+				case 'movie' : $this->movie( $id );break;	         //视频
+				case 'media' : $this->mediaReport( $id );break;	     //媒体报道
+				case 'honor' : $this->honor( $id );break;            //荣誉
+				case 'device' : $this->device( $id );break;          //设备
+				case 'environment' : $this->environment( $id );break; //环境
+				case 'success' : $this->success( $id );break;        //成功案例
+				case 'department' : $this->hdepartment( $id );break;        //科室
+				default : break;
+			}
+	}
+
+    /**
+     * 医院新闻(news)
+     */
+    public function news( $id ) {
+			self::autoMakeInit('news');
+		if( is_numeric( $id ) ){		
+			$this->autoMakeHtmlById(new NewsService(),  $id);	
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );
+			$this->autoMakeHtmlIndexOrList(new NewsService(), $i );
+		}
+
+    }
+
+
+    /**
+     * 视频(movie)
+     */
+    public function movie( $id ) {
+			self::autoMakeInit('movie');
+		if( is_numeric( $id ) ){		
+			$this->autoMakeHtmlById(new MovieService(),  $id);
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) ); 
+			$this->autoMakeHtmlIndexOrList(new MovieService(), $i );
+		}
+
+    }
+
+    /**
+     * 成功案例(success)
+     */
+    public function success( $id ) {
+			self::autoMakeInit('success');
+		if( is_numeric( $id ) ){
+			$this->autoMakeHtmlById(new SuccessService(), $id);	
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  
+			$this->autoMakeHtmlIndexOrList(new SuccessService(), $i );
+		}
+
+    }
+
+    /**
+     * 荣誉(honor)
+     */
+    public function honor( $id ) {
+			self::autoMakeInit('honor');	
+		if( is_numeric( $id ) ){		
+			$this->autoMakeHtmlById(new HonorService(), $id);
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  //列表/首页面 
+			$this->autoMakeHtmlIndexOrList(new HonorService(), $i );
+		}
+
+    }
+
+    /**
+     * 设备(device)
+     */
+    public function device( $id ) {
+			self::autoMakeInit('device');
+		if( is_numeric( $id ) ){		
+			$this->autoMakeHtmlById(new DeviceService(),  $id);
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  
+			$this->autoMakeHtmlIndexOrList(new DeviceService(),  $i );
+		}
+
+    }
+
+    /**
+     * 医院环境(environment)
+     */
+    public function environment( $id ) {
+			self::autoMakeInit('environment');
+		if( is_numeric( $id ) ){
+			$this->autoMakeHtmlById(new EnvironmentService(), $id);
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  
+			$this->autoMakeHtmlIndexOrList(new EnvironmentService(),  $i );
+		}
+
+    }
+
+
+
+    /**
+     * 媒体报道(mediaReport)
+     */
+    public function mediaReport( $id ) {
+			self::autoMakeInit('mediaReport');
+		if( is_numeric( $id ) ){
+			$this->autoMakeHtmlById(new MediaReportService(), $id);
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  //列表/首页面 
+			$this->autoMakeHtmlIndexOrList(new MediaReportService(), $i );
+		}
+    }
+	
+   /**
+     * 医生(doctor)
+     * 
+     */
+    public function doctor( $id ) {
+				self::autoMakeInit('doctor');
+			if( is_numeric( $id ) ){
+			    $this->autoMakeHtmlById(new DoctorService(), intval( $id ) );			
+			}else{
+				$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  
+			    $this->autoMakeHtmlIndexOrList(new DoctorService(), $i );				
+			}
+	}
+
+    /**
+     * 特色技术
+     */
+    public function technology( $id ) {
+				self::autoMakeInit('technology');
+			if( is_numeric( $id ) ){
+			    $this->autoMakeHtmlById(new TechnologyService(), intval( $id ) );			
+			}else{
+				$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );   
+			    $this->autoMakeHtmlIndexOrList(new TechnologyService(),  $i );				
+			}
+    }   
+    /**
+     * 在线预约onlineBooking
+     */
+    public function onlineBooking( $id ) {
+				self::autoMakeInit('reservation');
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );   
+			$this->autoMakeHtmlIndexOrList(new DoctorManagerService(),  $i );
+    }
+    /**
+     * 在线预约表单
+     */
+    public function reservation( $id ) {
+    	#.生成预约表单页面(reservation目录)
+		if($id!='index'){
+			$this->error();
+		}
+		$fileurl = ABSPATH . '/reservation/' . $id . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic"){
+			
+				self::autoMakeInit('reservation');
+			$htmlDir = $this->dirMake('reservation');
+			if(!$this->config['detail_tpl']){
+				die(json_encode(new Result(false, 35, ErrorMsgs::get(35), Null)));			
+			}
+			$this->setSinglePageSeo($this->config['key']);
+			$this->tagFetch($this->config['detail_tpl'],$fileurl);
+		}
+		echo file_get_contents($fileurl);
+		exit;		
+    }	
+    /**
+     * 在线问答
+     */
+    public function ask( $id ) {
+			self::autoMakeInit('ask');
+		if( is_numeric( $id ) ){
+			$this->autoMakeHtmlById(new AskService(),  intval( $id ) );			
+		}else{
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  
+			$this->autoMakeHtmlIndexOrList(new AskService(),  $i );				
+		}
+    }
+    /**
+     * 医院简介
+     */
+    public function introduce() {
+		$fileurl = ABSPATH . '/hospital/' . 'introduce' . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic"){
+				self::autoMakeInit('introduce');
+				$params = array( "id" => 1);
+				$sql = $this->getInfoSql($this->config['key'],$params);
+				$service= new IntroduceService();
+				$info = $service->getRowTag($sql);
+				if($info->pic) $info->pic = UPLOAD . $info->pic;
+				if($info->content){
+					$info->content = stripslashes($info->content);
+				}
+				// 注入文章id与文章信息
+				$this->smarty->assign($this->config['key'], $info);
+				$this->smarty->assign("id", $info->id);
+			//注入位置导航
+			$params = array();
+			$params['key'] = $this->config['key'];
+			$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+			$this->smarty->assign('POSITION',$this->position($params));			
+			$this->setSinglePageSeo('introduce');
+			$this->tagFetch($this->config['tpl'],$fileurl);	
+		}
+		echo file_get_contents($fileurl);
+		exit; 
+    }
+    /**
+     * 联系方式
+     */
+    public function contact() {
+		$fileurl = GENERATEPATH . 'contact' . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic"){
+			self::autoMakeInit('contact');
+			$params['key'] = 'contact';
+			$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+			$this->smarty->assign('POSITION',$this->position($params));
+			$this->setSinglePageSeo($this->config['key']);
+			$this->tagFetch($this->config['tpl'],$fileurl);
+		}
+		echo file_get_contents($fileurl);
+		exit;
+    }
+    /**
+     * 生成搜索页
+     */
+    public function search() {
+		$fileurl = GENERATEPATH . 'search' . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic"){
+			self::autoMakeInit('search');
+			$params['key'] = 'search';
+			$params['listname'] = '搜索结果';
+			$this->smarty->assign('POSITION',$this->position($params));
+			$this->setSinglePageSeo($this->config['key']);
+			$this->tagFetch($this->config['html_tpl'],$fileurl);
+		}
+		echo file_get_contents($fileurl);
+		exit;
+    }
+    /**
+     * 生成网站地图html
+     */
+    public function sitemap() {
+		$fileurl = GENERATEPATH . 'sitemap' . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic"){
+			self::autoMakeInit('sitemap');
+			$params['key'] = 'sitemap';
+			$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+			$this->smarty->assign('POSITION',$this->position($params));
+			$this->setSinglePageSeo($this->config['key']);
+			$this->tagFetch($this->config['html_tpl'],$fileurl);
+		}
+		echo file_get_contents($fileurl);
+		exit;
+    }
+
+    /**
+     * 生成异常
+     */
+    public function error() {
+		$errorServices = new ErrorPageService();
+		$info = $errorServices->query(array());
+		$fileurl = GENERATEPATH . $info->data[0]->page;
+		if( !file_exists($fileurl) || filemtime($fileurl) < $this->timeout || $this->automake == "dynamic"){
+			self::autoMakeInit('error');
+			$params['key'] = 'error';
+			$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+			$this->smarty->assign('POSITION',$this->position($params));
+			$this->assignSeoInfo('404页面错误', '', '');
+			$this->smarty->assign("id", $info->data[0]->id);
+			$this->smarty->assign('error', $info->data[0]);
+			if($this->config['tpl']){
+				$this->tagFetch($this->config['tpl'],$fileurl);				
+			}else{
+				die(json_encode(new Result(false, 35, ErrorMsgs::get(35), Null)));			
+			}		
+		}
+		echo file_get_contents($fileurl);
+		exit;		
+    }
+    /**
+     * 生成自定义频道文章与列表(channel)
+     */
+	public function channel( $id, $method, $channel_id){
+
+		if( is_numeric( $id ) ){
+			self::autoMakeInit('channelArticle');
+			$this->autoMakeChannelArticleHtml( $method, $channel_id, intval( $id ) );			
+		}else{
+			self::autoMakeInit('channel');
+			$i = ( $id == 'index' ) ? '' : intval( ltrim( $id, 'list_' ) );  
+			$this->autoMakeChannelHtmlIndexOrList( $method, $channel_id, $i );				
+		}
+		
+	}
+    /**
+     * 专题生成
+     */
+    public function topic() {
+		$method1 = stripslashes( trim( $_GET['type'] ) );
+		$method2 = stripslashes( trim( $_GET['type1'] ) );
+		$fileurl = GENERATEPATH . 'topic/' . $method1 . '/' . $method2 . $this->htmlSuffix;
+		if( !file_exists($fileurl) || filemtime($fileurl) <  $this->timeout || $this->automake == "dynamic"){
+					self::autoMakeInit('topic');
+			$this->autoMakeTopicHtml($method1, $method2);			
+		}
+		echo file_get_contents($fileurl);
+		exit;
+	}
+
+	//获取自定义频道id
+	public function getChannelId( $shortname ){
+		$id = R::getRow( "SELECT id FROM channel WHERE shortname='".$shortname."'" );	
+		return $id['id'];
+	}
+}

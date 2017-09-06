@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body>   
+    <section id="body">
+    	{{foreach $list as $k=>$v}}
+    	
+    	<a href="/app/news.php?method=get&id={{$v->id}}"><article class="dmenu">
+        <img src="{{$UPLOAD}}{{$v->pic}}"><!--<span></span>-->
+        <b><h1>{{$v->subject}}</h1><h2>{{$v->content|truncate:20}}</h2></b>	
+        </article></a>
+{{/foreach}}
+        
+           
+    </section>
+	{{include file="Common/page.html"}}
+	
+	
+    
+
+    
+</body>
+</html>

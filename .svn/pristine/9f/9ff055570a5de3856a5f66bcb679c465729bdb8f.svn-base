@@ -1,0 +1,207 @@
+<?php
+
+class VoteStatisticsLogService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new VoteStatisticsLogDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @return boolean
+     */
+    public function deleteBatch() {
+        return $this->dao->clear();
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $query = $this->dao->query($where);
+        $voteitemService = new VoteItemService();
+        $voteService = new VoteService();			
+        foreach ($query as $key => $value) {
+			$t = $value->tj_time-3600;       
+			$start = mktime(0,0,0,date("m",$t),date("d",$t),date("Y",$t));
+			$end = mktime(23,59,59,date("m",$t),date("d",$t),date("Y",$t));	
+			$field = date('Y-m-d', $t);
+			$value->total_player = $voteitemService->getCountInTimeSlot(array('s_time'=>$start,'e_time'=>$end));
+            $value->tj_time = date('Y-m-d', $t);
+			$total_xcheck = $voteitemService->getDcountByTime($field,$value->vid);
+			$total_icheck = $voteService->getIcountByTime($field,$value->vid);
+			$value->total_check = $total_xcheck+$total_icheck;
+        }
+
+        return $this->success($query);
+    }
+    /**
+     * 查询数据总量
+     *
+     * @see kernel/BaseService::totalRows()
+     */
+    public function totalRows($params) {	
+        return $this->success($this->dao->totalRows($params));
+    }
+    /**
+     * 保存数据
+     *
+     * @param Entity $statisticsLog
+     * @return Result
+     */
+    public function save($statisticsLog) {
+        $statisticsLog->validate();
+
+        if (! isset($statisticsLog->visittime) || $statisticsLog->visittime == '') {
+            $statisticsLog->visittime = time();
+        }
+        if (! isset($statisticsLog->sessionid) || $statisticsLog->sessionid == '') {
+            $statisticsLog->sessionid = session_id();
+        }
+        // 获取class对象并插入数据
+        $this->dao->save($statisticsLog);
+
+        return $this->success();
+    }
+	
+
+	
+    /**
+     * 投票分布
+     *
+     * @return Result
+     */
+    public function distributed() {
+        // 默认今天
+        $starTime = strtotime(date('Y-m-d'));
+        $endTime = strtotime(date('Y-m-d', strtotime('+1 day')));
+
+        if (isset($_REQUEST['star']) && $_REQUEST['star'] != '') {
+            $starTime = strtotime($_REQUEST['star']);
+        }
+        if (isset($_REQUEST['end']) && $_REQUEST['end'] != '') {
+            $endTime = strtotime($_REQUEST['end']);
+        }
+
+        $distributed = $this->dao->distributed($starTime, $endTime);
+	    $voteitemService = new VoteItemService();
+		$distributed['fnum'] = 	$voteitemService->getDcountByTime(array('stime'=>$starTime,'etime'=>$endTime));
+        $num = $distributed['tnum'] + $distributed['fnum'];
+        if ($num == 0) {
+            $tnum = 0;
+            $fnum = 0;
+        } else {
+            $tnum = number_format($distributed['tnum'] / $num, 4);
+            $fnum = number_format($distributed['fnum'] / $num, 4);
+
+        }
+
+        $tnum = number_format($tnum * 100, '2');
+        $fnum = number_format($fnum * 100, '2');
+        $totalRows = array(
+            array(
+                'name' => '投票量',
+                'y' => intval($tnum),
+                'x' => $distributed['tnum'],
+                'sliced' => true,
+                'selected' => true
+            ),
+            array(
+                'name' => '访问量',
+                'y' => intval($fnum),
+                'x' => $distributed['fnum'],
+                'sliced' => true,
+                'selected' => true
+            )
+        );
+
+        return $this->success($totalRows);
+    }
+    /**
+     * 所有投票曲线
+     *
+     * @return Result
+     */
+    public function voteDistributedByLine() {
+        // 默认今天
+        $starTime = strtotime(date('Y-m-d'));
+        $endTime = strtotime(date('Y-m-d', strtotime('+1 day')));
+    
+        if (isset($_REQUEST['star']) && $_REQUEST['star'] != '') {
+            $starTime = strtotime($_REQUEST['star']);
+        }
+        if (isset($_REQUEST['end']) && $_REQUEST['end'] != '') {
+            $endTime = strtotime($_REQUEST['end']);
+        }
+    
+        $data = $this->dao->voteDistributedByLine($starTime, $endTime);
+        return $this->success($data);
+    }
+    /**
+     * 今日分布曲线数据
+     *
+     * @return Result
+     */
+    public function distributedByLine($vid) {
+        // 默认今天
+		$voteService = new VoteService();
+		$voteinfo = $voteService->getOneById(array('id'=>$vid,'status'=>1));
+        $starTime = $voteinfo->data->statdate;
+        $endTime = $voteinfo->data->enddate;
+        if (isset($_REQUEST['star']) && $_REQUEST['star'] != '') {
+            $starTime = strtotime($_REQUEST['star']);
+        }
+        if (isset($_REQUEST['end']) && $_REQUEST['end'] != '') {
+            $endTime = strtotime($_REQUEST['end']);
+        }
+
+        $data = $this->dao->distributedByLine($starTime, $endTime, $vid);
+ 		$data['title'] =  $voteinfo->data->title; 
+        return $this->success($data);
+    }
+    /**
+     * 投票分布曲线数据
+     *
+     * @return Result
+     */
+    public function voteLineDistributed() {
+        $array = array();
+	    $voteService = new VoteService();
+		$result = $voteService->getOneById(array('status'=>1));
+	    $voteitemService = new VoteItemService();
+		foreach($result->data as $key=>$value){
+            $array['votename'][$value->id] = $value->title;
+			$total = $voteitemService->getTotalVotesClicks($value->id);
+            $array['tnum'][$value->id] = (int)$total['vcount'];
+            $array['fnum'][$value->id] = (int)($total['dcount']+$value->checks);		
+		}
+        $data = array('votename'=>array_values($array['votename']), 'tnum'=>array_values($array['tnum']), 'fnum'=>array_values($array['fnum']));
+        return $this->success($data);
+    }
+    /**
+     * 综合统计数据
+     */
+    public function getVoteData() {
+	    $voteService = new VoteService();
+		$result = $voteService->getVoteChecksAndTitle();
+	    $voteitemService = new VoteItemService();
+		foreach($result as $key=>$value){
+			$t = ($value['enddate']>time()) ? time() : $value['enddate'];
+			$t = mktime(0,0,0,date("m",$t),date("d",$t),date("Y",$t));
+			$result[$key]['time'] = date('Y-m-d',$t);
+			$total = $voteitemService->getTotalVotesClicks($value['id']);
+			$result[$key]['total_player'] = $voteitemService->getSignUpCount(array('vid'=>$value['id']));
+			$result[$key]['total_votes'] = $total['vcount'];
+			$result[$key]['total_check'] = $total['dcount']+$value['checks'];					
+		}
+        return $this->success($result);
+	}
+}

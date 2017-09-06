@@ -1,0 +1,17 @@
+/* CSS Document */
+
+
+
+
+.diseasebox{width:100%;height:100%;min-height:590px;}
+.dis_left{width:35%;float:left;background:#f3f3f3;min-height:580px;}
+.dis_left h2{font-size:18px;color:#0694cb;text-align:center;font-weight:normal;height:50px;line-height:50px;}
+.dis_left ul li{font-size:16px;color:#333333;text-align:center;font-weight:normal;height:50px;line-height:50px;}
+.left_li{border-top:1px solid #dddddd;border-right:1px solid #dddddd;border-left:1px solid #dddddd;}
+.focusclass{background:#FFFFFF;border-left:5px solid #289ABC;border-top:1px solid #dddddd;}
+
+.dis_right{width:64%;float:left;background:#FFFFFF;text-align:left;}
+.dis_right h4{color:#0694cb;font-size:16px;font-weight:normal;height:50px;line-height:50px;text-indent:1em;}
+.dis_right ul{width:88%;margin:0 auto;background:url(../i/rightlistpoint.png) center top no-repeat;}
+.dis_right ul li{background:#f6f6f6;height:40px;line-height:40px;background:url(../i/diseaselist.png) 96% center #f6f6f6 no-repeat;-moz-background-size:25px 25px; /* ÀÏ°æ±¾µÄ Firefox */background-size:25px 25px;border:1px solid #dddddd;text-indent:1em;font-size:14px;}
+.dis_right ul li a{display:inline-block;width:80%;overflow:hidden;height:100%;padding:0px;margin:0px;}

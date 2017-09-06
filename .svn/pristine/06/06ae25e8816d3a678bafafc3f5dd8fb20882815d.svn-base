@@ -1,0 +1,429 @@
+/**
+ * 积分商城
+ * */
+
+var oTable = null;
+function Prize() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+		
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+//			$("#qry").click(function(){
+//				self.fillDataTable();
+//			});
+			$('body').on('change keyup click','#subject,#exchange,#status,#qry,#logmin,#logmax',function(){
+				self.fillDataTable();
+			});
+			
+			$('body').on('click','#batdel',function(){
+				self.delBatch();
+				
+			});
+			
+			$('body').on('click','#addluckdraw',function(){
+				
+				layer.open({
+					type: 2,
+					area: ['900px', '680px'],
+					fix: false, //不固定
+					maxmin: true,
+					shade:0.4,
+					title: '新增抽奖活动',
+					content: '../../activities/luckdraw/luckdraw-add.html',
+					success:function(layero,index){
+						
+					},
+					end:function(){
+						self.fillDataTable();
+					}
+				});
+			});
+		});
+	}
+//加载数据表
+	this.fillDataTable = function() {
+		
+		$("#dataTable").grid({
+			para:{controller:'Draw',method:'query'},
+			//datatable插件里设置列  
+
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'name' },
+			            { data: 'type'},
+			            { data: 'statu',
+			            	render:function(id, type, row){
+			            		if(row.statu==0){
+			            			return '<span class="label label-default radius">已关闭</span>';
+			            		}else{
+			            			return '<span class="badge badge-success radius">已开启</span>';
+			            		}
+			            	}
+			            	},
+			            { data: 'num',
+			            	render:function(id, type, row){
+			            		if(row.num>0){
+			            			return '<span class="label label-success radius">己上架</span>';
+			            		}else{
+			            			return '<span class="badge badge-default radius">未上架</span>';
+			            		}
+			            	}
+			            	},		
+			            { data: 'startdate'},
+			            { data: 'enddate'},
+			            {
+						  data: 'id',
+						  orderable: false,
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a title="编辑" href="javascript:;" onclick="" style="text-decoration:none"><i class="Hui-iconfont"></i></a><a class="ml-5" title="奖品管理" href="javascript:;" onclick="" style="text-decoration:none"><i class="Hui-iconfont"></i></a><a class="ml-5" title="停用" href="javascript:;" onclick="" style="text-decoration:none"><i class="Hui-iconfont"></i></a><a title="删除" href="javascript:;" onclick="" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont"></i></a>'; 				              
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	/*
+	 * 添加新的医疗服务
+	 * 
+	 * */
+	this.adddprize=function(){
+		
+		
+	
+		$('body').on('click','#save',function(){
+			
+			self.save();
+		});
+		
+
+		
+
+	}
+
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+            self.onloadCss();    	
+//			self.getImgSize('commoditysize');
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			
+			self.getcatforedit(para.types);
+			
+
+			
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);	
+
+				
+				self.cmd(gHttp,{controller:'Commodity',method:'get',id:para.id},function(result2){
+					if(result2.statu){
+						$('#formEdit').frmFill('',result2.data);		
+						if(result2.data.pic != ''){
+							$('#thumbnail').attr('src',result2.data.pic);
+
+							
+						}
+						$('#quantity').val(result2.data.quantity);
+						$('#price').val(result2.data.price);
+						$('#score').val(result2.data.score);
+						$('#discount').val(result2.data.discount);
+						$('#start_time').val(result2.data.start_time);
+						$('#end_time').val(result2.data.end_time);
+						if(result2.data.status==1){
+							$('#stutesy').iCheck('check');
+						}else{
+							$('#stutesn').iCheck('check');
+						}
+						
+						if(result2.data.categories_id!=null){
+							
+						$('#catalogue').children("option").each(function(){  
+							//console.log(result2.data.id);
+				               var dotemp_value = $(this).val();
+				              if(dotemp_value == result2.data.categories_id){
+				            	  
+				            	
+				                    $(this).attr("selected","selected");  
+				              }  
+				              
+				         });
+						}
+						if(result2.data.limit!=null){
+							$('#limit').children("option").each(function(){  
+								//console.log(result2.data.id);
+					               var dotemp_value = $(this).val();
+					              if(dotemp_value == result2.data.limit){
+					            	  
+					            	
+					                    $(this).attr("selected","selected");  
+					              }  
+					              
+					         });
+						}
+						
+						if(result2.data.exchange==1){
+							
+							$('.disdiv').hide();
+							$('#discount').removeAttr('datatype');
+							$('#discount').removeAttr('nullmsg');
+						}
+						
+						if(result2.data.exchange!=null){
+							$('#exchange').children("option").each(function(){  
+					               var dotemp_value = $(this).val();
+					              if(dotemp_value == result2.data.exchange){
+					            	 //console.log(retdts.data.doctor_id);
+					                    $(this).attr("selected","selected");  
+					              }  
+					              
+					         });
+							}
+						
+					    var ue = UE.getEditor('editor');
+	    				ue.ready(function() {
+	    				ue.setContent(result2.data.descript);
+	    				});
+						
+
+						
+												
+						self.cmd(gHttp,{controller:'Commodity',method:'get_commodity_link',id:para.id},function(result3){
+							if(result3.stute){
+								
+						    jQuery('#qrcode').qrcode({
+				    	    render	: "image",
+				    		width   : 100,
+				    		height  : 100,
+				    		size    : 100,
+				    		text    : result3.data[0],
+				    });
+							
+	
+							}
+						});
+						
+						
+						
+						
+						
+					}else{
+						layer.alert(result2.msg);
+					}
+				});
+				
+				
+			}else{
+				
+				$('#qrcodepic').hide();
+				$('.disdiv').hide();
+				$('#discount').removeAttr('datatype');
+				$('#discount').removeAttr('nullmsg');
+				
+
+
+				
+				$('body').on('blur','#discount',function(){
+					var price=parseInt($('#price').val());
+					var discount=parseInt($('#discount').val());
+					console.log(discount);
+					if(price<=discount){
+						layer.alert(
+							   '折扣金额不能大于售价',
+							   function(index){
+								   $('#discount').focus();
+								   layer.close(index);
+							   
+							});
+					}
+					
+				});
+				
+				
+			
+				
+			}
+			
+			$('body').on('click','#catamaner',function(){
+				var types=$('#types').val();
+			layer.open({
+			type: 2,
+			area: ['640px', '450px'],
+			fix: false, //不固定
+			maxmin: true,
+			shade:0.4,
+			title: '目录管理',
+			content: '../../activities/pointsmall/catelogue.html?types='+types,
+			success:function(layero,index){
+				
+				
+				
+			},
+			end:function(){
+				
+				self.getcatforedit(types);
+			}
+	
+		     });
+					
+				});
+			
+			//保存
+			$('#save').click(function(){
+				var theurl=$('#thumbnail').attr('src');
+				$('#pic').val(theurl);
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+
+	
+    //按钮
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'Draw',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Draw',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id,types){
+		if(types==1){
+			self.open_newindows('编辑医疗服务类商品','activities/pointsmall/c-medicalservice.html?id=' + id+'&types='+types,'840','500');
+		}else if(types==2){
+			self.open_newindows('编辑医院自行购买的实体商品','activities/pointsmall/c-selfbuy.html?id='+ id+'&types='+types,'840','500');
+		}else{
+			self.open_newindows('编辑第三方电商提供的商品','activities/pointsmall/c-electronicmall.html?id=' + id+'&types='+types,'900','700');
+		}
+	}
+	
+	//详细页面
+	this.detail = function(id,type){
+		
+		self.open_newindows('查看商品详细信息','activities/pointsmall/commodity-detail.html?id=' + id,'600','550');
+	}
+	
+	
+	//保存
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+	
+		
+		var imgsrc=$('#thumbnail').attr('src');
+        console.log(imgsrc);
+		if(imgsrc!='../images/boyicms/logo/thumbnail_auto.gif'||imgsrc!=""){
+			$('#img').val(imgsrc);
+		}
+
+		
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Draw',method:'addprize'};
+		} else {
+			post = {controller:'Draw',method:'editprize',id:id};
+		}
+		$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){
+				
+				$('#id').val(result1.data.id);
+              
+				parent.layer.msg('操作成功!',{icon:1});
+				layer_close();
+				
+//				$("#setprize").trigger("click");
+//				$("#save").unbind()
+//				$('#save').attr('id','update');
+				//layer_close();
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+			return false;
+		});
+		
+		$('#formEdit').submit();
+		
+		
+	}
+	
+	/*打开新窗口*/
+	this.open_newindows = function(title,url,w,h){	
+		parent.layer.open({
+			type: 2,
+			area: [w+'px', h +'px'],
+			fix: false, //不固定
+			maxmin: true,
+			shade:0.4,
+			title: title,
+			content: url,
+			success:function(layero,index){
+				parent.layer.setTop(layero);
+			}
+		});
+//		layer.full(index);
+	}
+	
+// {{{ function onloadCss()
+	
+	this.onloadCss = function() {
+		
+		/*缩略图操作*/
+		$('div.thumbnailbox').on('mouseenter',function(){
+			$(this).find('div.img-btn').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.img-btn').stop().animate({height:"0px"});
+		});
+		$('div.img-btn').find('span').on('mouseenter',function(){
+			$(this).stop().css("background-position","-46px 0px");
+		}).on('mouseleave',function(){
+			$(this).stop().css("background-position","-46px -22px");
+		});
+		var defaultsrc=$('div.thumbnailbox img').attr('flag');
+		$('span#delete-thisimg').on('click',function(){
+			$thumbnail_img=$(this);
+			layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+				$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+				layer.msg('已删除!',1);
+			});
+		});
+		/*缩略图操作完结*/
+	}
+	
+
+	
+}

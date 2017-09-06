@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<meta name="description" content="{{seolist}}[field:description /]{{/seolist}}">
+<meta name="keywords" content="{{seolist}}[field:keywords /]{{/seolist}}">
+<!--取消百度转码-->
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--清浏览器缓存-->
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!--国产浏览器高速模式-->
+<meta name="renderer" content="webkit">
+<title>{{seolist}}[field:title/]{{/seolist}}</title>
+{{picbyflag flag="ico" assign="ouds"}}
+<link rel="icon" type="image/png" href="[field:src/]">
+{{/picbyflag}} 
+<!-- Bootstrap -->
+<link href="{{resource}}/framework/css/bootstrap.min.css" rel="stylesheet">
+<!--新增样式-->
+<link href="{{resource}}/css/style.css" rel="stylesheet" type="text/css" />
+<!--新增医疗图标-->
+<!--<link href="{{resource}}/iconfont/iconfont.css" rel="stylesheet" type="text/css" />-->
+{{block name=css}}{{/block}}
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="{{resource}}/framework/lib/ieonly/html5shiv.min.js"></script>
+      <script src="{{resource}}/framework/lib/ieonly/respond.min.js"></script>
+      <script src="{{resource}}/framework/lib/ieonly/excanvas.js"></script>
+    <![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{resource}}/framework/lib/jquery/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{resource}}/framework/js/bootstrap.min.js"></script>
+
+<!--滑动js-->
+<script type="text/javascript" src="{{resource}}/framework/lib/SuperSlide/jquery.SuperSlide.2.1.1.js"></script>
+<!--新增js--> 
+<script type="text/javascript" src="{{resource}}/js/index.js"></script>
+{{block name=js}}{{/block}}
+</head>
+<body>
+<!--提示IE7及更早版本的用户--> 
+<!--[if lt IE 8]>
+      <div class="alert alert-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+<![endif]--> 
+	<!--head-->
+    {{include file=$layout_header}}
+    <!-- center -->
+    {{block name=body}}body{{/block}}
+    <!-- footer -->
+    {{include file=$layout_footer}}
+
+<!--回到顶部-->
+<p id="back-to-top"><a href="#top"><span></span>返回<br>顶部</a></p>
+</body>
+</html>

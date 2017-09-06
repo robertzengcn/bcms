@@ -1,0 +1,13 @@
+Options -Indexes
+<IfModule rewrite_module>
+RewriteEngine On
+RewriteRule ^(|index\.html)$                              /controller/?controller=AutoMakeHtml&method=index [NC]
+RewriteRule ^contact\.html$                             /controller/?controller=AutoMakeHtml&method=contact [NC]
+RewriteRule ^reservation\.html$                             /controller/?controller=AutoMakeHtml&method=reservation [NC]
+RewriteRule ^hospital\/introduce\.html$                 /controller/?controller=AutoMakeHtml&method=introduce [NC]
+RewriteRule ^topic\/([a-zA-Z_]+)\/([a-zA-Z]+)\.html$     /controller/?controller=AutoMakeHtml&method=topic&type=$1&type1=$2 [NC]
+RewriteRule ^search\.html?(.*)$                  /controller/?controller=AutoMakeHtml&method=search [NC]
+RewriteRule ^hcc\/$                                     /hcc\/login.html [NC]
+RewriteRule ^([a-zA-Z]+)\/(index|list_\d+|\d+)\.html$                 /controller/?controller=AutoMakeHtml&method=control&type=$1&id=$2 [NC]
+RewriteRule ^([a-zA-Z]+)\/([a-z]+)\/(|index|list_\d+|\d+)(|\.html)$   /controller/?controller=AutoMakeHtml&method=method&type=$1&type1=$2&id=$3 [NC]
+</IfModule>

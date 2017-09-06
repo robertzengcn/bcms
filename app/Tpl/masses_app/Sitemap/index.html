@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>网站地图_{{$seo->title}}</title>
+<meta name="keywords" content="{{$seo->keywords}}" />
+<meta name="description" content="{{$seo->description}}" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+{{include file="Common/common.html"}}
+
+<style>
+.linkbox{clear:both;}
+.linkbox h3{
+float:left;
+width:100px;
+}
+.linkbox h3 a{
+float:left;
+width:100px;
+font-size:bold;
+color:#8C209A;
+}
+
+.linkbox ul li{
+float:left;
+width:100px;
+}
+.linkbox ul li a{
+color:#000000;
+float:left;
+width:100px;
+}
+</style>
+
+</head>
+
+
+<body>
+<!-- header -->
+{{include file="Common/header.html"}}
+<div class="main w320">
+  <div class="active">
+  {{foreach $mobileAd as $v}}
+        <a href="{{$contact.swt_link}}" target="_blank" title="在线咨询">
+        <img src="{{$v->src}}" >
+        </a> 
+  {{/foreach}}
+    
+  </div>
+  
+ <!-- 主要内容-->
+  <div class="content"> 
+  
+  
+  <!-- 第一部分-->
+    <div class="part1">
+      <div class="part_til">网站地图</div>
+      <div class="part_p w300">
+			
+	      <div class="linkbox">
+          <h3><a target='_blank' href="{{$MOBILE}}/introduce.php?method=getInfo">医院简介</a></h3>
+          <h3><a target='_blank' href="{{$MOBILE}}/contact.php?method=getRoute">联系方式</a></h3>
+          <h3><a target='_blank' href="{{$MOBILE}}/doctor.php" >专家团队</a></h3>
+          <h3><a target='_blank' href="{{$MOBILE}}/ask.php" >在线问答</a></h3>
+          <h3><a target='_blank' href="{{$contact.swt_link}}">在线预约</a></h3>
+          <h3><a target='_blank' href='{{$MOBILE}}/environment.php'>医院环境</a></h3>
+          <h3><a target='_blank' href='{{$MOBILE}}/honor.php'>医院荣誉</a></h3>
+          <h3><a target='_blank' href='{{$MOBILE}}/device.php'>先进设备</a></h3>
+          <h3><a target='_blank' href='{{$MOBILE}}/success.php'>成功案例</a></h3>
+          <h3><a target='_blank' href='{{$MOBILE}}/technology.php'>特色技术</a></h3>
+          <h3><a target='_blank' href='{{$MOBILE}}/news.php'>医院新闻</a></h3>       
+          </div>	        
+	
+		{{foreach $department as $key => $vo}}              
+        <div class="linkbox" style="margin-bottom: 25px;">
+          <h3><a target='_blank' href='{{$MOBILE}}/department.php?method=index&id={{$vo->id}}'>{{$vo->name}}</a></h3>
+          <ul style="clear:both;">
+		{{foreach $diseaseList as $key2 => $vo2}}
+		{{if $key2 == $key}} 
+		{{foreach $vo2 as $vo3}}           
+            <li><a target='_blank' href='{{$MOBILE}}/department.php?method=query&department_id={{$vo->id}}&disease_id={{$vo3->id}}'>{{$vo3->name}}</a></li>
+ 		{{/foreach}}
+ 		{{/if}}
+ 		{{/foreach}} 
+          </ul>
+        </div>
+	{{/foreach}}  
+	
+			
+      <div class="cle"></div>
+      </div>
+    </div>
+  <!-- 第一部分结束-->  
+  
+
+ 
+ 
+  
+   
+  
+ <!--第十一部分-->
+ <div class="part11">
+   <div class="part_til">{{$mobileNav['data']->subject}}</div>
+   <div class="learn">
+     <ul>
+        {{foreach from=$mobileNav['ParNav'] item=value  name=name}}
+        {{if $smarty.foreach.name.iteration lt 8}}
+        <li class="learn{{$smarty.foreach.name.iteration}}"><a href="{{$value->url}}" target="_self">{{$value->subject}}</a></li>
+        {{/if}}
+        {{/foreach}}
+     </ul>
+    <div class="cle"></div>
+   </div>
+      <div class="lianxi">
+        <a href="{{$contact.swt_link}}" target="_blank">
+        <img src="{{$RESOURCE}}/images/p45-1.jpg" width="112" height="32" /></a>
+        <a href="tel:{{$contact.tel}}">
+        <img src="{{$RESOURCE}}/images/p45.jpg" width="112" height="32" /></a> 
+      </div>
+ </div>
+<!--第十一部分结束-->  
+  
+  
+  </div>
+ 
+
+
+
+</div>
+
+<!-- footer -->
+{{include file="Common/footer.html"}}
+</body>
+
+
+</html>

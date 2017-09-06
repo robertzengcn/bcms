@@ -1,0 +1,85 @@
+/**
+ * 404页面设置
+ * */
+function ErrorPage() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initEdit()
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			
+			self.cmd(gHttp,{controller:'ErrorPage',method:'query'},function(result1){
+				if(result1.ttl != ''){
+					var data = result1.rows[0];
+					$('#formEdit').frmFill('',data);
+					if(data.code!=''){
+						$('#textname').html(data.code+'.html');		
+					}
+					editor.ready(function(){
+						editor.setContent(data.content);
+					});
+					
+				}else{
+					layer.alert('404错误页面未设置',{icon:2});
+				}
+			});
+			
+			$('#code').change(function(){
+				$('#textname').html($(this).val()+'.html');						   
+									   
+			});
+			
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+			$("#code").click(function(){
+				var msg=$(this).attr('info');					  
+				layer.tips(msg, $(this), {
+					tips: 3,
+					time:9000
+				});					  
+			});
+			
+		});
+	}
+	
+	// }}}
+
+	
+	//保存
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'ErrorPage',method:'add'};
+		} else {
+			post = {controller:'ErrorPage',method:'edit',id:id};
+		}
+		$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){
+				layer.msg('操作成功!',{icon:1});	
+				layer_close();
+				
+			}else{
+				layer.alert(result1.msg,{icon:2});
+			}
+		});
+		
+		$('#formEdit').submit();
+	}
+	
+	
+	
+}

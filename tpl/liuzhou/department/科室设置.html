@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<meta name="description" content="">
+<meta name="keywords" content="">
+<!--取消百度转码-->
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--清浏览器缓存-->
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!--国产浏览器高速模式-->
+<meta name="renderer" content="webkit">
+<title>联医cms建站系统_科室设置</title>
+<link rel="icon" type="image/png" href="images/i/favicon.png">
+<!-- Bootstrap -->
+<link href="framework/css/bootstrap.min.css" rel="stylesheet">
+<!--新增样式-->
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--新增医疗图标-->
+<!--<link href="iconfont/iconfont.css" rel="stylesheet" type="text/css" />-->
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="framework/lib/ieonly/html5shiv.min.js"></script>
+      <script src="framework/lib/ieonly/respond.min.js"></script>
+      <script src="framework/lib/ieonly/excanvas.js"></script>
+    <![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="framework/lib/jquery/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="framework/js/bootstrap.min.js"></script>
+
+<!--滑动js-->
+<script type="text/javascript" src="framework/lib/SuperSlide/jquery.SuperSlide.2.1.1.js"></script>
+<!--新增js-->
+<script type="text/javascript" src="js/index.js"></script>
+</head>
+<body>
+<!--提示IE7及更早版本的用户--> 
+<!--[if lt IE 8]>
+      <div class="alert alert-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  <![endif]--> 
+
+<!--顶部banner 开始-->
+<div class="header"> <img src="images/banner/banner4.jpg">
+  <div class="top_bg"></div>
+  <div class="top_txt container"> <span class="pull-left">欢迎访问MM医院</span> <span class="pull-right"><a href="#">加入收藏</a> | <a href="#">设为首页</a></span> </div>
+</div>
+<div class="clearfix"></div>
+<!--顶部banner 结束--> 
+
+<!--导航 开始-->
+<div class="header_nav">
+  <div class="container">
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse" aria-expanded="false"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar_collapse">
+        <ul id="wydh" class="nav navbar-nav nav-justified">
+          <li class="mainlevel"><a href="#" target="_self">首页</a> </li>
+          <li class="mainlevel "><a href="#" target="_self">医院概况</a>
+            <ul style="display: none;">
+              <li><a href="#" target="_self">医院简介</a></li>
+              <li><a href="#" target="_blank">组织架构</a></li>
+              <li><a href="#" target="_blank">医院文化</a></li>
+              <li><a href="#" target="_blank">医院分布</a></li>
+              <li><a href="#" target="_blank">医院荣誉</a></li>
+              <li><a href="#" target="_blank">依法执业</a></li>
+            </ul>
+          </li>
+          <li class="mainlevel"><a href="#" target="_self">医院新闻</a>
+            <ul style="display: none;">
+              <li><a href="#" target="_self">频道首页</a></li>
+              <li><a href="#" target="_self">三院新闻</a></li>
+              <li><a href="#" target="_self">医院公告</a></li>
+              <li><a href="#" target="_self">频道报道</a></li>
+              <li><a href="#" target="_blank">学术会议</a></li>
+            </ul>
+          </li>
+          <li class="mainlevel nav_sel"><a href="#" target="_self">科室专家</a></li>
+          <li class="mainlevel"><a href="#" target="_self">优质护理</a></li>
+          <li class="mainlevel"><a href="#" target="_self">就诊指南</a></li>
+          <li class="mainlevel"><a href="#" target="_self">科研教学</a></li>
+          <li class="mainlevel"><a href="#" target="_self">院务公开</a></li>
+          <li class="mainlevel"><a href="#" target="_self">预约挂号</a>
+            <ul style="display: none;">
+              <li><a href="#" target="_self">医院简介</a></li>
+              <li><a href="#" target="_blank">组织架构</a></li>
+              <li><a href="#" target="_blank">医院文化</a></li>
+              <li><a href="#" target="_blank">医院分布</a></li>
+              <li><a href="#" target="_blank">医院荣誉</a></li>
+              <li><a href="#" target="_blank">依法执业</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+<!--导航 结束--> 
+
+<!--面包屑 开始-->
+<div class="crumbs container">
+	<ol class="breadcrumb">
+      <span class="glyphicon glyphicon-map-marker"></span>您当前的位置：
+      <li><a href="#">首页</a></li>
+      <li><a href="#">科室设置</a></li>
+      <li class="active">科室介绍</li>
+    </ol>
+</div>
+<!--面包屑 结束--> 
+
+<!--医院概况 开始--> 
+<div class="main_yygk container mb-20">
+	<div class="row">
+    	
+        <div class="col-md-9 yygk_r">
+        	<div class="box">
+            	<div class="title">
+                	<span>科室介绍</span>
+                </div>
+                <div class="pd-15">
+                	<!--科室设置 开始--> 
+                	<ul class="main_ksjs">
+                        <li>
+                            <dl>
+                                <dt><span>外科系统</span></dt>
+                                <dd><a href="#" title="">科室1</a></dd>
+                                <dd><a href="#" title="">科室2</a></dd>
+                                <dd><a href="#" title="">科室3</a></dd>
+                                <dd><a href="#" title="">科室4</a></dd>
+                                <dd><a href="#" title="">科室5</a></dd>
+                                <dd><a href="#" title="">科室6</a></dd>
+                                <dd><a href="#" title="">科室7</a></dd>
+                                <dd><a href="#" title="">科室8</a></dd>
+                                <dd><a href="#" title="">科室9</a></dd>
+                                <dd><a href="#" title="">科室10</a></dd>
+                                <dd><a href="#" title="">科室11</a></dd>
+                                <dd><a href="#" title="">科室12</a></dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt><span>内科系统</span></dt>
+                                <dd><a href="#" title="">科室1</a></dd>
+                                <dd><a href="#" title="">科室2</a></dd>
+                                <dd><a href="#" title="">科室3</a></dd>
+                                <dd><a href="#" title="">科室4</a></dd>
+                                <dd><a href="#" title="">科室5</a></dd>
+                                <dd><a href="#" title="">科室6</a></dd>
+                                <dd><a href="#" title="">科室7</a></dd>
+                                <dd><a href="#" title="">科室8</a></dd>
+                                <dd><a href="#" title="">科室9</a></dd>
+                                <dd><a href="#" title="">科室10</a></dd>
+                                <dd><a href="#" title="">科室11</a></dd>
+                                <dd><a href="#" title="">科室12</a></dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt><span>其他科室</span></dt>
+                                <dd><a href="#" title="">科室1</a></dd>
+                                <dd><a href="#" title="">科室2</a></dd>
+                                <dd><a href="#" title="">科室3</a></dd>
+                                <dd><a href="#" title="">科室4</a></dd>
+                                <dd><a href="#" title="">科室5</a></dd>
+                                <dd><a href="#" title="">科室6</a></dd>
+                                <dd><a href="#" title="">科室7</a></dd>
+                                <dd><a href="#" title="">科室8</a></dd>
+                                <dd><a href="#" title="">科室9</a></dd>
+                                <dd><a href="#" title="">科室10</a></dd>
+                                <dd><a href="#" title="">科室11</a></dd>
+                                <dd><a href="#" title="">科室12</a></dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt><span>医技科室</span></dt>
+                                <dd><a href="#" title="">科室1</a></dd>
+                                <dd><a href="#" title="">科室2</a></dd>
+                                <dd><a href="#" title="">科室3</a></dd>
+                                <dd><a href="#" title="">科室4</a></dd>
+                                <dd><a href="#" title="">科室5</a></dd>
+                                <dd><a href="#" title="">科室6</a></dd>
+                                <dd><a href="#" title="">科室7</a></dd>
+                                <dd><a href="#" title="">科室8</a></dd>
+                                <dd><a href="#" title="">科室9</a></dd>
+                                <dd><a href="#" title="">科室10</a></dd>
+                                <dd><a href="#" title="">科室11</a></dd>
+                                <dd><a href="#" title="">科室12</a></dd>
+                            </dl>
+                        </li>
+                    </ul>
+                    <!--科室设置 结束-->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 yygk_l">
+        	<div class="box l_one mb-20">
+            	<h2>科室设置</h2>
+            	<ul>
+                	<li class="active"><a href="#" target="_self">科室介绍</a></li>
+                    <li><a href="#" target="_self">医生介绍</a></li>
+                    <li><a href="#" target="_self">护理园地</a></li>
+                </ul>
+            </div>
+            <div class="box l_two mb-20">
+            	<a href="#" target="_blank"><img src="images/i/wsyy.png"></a>
+            </div>
+            <div class="box l_three">
+            	<div class="tit">
+                	<span class="pull-left">联系我们</span>
+                    <a class="pull-right" href="#">more+</a>
+                </div>
+                <div class="txt">
+                	<div class="map">
+                    	<a href="#"><img src="images/content/map.png"></a>
+                    </div>
+                    <p>地址：医院地址</p>
+                    <p>乘车指南：到院路线车辆线路</p>
+                    <p>预约电话：电话号码</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--医院概况 结束--> 
+
+<!-- 页尾 开始-->
+<div class="footer">
+  <div class=" container text-center">
+    <p><a href="#">医院介绍</a>|<a href="#">医院文化</a>|<a href="#">招聘信息</a>|<a href="#">联系我们</a>|<a href="#">设为首页</a>|<a href="#">加入收藏</a></p>
+    <p>XXXXXXX医院 版权所有 XXXX备000000000000</p>
+    <p>本站信息仅供参考，不能作为诊断和医疗的依据</p>
+    <p>地址：XXXXXXXXXXXXX 邮政编码：XXXXXXX 预约挂号：XXXXX-XXXXXXXXXX</p>
+  </div>
+</div>
+<!-- 页尾 结束-->
+
+<!--回到顶部-->
+<p id="back-to-top"><a href="#top"><span></span>返回<br>顶部</a></p>
+
+
+
+</body>
+</html>

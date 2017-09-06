@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>模板管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 模板文件管理 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">	
+	<div id="tab-category" class="HuiTab">
+		<div class="tabBar cl" id="aaa" value="sss"><span value='pc'>PC端模板</span><span value='wap'>Wap端模板</span><span value='app'>Apk端模板</span><span value='wechat'>Wechat端模板</span></div>
+		<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a id="dirname" class="btn btn-success radius"> </a>  </div>
+		<!-- PC -->
+		<div class="tabCon">
+			<div class="mt-20" id="grid">
+				<table id="pc" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>文件名</th>
+							<th width="90">文件大小</th>
+							<th width="160">修改日期</th>
+							<th width="50">操作</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+		<!--Wap-->
+		<div class="tabCon">
+			<div class="mt-20" id="grid">
+				<table id="wap" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>文件名</th>
+							<th width="90">文件大小</th>
+							<th width="160">修改日期</th>
+							<th width="50">操作</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+		<!--App-->
+		<div class="tabCon">
+			<div class="mt-20" id="grid">
+				<table id="app" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>文件名</th>
+							<th width="90">文件大小</th>
+							<th width="160">修改日期</th>
+							<th width="50">操作</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+		<!--Wechat-->
+		<div class="tabCon">
+			<div class="mt-20" id="grid">
+				<table id="wechat" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>文件名</th>
+							<th width="90">文件大小</th>
+							<th width="160">修改日期</th>
+							<th width="50">操作</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+	</div><!--HuiTab over-->	
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/filemanager.js"></script>
+<script type="text/javascript">
+var gFile = new File();
+gFile.setThisName('gFile');
+gFile.initList();
+</script>
+
+</body>
+</html>

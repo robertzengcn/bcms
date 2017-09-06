@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/ask.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>回复提问</title>
+<style>
+.picboxs {
+    display: table-cell;
+    height: 156px;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+    width: 154px;
+}
+div.picboxs img {
+    height: 100px;
+    width: 300px;
+}
+</style>
+</head>
+<body>
+<div class="pd-20">
+<div class="questions">
+  <form id="formEdit">
+  <input type="hidden" name="answer_id" />
+  <input type="hidden" name="ask_id" />
+	
+  <div class="tbox tbox_nobg">
+    <div class="t_con">
+      <div class="t_left"> <span class="user_img"><img src="../images/user.png"  ></span> </div>
+      <div class="t_right">
+        <h1> <input type="text" class="input-text" name="subject"></h1>
+        <span class="user_name">姓名：<span id="user"></span>提问时间：<cite id="plushtime"></cite> </span>
+        <ul class="user_msg">
+          <li>基本信息：<input type="text" class="input-text" name="gender">&nbsp;&nbsp;<input type="text" class="input-text" name="age">岁</li>
+          <li></li>
+        </ul>
+        <p class="user_p"><strong class="s1">病情描述及疑问：</strong><input type="text" class="input-text" name="description"></p>
+
+        <p class="user_p"><span class="bu"><strong>报告单：</strong></span></p>
+        <div class="picboxs" id="assay_box">
+            
+        </div>
+        <p class="user_p"><span class="bu"><strong>附件：</strong></span></p>
+        <div id="picboxs"></div>        
+      </div>
+ </div><!--t_con over-->
+  </div>
+  
+  <!--医生回复-->
+  <div id="doctor_reply">
+     <div class="cl pd-5 mt-10" id="reply_box_before"><span class="l"><a class="btn btn-primary radius" onClick="gAsk.toggleReplyBox();" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 回复问题 </a></span></div>
+     <div class="user_box" id="reply_box" style="display:none;">
+     <div class="row cl">
+     <div id="plusdiv" class="formControls col-10 skin-minimal">
+			<label class="form-label col-2">推送到用户：</label>
+			
+				<div class="col-xs-offset-3" style="height: 30px;"><input name="push" id="tr_1" value="1" type="checkbox"></div>			
+		</div>
+         <div class="row cl">				
+			<div class="formControls col-12">
+				<textarea name="content" id="ask_textarea_zhuan" cols="" rows="" class="textarea"  placeholder="请输入您的回复内容..." datatype="*10-100" dragonfly="true" nullmsg="回复内容不能为空！" onKeyUp="textarealength(this,1000)"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/1000</p>
+			</div>
+			
+		</div>
+		
+		<div class="row cl mt-5">
+			<div class="col-12" style="text-align:right;" >
+				<button class="btn btn-primary radius" type="button" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button class="btn btn-default radius" type="button" id="back">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+   		</div>
+     </div>
+  </div>
+  </form>
+</div>
+
+</div>
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gAsk.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>       
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/ask.js"></script>
+<script type="text/javascript">
+var gAsk = new Ask();
+gAsk.setThisName('gAsk');
+gAsk.initEdit();
+</script>
+
+</body>
+</html>

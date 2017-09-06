@@ -1,0 +1,211 @@
+/**
+ * 医院新闻
+ * */
+
+var oTable = null;
+function News() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+            self.onloadCss();
+            
+        	//填充推荐位数据
+        	$('#recommendposition').bindRecommend();
+        	
+			self.getImgSize('newssize');
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);
+				
+				self.cmd(gHttp,{controller:'News',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						$('#recommendposition').find('input[name^=recommendposition]').each(function(){
+							var checkbox = $(this);
+							$.each(result1.data.recommend,function(i,obj){
+								if(checkbox.val() == obj.recommendposition_id){
+									checkbox.attr('checked','checked');
+								}
+							});
+						});	
+						
+						editor.ready(function(){
+							editor.setContent(result1.data.content);
+						});
+						
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							self.setImgSize('newssize');
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+
+    // {{{ function onloadCss()
+	
+	this.onloadCss = function() {
+		
+		/*缩略图操作*/
+		$('div.thumbnailbox').on('mouseenter',function(){
+			$(this).find('div.img-btn').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.img-btn').stop().animate({height:"0px"});
+		});
+		$('div.img-btn').find('span').on('mouseenter',function(){
+			$(this).stop().css("background-position","-46px 0px");
+		}).on('mouseleave',function(){
+			$(this).stop().css("background-position","-46px -22px");
+		});
+		var defaultsrc=$('div.thumbnailbox img').attr('flag');
+		$('span#delete-thisimg').on('click',function(){
+			$thumbnail_img=$(this);
+			layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+				$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+				layer.msg('已删除!',1);
+			});
+		});
+		/*缩略图操作完结*/
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'News',method:'query'},
+			aoColumnDefs : [
+							{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'subject' },
+			            { data: 'description',render:function(value){return value.substr(0,60)+'...';}},
+			            { data: 'plushtime' },
+			            { data: 'click_count' },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" target="_blank" href="/controller/?controller=ViewHtml&method=news&op=news&id='+id+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>'; 
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gNews.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gNews.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'News',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'News',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEdit('编辑新闻','new.html?id=' + id);
+	}
+	
+	//保存
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'News',method:'add'};
+		} else {
+			post = {controller:'News',method:'edit',id:id};
+		}
+		$('#formEdit').frmPost(post,function(result1){
+			if(result1.statu){				
+				var url=parent.location.href;
+				parent.location.replace(url);
+				layer.alert('操作成功!');	
+				layer_close();
+				
+				
+			}else{
+				layer.alert(result1.msg);
+			}
+			return false;
+		});
+	}
+	
+}
+
+/*
+function retrieveData( sSource, aoData, fnCallback ) {   
+	var page = $("#dataTable_paginate").find('span a.current').attr('data-dt-idx');
+	if (page == undefined || page == 0) {
+		page = 1;
+	}
+    var size = 2;//$("select[name='dataTable_length']").val();
+    
+    $.ajax( {   
+        "type": "POST",    
+        "url": sSource,    
+        "dataType": "json",   
+        "data": { "page": page, "size":size}, //以json格式传递   
+        "success": function(resp) {   
+        	$("#total").html(resp.ttl);
+            fnCallback({'aaData':resp.rows, 'iTotalRecords':resp.ttl, 'iTotalDisplayRecords':resp.ttl}); //服务器端返回的对象的returnObject部分是要求的格式  
+        }   
+    });   
+}  
+*/
+

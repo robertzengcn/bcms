@@ -1,0 +1,16 @@
+{{if $pageCount gt 1}}
+<ul class="NeskyPage">
+	{{if $page eq 1}}
+	<li><span>首页</span></li>
+	{{else}}
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page=1{{$moreParam}}'>首页</a></li>
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$page-1}}{{$moreParam}}'>上一页</a></li>
+	{{/if}}
+	{{if $page eq $pageCount}}
+	<li><span>末页</span></li>
+	{{else}}
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$page+1}}{{$moreParam}}'>下一页</a></li>
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$pageCount}}{{$moreParam}}'>末页</a></li>
+	{{/if}}
+</ul>
+{{/if}}

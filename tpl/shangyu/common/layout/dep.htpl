@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>{{$SEO_TITLE}}</title>
+<meta name="keywords" content="{{$SEO_KEYWORDS}}" />
+<meta name="description" content="{{$SEO_DESCRIPTION}}" />
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+{{picbyflag flag="logo2"}}
+<link rel="alternate icon" type="image/png" href="[field:src]">
+{{/picbyflag}}
+<link href="{{resource}}/css/zui.min.css" rel="stylesheet">
+<!--页标题前图标-->
+<!--<link href="fonts/1.1/iconfont.css" rel="stylesheet" type="text/css" />-->
+<!--新增图标样式-->
+<link href="{{resource}}/boyicms/style.css" rel="stylesheet" type="text/css" />
+<!--框架样式-->
+<link href="{{resource}}/boyicms/color.css" rel="stylesheet" type="text/css" />
+<!--颜色样式-->
+<link href="{{resource}}/boyicms/images.css" rel="stylesheet" type="text/css" />
+<!--图片样式-->
+<link href="{{resource}}/boyicms/font.css" rel="stylesheet" type="text/css" />
+<!--文字样式-->
+<script type="text/javascript" src="{{resource}}/lib/jquery/jquery.js"></script><!--前置js 放在zui.js或zui.min.js之前-->
+<script src="{{resource}}/js/zui.min.js"></script>
+<script src="{{resource}}/js/new_js.js"></script>
+<script src="{{resource}}/boyicms/reservation.js"></script>
+<script src="{{resource}}/boyicms/reservation_base.js"></script>
+<script src="{{resource}}/boyicms/date/WdatePicker.js"></script>
+<script src="{{resource}}/boyicms/search_start.js"></script>
+<script src="{{resource}}/js/readmore.min.js"></script>
+<!--新增js-->
+</head>
+
+<body class="white_bg">
+    {{block name=body}}body{{/block}}
+    <!-- footer -->
+    {{include file=$layout_footer}}
+
+</body>
+</html>

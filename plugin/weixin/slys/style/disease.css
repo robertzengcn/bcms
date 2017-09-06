@@ -1,0 +1,19 @@
+/* CSS Document */
+
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;height:50px;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+#page header h1 a img{ vertical-align:middle;padding:0px 6px;}
+.homenav {float:right;padding:15px 6px;}
+
+
+
+.diseasebox{width:100%;height:100%;min-height:590px;}
+.dis_left{width:35%;float:left;background:#f3f3f3;min-height:580px;}
+.dis_left h2,h3{font-size:18px;color:#333333;text-align:center;font-weight:normal;height:50px;line-height:50px;}
+.dis_left h3{background:#FFFFFF;border-left:5px solid #289ABC;}
+
+.dis_right{width:64%;float:left;background:#FFFFFF;text-align:left;}
+.dis_right h4{color:#0694cb;font-size:16px;font-weight:normal;height:50px;line-height:50px;text-indent:6%;}
+.dis_right ul{width:88%;margin:0 auto;}
+.dis_right ul li{background:#f6f6f6;height:50px;line-height:50px;background:url(../i/diseaselist.png) 96% center #f6f6f6 no-repeat;-moz-background-size:25px 25px; /* ÀÏ°æ±¾µÄ Firefox */background-size:25px 25px;border:1px solid #dddddd;text-indent:1em;}

@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * 商城购物记录DAO
+ *
+ * @author Administrator
+ *
+ */
+class CommodityLogDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_COMMODITYLOG;
+    }
+	
+	//查询用户购物记录
+	public function query($where) {
+        DTExpression::eq('uid', $where, $this->tableName);
+        DTExpression::eq('orders', $where, $this->tableName);
+        DTOrder::desc($this->tableName . '.id');
+        $sql = 'SELECT * FROM '.$this->tableName.' WHERE ' . DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+
+		return $this->getJoin($sql);		
+	 }
+    
+	
+}
+

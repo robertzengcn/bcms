@@ -1,0 +1,115 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/ask.css">
+<link href="{{$RESOURCE}}/css/index.css" rel="stylesheet" type="text/css" />
+{{/block}}
+{{block name=js}}
+<script type="text/javascript" src="{{$RESOURCE}}/js/date/WdatePicker.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/reservation.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/reservation_base.js"></script>
+{{/block}}
+{{block name=body}}
+
+<div class="list_box">
+    <div class="list">
+        <div class="list_left arc">
+            <div class="list_nav">您当前的位置： <a href='{{$WEBSITE}}'>主页</a> > 在线预约</div>
+            <div class="content_left_1">
+                <div class="Online_bespeak_top_list">
+                    <h3>欢迎您使用在线预约功能，在这里挂号您可享受以下服务：</h3>
+                    1、网上预约挂号，免挂号费，优先就诊，无需排队； <br />
+                    2、为您建立个人健康档案，享受医院提供的专业医疗服务信息。<br />
+                    3、本站坚决维护患者隐私权，网上填写的所有资料只为预约提供方便，不作其它用途,就诊后即删除填写资料。 <br/>
+                    4、网上挂号无任何附加费用，主要是为了方便您及时就诊，也方便我们及时安排针对您病情的专家号。<br/>
+                    <div><span>如有健康方面的咨询，请咨询</span><a href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;"  rel="nofollow"><span style="color:red">在线医生</span></a></div>
+                </div>
+                <div class="online_list_B">
+                    <div class="online_list">
+                        <form id='form1'>
+                            <table cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td width="64">姓&nbsp;&nbsp;&nbsp;&nbsp;名：</td>
+                                    <td><input class="online_txt" name='name' type="text" />
+                                        <span>*</span></td>
+                                </tr>
+                                <tr>
+                                    <td width="64">年&nbsp;&nbsp;&nbsp;&nbsp;龄：</td>
+                                    <td><input class="online_txt" name='age' type="text" />
+                                        <span>*</span></td>
+                                </tr>
+                                <tr>
+                                    <td width="64">性&nbsp;&nbsp;&nbsp;&nbsp;别：</td>
+                                    <td><select name="sex">
+                                            <option selected="selected" value="">请选择</option>
+                                            <option value='1'>女</option>
+                                            <option value='0'>男</option>
+                                        </select>
+                                        <span>*</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td width="64">联系电话：</td>
+                                    <td><input class="online_txt" name='hometel' type="text" />
+                                        <span>*(请填写真实联系方式)</span></td>
+                                </tr>
+                                <tr>
+                                    <td width="64">电子邮箱：</td>
+                                    <td><input class="online_txt" name='email' type="text" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="64">联系地址：</td>
+                                    <td><input class="online_L_txt"  name="address" value="请输入家庭住址"  type="text" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td width="64">预约时间：</td>
+                                    <td><input class="online_txt" id='date' name='date' type="text" onfocus="WdatePicker({minDate:'%y-%M-%d'})"/>
+                                        <span>*</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td width="64">预约门诊：</td>
+                                    <td>
+                                        {{departments}}
+                                        <select id="department_id" name="department_id" class="sel_L" onchange="getDoctor(this.value);">
+                                            <option>-请选择科室-</option>
+                                            {{foreach $departments as $v}}
+                                            <option value="{{$v->id}}">{{$v->name}}</option>
+                                            {{/foreach}}
+                                        </select>
+                                        <select id="doctor_id" name="doctor_id" class="sel_L" onchange="getReservation();">
+                                            <option selected="selected" value="">-请选择医生-</option>
+                                        </select>
+                                        <select id="appointment" name="appointment" class="sel_L" onchange="getTime(this.value)">
+                                            <option selected="selected" value="">请选择预约时间</option>
+                                        </select>
+                                        <input type="hidden" id="time" name="time" value=''/>
+                                        <span>*</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="64" valign="top">留言内容：</td>
+                                    <td><textarea name="ill"></textarea></td>
+                                </tr>
+                                <tr>
+                                    <td width="64"></td>
+                                    <td class="td_btn"><input value="提交" id='button' name='button' type="submit">
+                                        <input type="reset" value="重置" ></td>
+                                </tr>
+                            </table>
+                        </form>
+                        <p>友情提醒：预约成功后，我们会及时按您提供的联系方式和您取得联系！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--右侧-->
+        {{include file="../common/right/doctor_right.htpl"}}
+        <!--右侧-->
+    </div>
+</div>
+<div style="clear:both"></div>
+</div>
+{{/block}}

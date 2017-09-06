@@ -1,0 +1,178 @@
+<?php
+
+class MemberService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new MemberDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $scoreruleArray = $this->dao->getBatch($ids);
+
+        return $this->dao->deleteBeans($scoreruleArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function get($scorerule) {
+        $this->dao->get($scorerule->id, $scorerule);
+ 
+        return $this->success($scorerule);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $scoreruleArray = $this->dao->query($where);
+        
+        foreach($scoreruleArray as $key=>$val){
+        	$scoreruleArray[$key]->last_log=date('Y-m-d H:i',$val->last_log);
+        	
+        }
+       
+
+        return $this->success($scoreruleArray);
+    }
+    
+    public function getmemberbyname($username){
+    	
+    	
+    	if(is_string($username)){
+    		$arr=array('username'=>$username);
+    		return $this->dao->getmemberbyname($arr);
+    	}elseif(is_array($username)){
+    		
+    		return $this->dao->getmemberbyname($username);
+    	}else{
+    		throw new ValidatorException(140);
+    	}
+    }
+    
+    /*
+     * 获取用户积分数
+     * */
+    public function getscore($memberid){
+
+    	if(is_int($memberid)){
+    		$arr=array('id'=>$memberid);
+    		return $this->dao->getscoreamount($arr);
+    	}elseif(is_array($memberid)){
+    	
+    		return $this->dao->getscoreamount($memberid);
+    	}else{
+    		throw new ValidatorException(140);
+    	}
+    	//return $this->dao->getscoreamount();
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function save($member) {
+    	
+         $member->validate();        
+        // 获取class对象并插入数据
+        $this->dao->save($member);
+      
+        return $this->success();
+    }
+    
+    /*
+     *添加数据 
+     * */
+    public function addmember($arr){
+    	$member=new Member();
+    	$member->username=$arr['username'];
+    	$result=$this->dao->save($member);
+    	return $this->success($result);
+    }
+    
+    
+    
+    /*
+     * 检查是否有数据存在，有的话返回所有数据
+     * */
+    
+    public function checkdate(){
+    	return $this->dao->getdate();
+    }
+    /*
+     * 删除所有数据
+     * */
+    
+    public function delall(){
+    	
+    	$rs=$this->dao->delall();
+    	return $this->success($rs);
+    }
+    
+    /*
+     * 根据type取值
+     * @param int $type
+     * */
+    public function getbytype($type){
+    	$arr=array('type'=>$type);
+    	$rs=$this->dao->getbytype($arr);
+    	return $this->success($rs);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($scorerule) {
+    //    $commodity->updatetime = time();
+    	
+        $scorerule->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($scorerule);
+    }
+    
+    /*
+     * 积分商城前台获取用户所拥有积分数
+     * */
+    public function getmemberscore($arr){
+    	$member=new Member();
+    	$member->id=$arr['id'];
+    	$this->dao->get($member->id, $member);
+    	
+    	return $this->success($member);
+    	
+    }
+    
+    /*
+     *扣减用户积分数量 
+     * 
+     * */
+    public function reducescore($arr){
+    	$this->dao->reducescore($arr);
+    		    	
+    }
+    
+}
+

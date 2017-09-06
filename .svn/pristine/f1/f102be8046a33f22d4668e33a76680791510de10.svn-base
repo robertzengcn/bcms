@@ -1,0 +1,45 @@
+<?php
+
+include_once 'init.php';
+/**
+ * 
+ * 积分商城
+ * @author Administrator
+ *
+ */
+
+class CommodityMobile extends Mobile {
+
+	public function __construct() {
+	    parent::__construct();
+		//$this->getuser();
+		
+		$this->excute();		
+	}
+	//积分商城首页
+	public function home(){
+		$model['categories_status'] = 1;
+		$goods_model=$this->getServiceMethod('CommodityCategories','query',$model);
+		$goods_list = array();
+		foreach($goods_model->data as $key =>$val){
+			$list['categories_id'] = $val->id;
+			$list['status'] = 1;
+			$list['query_type'] = 'shop';
+			$list['end_time'] = time();
+			$goods_arr=$this->getServiceMethod('Commodity','query',$list);
+			$goods_list[$key] = $goods_arr;
+			$goods_list[$key]->name = $val->name;
+		}
+
+		$this->smarty->assign('goods_list', $goods_list);
+		
+		$this->smarty->display( 'Commodity/home/home' . TPLSUFFIX );		
+	}
+		//商品详情
+	public function goodsinfo($id){
+	
+		echo "<pre>".print_r($id,true)."</pre>";exit;
+	}
+}
+new CommodityMobile();
+?>

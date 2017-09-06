@@ -1,0 +1,310 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>刮刮乐刮刮卡抽奖</title>
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script type="text/javascript"  src="{{$RESOURCE}}/guaguaka/js/jquery-1.9.1.js"></script>
+
+
+	 <style type="text/css">
+	.sjmes{ position:absolute; width:200px; text-align:center; font-size:20px; line-height:80px; color:white;left: 50%;margin-left: -100px;margin-top:40px; display:none; }
+
+	#bg1{ display: none; position:fixed; top: 0%; left: 0%; width: 100%; height: 100%; background-color: black; z-index:1001; -moz-opacity: 0.7; opacity:.70; filter: alpha(opacity=70);}
+	 #show{display: none; position: fixed; background-color: #fff; z-index:1002; overflow: auto;}
+	 body{overflow:hidden; background-color:#c11c39;}
+	 #bg{position:absolute;top:0;left:0;}
+	 #bg2{width:295px;height:195px;margin:0 auto;}
+	 #bg2_img{position: absolute;}
+	 #lamp,#nImg{ height:160px; width:300px;position: absolute;}
+	 #number{color:#f2e5b5;position: absolute; left:50%; margin-left:-116px; text-shadow: -1px 1px 0 #333;}
+	 #gua1{width:295px;;margin:0 auto; padding-top:20px;}
+	 #front{position:absolute;no-repeat}
+	 #notify{width:295px;height:101px;margin:0 auto;}
+	 #nImg_div {position: absolute;color:white;font-size: 17px;font-family: '黑体'}
+	 marquee{width:245px;height:80px; margin:10px 0px 0px 60px; overflow:hidden; text-align:left;}
+	 marquee p{ margin:0;padding:0;}
+	</style>
+</head>
+
+<body>
+	<div id="bg">
+    	<img src="{{$RESOURCE}}/guaguaka/img/guaguaka_bg.png" width="100%" height="100%" / >
+    </div>
+	<div id="bg2">
+		<img id="bg2_img" src="{{$RESOURCE}}/guaguaka/img/guaguaka_word.png" width="295" height="195">
+	</div>
+	<div  id="number">
+    	<span>您有<span>{{$drawtime}}</span>次抽奖机会，快来试试运气</span>
+	</div>
+	<div id="gua1" >
+		<img id="lamp" src="{{$RESOURCE}}/guaguaka/img/gua_image.png">
+        <div class="sjmes" id="sjmes" ></div>
+		<canvas id="front"  />
+	</div>
+	<div id="notify">
+		<img id="nImg" src="{{$RESOURCE}}/guaguaka/img/notice_bg.png">
+		<div id="nImg_div" align="center">
+			
+            <marquee behavior="scroll"  scrollamount="3" direction=up>
+            {{foreach from=$prizeall key=k item=v}}
+            <p>{{$v->name|truncate:8}}&nbsp;&nbsp;&nbsp;{{$v->prize_count}}份<br>
+            {{/foreach}}
+            </marquee>
+		</div>
+	</div>
+
+
+	<div id="bg1"></div>
+	<div id="show" style="position:absolute;" align="center">
+		<img id="show_img" src="{{$RESOURCE}}/guaguaka/img/dialog_bg.png" width="100%" height="100%">
+		<div id="noticmessage" style="margin-top:-145px;margin-<li>left</li>:40px;padding :0 40px;line-height:1.5;color:#000000;font-size: 17px;font-family: '黑体'" >
+			亲，您今天的机会已经用完了~明天再接再励！
+		</div>
+		<img id="show_btn" src="{{$RESOURCE}}/guaguaka/img/btn_sure.png" style="margin-top: 30px;" onclick="hidediv()">
+	</div>
+<img id="lamp2" src="{{$RESOURCE}}/guaguaka/img/222.png" style=" display:none;">
+  </body>
+</html>
+ 
+<script>
+//JavaScript Document
+var gua = 1,re = 2; 
+/*var imgSrc = 'img/aa.png';*/
+
+function showdiv() { 
+	 document.getElementById("bg1").style.display ="block";
+	 document.getElementById("show").style.display ="block";
+}
+
+function hidediv() {
+	 document.getElementById("bg1").style.display ='none';
+	 document.getElementById("show").style.display ='none';
+}
+
+
+
+
+$(function(){
+	var width = $("#show_img").width();
+    var height = $("#show_img").height();
+	var winheight=$(window).height();
+	var winwidth=$(window).width();
+	$("#show").css({"width":300+"px","height":160+"px","overflow":"hidden","margin-left":(winwidth-320)/2+"px","margin-top":-(winheight)/2+"px"});
+	$("#show_btn").css({"width":176*0.5+"px","height":76*0.5+"px"});
+	$("#gua_div").html("x"+gua);
+	$("#re_div").html("x"+re);
+	
+	if(gua == 0){
+		showdiv();
+	}
+});
+
+
+function bodys(height,width){
+	bodys.mozUserSelect = 'none';
+    bodys.webkitUserSelect = 'none';
+	var img = new Image();         
+	var canvas = document.querySelector('canvas');
+	canvas.style.backgroundColor='transparent';         
+	canvas.style.position = 'absolute';  
+	var imgs = ['{{$RESOURCE}}/guaguaka/img/prize.png'];//'img/prize.jpg','img/prize2.jpg'
+	var num = Math.floor(Math.random()*2);
+	
+	img.src = imgs;
+
+	
+	         
+	img.addEventListener('load',function(e){
+		var count=1;
+		var ctx;
+		var w = width, h = height;             
+		var offsetX = canvas.offsetLeft, offsetY = canvas.offsetTop;             
+		var mousedown = false; 
+		
+
+		
+		function layer(ctx){                 
+			var img=document.getElementById("lamp2");
+			var pat=ctx.createPattern(img,"repeat");                
+
+			ctx.fillStyle = pat;
+			
+			ctx.fillRect(0, 0, w, h);           
+		}   
+		
+ 		function starteventDown(e){
+ 			e.stopPropagation();
+            if(count==1){
+            	//console.log(count);
+            	makegua();
+            	count++;
+            	setTimeout(eventDown(e),300);	
+            }else{
+            	eventDown(e);
+            }
+
+			
+			
+			     
+		}   
+		function eventDown(e){
+			
+			
+			e.preventDefault();                 
+			mousedown=true;   
+			$(".sjmes").css({"display":"block"});  
+			
+			     
+		}   
+		function eventUp(e){            
+			e.preventDefault();                 
+			mousedown=false; 
+			 
+			
+			
+			 var data = ctx.getImageData(0,0,w,h).data;   
+		     for(var i=0,j=0;i<data.length;i+=4){
+	  		    if(data[i] && data[i+1] && data[i+2]&& data[i+3] ){
+	   	        j++;
+  	  }
+}
+//当图层被擦除剩余80%时触发
+if(j<=w*h*0.6){
+    ctx.clearRect(0,0,w,h);
+}            
+		}               
+		function eventMove(e){   
+			
+			e.preventDefault();                 
+			if(mousedown){                     
+				if(e.changedTouches){                         
+					e=e.changedTouches[e.changedTouches.length-1];                     
+				}                     
+				var x = (e.clientX + document.body.scrollLeft || e.pageX) - offsetX || 0,                         
+				y = (e.clientY + document.body.scrollTop || e.pageY) - offsetY || 0;                     
+				with(ctx){                    
+					beginPath();                     
+					arc(x, y, 15, 0, Math.PI * 2);                         
+					fill();                     
+				}                
+			}             
+		} 
+ 
+		canvas.width=w;             
+		canvas.height=h; 
+		
+		canvas.style.backgroundImage='url('+img.src+')';              
+		ctx=canvas.getContext('2d');         
+		ctx.fillStyle='b9b9b9';             
+		ctx.fillRect(0, 0, w, h);
+
+		layer(ctx); 
+		
+		ctx.globalCompositeOperation = 'destination-out';               
+ 		canvas.addEventListener('touchstart', starteventDown);             
+		canvas.addEventListener('touchend', eventUp);             
+		canvas.addEventListener('touchmove', eventMove);             
+		canvas.addEventListener('mousedown', starteventDown);             
+		canvas.addEventListener('mouseup', eventUp);             
+		canvas.addEventListener('mousemove', eventMove);     
+
+	});
+	
+	/*img.src = imgSrc;*/
+	(document.body.style);}
+	
+	
+function removebodys(height,width){
+	bodys.mozUserSelect = 'none';
+    bodys.webkitUserSelect = 'none';
+	var img = new Image();         
+	var canvas = document.querySelector('canvas');
+	canvas.style.backgroundColor='transparent';         
+	canvas.style.position = 'absolute';  
+	var imgs = ['{{$RESOURCE}}/guaguaka/img/prize.png'];//'img/prize.jpg','img/prize2.jpg'
+	var num = Math.floor(Math.random()*2);
+	
+	img.src = imgs;
+	canvas.removeEventListener("touchstart", starteventDown);
+	canvas.removeEventListener("touchend", eventUp);
+	canvas.removeEventListener("touchmove", eventMove);
+	canvas.removeEventListener("mousedown", starteventDown);
+	canvas.removeEventListener("mouseup", eventUp);
+	canvas.removeEventListener('mousemove', eventMove);
+	
+	/*img.src = imgSrc;*/
+	(document.body.style);}
+
+// JavaScript Document
+function makegua(){
+
+$.ajax({
+	url:'./draw.php?method=drawdan&drawid={{$draw_id}}',  
+	    type:'post',  
+	     cache:false,  
+	    dataType:'json',  
+	    success:function(data) {
+	    if(data.statu){
+	    	
+	    		sjmes.innerHTML=data.msg;
+	    	
+	    }else{
+	    	sjmes.innerHTML=data.msg;
+	    	$('#noticmessage').html(data.msg);
+	    	
+	    	showdiv();
+	    	
+	    	
+	    }
+	    }
+});
+
+}
+ 
+$(window).load(function(){
+	
+		var body_width = $(window).width();
+		var body_height = $(window).height();
+		$("#lamp").width(300).height(160);
+		
+		var height = 144;
+		var width  = 285;
+		
+		var bg2_width = $("#bg2_img").width();
+		var bg2_height = $("#bg2_img").height();
+		
+		$("#gua1").css({"margin-top":"20px"});
+
+		$("#notify").css({"margin-top":"180px"});
+		$("#nImg").width(300).height(101);
+		
+		 
+		
+		$("#di").css({"margin-top":"20px"});
+		$("#di_img").width(430*0.7).height(99*0.7);
+
+
+		$("#gua").width(width/10).height(width/10);
+		$("#gua_div").css({"line-height":width/10+"px","width":width/10+"px","height":width/10+"px","margin-top":"-"+($("#gua").height())+"px","margin-left":$("#gua").height()+5+"px","font-size": $("#gua").height()/1.6+"px"});
+		$("#re").width(width/10).height(width/10);
+		$("#re_div").css({ "line-height":width/10+"px","width":width/10+"px","height":width/10+"px","margin-top":"-"+($("#gua").height())+"px","margin-left":$("#gua").height()+5+"px","font-size": $("#gua").height()/1.6+"px"});
+		var lamp_width = $("#lamp").width();
+		$("#front").css({"margin-top":8+"px","margin-left":7.5+"px"});
+		$("#bg").width("100%").height($(window).height()-1);
+		if(gua > 0){
+			
+			
+			bodys(height,width);
+		}
+		 
+	});	
+</script>
+    
+    
+    
+    
+    
+
+
+

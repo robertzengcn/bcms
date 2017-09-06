@@ -1,0 +1,46 @@
+<?php
+/**
+ * 路径设置
+ * @var unknown
+ */
+define ( 'NETADDRESS', 'http://' . $_SERVER['HTTP_HOST']);
+define ( 'ABSPATH', rtrim ( $_SERVER ['DOCUMENT_ROOT'], '/' ) );
+define ( 'KERNELPATH', ABSPATH . '/kernel/' );
+define ( 'CONTROLLERPATH', ABSPATH . '/controller/' );
+define ( 'ENTITYPATH', ABSPATH . '/kernel/entity/' );
+define ( 'DAOPATH', ABSPATH . '/kernel/dao/' );
+define ( 'GENERATEPATH', ABSPATH . '/' );
+define ( 'UPLOAD', NETADDRESS . '/upload/' ); // 文件上传路径
+define ( 'DEBUG', TRUE ); //调试模式 TRUE为开启 FALSE为关闭
+
+
+/**
+ * 
+ * smarty模板路径定义
+ */
+define ( 'PLUGINSDIR_SMARTY', ABSPATH . '/tagobj/common/' ); // 自定义插件目录
+define ( 'TEMPDIR', ABSPATH . '/tpl/' ); // 模板目录
+define ( 'CACHEDIR', ABSPATH . '/cache/' ); // 缓存目录
+define ( 'COMPILEDIR', ABSPATH . '/template_c/' ); // 模板缓存目录
+define ( 'SUBFIX', '.htpl' ); // 模板后缀名
+define ( "LEFT_LIMITER", "{{" ); //左定界符
+define ( "RIGHT_LIMITER", "}}" ); //右定界符
+
+/**
+ * 数据库定义
+ *
+ * @var unknown
+ */
+define ( 'DBNAME', 'test1' );
+define ( 'DBUSER', 'root' );
+define ( 'DBPASSWORD', '' ); //hiwbs#!
+define ( 'DBHOST', 'localhost' ); //10.0.0.189
+define ( 'DBCHARSET', 'utf8' );
+
+/**
+ * 系统设置
+ * 
+ */
+ini_set ( 'date.timezone', 'Asia/Shanghai' );
+ini_set ( 'display_errors', 0 );
+?>

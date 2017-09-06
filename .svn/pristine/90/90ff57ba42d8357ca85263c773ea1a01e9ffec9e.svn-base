@@ -1,0 +1,197 @@
+<?php
+
+class ScoreRuleController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        parent::__construct();
+        $this->service = new ScoreRuleService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        //$filterService->addFunc($filterService::$FILERPLUSHTIME);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除单笔数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+        	
+            $commoditys= $_REQUEST['id'];
+        } else {
+        	$arr = explode(',',$_REQUEST['id']);
+        	
+            $commoditys = $arr;
+        }
+        
+       
+        $result = $this->service->deleteBatch($commoditys);
+
+        echo json_encode($result);
+    }
+    
+    public function get_type(){
+    	$scorecateser=new ScoreTitleService();
+    	$result=$scorecateser->query($_REQUEST);
+    	echo json_encode($result);
+    }
+    
+    
+    public function add_cat(){
+    	$commoditycateser=new CommodityCategoriesService();
+    	
+    	$this->blindParams($commocate=new CommodityCategories());
+    	$result = $commoditycateser->save($commocate);
+    	echo json_encode($result);
+    	
+    	
+    }
+    
+    /*
+     * 删除商品目录
+     * 
+     * */
+    public function dele_cat(){
+    	$commoditycateser=new CommodityCategoriesService();
+    	if(!is_array($_REQUEST['id'])){
+    		$arr=array($_REQUEST['id']);
+    	}else{
+    		$arr=$_REQUEST['id'];
+    	}
+    	$result=$commoditycateser->deleteBatch($arr);
+    	echo json_encode($result);
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+  
+        $result = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得单笔动态数据
+     */
+    public function get() {
+        $this->blindParams($commodity = new Commodity());
+        $result = $this->service->get($commodity);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+
+        $this->blindParams($commodity = new Commodity());
+//         print_r($commodity);
+//         exit();
+        $result = $this->service->update($commodity);
+       
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+    	
+        if(isset($_REQUEST['type'])&&$_REQUEST['type']!=null){//检查type是否已经存在
+        	
+        	$array=$this->service->getbytype((int)$_REQUEST['type']);
+        
+        	if(!empty($array->data)){
+        		throw new ValidatorException(179);
+        	}else{
+
+        		$this->blindParams($scorerule = new ScoreRule());
+        		$result = $this->service->save($scorerule);
+        		
+        		echo json_encode($result);
+        	}
+        	
+        }else{
+        	throw new ValidatorException(160);
+        }
+        
+
+    }
+    
+    /**
+     * 生成序列号
+     * @return string
+     */
+    public function make_coupon_card() {
+    	$code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    	$rand = $code[rand(0,25)]          //0到25随机数
+    	.strtoupper(dechex(date('m'))) //转成16进制并大写
+    	.date('d').substr(time(),-5)   //日期+当前时间戳后六位
+    	.substr(microtime(),2,5)       //返回当前时间戳微秒数第二位起取长度为5
+    	.sprintf('%02d',rand(0,99));   //
+    	for(
+    			$a = md5( $rand, true ),
+    			$s = '0123456789ABCDEFGHIJKLMNOPQRSTUV',
+		$d = '',
+    			$f = 0;
+    	$f < 8;
+    	$g = ord( $a[ $f ] ),
+    	$d .= $s[ ( $g ^ ord( $a[ $f + 8 ] ) ) - $g & 0x1F ],
+    	$f++
+    	);
+    	echo json_encode($d);
+    }
+    
+    /*
+     *获取连接地址
+     * 
+     * */
+    public function get_commodity_link(){
+    	if(isset($_REQUEST['id'])&&!empty($_REQUEST['id'])){
+    		$linkarr=array();
+    	if(is_array($_REQUEST['id'])){
+    		
+    		foreach ($_REQUEST['id'] as $k=>$v){
+    			array_push($linkarr, NETADDRESS.'/commodity.php?id='.$v);
+    		}
+    		
+    	}else{
+    	$id=(int)$_REQUEST['id'];
+    	$type=$_REQUEST['type'];
+    	array_push($linkarr, NETADDRESS.'/commodity.php?id='.$id);
+    	//$linkarr=NETADDRESS.'/commodity.php?id='.$id;
+    	
+    		}
+    		$result=array('stute'=>true, 'code'=>0, 'msg'=>null, data=>$linkarr);
+    		echo json_encode($result);
+    	}else{
+    		throw new ValidatorException(7);
+    	}
+    	
+    	
+    }
+}

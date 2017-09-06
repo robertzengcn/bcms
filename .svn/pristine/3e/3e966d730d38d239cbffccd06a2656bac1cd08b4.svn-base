@@ -1,0 +1,294 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<LINK rel="Bookmark" href="/favicon.ico" >
+<LINK rel="Shortcut Icon" href="/favicon.ico" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<script type="text/javascript" src="lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="skin/default/skin.css" rel="stylesheet" type="text/css" id="skin" />
+<link href="lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="css/boyicms/common.css">
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>博医云医院管理后台_博医科技</title>
+<meta name="keywords" content="博医云医院管理后台">
+<meta name="description" content="博医云医院管理系统是网健公司专为医院开发的一款CMS系统，PC端，手机网站，APP同步生成，同步管理。">
+
+</head>
+<body>
+<header class="Hui-header cl"> <a class="Hui-logo l" title="博医云医院管理后台" href="/">博医云医院管理后台</a> <a class="Hui-logo-m l" href="/" title="H-ui.admin">H-ui</a> <span class="Hui-subtitle l">V2.0</span>
+	<nav class="mainnav cl" id="Hui-nav">
+		<ul>
+			<li class="dropDown dropDown_click"><a href="javascript:;" class="dropDown_A"><i class="Hui-iconfont">&#xe600;</i> 快捷菜单 <i class="Hui-iconfont">&#xe6d5;</i></a>
+				<ul class="dropDown-menu radius box-shadow">					
+					<li><a href="/index.html" target="_blank"><i class="Hui-iconfont">&#xe625;</i> 网站首页</a></li>
+					<li><a href="/mobile/" target="_blank"><i class="Hui-iconfont">&#xe6d2;</i> 手机网站</a></li>
+					<li><a href="/wechat/" target="_blank"><i class="Hui-iconfont">&#xe694;</i> 微站首页</a></li>
+					<li><a href="javascript:;" onClick="gMain.jumpUrl('网站生成','static/static.html')"><i class="Hui-iconfont">&#xe626;</i> 网站生成</a></li>
+					<li><a href="javascript:;" onClick="gMain.jumpUrl('手机管理','mobile/mobile.html')"><i class="Hui-iconfont">&#xe63c;</i> 手机管理</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<ul class="Hui-userbar">
+		<li>网站管理员</li>
+		<li class="dropDown dropDown_hover"><a href="#" class="dropDown_A">admin <i class="Hui-iconfont">&#xe6d5;</i></a>
+			<ul class="dropDown-menu radius box-shadow">				
+				<li><a href="javascript:void(0)"  onclick="gMain.logout();">切换账户</a></li>
+				<li><a  href="javascript:void(0)" onClick="gMain.logout();">退出</a></li>
+			</ul>
+		</li>
+		<li id="Hui-msg"> <a href="#" title="消息"><span class="badge badge-danger">1</span><i class="Hui-iconfont" style="font-size:18px">&#xe68a;</i></a> </li>
+		<li id="Hui-skin" class="dropDown right dropDown_hover"><a href="javascript:;" title="换肤"><i class="Hui-iconfont" style="font-size:18px">&#xe62a;</i></a>
+			<ul class="dropDown-menu radius box-shadow">
+				<li><a href="javascript:;" data-val="default" title="默认（黑色）">默认（黑色）</a></li>
+				<li><a href="javascript:;" data-val="blue" title="蓝色">蓝色</a></li>
+				<li><a href="javascript:;" data-val="green" title="绿色">绿色</a></li>
+				<li><a href="javascript:;" data-val="red" title="红色">红色</a></li>
+				<li><a href="javascript:;" data-val="yellow" title="黄色">黄色</a></li>
+				<li><a href="javascript:;" data-val="orange" title="绿色">橙色</a></li>
+			</ul>
+		</li>
+	</ul>
+	<a aria-hidden="false" class="Hui-nav-toggle" href="#"></a> </header>
+<aside class="Hui-aside">
+	<input runat="server" id="divScrollValue" type="hidden" value="" />
+	<div class="menu_dropdown bk_2">
+		<dl id="menu-article">
+			<dt><i class="Hui-iconfont">&#xe623;</i>&nbsp;医院信息管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul flag="hospital" id="ul_01">
+					<li flag="home">
+						<a flag="home" href="javascript:void(0)" _href="welcome.html">后台首页</a>
+					</li>
+					<li flag="introduce">
+						<a href="javascript:void(0)" _href="hospital/introduce.html">医院简介</a>
+					</li>
+					<li flag="news">
+						<a href="javascript:void(0)" _href="hospital/news.html">医院新闻</a>
+					</li>
+					<li flag="media">
+						<a href="javascript:void(0)" _href="hospital/medias.html">媒体报道</a>
+					</li>
+					<li flag="honor">
+						<a href="javascript:void(0)" _href="hospital/honors.html">医院荣誉</a>
+					</li>
+					<li flag="environment">
+						<a href="javascript:void(0)" _href="hospital/environments.html">医院环境</a>
+					</li>
+					<li flag="device">
+						<a href="javascript:void(0)" _href="hospital/devices.html">先进设备</a>
+					</li>
+					<li flag="concat">
+						<a href="javascript:void(0)" _href="hospital/contacts.html">联系方式</a>
+					</li>
+					<li flag="channel">
+						<a href="javascript:void(0)"_href="hospital/channels.html">个性频道</a>
+					</li>
+					<li flag="cloudsync">
+						<a href="javascript:void(0)" _href="cloudsync/index.html">"云"同步</a>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+		<!--医院信息管理-->
+		<dl id="menu-product">
+			<dt><i class="Hui-iconfont">&#xe639;</i>&nbsp;医疗资讯管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul flag="disease" id="ul_02">
+					<li flag="department">
+						<a href="javascript:void(0)" _href="department/list.html">科室设置</a>
+					</li>
+					<li flag="disease">
+						<a href="javascript:void(0)" _href="disease/list.html">疾病设置</a>
+					</li>
+					<li flag="doctor">
+						<a href="javascript:void(0)" _href="doctor/list.html">医生管理</a>
+					</li>
+					<li flag="information">
+						<a href="javascript:void(0)" _href="article/list.html">疾病资讯</a>
+					</li>
+					<li flag="successCase">
+						<a href="javascript:void(0)" _href="clinicaltrials/list.html">案例管理</a>
+					</li>
+					<li flag="technology">
+						<a href="javascript:void(0)" _href="technology/list.html">特色技术</a>
+					</li>
+					<li flag="movie">
+						<a href="javascript:void(0)" _href="movie/list.html">视频管理</a>
+					</li>
+					<li flag="html">
+						<a href="javascript:void(0)" _href="static/static.html">生成页面</a>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+		<!--医疗资讯管理-->
+		<dl id="menu-comments">
+			<dt><i class="Hui-iconfont">&#xe612;</i>&nbsp;网站图片管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul flag="dynamicimage" id="ul_03">
+					<li flag="picList">
+						<a href="javascript:void(0)"  _href="pic/picList.html">单张图片管理</a>
+					</li>
+					<li flag="picScroll">
+						<a href="javascript:void(0)"  _href="pic/pic_scroll.html">轮播图片管理</a>
+					</li>
+					<li flag="picEffect">
+						<a href="javascript:void(0)"  _href="pic/poplist.html">网页弹窗管理</a>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+		<!--网站图片管理-->
+		<dl id="menu-member">
+			<dt><i class="Hui-iconfont">&#xe681;</i>&nbsp;网站导航管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul id="ul_05">
+					<li flag="nav">
+						<a href="javascript:void(0)"  _href="page/head-nav.html">头部导航</a>
+					</li>
+					<li flag="nav">
+						<a href="javascript:void(0)"  _href="page/disease-nav.html">疾病导航</a>
+					</li>
+					<li flag="nav">
+						<a href="javascript:void(0)"  _href="page/foot-nav.html">页尾导航</a>
+					</li>
+					<li flag="nav">
+						<a href="javascript:void(0)"  _href="page/diy-navs.html">自定义导航</a>
+					</li>
+
+				</ul>
+			</dd>
+		</dl>
+		<!--网站导航管理-->
+
+		<dl id="menu-member">
+			<dt><i class="Hui-iconfont">&#xe653;</i>&nbsp;网站SEO管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul flag="seo" id="ul_05">
+					<li flag="pageSet">
+						<a href="javascript:void(0)" _href="seo/weberror.html">404页面设置</a>
+					</li>
+					<li flag="seoSet">
+						<a href="javascript:void(0)" _href="seo/seotag.html">SEO标签设置</a>
+					</li>
+					<li flag="flow">
+						<a href="javascript:void(0)" _href="seo/sitetraffic.html">全站流量统计</a>
+					</li>
+					<li flag="third">
+						<a href="javascript:void(0)" _href="seo/statstool.html">添加其它代码</a>
+					</li>
+					<li flag="link">
+						<a href="javascript:void(0)" _href="seo/flinks.html">友情链接设置</a>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+		<!--网站SEO设置-->
+		<dl id="menu-admin">
+			<dt><i class="Hui-iconfont">&#xe62e;</i>&nbsp;营销功能管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul flag="plugin" id="ul_06">
+					<li flag="ask">
+						<a href="javascript:void(0)" _href="ask/list.html">在线问答</a>
+					</li>
+					<li flag="reservation">
+						<a href="javascript:void(0)" _href="reservation/index.html">预约挂号</a>
+					</li>
+					<li flag="topic">
+						<a href="javascript:void(0)" _href="topic/topic.html">专题制作</a>
+					</li>
+					<li flag="template">
+						<a href="javascript:void(0)" _href="template/web-temp.html">模版管理</a>
+					</li>
+					<li flag="mobile">
+						<a href="javascript:void(0)"  _href="mobile/mobile.html">手机营销</a>
+					</li>
+					<li flag="muchplug">
+						<a href="javascript:void(0)" _href="plugin/index.html">更多功能</a>
+					</li>					
+				</ul>
+			</dd>
+		</dl>
+		<!--营销功能管理-->
+		<dl id="menu-tongji">
+			<dt><i class="Hui-iconfont">&#xe633;</i>&nbsp;用户帮助中心<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd>
+				<ul flag="help" id="ul_07">
+					<li flag="user">
+						<a href="javascript:void(0)" _href="user/user.html">用户管理</a>
+					</li>
+					<li flag="systemLog">
+						<a href="javascript:void(0)" _href="log/log.html">系统日志</a>
+					</li>
+					<li flag="school">
+						<a href="javascript:void(0)" _href="http://www.boyicms.com/admin/?q=help.do&action=seosuport">营销学院</a>
+					</li>
+					<li flag="questions">
+						<a href="javascript:void(0)" _href="http://www.boyicms.com/admin/?q=help.do&action=faq">常见问题</a>
+					</li>
+					<li flag="online">
+						<a href="javascript:void(0)" _href="help/demovideo.html">在线教程</a>
+					</li>
+					<li flag="optimize">
+						<a href="javascript:void(0)">系统优化</a>
+					</li>
+				</ul>
+			</dd>
+		</dl>	
+	</div>
+</aside>
+<div class="dislpayArrow"><a class="pngfix" href="javascript:void(0);" onClick="displaynavbar(this)"></a></div>
+<section class="Hui-article-box">
+	<div id="Hui-tabNav" class="Hui-tabNav">
+		<div class="Hui-tabNav-wp">
+			<ul id="min_title_list" class="acrossTab cl">
+				<li class="active"><span title="后台首页" data-href="welcome.html">后台首页</span><em></em></li>
+			</ul>
+		</div>
+		<div class="Hui-tabNav-more btn-group"><a id="js-tabNav-prev" class="btn radius btn-default size-S" href="javascript:;"><i class="Hui-iconfont">&#xe6d4;</i></a><a id="js-tabNav-next" class="btn radius btn-default size-S" href="javascript:;"><i class="Hui-iconfont">&#xe6d7;</i></a></div>
+	</div>
+	<div id="iframe_box" class="Hui-article">
+		<div class="show_iframe">
+			<div style="display:none" class="loading"></div>
+			<iframe scrolling="yes" frameborder="0" src="welcome.html"></iframe>
+		</div>
+	</div>
+</section>
+/*悬浮框按钮*/
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gMain.openAdd('数据批量替换','shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>
+        <a href="javascript:;" onClick="gMain.openAdd('素材库','shortcuts/source-material.html','900','560')"><li class="floating2"></li></a>
+        <a href="javascript:;" onClick="gMain.openAdd('文章库','shortcuts/article-library.html','900','560')"><li class="floating3"></li></a>
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="/hcc/lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="/hcc/lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="/hcc/js/H-ui.js"></script> 
+<script type="text/javascript" src="/hcc/js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/js/boyicms/main.js"></script>
+<script type="text/javascript">
+var gMain = new Main();
+gMain.setThisName('gMain');
+gMain.init();
+</script> 
+
+</body>
+</html>

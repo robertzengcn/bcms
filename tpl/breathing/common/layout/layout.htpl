@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{{block name="title"}}{{$SEO_TITLE}}{{/block}}</title>
+<meta name="keywords" content="{{block name=keywords}}{{$SEO_KEYWORDS}}{{/block}}" />
+<meta name="description" content="{{block name=description}}{{$SEO_DESCRIPTION}}{{/block}}" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/layout.css">
+{{block name="css"}}{{/block}}
+<script type="text/javascript" src="{{$RESOURCE}}/js/MSClass.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/jquery.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/Public.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/layout.js"></script>
+<script type="text/javascript">
+Layout.setCharUrl("{{$ContactTag->get('swt')}}");
+</script>
+{{block name="js"}}{{/block}}
+<style type="text/css">
+#bar_center{
+    margin: auto;z-index: 999;float:left;position: fixed;
+    display:block;top: 176px;left: 30%; text-align: center;
+}
+/*左侧部弹窗*/
+#bar_right{
+    margin: auto;z-index: 999;float:left;position: fixed;
+    display:block;top:176px;left:0px; text-align: center;
+}
+/*右侧下弹窗*/
+#bar_bottom{
+    margin: auto;z-index: 999;float:right;position: fixed;
+    display:block;bottom: 70px;right:55px; text-align: center;
+}
+</style>
+</head>
+<body>
+{{$logoInfo = $PicManagerTag->getLogo()}} 
+<div id="banner"><img src="{{$UPLOAD}}{{$logoInfo->img}}" width="980" height="350" /></div>
+<div class="wrapper">
+  <!--nav-->
+  <ul id="nav">
+  	{{navigations order="cate asc,sort asc" limit="9" pid="0" cate="1" is_display="1" assign="nav"}}
+  	{{foreach name='navi' from=$nav item=v}}
+  	{{if $smarty.foreach.navi.first}}
+  	<li><a target="_blank" href="{{$WEBSITE}}/{{$v->url}}">{{$v->subject}}</a></li>
+  	{{else}}
+  	{{navigations order="cate asc,sort asc" limit="9" pid=$v->id cate="1" is_display="1" assign="navson"}}
+  	{{if $smarty.foreach.navi.last}}
+  	{{if $navson}}
+  	<li style="background:none;width:106px;" class="menu">{{$v->subject}}
+      <dl>
+      	<dd class="title">{{$v->subject}}</dd>
+      	{{foreach $navson as $value}}
+        <dd><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}">{{$value->subject}}</a></dd>
+        {{/foreach}}
+        <dd class="bottom"></dd>
+      </dl>
+    </li>
+  	{{else}}
+  	<li class="menu" style="background:none;width:106px;"><a target="_blank" href="{{$WEBSITE}}/{{$v->url}}">{{$v->subject}}</a></li>
+  	{{/if}}
+  	{{else}}
+  	{{if $navson}}
+  	<li class="menu">{{$v->subject}}
+      <dl>
+      	<dd class="title">{{$v->subject}}</dd>
+      	{{foreach $navson as $value}}
+        <dd><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}">{{$value->subject}}</a></dd>
+        {{/foreach}}
+        <dd class="bottom"></dd>
+      </dl>
+    </li>
+  	{{else}}
+  	<li class="menu" style="background:none;width:106px;"><a target="_blank" href="{{$WEBSITE}}/{{$v->url}}">{{$v->subject}}</a></li>
+  	{{/if}}
+	{{/if}}
+	{{/if}}
+  	{{/foreach}}
+</ul>
+  <script type="text/javascript">
+var nav = document.getElementById("nav").childNodes;
+for (var i=0;i<nav.length;i++)
+{
+if (nav[i].className=="menu")
+{
+nav[i].onmouseover = function(){fnNav(this,"block")};
+nav[i].onmouseout = function(){fnNav(this,"none")};
+}
+}
+function fnNav(obj,flag)
+{
+obj.getElementsByTagName("dl")[0].style.display = flag;
+}
+</script>
+  <!--subnav-->
+  
+  {{block name="body"}}{{/block}}
+  <!--footer-->
+  <div class="clear h8"></div>
+  <div id="footer">
+    <div>
+    	{{navigations order="cate asc,sort asc" limit="9" pid="0" cate="3" is_display="1" assign="bottomnav"}}
+    	{{foreach name="buttom" from=$bottomnav item=v}}
+    	{{if $smarty.foreach.buttom.last}}
+    	<a target="_blank" href="{{$WEBSITE}}/{{$v->url}}">{{$v->subject}}</a>
+    	{{else}}
+    	<a target="_blank" href="{{$WEBSITE}}/{{$v->url}}">{{$v->subject}}</a>|
+    	{{/if}}
+    	{{/foreach}}
+    	</div>
+    本站版权所有：<a target="_blank" href="{{$WEBSITE}}">{{$ContactTag->get('name')}}</a>地址：{{$ContactTag->get('address')}} 联系电话：{{$ContactTag->get('tel')}} <br />
+    本站由<a target="_blank" href="http://www.qqyy.com">网健天下</a>提供技术支持 合作网站：<a target="_blank" href="http://www.boyicms.com">全球医院网</a>网站信息本站所有资料不能作为诊疗及医疗依据</div>
+  <!--body end-->
+  <div class="clear"></div>
+  <!-- 中间弹窗 -->
+<div class="bar-center" id="bar_center">
+	{{$PicManagerTag->getSpecial('one')}}
+</div>
+<!-- 左侧弹窗 -->
+<div class="bar-right" id="bar_right">
+	{{$PicManagerTag->getSpecial('three')}}
+</div>
+<!-- 底部弹窗 -->
+<div class="bar-bottom" id="bar_bottom">
+	{{$PicManagerTag->getSpecial('two')}}
+</div>
+</div>
+
+</body>
+</html>
+
+<script language="javascript" src="{{$ContactTag->get('swt')}}"></script>

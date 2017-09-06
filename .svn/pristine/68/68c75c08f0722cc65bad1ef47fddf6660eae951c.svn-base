@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>刮刮乐刮刮卡抽奖</title>
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<script type="text/javascript"  src="{{$COMMON}}Draw/public/guaguaka/js/jquery-1.9.1.js"></script>
+	 <style type="text/css">
+	 body{overflow:hidden; background-color:#c11c39;}
+	.sjmes{ position:absolute; width:200px; text-align:center; font-size:20px; line-height:80px; color:white;left: 50%;margin-left: -100px;margin-top:40px; display:none; }
+	 
+.layer { display:none; position:fixed; width:100%; max-width:720px; height:100%; top:0; left:0; z-index:99; background:rgba(0,0,0,0.6);} 
+.pop {display:none; position:fixed; width:100%;  height:100%; top:0; left:0; z-index:9999; }
+.pop-box { position: relative;width:80%; height:80%; max-height:300px; margin:40% auto;}
+.close-pop { float:right;padding-top:5px;padding-right:5px;}
+.pop-title{font-size:20px;color:#FFFFFF;position: absolute;top:55%;width: 90%;margin-left:10px;text-align:center;}
+.pop-img{position: absolute;top:16%;left:32%;}
+.pop-img img{width:100px;height:100px;}
+.pop-font{font-size:20px;position: absolute;top:75%;width: 90%;margin-left:10px;text-align:center;}
+.pop-font a{text-decoration:none;}
+
+.btn-rule {font-size:12px; color:#FDB012;  cursor:pointer;margin-left:15px;text-decoration:underline;}
+.btn-rule:hover,.btn-rule:focur{color:#FDB012;}
+.rule { display:none;  position:fixed; width:100%; max-width:720px; height:100%; top:0; left:0; z-index:999; }
+.rule-box {  position: relative;padding:15px 15px 30px 15px; width:86%; height:70%; max-height:220px; margin:40% auto; background:rgba(247,98,116,1); background-size:100% 90%; }
+.close-rule { position: absolute;top:5px;right:5px;}
+.title{margin-top:10px;}
+.rule-title { font-size:16px; font-weight: bold; color:#524120; margin-bottom:5px;color:#FFFFFF;}
+.rule-time{color:#FDB012;font-size:12px; float:left;}
+.rule-detail { margin-left:25px;margin-bottom:20px;overflow:scroll;max-height:200px;color:#FFFFFF;}
+
+	 #bg{position:absolute;top:0;left:0;}
+	 #bg2{width:295px;height:195px;margin:0 auto;}
+	 #bg2_img{position: absolute;}
+	 #lamp,#nImg{ height:160px; width:300px;position: absolute;}
+	 #number{color:#f2e5b5;position: absolute; left:50%; margin-left:-116px; text-shadow: -1px 1px 0 #333;font-size:14px;}
+	 #gua1{width:295px;;margin:0 auto; padding-top:20px;}
+	 #front{position:absolute;no-repeat}
+	 #notify{width:295px;height:101px;margin:0 auto;}
+	 #nImg_div {position: absolute;color:white;font-size: 12px;font-family: '黑体'}
+	 marquee{width:245px;height:80px; margin:10px 0px 0px 60px; overflow:hidden; text-align:left;}
+	 marquee p{ margin:0;padding:0;}
+	</style>
+</head>
+
+<body>
+	<div id="bg">
+    	<img src="{{$COMMON}}Draw/public/guaguaka/img/guaguaka_bg.png" width="100%" height="100%" / >
+    </div>
+	<div id="bg2">
+		<img id="bg2_img" src="{{$COMMON}}Draw/public/guaguaka/img/guaguaka_word.png" width="295" height="195">
+	</div>
+	<div  id="number">
+		<span class="rule-time">活动时间:{{$ruletime}}</span><a class="btn-rule">活动规则</a><br/>
+		<span>您有<span>{{$drawtime}}</span>次抽奖机会，快来试试运气</span>
+	</div>
+	<div id="gua1" >
+		<img id="lamp" src="{{$COMMON}}Draw/public/guaguaka/img/gua_image.png">
+        <div class="sjmes" id="sjmes" ></div>
+		<canvas id="front"  />
+	</div>
+	
+<img id="lamp2" src="{{$COMMON}}Draw/public/guaguaka/img/222.png" style=" display:none;">
+
+
+<div class="layer"></div>
+<div class="rule">
+	<div class="rule-box">
+		<div class="close-rule"><img src="{{$COMMON}}Draw/public/zhuanpan/images/close.png" width="26"></div>
+		<div class="rule-title">活动细则:</div>
+		<div class="rule-detail">{{$rulecontent}}</div>
+	</div>
+</div>
+	<div class="pop">
+		<div class="pop-box">
+			<div class="close-pop"><img src="{{$COMMON}}Draw/public/zhuanpan/images/close.png" width="26"></div>
+			<div class="pop-title"></div>
+		</div>
+	</div>	
+<div id="notify">
+	<img id="nImg" src="{{$COMMON}}Draw/public/guaguaka/img/notice_bg.png">
+	<div id="nImg_div" align="center">		
+		<marquee behavior="scroll"  scrollamount="3" direction=up>
+		{{foreach from=$prizeall item=v}}
+            <p>{{$v->name}}&nbsp;&nbsp;&nbsp;{{$v->prize_count}}份(余)&nbsp;&nbsp;&nbsp;{{$v->prize_win}}份(中)</p>
+		{{/foreach}}
+		</marquee>
+	</div>
+</div>
+  </body>
+</html>
+ 
+<script>
+//JavaScript Document
+var gua = 1,re = 2; 
+/*var imgSrc = 'img/aa.png';*/
+
+function bodys(height,width){
+	bodys.mozUserSelect = 'none';
+    bodys.webkitUserSelect = 'none';
+	var img = new Image();         
+	var canvas = document.querySelector('canvas');
+	canvas.style.backgroundColor='transparent';         
+	canvas.style.position = 'absolute';  
+	var imgs = ['{{$COMMON}}Draw/public/guaguaka/img/prize.png'];//'img/prize.jpg','img/prize2.jpg'
+	var num = Math.floor(Math.random()*2);	
+	img.src = imgs;	         
+	img.addEventListener('load',function(e){
+		var count=1;
+		var ctx;
+		var w = width, h = height;             
+		var offsetX = canvas.offsetLeft, offsetY = canvas.offsetTop;             
+		var mousedown = false; 	
+		function layer(ctx){                 
+			var img=document.getElementById("lamp2");
+			var pat=ctx.createPattern(img,"repeat");                
+
+			ctx.fillStyle = pat;
+			
+			ctx.fillRect(0, 0, w, h);           
+		}   
+		
+ 		function starteventDown(e){
+ 			e.stopPropagation();
+            if(count==1){
+            	count++;
+            	setTimeout(eventDown(e),300);	
+            }else{
+            	eventDown(e);
+            }			     
+		}   
+		function eventDown(e){			
+			e.preventDefault();                 
+			mousedown=true;  		     
+		}   
+		function eventUp(e){            
+			e.preventDefault();                 
+			mousedown=false; 			
+			 var data = ctx.getImageData(0,0,w,h).data;   
+		     for(var i=0,j=0;i<data.length;i+=4){
+	  		    if(data[i] && data[i+1] && data[i+2]&& data[i+3] ){
+	   	        j++;
+				}
+			}
+			//当图层被擦除剩余80%时触发
+			if(j<=w*h*0.7){
+				ctx.clearRect(0,0,w,h);
+				$(".sjmes").css({"display":"block"});
+				if($('#sjmes').text()==""){
+					makegua();
+				}
+			}  
+		
+		}               
+		function eventMove(e){   
+			
+			e.preventDefault();                 
+			if(mousedown){                     
+				if(e.changedTouches){                         
+					e=e.changedTouches[e.changedTouches.length-1];                     
+				}                     
+				var x = (e.clientX + document.body.scrollLeft || e.pageX) - offsetX || 0,                         
+				y = (e.clientY + document.body.scrollTop || e.pageY) - offsetY || 0;                     
+				with(ctx){                    
+					beginPath();                     
+					arc(x, y, 15, 0, Math.PI * 2);                         
+					fill();                     
+				}                
+			}             
+		} 
+ 
+		canvas.width=w;             
+		canvas.height=h; 
+		
+		canvas.style.backgroundImage='url('+img.src+')';              
+		ctx=canvas.getContext('2d');         
+		ctx.fillStyle='b9b9b9';             
+		ctx.fillRect(0, 0, w, h);
+
+		layer(ctx); 
+		
+		ctx.globalCompositeOperation = 'destination-out';               
+ 		canvas.addEventListener('touchstart', starteventDown);             
+		canvas.addEventListener('touchend', eventUp);             
+		canvas.addEventListener('touchmove', eventMove);             
+		canvas.addEventListener('mousedown', starteventDown);             
+		canvas.addEventListener('mouseup', eventUp);             
+		canvas.addEventListener('mousemove', eventMove);     
+
+	});
+	
+	/*img.src = imgSrc;*/
+	(document.body.style);}
+function sleep(numberMillis) {
+    var now = new Date();
+    var exitTime = now.getTime() + numberMillis;
+    while (true) {
+        now = new Date();
+        if (now.getTime() > exitTime)
+            return;
+    }
+}	
+	
+function removebodys(height,width){
+	bodys.mozUserSelect = 'none';
+    bodys.webkitUserSelect = 'none';
+	var img = new Image();         
+	var canvas = document.querySelector('canvas');
+	canvas.style.backgroundColor='transparent';         
+	canvas.style.position = 'absolute';  
+	var imgs = ['{{$COMMON}}Draw/public/guaguaka/img/prize.png'];//'img/prize.jpg','img/prize2.jpg'
+	var num = Math.floor(Math.random()*2);
+	
+	img.src = imgs;
+	canvas.removeEventListener("touchstart", starteventDown);
+	canvas.removeEventListener("touchend", eventUp);
+	canvas.removeEventListener("touchmove", eventMove);
+	canvas.removeEventListener("mousedown", starteventDown);
+	canvas.removeEventListener("mouseup", eventUp);
+	canvas.removeEventListener('mousemove', eventMove);
+	
+	/*img.src = imgSrc;*/
+	(document.body.style);}
+
+// JavaScript Document
+function makegua(){
+$.ajax({url:'./draw.php?method=drawdan&drawid={{$draw_id}}',  
+	    type:'post',  
+	     cache:false,  
+	    dataType:'json',  
+	    success:function(data) {
+	    if(data.statu){	
+			if(data.code==1){	
+	    		sjmes.innerHTML=data.msg;
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/winning.png)","background-size":"100% 100%"});
+				$('.pop-box').append('<div class="pop-img"><img src="'+data.img+'"></div>');
+				$(".pop-box").append('<div class="pop-font"><a href="./draw.php?method=getmydraw&id='+data.data.zid+'">前去领奖</a></div>');
+				$(".pop-title").html("恭喜，您中得"+data.msg+"!");
+				$(".layer ,.pop").show();
+
+	    	}else{
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/n_winning.png)","background-size":"100% 100%"});
+				$(".pop-title").html(data.msg);
+				$(".layer ,.pop").show();				
+			}
+	    }else{
+	    	sjmes.innerHTML=data.msg;
+			$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/n_winning.png)","background-size":"100% 100%"});
+			$(".pop-title").html(data.msg);
+			$(".layer ,.pop").show();	    	
+	    }
+	}
+});
+}
+	$(".btn-rule").click(function() {
+		$(".layer ,.rule").show()
+	});
+	$(".close-rule").click(function() {
+		$(".layer ,.rule").hide()
+	});
+	$(".close-pop").click(function() {
+	$(".layer ,.pop").hide();
+	});
+$(window).load(function(){	
+		$("#lamp").width(300).height(160);		
+		var height = 144;
+		var width  = 285;
+		
+		var bg2_width = $("#bg2_img").width();
+		var bg2_height = $("#bg2_img").height();
+		
+		$("#gua1").css({"margin-top":"20px"});
+
+		$("#notify").css({"margin-top":"180px"});
+		$("#nImg").width(300).height(101);
+			
+		$("#di").css({"margin-top":"20px"});
+		$("#front").css({"margin-top":8+"px","margin-left":7.5+"px"});
+		$("#bg").width("100%").height($(window).height()-1);
+		if(gua > 0){			
+			bodys(height,width);
+		}
+		 
+	});	
+</script>

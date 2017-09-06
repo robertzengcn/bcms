@@ -1,0 +1,973 @@
+<?php
+
+class ReservationService extends BaseService {
+
+    public function __construct() {
+        $this->dao = new ReservationDAO();
+        
+    }
+
+    /**
+     * 添加或编辑 .
+     * ..
+     */
+    public function save($reservation) {
+        $reservation->validate();
+        $this->dao->save($reservation);
+        return $this->success();
+    }
+    
+    /**
+     * 根据条件获取医生
+     */
+   public function getdoctors($where){
+   	    
+	   	$reservations = $this->dao->getdoctors($where);
+	   	$departmentS = new DepartmentManagerService();
+	   	$department = new DepartmentManager();
+	   	$doctorS = new DoctorManagerService();
+	   	$doctor = new DoctorManager();
+	   	
+	   	$docs = array();
+	   	$result = array();
+	   	$i = 0;
+	   	foreach ($reservations as $k => $v) {
+	   		$v->date = date('w', $v->date);
+	   		$department->id = $v->department_id;
+	   		$departmentContent = $departmentS->get($department);
+	   		$doctor->id = $v->doctor_id;
+	   		$doctorContent = $doctorS->get($doctor);
+	   		$v->department = $departmentContent->data->name;
+	   		$v->doctor = $doctorContent->data->name;
+	   		$v->position = $doctorContent->data->position;
+	   		$v->description = $doctorContent->data->description;
+	   		$v->pic = $doctorContent->data->pic;
+	   		if($v->morning != null){
+	   			$v->morning = 1;
+	   		}
+	   		if($v->afternoon != null){
+	   			$v->afternoon = 2;
+	   		}
+	   		if($v->night != null){
+	   			$v->night = 3;
+	   		}
+	   	}
+	   	
+	   	foreach ($reservations as $k => $v) {
+	   		$docs[$v->doctor] = $v->doctor;
+	   	}
+	   	
+	   	foreach ($docs as $k => $v){
+	   		$name = $v;
+	   		$n=0;
+	   		foreach($reservations as $b => $a){
+	   			
+	   			if($name == $a->doctor){
+	   				$result[$name][$n] = $reservations[$b];
+	   				$n++;
+	   			}
+	   		}
+	   	}
+	   	return $this->success($result);
+   }
+    
+    /**
+     * 查询指定的数据量...
+     *
+     * @param array $where
+     * @return Result
+     */
+    public function query($where) {
+    	$ordercolumun=$_REQUEST['order'];
+     	
+    	
+    	$ordernum=isset($ordercolumun[0]['column'])?$ordercolumun[0]['column']:1;
+    	$ordertype=$ordercolumun[0]['dir'];
+    	$columns=$_REQUEST['columns'];
+    	$orderable=$columns[$ordernum]['orderable'];
+    	if($orderable){
+    	$orderdate=$columns[$ordernum]['data'];
+    	//$order=$_POST[$posdate];
+    	}else{
+    		$orderdate='id';
+    		
+    	}
+    	$where['sort']=$orderdate.' '.$ordertype;
+    $searcharray=$_REQUEST['search'];
+    $searchval=$searcharray['value'];
+    $obj=json_decode($searchval);
+    	if(strlen($obj->name) != 0){
+    		$where['name']=$obj->name;
+    	}
+    	if(strlen($obj->department_id) != 0){
+    		$where['department_id']=$obj->department_id;
+    	}
+    	if(strlen($obj->starttime) != 0){
+    		$where['startdate']=strtotime($obj->starttime);
+    	}
+
+    	if(strlen($obj->endtime) != 0){
+    		$where['enddate']=strtotime($obj->endtime);
+    	}
+    	
+
+        $reservations = $this->dao->query($where);
+
+        foreach ($reservations as $k => $v) {
+
+            $reservations[$k]->times = $v->morning. ' ' . $v->afternoon . ' ' . $v->night;
+            $reservations[$k]->date = date('Y-m-d', $v->date);
+        }
+    
+
+        
+        return $this->success($reservations);
+    }
+    
+    public function totalRows($where) {
+   
+    	$ordercolumun=$_REQUEST['order'];
+    	
+    	 
+
+    	$searcharray=$_REQUEST['search'];
+    	$searchval=$searcharray['value'];
+    	$obj=json_decode($searchval);
+    	if(strlen($obj->name) != 0){
+    		$where['name']=$obj->name;
+    	}
+    	if(strlen($obj->department_id) != 0){
+    		$where['department_id']=$obj->department_id;
+    	}
+    	if(strlen($obj->starttime) != 0){
+    		$where['startdate']=strtotime($obj->starttime);
+    	}
+    	
+    	if(strlen($obj->endtime) != 0){
+    		$where['enddate']=strtotime($obj->endtime);
+    	}
+    	 
+    	
+    	$reservations = $this->dao->totalRows($where);
+    	return $reservations;
+    	
+    }
+    
+    public function gettotal(){
+    	return $this->dao->gettotalCount();
+    	
+    }
+    
+    public function updatedepartment($doctorid, $department_id){
+    	$arr=array('doctor_id'=>$doctorid,'department_id'=>$department_id);
+    	return $this->dao->updatedepartment($arr);
+    }
+
+    /*
+     * 返回排班表状态， 0为开启，1为关闭
+     * param int $state
+     * */
+    
+    public function returnstate($state){
+    	if($state!=null){
+    		if($state==0){
+    			return '已开放';
+    		}else{
+    			return '已停诊';
+    		}
+    	}else{
+    		return '已停诊';
+    	}
+    }
+    
+    
+    
+    public function queryTag($where) {
+        $departmentS = new DepartmentManagerService();
+        $department = new DepartmentManager();
+        $doctorS = new DoctorManagerService();
+        $doctor = new DoctorManager();
+        $reservations = $this->dao->query($where);
+        foreach ($reservations as $k => $v) {
+            $v->date = date('Y-m-d', $v->date);
+            $department->id = $v->department_id;
+            $departmentContent = $departmentS->get($department);
+            $doctor->id = $v->doctor_id;
+            $doctorContent = $doctorS->get($doctor);
+            $v->department = $departmentContent->data->name;
+            $v->doctor = $doctorContent->data->name;
+            if ($v->morning) {
+                $morning = explode('-', $v->morning);
+                $num1 = strtotime($v->date . ' ' . $morning[1]) - strtotime($v->date . ' ' . $morning[0]);
+            }
+            if ($v->afternoon) {
+                $afternoo = explode('-', $v->afternoon);
+                $num2 = strtotime($v->date . ' ' . $afternoo[1]) - strtotime($v->date . ' ' . $afternoo[0]);
+            }
+            if ($v->night) {
+                $night = explode('-', $v->night);
+                $num3 = strtotime($v->date . ' ' . $night[1]) - strtotime($v->date . ' ' . $night[0]);
+            }
+    
+            // 计算总数
+            if (isset($num1) && ! empty($num1)) {
+                $arr = array(
+                    'department_id' => $v->department_id,
+                    'doctor_id' => $v->doctor_id,
+                    'date' => strtotime($v->date),
+                    'start' => strtotime($v->date . ' ' . $morning[0]),
+                    'end' => strtotime($v->date . ' ' . $morning[1])
+                );
+                $appCount1 = $this->getApproximately($arr);
+                $number_1 = $this->getAllVerification($arr);
+            } else {
+                $number_1 = 0;
+                $appCount1 = 0;
+            }
+            if (isset($num2) && ! empty($num2)) {
+                $arr = array(
+                    'department_id' => $v->department_id,
+                    'doctor_id' => $v->doctor_id,
+                    'date' => strtotime($v->date),
+                    'start' => strtotime($v->date . ' ' . $afternoo[0]),
+                    'end' => strtotime($v->date . ' ' . $afternoo[1])
+                );
+                $appCount2 = $this->getApproximately($arr);
+                $number_2 = $this->getAllVerification($arr);
+            } else {
+                $number_2 = 0;
+                $appCount2 = 0;
+            }
+            if (isset($num3) && ! empty($num3)) {
+                $arr = array(
+                    'department_id' => $v->department_id,
+                    'doctor_id' => $v->doctor_id,
+                    'date' => strtotime($v->date),
+                    'start' => strtotime($v->date . ' ' . $night[0]),
+                    'end' => strtotime($v->date . ' ' . $night[1])
+                );
+                $appCount3 = $this->getApproximately($arr);
+                $number_3 = $this->getAllVerification($arr);
+            } else {
+                $number_3 = 0;
+                $appCount3 = 0;
+            }
+            $v->count = $number_1 +  $number_2+ $number_3;
+            $v->approximately = $appCount1 + $appCount2 + $appCount3;
+        }
+        return $this->success($reservations);
+    }
+    
+    /*
+     * 取可预约的数量
+     * */
+    public function getresnum($reservation){
+    	$arr=array('id'=>$reservation->id);
+    	$result=$this->dao->getresnum($arr);
+    	
+    	return $result;
+    }
+    
+    
+      
+    
+    
+    
+    
+    
+    
+    /**
+     * 根据id获取一条数据 .
+     * ..
+     */
+    public function get($reservation) {
+        $this->dao->get($reservation->id, $reservation);
+        $time = $reservation->date;
+        $day = date('Y-m-d', $time);
+        $reservation->date=$day;
+        $departmentS = new DepartmentManagerService();
+        $doctorS = new DoctorManagerService();
+        $department = new Department();
+        $doctor = new Doctor();
+        $doctor->id=$reservation->doctor_id;
+        $department->id=$reservation->department_id;
+        if($reservation->morning){
+        	$reservation->time='mon';
+        	$arrtime = explode('-',$reservation->morning);
+        	
+        }elseif($reservation->afternoon){
+        	$reservation->time='aft';
+        	$arrtime = explode('-',$reservation->afternoon);
+        	
+        }else{
+        	$reservation->time='nig';
+        	$arrtime = explode('-',$reservation->night);       	
+        }
+        $reservation->start=$arrtime[0];
+        $reservation->end=$arrtime[1];
+        $reservation->resertime=$arrtime[0].' - '.$arrtime[1];
+        $doctorContent = $doctorS->get($doctor);
+        //$v->department = $departmentContent->data->name;
+        
+        
+        $departmentContent=$departmentS->get($department);
+        $reservation->department = $departmentContent->data->name;
+        $doctorContent = $doctorS->get($doctor);
+        //$v->department = $departmentContent->data->name;
+        $reservation->doctor = $doctorContent->data->name;
+        
+//         unset($reservation->date);
+//         $num = date('w', $time);
+//         $reservation->week = $num;
+//         if ($reservation->morning) {
+//             $timeM = explode('-', $reservation->morning);
+//         }
+//         if ($reservation->afternoon) {
+//             $timeA = explode('-', $reservation->afternoon);
+//         }
+//         if ($reservation->night) {
+//             $timeN = explode('-', $reservation->night);
+//         }
+//         switch ($num) {
+//             case 0:
+//                 $reservation->date['sunday'] = $day;
+//                 $reservation->sundayMorning['start'] = $timeM[0];
+//                 $reservation->sundayMorning['end'] = $timeM[1];
+//                 $reservation->sundayAfternoon['start'] = $timeA[0];
+//                 $reservation->sundayAfternoon['end'] = $timeA[1];
+//                 $reservation->sundayNight['start'] = $timeN[0];
+//                 $reservation->sundayNight['end'] = $timeN[1];
+//                 break;
+//             case 1:
+//                 $reservation->date['monday'] = $day;
+//                 $reservation->mondayMorning['start'] = $timeM[0];
+//                 $reservation->mondayMorning['end'] = $timeM[1];
+//                 $reservation->mondayAfternoon['start'] = $timeA[0];
+//                 $reservation->mondayAfternoon['end'] = $timeA[1];
+//                 $reservation->mondayNight['start'] = $timeN[0];
+//                 $reservation->mondayNight['end'] = $timeN[1];
+//                 break;
+//             case 2:
+//                 $reservation->date['tuesday'] = $day;
+//                 $reservation->tuesdayMorning['start'] = $timeM[0];
+//                 $reservation->tuesdayMorning['end'] = $timeM[1];
+//                 $reservation->tuesdayAfternoon['start'] = $timeA[0];
+//                 $reservation->tuesdayAfternoon['end'] = $timeA[1];
+//                 $reservation->tuesdayNight['start'] = $timeN[0];
+//                 $reservation->tuesdayNight['end'] = $timeN[1];
+//                 break;
+//             case 3:
+//                 $reservation->date['wednesday'] = $day;
+//                 $reservation->wednesdayMorning['start'] = $timeM[0];
+//                 $reservation->wednesdayMorning['end'] = $timeM[1];
+//                 $reservation->wednesdayAfternoon['start'] = $timeA[0];
+//                 $reservation->wednesdayAfternoon['end'] = $timeA[1];
+//                 $reservation->wednesdayNight['start'] = $timeN[0];
+//                 $reservation->wednesdayNight['end'] = $timeN[1];
+//                 break;
+//             case 4:
+//                 $reservation->date['thursday'] = $day;
+//                 $reservation->thursdayMorning['start'] = $timeM[0];
+//                 $reservation->thursdayMorning['end'] = $timeM[1];
+//                 $reservation->thursdayAfternoon['start'] = $timeA[0];
+//                 $reservation->thursdayAfternoon['end'] = $timeA[1];
+//                 $reservation->thursdayNight['start'] = $timeN[0];
+//                 $reservation->thursdayNight['end'] = $timeN[1];
+//                 break;
+//             case 5:
+//                 $reservation->date['friday'] = $day;
+//                 $reservation->fridayMorning['start'] = $timeM[0];
+//                 $reservation->fridayMorning['end'] = $timeM[1];
+//                 $reservation->fridayAfternoon['start'] = $timeA[0];
+//                 $reservation->fridayAfternoon['end'] = $timeA[1];
+//                 $reservation->fridayNight['start'] = $timeN[0];
+//                 $reservation->fridayNight['end'] = $timeN[1];
+//                 break;
+//             case 6:
+//                 $reservation->date['saturday'] = $day;
+//                 $reservation->saturdayMorning['start'] = $timeM[0];
+//                 $reservation->saturdayMorning['end'] = $timeM[1];
+//                 $reservation->saturdayAfternoon['start'] = $timeA[0];
+//                 $reservation->saturdayAfternoon['end'] = $timeA[1];
+//                 $reservation->saturdayNight['start'] = $timeN[0];
+//                 $reservation->saturdayNight['end'] = $timeN[1];
+//                 break;
+//         }
+        return $this->success($reservation);
+    }
+
+    /**
+     * 修改数据 .
+     * ..
+     *
+     * @param object $reservation
+     */
+    public function update($reservation) {
+        $reservation->validate();
+        return $this->dao->update($reservation);
+    }
+
+    /**
+     * 删除记录 .
+     * ..
+     *
+     * @param array $ids
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids);
+        $beans = $this->dao->getBatch($ids);
+        foreach ($beans as $v) {
+            $arr = $v->export();
+            $array = array(
+                'department_id' => $arr['department_id'],
+                'doctor_id' => $arr['doctor_id'],
+                'date' => $arr['date']
+            );
+            $this->deleteAll($array);
+        }
+        return $this->dao->deleteBeans($beans);
+    }
+
+    /**
+     * 添加到详细表 .
+     * ..
+     *
+     * @param object $detail
+     */
+    public function addToDetail($detail) {
+        $this->dao->addToDetail($detail);
+    }
+
+    /**
+     * 获取详细列表 .
+     * ..
+     *
+     * @param array $where
+     * @return Result
+     */
+    public function getDetail($where) {
+    	if($where['date']==null){
+    		throw new ValidatorException(162);
+    	}
+    	if($where['department_id']==null){
+    		throw new ValidatorException(67);
+    	}
+    	if($where['doctor_id']==null){
+    		throw new ValidatorException(28);
+    	}
+    	$where['normaldate']=date('Y-m-d',$where['date']);
+    
+    	
+        //$departmentS = new DepartmentManagerService();
+        //$department = new DepartmentManager();
+        //$doctorS = new DoctorManagerService();
+        //$doctor = new DoctorManager();
+        $reserverdetailser=new ReservationDetailService();
+        //$department->id = $where['department_id'];
+        //$departmentContent = $departmentS->get($department);
+        //$doctor->id = $where['doctor_id'];
+        //$doctorContent = $doctorS->get($doctor);
+        
+        $detai = $this->dao->getDetail($where);
+        
+       
+        //if($_REQUEST['date']!=null){
+        
+        foreach ($detai as $k=>$v) {
+
+if($v->morning!=null&&strlen($v->morning)!=0){
+	//$v->time=$v->morning;
+	
+	$arrmon=explode('-',$v->morning);
+	
+	$arrstart=strtotime($where['normaldate'].' '.$arrmon[0]);	
+	$arrend=strtotime($where['normaldate'].' '.$arrmon[1]);
+	
+
+	
+	$timeamount=$arrend-$arrstart;
+	
+    $pertime=$timeamount/$v->along;
+    $arrtime=array();
+    $arrtime[0]=$arrstart;
+    $arrtime[$v->along]=$arrend;
+    
+   for ($i=1;$i<$v->along;$i++){
+   	$arrtime[$i]=$arrstart+$pertime;
+   	$arrstart=$arrstart+$pertime;
+   }
+   
+   
+   
+   $montimeset=array();
+   $atest=array();
+
+ for($s=0;$s<count($arrtime)-1;$s++){
+ 	$montimeset[$s]=date('h:i',$arrtime[$s]).'-'.date('h:i',$arrtime[$s+1]);
+ 	$checkarr=array('timestart'=>$arrtime[$s],'timeend'=>$arrtime[$s+1],'department_id'=>$where['department_id'],'doctor_id'=>$where['doctor_id'],'date'=>$where['date']);
+ 	$result=$reserverdetailser->getreserbetw($checkarr);
+ 	if($result!=null){
+ 		unset($montimeset[$s]);
+ 				
+ 	}	
+ }
+
+ $v->timearrange=array_merge($montimeset);
+
+}elseif($v->afternoon!=null&&strlen($v->afternoon)!=0){	
+	//$v->time=$v->afternoon;
+	$arraft=explode('-',$v->afternoon);
+	
+	$arrstart=strtotime($where['normaldate'].' '.$arraft[0]);
+	$arrend=strtotime($where['normaldate'].' '.$arraft[1]);
+	
+	
+	
+	$timeamount=$arrend-$arrstart;
+	
+	$pertime=$timeamount/$v->along;
+	$arrtime=array();
+	$arrtime[0]=$arrstart;
+	$arrtime[$v->along]=$arrend;
+	
+	for ($i=1;$i<$v->along;$i++){
+		$arrtime[$i]=$arrstart+$pertime;
+		$arrstart=$arrstart+$pertime;
+	}
+	 
+	 
+	 
+	$afttimeset=array();
+	$atest=array();
+	
+	for($s=0;$s<count($arrtime)-1;$s++){
+		$afttimeset[$s]=date('h:i',$arrtime[$s]).'-'.date('h:i',$arrtime[$s+1]);
+		$checkarr=array('timestart'=>$arrtime[$s],'timeend'=>$arrtime[$s+1],'department_id'=>$where['department_id'],'doctor_id'=>$where['doctor_id'],'date'=>$where['date']);
+		$result=$reserverdetailser->getreserbetw($checkarr);
+		if($result!=null){
+			unset($afttimeset[$s]);
+				
+		}
+	}
+	$v->timearrange=array_merge($afttimeset);
+	
+	
+}else{
+	
+	//$v->time=$v->night;
+	
+$arrnig=explode('-',$v->night);
+	
+	$arrstart=strtotime($where['normaldate'].' '.$arrnig[0]);
+	$arrend=strtotime($where['normaldate'].' '.$arrnig[1]);
+	
+	
+	
+	$timeamount=$arrend-$arrstart;
+	
+	$pertime=$timeamount/$v->along;
+	$arrtime=array();
+	$arrtime[0]=$arrstart;
+	$arrtime[$v->along]=$arrend;
+	
+	for ($i=1;$i<$v->along;$i++){
+		$arrtime[$i]=$arrstart+$pertime;
+		$arrstart=$arrstart+$pertime;
+	}
+	 
+	 
+	 
+	$nigtimeset=array();
+	$atest=array();
+	
+	for($s=0;$s<count($arrtime)-1;$s++){
+		$nigtimeset[$s]=date('h:i',$arrtime[$s]).'-'.date('h:i',$arrtime[$s+1]);
+		$checkarr=array('timestart'=>$arrtime[$s],'timeend'=>$arrtime[$s+1],'department_id'=>$where['department_id'],'doctor_id'=>$where['doctor_id'],'date'=>$where['date']);
+		$result=$reserverdetailser->getreserbetw($checkarr);
+		if($result!=null){
+			unset($nigtimeset[$s]);
+				
+		}
+	}
+	$v->timearrange=array_merge($nigtimeset);
+}
+
+
+        	//$v->time=trim($v->mornint.$v->afternoon.$v->night);
+            $v->date = date('Y-m-d', $v->date);
+            $v->available=$v->along-$v->mark;
+            $v->price=0;
+        }
+//         }else{
+//         	foreach ($detai as $k=>$v) {
+        	
+//         		if($v->morning!=null&&strlen($v->morning)!=0){
+//         			$v->time=date("Y-m-d",$v->date).' '.$v->morning;
+//         		}elseif($v->afternoon!=null&&strlen($v->afternoon)!=0){
+//         			$v->time=date("Y-m-d",$v->date).' '.$v->afternoon;
+//         		}else{
+//         			$v->time=date("Y-m-d",$v->date).' '.$v->night;
+//         		}
+        	
+        	
+//         		//$v->time=trim($v->mornint.$v->afternoon.$v->night);
+//         		$v->date = date('Y-m-d', $v->date);
+//         		$v->available=$v->along-$v->mark;
+//         	}
+//         }
+      
+        
+        return $this->success($detai);
+    }
+
+    /**
+     * 获取详细页的总数 .
+     * ..
+     *
+     * @param array $where
+     * @return Result
+     */
+    public function getCount($where) {
+        $count = $this->dao->getCount($where);
+        return new Result(true, 0, '', $count);
+    }
+
+    /**
+     * 删除详细列表...
+     *
+     * @param array $ids
+     */
+    public function deleteDetail($ids) {
+        Entity::isIds($ids);
+        $beans = $this->dao->detailBatch($ids);
+        return $this->dao->deleteDetail($beans);
+    }
+
+    /*根据科室，医生，日期删除详细表中的记录...
+     * 
+     * @param $date, $department_id
+     */
+    public function delete_indate($date,$department_id) {
+    	$arr=array('department_id'=>$department_id,
+    			   'date'=>$date
+    	);
+        $this->dao->delete_indate($arr);
+    }
+    /**
+     * 根据科室，医生，日期删除详细表中的记录...
+     */
+    public function deleteAll($arr) {
+        $this->dao->deleteAll($arr);
+    }
+
+    /**
+     * 获取已约总数
+     */
+    public function getApproximately($array) {
+        return $this->dao->getApproximately($array);
+    }
+    
+    /**
+     * 根据条件获取总号数...
+     */
+    public function getAllVerification($array){
+    	return $this->dao->getAllVerification($array);
+    }
+
+    /**
+     * 获取详细页所有的数据
+     *
+     * @return Result
+     */
+    public function getDetailAll() {
+        $detailAll = $this->dao->getDetailAll();
+        $departmentS = new DepartmentService();
+        $department = new Department();
+        $doctorS = new DoctorService();
+        $doctor = new Doctor();
+        $contact = new Contact();
+        $contact->id = 1;
+        $contactS = new ContactService();
+        $res = $contactS->get($contact);
+        $department_id = 0;
+        $doctor_id = 0;
+        foreach ($detailAll as $detail) {
+            if ($department_id != $detail->department_id) {
+                $department_id = $detail->department_id;
+                $department->id = $department_id;
+                $departmentC = $departmentS->get($department);
+            }
+            if ($doctor_id != $detail->doctor_id) {
+                $doctor_id = $detail->doctor_id;
+                $doctor->id = $detail->doctor_id;
+                $doctorC = $doctorS->get($doctor);
+            }
+            unset($detail->department_id, $detail->doctor_id);
+            $detail->department = $departmentC->data->name;
+            $detail->doctor = $doctorC->data->name;
+            $detail->times = date('G:i', $detail->times);
+            $detail->hospital = $res->data->val;
+        }
+        return $this->success($detailAll);
+    }
+
+    /**
+     * 将预约者添加到预约表中去
+     *
+     * @param unknown_type $entity
+     * @return Result
+     */
+    public function reserUser($entity) {
+        $entity->validate();
+        $this->dao->reserUser($entity);
+        return $this->success();
+    }
+	
+	public function reservationDetail($entity){
+	    $this->dao->reservationDetail($entity);
+	    return $this->success();
+	}
+	
+	public function queryDetail(){
+	    $res=$this->dao->queryDetail();
+	    return $res;
+	}
+	/**
+	 * 获取排班信息总数
+	 */
+	public function getPaibanCount($where){
+		$count = $this->dao->getPaibanCount($where);
+		return $this->success($count);
+	}
+	/**
+	 * 获取排班信息
+	 */
+	public function getPaiban($where){
+		$reservations = $this->dao->getPaiban($where);
+		foreach ($reservations as $v){
+			$v->date=date('Y-m-d',$v->date);
+		}
+		return $this->success($reservations);
+	}
+	/*
+	 * 检查特定日期是否存在数据
+	 * 
+	 * */
+	
+	public function date_exist($date){
+	if(!is_array($date)){
+		$arr['date']=$date;
+	}else{
+		$arr=$date;
+	}
+		return $this->dao->date_exist($arr);
+	}
+	
+	
+	public function check_date($date,$department_id,$doctor_id,$timetype=null){
+		$arr=array('date'=>$date,
+		           'department_id'=>$department_id,
+		            'doctor_id'=>$doctor_id);
+		return $this->dao->date_existbean($arr,$timetype);
+	}
+	/*
+	 *
+	 * 设置指定日期的早上排班信息
+	 * 
+	 * */
+	public function setmon_date($reservation){
+		
+
+		
+		$reservation->validate();
+		
+        $array=array('date'=>$reservation->date,
+        		     'department_id'=>$reservation->department_id,
+        		      'doctor_id'=>$reservation->doctor_id     	
+        );
+        $ress=$this->dao->date_deparment_exist($array);
+        
+
+if($ress!=null){
+	$ress->morning=$reservation->morning;	
+
+	$this->dao->update($ress);
+}else{
+
+	$this->dao->save($reservation);
+	
+}
+        				
+	}
+	
+	/*
+	 *
+	* 设置指定日期下午的排班信息
+	*
+	* */
+	public function setaft_date($reservation){
+	
+		$reservation->validate();
+	
+		$array=array('date'=>$reservation->date,
+				'department_id'=>$reservation->department_id,
+				'doctor_id'=>$reservation->doctor_id
+		);
+		$ress=$this->dao->date_deparment_exist($array);
+	
+	
+		if($ress!=null){
+			$ress->afternoon=$reservation->afternoon;
+	
+			$this->dao->update($ress);
+		}else{
+	
+			$this->dao->save($reservation);
+	
+		}
+	
+	}
+	
+	/*
+	 *
+	* 设置指定日期晚上的排班信息
+	*
+	* */
+	public function setnig_date($reservation){
+	
+		$reservation->validate();
+	
+		$array=array('date'=>$reservation->date,
+				'department_id'=>$reservation->department_id,
+				'doctor_id'=>$reservation->doctor_id
+		);
+		$ress=$this->dao->date_deparment_exist($array);
+	
+	
+		if($ress!=null){
+			$ress->night=$reservation->night;
+	
+			$this->dao->update($ress);
+		}else{
+	
+			$this->dao->save($reservation);
+	
+		}
+	
+	}
+	/*
+	 * 预约加号的处理函数
+	 * 
+	 * */
+	public function addnum($reservation,$num){
+		$arr=array('id'=>$reservation->id);
+		$result=$this->dao->getBatch($arr);
+		if($result!=null){
+
+		
+		$result[$reservation->id]->along=$result[$reservation->id]->along+(int)$num;
+
+           
+		$this->dao->update($result[$reservation->id]);
+		}
+	}
+	
+	/*
+	 * 更新号源数
+	 * 
+	 * */
+	public function update_num($reservation,$num){
+		$arr=array('id'=>$reservation->id);
+		$result=$this->dao->getBatch($arr);
+		if($result!=null){
+		
+		
+			$result[$reservation->id]->along=(int)$num;
+		
+			 
+			$this->dao->update($result[$reservation->id]);
+		}
+	}
+	
+	/*
+	 * 
+	 * 设置停诊
+	 * */
+	public function setstop($reservation){
+		$arr=array('id'=>$reservation->id);
+		$result=$this->dao->getBatch($arr);
+		if($result!=null){
+		
+		
+			$result[$reservation->id]->state=1;
+		
+			 
+			$this->dao->update($result[$reservation->id]);
+		}
+	}
+	/**
+	 * 已预约数加1 如果无号源这设置为停诊
+	 */
+	public function addresnum($reservation){
+		$arr=array('id'=>$reservation->id);
+		$result=$this->dao->getBatch($arr);
+		
+		if($result!=null){
+			$num=$result[$reservation->id]->along-$result[$reservation->id]->mark;
+            if($num>0){
+			$result[$reservation->id]->mark=$result[$reservation->id]->mark+1;
+			if($num==1){
+				$result[$reservation->id]->state=1;
+			}
+            }
+		
+			$this->dao->update($result[$reservation->id]);
+			
+		}
+		
+		
+		
+	}
+	/*
+	 * 把详细数据插入预约挂号用户表
+	 * 
+	 * */
+	public function insertuser($name,$sex,$age,$date,$time,$address,$hometel,$email,$ill,$reservation_id=0,$reservation_fid){
+		
+		$sql = "INSERT INTO `reseruser` (`name`,`sex`,`age`,`date`,`time`,`address`,`hometel`,`email`,`ill`,`reservation_id`,`reservation_fid`) VALUES (
+		:name,:sex,:age,
+		:date,:time,:address,:hometel,:email,
+		:ill,:reservation_id,:reservation_fid
+		)";
+		$arrresuser=array('name'=>$name,
+				'sex'=>$sex,
+				'age'=>$age,
+				'date'=>$date,
+				'time'=>$time,
+				'address'=>$address,
+				'hometel'=>$hometel,
+				'email'=>$email,
+				'ill'=>$ill,
+				'reservation_id'=>$reservation_id,
+				'reservation_fid'=>$reservation_fid
+		);
+		
+		
+		
+		R::exec($sql,$arrresuser);
+	}
+	/*
+	 * 查询指定区间内的排班表信息
+	 * $param array();
+	 * 
+	 * */
+	public function getweekreservation($startdate,$enddate){
+		$arr=array('startdate'=>$startdate,'enddate'=>$enddate,'state'=>0);
+		return $this->dao->getresbetween($arr);
+	}
+	
+	public function getDocList($where, $limit, $order) {
+	    return $this->dao->getDocList($where, $limit, $order);
+	}
+		
+}

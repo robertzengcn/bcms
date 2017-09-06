@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>{{$seo->title}}</title>
+<meta name="keywords" content="{{$seo->keywords}}" />
+<meta name="description" content="{{$seo->description}}" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+
+</head>
+<body>
+
+
+{{$doc=$PicManagerTag->getMobilePic(appanli,app)}}
+<img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+
+<div class="border"></div> 
+
+<div id="news">
+	<div class="title">
+    <ins></ins> 成功案例
+    </div>
+    <ul>
+        {{foreach from=$list item=v}}
+        
+    	<li><a class="news_txt" href="{{$MOBILE}}/success.php?method=get&id={{$v->id}}"><p>{{$v->subject|truncate:15}}</p></a>
+    	<a href="tel:{{$contact.phone}}"><span></span></a></li>        
+        {{/foreach}}
+    </ul>
+</div>
+
+</body>
+</html>

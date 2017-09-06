@@ -1,0 +1,62 @@
+﻿{{extends file='../Common/layout.html'}}
+{{block name=title}}健康百科{{/block}}
+{{block name=body}}
+<div class="am-slider am-slider-default am-margin-bottom-0" data-am-flexslider id="demo-slider-0">
+  <ul class="am-slides">
+  {{$pics=$PicManagerTag->getMobilePic("jiankanpic","mobile")}}
+
+    <li><a href="{{$pics->link}}"><img src="{{$smarty.const.UPLOAD}}{{$pics->img}}"></a></li>
+    
+  </ul>
+</div>
+
+<div data-am-widget="list_news" class="am-list-news am-list-news-default main_be">
+  <div class="am-list-news-bd">
+    <ul class="am-list">
+    {{foreach from=$articlelist item=value name=name}}
+    
+      <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left">
+        <div class="am-u-sm-4 am-list-thumb articleimg">
+          <a href="/mobile/article.php?method=get&id={{$value->id}}">
+            <img  src="{{$smarty.const.UPLOAD}}{{$value->pic}}" alt="{{$value->subject}}"/>
+          </a>
+        </div>
+        <div class="am-u-sm-8 am-list-main">
+          <h3 class="am-list-item-hd am-ellipsis"><a href="/mobile/article.php?method=get&id={{$value->id}}">{{$value->subject}}</a></h3>
+          <div class="am-list-item-text">{{$value->description|truncate:28}}...</div>
+        </div>
+      </li>
+      
+      {{/foreach}}
+ 
+    </ul>
+ {{include file="Common/page.html"}}
+
+  </div>
+</div>
+
+<!--[if lt IE 9]>
+<script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://cdn.staticfile.org/modernizr/2.8.3/modernizr.js"></script>
+<script src="js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+
+
+
+<div class="am-modal-actions" id="my-share">
+  <div class="am-modal-actions-group">
+    <h3 class="am-share-title am-margin-0">分享到</h3>
+    <ul class="am-share-sns am-avg-sm-3 am-margin-0">
+      <li><a href="#" data-am-share-to="weibo"><i class="am-icon-weibo"></i><span>新浪微博</span></a></li>
+      <li><a href="#" data-am-share-to="qq"><i class="am-icon-qq"></i><span>QQ 好友</span></a></li>
+      <li><a href="#" data-am-share-to="qzone"><i class="am-icon-star"></i><span>QQ 空间</span></a></li>
+      <li><a href="#" data-am-share-to="tqq"><i class="am-icon-tencent-weibo"></i><span>腾讯微博</span></a></li>
+      <li><a href="#" data-am-share-to="wechat"><i class="am-icon-wechat"></i><span>微信</span></a></li>
+      <li><a href="#" data-am-share-to="renren"><i class="am-icon-renren"></i><span>人人网</span></a></li>
+    </ul>
+  </div>
+  <div class="am-modal-actions-group">
+    <button class="am-btn am-btn-secondary am-btn-block" data-am-modal-close>取消</button>
+  </div>
+</div>
+{{/block}}

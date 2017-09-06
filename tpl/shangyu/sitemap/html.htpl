@@ -1,0 +1,32 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_webmap container">
+	<h1>网站地图</h1>
+    <div class="mwmap_list">
+    	<dl>
+        	<dt><a href="#" target="_blank">医院概况</a></dt>
+            <dd>
+            	<span><a href="#" target="_blank">频道首页</a></span>
+                <span><a href="#" target="_blank">医院简介</a></span>
+                <span><a href="#" target="_blank">医院文化</a></span>
+                <span><a href="#" target="_blank">精彩图集</a></span>
+                <span><a href="#" target="_blank">医院地址</a></span>
+            </dd>
+        </dl>
+        <dl>
+        	<dt><a href="#" target="_blank">科室设置</a></dt>
+            <dd>
+            	<strong>手术科室</strong>
+            	<span><a href="#" target="_blank">频道首页</a></span>
+                <span><a href="#" target="_blank">医院简介</a></span>
+                <span><a href="#" target="_blank">医院文化</a></span>
+                <span><a href="#" target="_blank">精彩图集</a></span>
+                <span><a href="#" target="_blank">医院地址</a></span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+
+{{/block}}
+

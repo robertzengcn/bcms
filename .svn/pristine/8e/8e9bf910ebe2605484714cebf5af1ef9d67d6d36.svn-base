@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>饮食宜忌</title>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0;" name="viewport" />
+<link rel="stylesheet" href="../public/css/base.css?v=20160701">
+<link rel="stylesheet" href="../public/css/jk.css?v=20160701">
+<script type="text/javascript" src="../public/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript" >
+$(function(){
+	ysyj.index();
+})
+</script>
+</head>
+<body>
+<header class="clearfix">
+  <a href="javascript:history.go(-1)" class="icons head_back"></a>
+  <h2>饮食宜忌</h2>
+</header>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">常见病症</h3>
+   <div>
+		<a href="#" class="dis">醉酒</a>
+		<a href="#" class="dis">痔疮</a>
+		<a href="#" class="dis">脂肪肝</a>
+		<a href="#" class="dis">支气管哮喘</a>
+		<a href="#" class="dis">厌食</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">男性疾病</h3>
+   <div>
+		<a href="#" class="dis">遗精</a>
+		<a href="#" class="dis">早泄</a>
+		<a href="#" class="dis">阳痿</a>
+		<a href="#" class="dis">前列腺肥大</a>
+		<a href="#" class="dis">精液异常</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">妇科疾病</h3>
+   <div>
+		<a href="#" class="dis">子宫脱垂</a>
+		<a href="#" class="dis">月经不调</a>
+		<a href="#" class="dis">先兆流产</a>
+		<a href="#" class="dis">痛经</a>
+		<a href="#" class="dis">乳腺癌</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">心脑血管</h3>
+   <div>
+		<a href="#" class="dis">心绞痛</a>
+		<a href="#" class="dis">中风后遗症</a>
+		<a href="#" class="dis">眩晕</a>
+		<a href="#" class="dis">短暂脑缺血</a>
+		<a href="#" class="dis">心力衰竭</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">儿科疾病</h3>
+   <div>
+		<a href="#" class="dis">儿童糖尿病</a>
+		<a href="#" class="dis">儿童肥胖症</a>
+		<a href="#" class="dis">小儿麻疹</a>
+		<a href="#" class="dis">小儿腹泻</a>
+		<a href="#" class="dis">小儿肺炎</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">五官疾病</h3>
+   <div>
+		<a href="#" class="dis">夜盲症</a>
+		<a href="#" class="dis">咽喉炎</a>
+		<a href="#" class="dis">牙痛</a>
+		<a href="#" class="dis">失音</a>
+		<a href="#" class="dis">口疮</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">性病</h3>
+   <div>
+		<a href="#" class="dis">淋病</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">皮肤病</h3>
+   <div>
+		<a href="#" class="dis">头屑</a>
+		<a href="#" class="dis">白癜风</a>
+		<a href="#" class="dis">痤疮</a>
+		<a href="#" class="dis">脂溢性皮炎</a>
+		<a href="#" class="dis">湿疹</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">肿瘤癌症</h3>
+   <div>
+		<a href="#" class="dis">肿瘤</a>
+		<a href="#" class="dis">肝癌</a>
+		<a href="#" class="dis">肺癌</a>
+		<a href="#" class="dis">鼻咽癌</a>
+		<a href="#" class="dis">胰腺癌</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+<section class="clearfix zztype linebottom">
+   <h3 class="pd3">其它</h3>
+   <div>
+		<a href="#" class="dis">便秘</a>
+		<a href="#" class="dis">肠胃病</a>
+		<a href="#" class="dis">白血病</a>
+		<a href="#" class="dis">艾滋病</a>
+		<a href="#" class="dis">肺结核</a>
+		<a href="#" class="arr">更多</a>
+   </div>
+</section>
+		<div class="clearbox" style="height:50px"></div>
+<section id="search">
+	<form id="searchform">
+		<div class="searchbox">
+			<input type="text" id="keywords" size="38" value="请输入您要查询的关键字"/>
+			<a href="#" onclick="return false;" id="seachBtn">搜索</a>
+		</div>
+	</form>
+</section>
+</body>
+</html>

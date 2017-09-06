@@ -1,0 +1,7 @@
+@charset "utf-8";
+/* CSS Document */
+.error{height:200px;}
+.error .error_content{width:430px;height:90px;margin:60px auto 0px auto;background:url(../images/error.gif) no-repeat;padding-left:106px;line-height:20px;}
+.error .error_content h2{font-family:"microsoft yahei","microsoft sans serif"; font-size:18px;color:#ee358d;font-weight:normal;padding:0px 0px 30px 0px;}
+.error .error_content a{color:#ee358d;text-decoration:underline;margin:0px 5px;}
+.error .error_content a:hover{color:#f00;}

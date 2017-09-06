@@ -1,0 +1,39 @@
+<!--top-->
+<div class="wrapper">
+    {{$logoInfo = $PicManagerTag->getPic('topPic')}}
+    <div id="banner"><a href="{{$logoInfo->link}}">
+    <img src="{{$UPLOAD}}{{$logoInfo->img}}" /></a></div>
+    <!--nav-->
+    {{navigations order="cate asc,sort asc" limit="9" pid="0" cate="1" is_display="1" assign="nav"}}
+    <div id="nav">
+        {{$count=$nav|@count}}
+        {{foreach $nav as $key=>$v}}
+        <li><a href="{{$WEBSITE}}/{{$v->url}}" target="_blank"><img src="{{$UPLOAD}}{{$v->pic}}" alt="{{$v->subject}}"/></a></li>
+        {{/foreach}}
+    </div>
+<!--nav-->
+<div class="bar-center" id="bar_center">
+    {{$PicManagerTag->getSpecial('one')}}
+</div>
+<div class="bar-right" id="bar_right">
+    {{$PicManagerTag->getSpecial('three')}}
+</div>
+<!--subnav-->
+<div id="search" class="diseasenav">
+    <div class="search-left">
+    <span class="search-tel"><span class="color">24小时</span>专家热线：<span class="color">{{$ContactTag->get('tel')}}</span></span>
+    {{navigations order="cate asc,sort asc" limit="6" pid="0" cate="2" is_display="1" assign="nav"}}
+    {{$count=$nav|@count}}
+    {{foreach $nav as $key=>$v}}
+    <a href="{{$WEBSITE}}/{{$v->url}}">{{$v->subject}}</a>|
+    {{/foreach}}
+    </div>
+</div>
+
+
+
+
+
+
+
+

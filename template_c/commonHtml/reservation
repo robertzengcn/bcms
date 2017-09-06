@@ -1,0 +1,14 @@
+      <!--预约-->
+      <div class="par-reserve bk top8">
+        <h4>预约信息</h4>
+        <ul id="reserve-box">
+                                                        <li><span>赵女士</span><span>测试</span><span class="dress">预约成功</span></li>
+                                                <li><span>王先生</span><span>啊多少</span><span class="dress">预约成功</span></li>
+                                                <li><span>周女士</span><span>无</span><span class="dress">预约成功</span></li>
+                                                <li><span>刘女士</span><span></span><span class="dress">预约成功</span></li>
+                </ul>
+         <script>
+        new Marquee(["reserve-box"],0,0.1,235,175,22,2000,2000,0,3);
+        </script>
+        <div><a target="_blank" href="http://www.newtemp.com/reservation.html"><img src="http://www.newtemp.com/public/images/reserve-ask.gif" alt="#" /></a></div>
+      </div>

@@ -1,0 +1,217 @@
+<?php
+
+class ChannelArticleService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new ChannelArticleDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $channelArticles = $this->dao->getBatch($ids);
+
+        $files = array();
+        $recommendListDAO = new RecommendListDAO();
+        foreach ($channelArticles as $channelArticle) {
+            if ($channelArticle->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $channel = new Channel();
+            $channel->id = $channelArticle->channel_id;
+            $this->dao->getChannel($channel);
+            $filename = GENERATEPATH . $channel->shortname . '/' . $channelArticle->id . '.html';
+
+            $files[] = $filename;
+            $recommendListDAO->deleteById('channelarticle_id', $channelArticle->id);
+        }
+
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        return $this->dao->deleteBeans($channelArticles);
+    }
+
+    /**
+     * 获得一条数据
+     *
+     * @param Entity $channelArticle
+     * @return Result
+     */
+    public function get($channelArticle) {
+        $this->dao->get($channelArticle->id, $channelArticle);
+
+        if ($channelArticle->pic) {
+            $channelArticle->src = UPLOAD . $channelArticle->pic;
+        }
+
+        $tagsService = new TagService();
+        $channelArticle->tags = $tagsService->getTags($channelArticle->plushtime);
+        
+        $recommend = new RecommendListService();
+        $result = $recommend->getById('channelarticle_id', $channelArticle->id);
+        $channelArticle->recommend = $result;
+        return $this->success($channelArticle);
+    }
+
+    /**
+     * 获取所有科室和所有推荐位置
+     *
+     * @return Result
+     */
+    public function getAll() {
+        $recommendPositionService = new RecommendPositionService();
+        $positionArray = $recommendPositionService->getList();
+        $arrayAll['re'] = $positionArray;
+        return $this->success($arrayAll);
+    }
+    
+    /**
+     * 根据ChannelID获得数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function getByChannelID($where) {
+        $channelArticles = $this->dao->query($where);
+        $channel = new Channel();
+        $channel->id = $where['channel_id'];
+        $this->dao->getChannel($channel);
+        foreach ($channelArticles as $key) {
+            $key->channelName = $channel->name;
+            $key->channelShortName = $channel->shortname;
+            //$key->plushtime = date('Y-m-d', $key->plushtime);
+        }
+
+        return $this->success($channelArticles);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $channelArticle
+     * @param int $channelid
+     * @return Result boolean
+     */
+    public function save($channelArticle, $channelid) {
+        $channelArticle->validate();
+
+        $channelArticle->plushtime = time();
+        $channelArticle->updatetime = time();
+        $channelArticle->click_count = rand(30, 1000);
+
+        $tagsService = new TagService();
+        $tagsService->tagsSave($channelArticle->plushtime);
+
+        // 获取channel对象
+        $channel = new Channel();
+        $channel->id = $channelid;
+        $channelbean = $this->dao->getChannel($channel);
+        if ($channel->id == 0) {
+            throw new ValidatorException(22);
+        }
+        // 获取class对象并插入数据
+        $this->dao->save($channelArticle);
+        if (! empty($_REQUEST['recommendposition'])) {
+            $recommendList = new RecommendListService();
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->recommendposition_id = $value;
+                $recommend->channelarticle_id = $channelArticle->id;
+                $recommendList->save($recommend);
+            }
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 更改数据
+     *
+     * @param return $channelArticle
+     * @return Result
+     */
+    public function update($channelArticle) {
+        $channelArticle->validate();
+       // $channelArticle->plushtime = time();
+        $channelArticle->updatetime = time();
+        $tagsService = new TagService();
+
+        $tagsService->tagsClear($channelArticle->plushtime);
+        $tagsService->tagsSave($channelArticle->plushtime);
+        
+        if (! empty($_REQUEST['recommendposition'])) {
+            $recommendList = new RecommendListService();
+            $recommendList->deleteById('channelarticle_id', $channelArticle->id);
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();              
+                $recommend->recommendposition_id = $value;
+                $recommend->channelarticle_id = $channelArticle->id;
+                $recommendList->save($recommend);
+            }
+        }       
+
+        return $this->dao->update($channelArticle);
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param return $channelArticle
+     * @return Result
+     */
+    public function delete($channelArticle) {
+        $this->dao->get($channelArticle->id, $channelArticle);
+
+        if ($channelArticle->id == 0) {
+            throw new ValidatorException(23);
+        }
+
+        $channel = new Channel();
+        $channel->id = $channelArticle->channel_id;
+        $this->dao->getChannel($channel);
+        $recommendListDAO = new RecommendListDAO();
+        $recommendListDAO->deleteById('channelarticle_id', $channelArticle->id);
+        $filename = GENERATEPATH . $channel->shortname . '/' . $channelArticle->id . '.html';
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+
+        $this->dao->delete($channelArticle->id);
+
+        return $this->success();
+    }
+
+    /**
+     * 获取所有的文章...
+     *
+     * @return Result
+     */
+    public function query($where) {
+        $data = $this->dao->query($where);
+        return $this->success($data);
+    }
+    /**
+     * 计算某个频道下文章个数
+     * */
+    public function countarticle($id){
+    	$arr=array('channel_id'=>$id);
+    	 $result=$this->dao->countarticle($arr);
+    	 return $this->success($result);
+    }
+    
+
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no" />
+<title>医院荣誉_{{$WEBTITLE}}</title>
+<meta name="keywords" content="医院荣誉 />
+<meta name="description" content="医院荣誉" />
+<!-- style -->
+{{include file="Common/common.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/list.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<a name="top"></a>
+<div class="main" id="main_id">
+<div id="scroller">
+<!-- header -->
+{{include file="Common/header.html"}}
+<!-- nav -->
+<!-- div class="txtList">
+<p><a href='{{$MOBILE}}'>首页</a> > <a href='{{$MOBILE}}/honor.php'>医院荣誉</a> > </p>
+</div> -->
+<div class="crumb" style="width:318px;margin:0 auto;background-color: #00632A;color: #fff;height: 37px;line-height: 37px;
+	text-indent: 10px;margin-top:40px;">当前位置：<a href="{{$MOBILE}}" style="color: #fff;">主页</a>&gt; <a href="{{$MOBILE}}/honor.php?method=query" style="color: #fff;">医院荣誉</a></div>
+</br>
+<ul class="list" id="listId1" style="width:318px;margin:0 auto;font-size:14px;">
+{{foreach $list as $v}}
+	<li><a href="{{$MOBILE}}/honor.php?method=get&id={{$v->id}}" >{{$v->subject}}</a></li>
+{{/foreach}}
+</ul></br>
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/index_footer.html"}}
+
+
+</div>
+</div>
+
+</body>
+</html>

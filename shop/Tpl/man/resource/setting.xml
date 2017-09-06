@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<!-- 文件数组,在File中添加source与对应的whither即可. source代表资源目录下的文件路径,whither代表需要被复制到的路径-->
+		<File>
+		    <item><source>/upload/mobileLogo.png</source><whither>/upload/picmanager/appLogo.png</whither></item>
+			<item><source>/upload/mobile_ad.jpg</source><whither>/upload/picmanager/app_ad.jpg</whither></item>
+			<item><source>/upload/mobile_recommend.jpg</source><whither>/upload/picmanager/app_recommend.jpg</whither></item>
+			<item><source>/upload/mobile_index01.jpg</source><whither>/upload/picmanager/app_index11.jpg</whither></item>
+			<item><source>/upload/mobile_index02.jpg</source><whither>/upload/picmanager/app_index12.jpg</whither></item>
+			<item><source>/upload/nav01.jpg</source><whither>/upload/nav/dao01.jpg</whither></item>
+			<item><source>/upload/nav02.jpg</source><whither>/upload/nav/dao02.jpg</whither></item>
+			<item><source>/upload/nav03.jpg</source><whither>/upload/nav/dao03.jpg</whither></item>
+			<item><source>/upload/nav04.jpg</source><whither>/upload/nav/dao04.jpg</whither></item>
+			<item><source>/upload/nav05.jpg</source><whither>/upload/nav/dao05.jpg</whither></item>
+			<item><source>/upload/nav06.jpg</source><whither>/upload/nav/dao06.jpg</whither></item>		
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	
+</body>

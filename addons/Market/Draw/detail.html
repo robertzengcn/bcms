@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<title>奖品详情</title>
+<link href="{{$COMMON}}Draw/public/draw/css/style.css" rel="stylesheet">
+<script type="text/javascript"  src="{{$COMMON}}Draw/public/draw/js/jquery-1.7.min.js"></script>
+</head>
+<body>
+<div class="qrcode">
+    	<div class="qrcode_wm">
+			<div class="qrcode_left_title">
+				<h3>提货二维码</h3><h4>请在提货时出示此二维码</h4>
+			</div>
+			<div class="qrcode_img" id="qrcode"><img src="{{$COMMON}}Draw/barcode/code.php?text={{$detail['flag']}}"></div>
+    	</div>
+
+    	<div class="qrcode_wm">
+    	<div class="qrcode_right_title">
+        	<h3></h3><h2>待自提</h2>
+        </div>
+        <div class="qrcode_right_cont">
+        	<h6>自提物品 : </h6>
+            <h3>{{$prize->name}}</h3>
+            <h6>日期 ：</h6>
+            <span>{{$detail['date']}}</span>
+        	<h6>自提地址：</h6>
+            <p>{{$contact.name}}<br>地址：{{$contact.address}}<br>电话：{{$contact.tel}}</p>
+        </div>
+        </div>
+</div>
+</body>
+</html>

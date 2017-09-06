@@ -1,0 +1,109 @@
+<!--  
+中间弹窗 
+<div class="bar-center" id="bar_center">
+    {{$PicManagerTag->getSpecial('one')}}
+</div>
+左侧弹窗
+<div class="bar-right" id="bar_right">
+    {{$PicManagerTag->getSpecial('three')}}
+</div>
+底部弹窗
+<div class="bar-bottom" id="bar_bottom">
+    {{$PicManagerTag->getSpecial('four')}}
+</div>
+ -->
+<div class="header">
+  <div class="container">
+    {{$LOGO=$PicManagerTag->getPic(logo)}}
+    <div class="hidden-xs "> <img  style="padding:10px; width:400px;" src="{{$LOGO->src}}">
+      <!-- <form class="navbar-form navbar-right hidden-sm" role="search" style="padding:26.5px 10px;">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="请输入关键字...">
+        </div>
+        <button type="submit" class="btn btn-default"><i class="icon icon-search"></i>&nbsp;搜索</button>
+      </form> -->
+      <!-- <ol class="breadcrumb pull-right">
+        <a href="your/url/">登录</a>&nbsp;&nbsp;
+        <li><a href="your/url/">注册</a></li>
+        <li><a href="your/url/">大众版</a></li>
+        <li><a href="your/url/">专业版</a></li>
+        <li class="visible-sm pull-right"><a href="your/url/"><i class="icon icon-search" style="font-size:20px"></i></a></li>
+      </ol> -->
+    </div>
+    <nav class="navbar navbar-inverse visible-xs top1" role="navigation">
+      <!-- <ol class="breadcrumb pull-left" style="padding:0; margin:0;">
+        <li><a href="your/url/"><i class="icon icon-search" style="font-size:20px"></i></a></li>
+        <li><a href="your/url/">大众版</a></li>
+        <li><a href="your/url/">专业版</a></li>
+      </ol> -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-example" id="navbar">
+        <ul class="nav navbar-nav">
+          {{navigations order="cate asc,sort asc" limit="7" pid="0" cate="1" is_display="1" assign="nav"}}
+          {{foreach from=$nav item=v1 name=navigation}}
+          {{if $smarty.foreach.navigation.iteration lt 8}}
+          {{if $smarty.foreach.navigation.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+          {{if $smarty.foreach.navigation.iteration gt 1 and $smarty.foreach.navigation.iteration lt 4}}
+          <li><a href="{{$v1->url}}">&nbsp;&nbsp;&nbsp;{{$v1->subject}}</a></li>
+          {{else}}
+          <li class="{{$active}}"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne1"><i class="icon-plus"></i>&nbsp;{{$v1->subject}}</a>
+            <ul id="collapseOne{{$smarty.foreach.navigation.iteration}}" class="panel-collapse collapse fade">
+              {{navigations order="cate asc,sort asc" limit="10" pid=$v1->id is_display="1" assign="nav1"}}
+              {{foreach from=$nav1 item=v2 }}
+              <li><a href="{{$v2->url}}">{{$v2->subject}}</a></li>
+              {{/foreach}}
+            </ul>
+          </li>
+          {{/if}}
+          {{/if}}
+          {{/foreach}}
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+{{$LOGO3=$PicManagerTag->getPic(logo3)}}
+<a class="visible-xs" style="height:110px;" href="{{$LOGO->link}}"><img class="center-block" height="93" src="{{$LOGO3->src}}"></a>
+<div class="hidden-xs container nav_one" >
+  <ul class="nav nav-justified nav-pills ">
+    <li class="active"><a href="{{$WEBSITE}}"><i class="icon-home"></i> 首页 </a></li>
+    {{navigations order="cate asc,sort asc" limit="7" pid="0" cate="1" is_display="1" assign="nav"}}
+    {{foreach from=$nav item=v1 name=navigation}}
+    {{if $smarty.foreach.navigation.iteration lt 8}}
+    {{if $smarty.foreach.navigation.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+    {{if $smarty.foreach.navigation.iteration gt 1 and $smarty.foreach.navigation.iteration lt 4}}
+    <li><a href="{{$v1->url}}"> {{$v1->subject}} </a></li>
+    {{else}}
+    <li><a class="dropdown-toggle" data-toggle="dropdown" href="###">{{$v1->subject}}<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        {{navigations order="cate asc,sort asc" limit="10" pid=$v1->id is_display="1" assign="nav1"}}
+        {{foreach from=$nav1 item=v2 }}
+        <li><a href="{{$v2->url}}">{{$v2->subject}}</a></li>
+        {{/foreach}}
+      </ul>
+    {{/if}}
+    {{/if}}
+    {{/foreach}}
+  </ul>
+</div>
+<script>
+  $(function ()
+  {
+      $('.nav li:not(.disabled)').click(function() {
+          $(this).closest('.nav').find('li.active').removeClass('active');
+          $(this).addClass('active');
+      });
+  });
+  </script>
+
+
+
+
+
+
+
+
+
+

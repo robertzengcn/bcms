@@ -1,0 +1,303 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增医生</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 医疗资讯管理 <span class="c-gray en">&gt;</span> 医生管理 <span class="c-gray en">&gt;</span> 新增医生 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="form-article-add">
+		<div id="tab-system" class="HuiTab">
+			<div class="tabBar cl"><span>个人信息	</span><span>网页属性</span><span>个人经历</span></div>
+			<div class="tabCon">
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>医生姓名：</label>
+					<div class="formControls col-2">
+						<input type="text" class="input-text" value="" placeholder="" id="" name="">
+					</div>
+					<label class="form-label col-2"><span class="c-red">*</span>出生日期：</label>
+					<div class="formControls col-2"><input type="text" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'datemin\')}'})" id="datemax" class="input-text Wdate"></div>			
+					<label class="form-label col-2"><span class="c-red">*</span>性别：</label>
+					<div class="formControls col-91 skin-minimal"><!--add col-91 css-->
+						<div class="radio-box">
+							<input type="radio" id="sex-1" name="sex" datatype="*" nullmsg="请选择性别！">
+							<label for="sex-1">男</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="sex-2" name="sex">
+							<label for="sex-2">女</label>
+						</div>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">医生照片：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="upload_img('上传图片','../js/boyicms/uploadimg.html?ipn=thumbnail_doc','700','540')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox">
+						<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_doc" /><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+				</div><!--上传图片-->
+		
+				<div class="row cl">
+					<label class="form-label col-2">行医资质：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="upload_img('上传图片','../js/boyicms/uploadimg.html?ipn=thumbnail_prove','700','540')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox">
+						<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_prove" /><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+				</div><!--上传图片-->
+				
+				<div class="row cl">
+								
+					<label class="form-label col-2">毕业院校：</label>
+					<div class="formControls col-2">
+						<input type="text" class="input-text" value="" placeholder="" id="" name="">
+					</div>
+					<label class="form-label col-2">学历：</label>
+					<div class="formControls col-2">
+						<input type="text" class="input-text" value="" placeholder="本科/硕士/博士..." id="" name="">
+					</div>
+					<label class="form-label col-2">职称：</label>
+					<div class="formControls col-2">
+						<input type="text" class="input-text" value="0" placeholder="主任医师/主治医师..." id="" name="">
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">擅长领域：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="请输入该医生擅长的领域..." datatype="*10-100" dragonfly="true" nullmsg="医生的擅长领域不能为空！" onKeyUp="textarealength(this,400)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/400</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">详细介绍：</label>
+					<div class="formControls col-10"> 
+						<script id="editor" type="text/plain" style="width:100%;height:400px;"></script> 
+					</div>
+				</div>	
+			</div><!--医生基础信息-->
+			<div class="tabCon">
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>所属科室：</label>
+					<div class="formControls col-2"> <span class="select-box">
+						<select name="" class="select">
+							<option value="0">请选择</option>
+							<option value="1">新闻资讯</option>
+							<option value="11">├行业动态</option>
+							<option value="12">├行业资讯</option>
+							<option value="13">├行业新闻</option>
+						</select>
+						</span> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">擅长疾病：</label>
+					<div class="formControls col-10 skin-minimal">
+						<div class="check-box">
+							<input type="checkbox" id="checkbox-moban1">
+							<label for="checkbox-moban">牙齿种植</label>					
+						</div>				
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">选择推荐位：</label>
+					<div class="formControls col-10 skin-minimal">
+						<div class="check-box">
+							<input type="checkbox" id="checkbox-moban1">
+							<label for="checkbox-moban">首页头版头条</label>					
+						</div>
+						<div class="check-box">					
+							<input type="checkbox" id="checkbox-moban2">
+							<label for="checkbox-moban">首页头版列表</label>					
+						</div>
+						<div class="check-box">					
+							<input type="checkbox" id="checkbox-moban3">
+							<label for="checkbox-moban">首页疾病图文</label>
+						</div>
+						<div class="check-box">
+							<input type="checkbox" id="checkbox-moban1">
+							<label for="checkbox-moban">首页疾病列表</label>					
+						</div>
+						<div class="check-box">					
+							<input type="checkbox" id="checkbox-moban2">
+							<label for="checkbox-moban">科室头版头条</label>					
+						</div>
+						<div class="check-box">					
+							<input type="checkbox" id="checkbox-moban3">
+							<label for="checkbox-moban">科室头版头条</label>
+						</div>
+						<div class="check-box">
+							<input type="checkbox" id="checkbox-moban1">
+							<label for="checkbox-moban">科室疾病图文</label>					
+						</div>
+						<div class="check-box">					
+							<input type="checkbox" id="checkbox-moban2">
+							<label for="checkbox-moban">科室疾病列表</label>					
+						</div>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">推荐到手机端：</label>
+					<div class="formControls col-91 skin-minimal"><!--add col-91 css-->
+						<div class="radio-box">
+							<input type="radio" id="" name="" datatype="*" nullmsg="" checked="checked"/>
+							<label>是</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="" name=""/>
+							<label>否</label>
+						</div>
+					</div>
+				</div>
+				
+				<div class="row cl">
+					<label class="form-label col-2">SEO标题：</label>
+					<div class="formControls col-10">
+						<input type="text" class="input-text keywords" value="" placeholder="" id="" name="">
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">关键词：</label>
+					<div class="formControls col-10">
+						<input type="text" class="input-text" value="" placeholder="多个关键词间请用“,”区分开......" id="" name="">
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">医生简介：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="请输入医生简介..." datatype="*10-100" dragonfly="true" nullmsg="医生简介不能为空！" onKeyUp="textarealength(this,200)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+					</div>
+				</div>
+			</div><!--SEO-->
+			<div class="tabCon">
+				<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onClick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" onClick="open_new('新增经历','experience.html','600','420')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 新增经历</a></span></div>
+				<div class="row cl pd-5">				
+					<table class="table table-border table-bordered table-bg table-hover table-sort">
+						<thead>
+							<tr class="text-c">
+								<th width="25"><input type="checkbox" name="" value=""></th>
+								<th width="240">任职单位</th>
+								<th width="100">担任职务</th>
+								<th width="120">入职时间</th>
+								<th width="120">离职时间</th>
+								<th>简介</th>
+								<th width="70">操作</th>					
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="text-c">
+								<td><input type="checkbox" value="" name=""></td>
+								<td class="text-l">福州市第一人民医院</td>
+								<td>院长</td>
+								<td>2009-05-20</td>
+								<td>2012-05-20</td>
+								<td>在该院担任院长职务，积累了丰富的诊疗经验，与中科院一起承担了国家级相关科研任务的研究，荣获一等奖...</td><!--限40字-->												
+								<td class="f-14 td-manage"> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+							</tr>
+							<tr class="text-c">
+								<td><input type="checkbox" value="" name=""></td>
+								<td class="text-l">福州市第一人民医院</td>
+								<td>院长</td>
+								<td>2009-05-20</td>
+								<td>2012-05-20</td>
+								<td>在该院担任院长职务，积累了丰富的诊疗经验，与中科院一起承担了国家级相关科研任务的研究，荣获一等奖...</td><!--限40字-->												
+								<td class="f-14 td-manage"> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div><!--个人经历-->			
+		</div><!--HuiTab over-->
+		<div style="width:100%;height:60px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-2">
+				<button onClick="" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+/*上传图片*/
+function upload_img(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+/*打开新窗口*/
+function open_new(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	/*缩略图操作*/
+	$('div.thumbnailbox').on('mouseenter',function(){
+		$(this).find('div.img-btn').stop().animate({height:"30px"});
+	}).on('mouseleave', function() {
+		$(this).find('div.img-btn').stop().animate({height:"0px"});
+	});
+	$('div.img-btn').find('span').on('mouseenter',function(){
+		$(this).stop().css("background-position","-46px 0px");
+	}).on('mouseleave',function(){
+		$(this).stop().css("background-position","-46px -22px");
+	});
+	
+	$('span#delete-thisimg').on('click',function(){
+		var defaultsrc=$(this).parent().parent().find('img').attr('flag');
+		$thumbnail_img=$(this);
+		layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+			$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+			layer.msg('已删除!',1);
+		});
+	});
+	/*缩略图操作完结*/
+
+	$.Huitab("#tab-system .tabBar span","#tab-system .tabCon","current","click","0");
+	
+	var ue = UE.getEditor('editor');
+	
+});
+
+function mobanxuanze(){
+	
+}
+</script>
+</body>
+</html>

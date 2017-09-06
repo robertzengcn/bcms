@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../css/H-ui.min.css">
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>生成手机应用</title>
+</head>
+<body>
+<div class="pd-5">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>APK生成</span><span>下载管理</span></div>
+			<div class="tabCon">
+			<form action="" method="post" class="form form-horizontal" id="form-article-add">
+				<div class="row cl">
+					<label class="form-label col-2">当前域名：</label>
+					<div class="formControls col-6">www.baidu.com</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">应用图标：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="upload_img('上传图片','../../js/boyicms/uploadimg.html?pid=apk_ico','700','540')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox" style="width:100px;height:100px;">
+						<img src="../../images/boyicms/logo/thumbnail_mobile.png" flag="../../images/boyicms/logo/thumbnail_mobile.gif" id="apk_ico"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+				</div><!--上传图片-->
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>APK类型：</label>	
+					<div class="formControls col-2"> <span class="select-box">
+						<select name="" class="select">
+							<option value="0">请选择</option>
+							<option value="1">医院营销APK</option>
+							<option value="2">医院管理APK</option>
+						</select>
+						</span> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>应用名：</label>
+					<div class="formControls col-4">
+						<input type="text" class="input-text" value="" placeholder="应用安装到手机上时显示的名称，3-5个字以内..." id="" name="">
+					</div>
+				</div>
+				<div class="row cl">
+					<div class="col-10 col-offset-2">
+						<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 开始生成</button>				
+						<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+					</div>
+				</div>
+			</form>	
+			</div>
+			<!--APK生成-->
+			<div class="tabCon">
+				<div class="row cl mt-10">
+					<label class="form-label col-2" style="text-align:right;">上传APK文件：</label>
+					<div class="formControls col-6"><a href="javascript:;" onClick="" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe642;</i> 开始上传</a></div>
+				</div>
+				<div class="row cl  mt-10">
+					<label class="form-label col-2">中间图标：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="upload_img('上传图片','../../js/boyicms/uploadimg.html?pid=center_img','700','540')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+					</div>
+					<div class="thumbnailbox" style="width:100px;height:100px;">
+						<img src="../../images/boyicms/logo/thumbnail_mobile.png" flag="../../images/boyicms/logo/thumbnail_mobile.gif" id="center_img"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+				</div><!--上传图片-->
+				<div class="row cl mt-20">
+					<label class="form-label col-2" style="text-align:right;"><span class="c-red">*</span>医院营销APK：</label>
+					<div class="formControls col-6" id="Marketing_state">您己生成了该APK，并己下载到网站服务器</div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6"  id="Marketing_download">下载地址：http://www.baidu.com/apk/hma_1.0.apk</div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6"><a href="javascript:;" onClick="" class="btn btn-success radius"><i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2" style="text-align:right;"><span class="c-red">*</span>医院管理APK：</label>
+					<div class="formControls col-6" id="Manage_state">您己生成了该APK，并己下载到网站服务器</div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6"  id="Manage_download">下载地址：http://www.baidu.com/apk/hma_1.0.apk</div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6"><a href="javascript:;" onClick="" class="btn btn-success radius"><i class="Hui-iconfont">&#xe6cb;</i> 生成二维码</a></div>
+				</div>
+			</div>
+			<!--下载管理-->
+
+		</div><!--HuiTab over-->
+		<div class="row cl"></div>
+		<div class="row cl"></div>
+			
+		
+	
+
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+			/*缩略图操作*/
+	$('div.thumbnailbox').on('mouseenter',function(){
+		$(this).find('div.img-btn').stop().animate({height:"30px"});
+	}).on('mouseleave', function() {
+		$(this).find('div.img-btn').stop().animate({height:"0px"});
+	});
+	$('div.img-btn').find('span').on('mouseenter',function(){
+		$(this).stop().css("background-position","-46px 0px");
+	}).on('mouseleave',function(){
+		$(this).stop().css("background-position","-46px -22px");
+	});
+	var defaultsrc=$('div.thumbnailbox img').attr('flag');
+	$('span#delete-thisimg').on('click',function(){
+		$thumbnail_img=$(this);
+		layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+			$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+			layer.msg('已删除!',1);
+		});
+	});	
+	/*缩略图操作完结*/
+	$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<?php
+/**
+ * 
+ * cms预约接口
+ * @author Administrator
+ * @version v1.0
+ * @example 该接口在进行预约后,由总控中心发起预约接口
+ */
+include './common.class.php';
+
+class MemberHwibsc extends common {
+	
+	public $posts = array();
+	
+
+	
+	private $params = array(
+		'domain'      	   => array('check'=>true,'info'=>'通信域名'),
+		'sign'        	   => array('check'=>true,'info'=>'通信加密字符串'),//false要修改
+		'time'        	   => array('check'=>true,'info'=>'通信加密时间戳'),//false要修改
+		'username' 	       => array('check'=>true,'info'=>'用户名'),
+	);
+	
+	//构造函数
+	public function __construct() {
+		parent::__construct();
+		$this->voluation();
+		parent::signCheck();    
+		//这里暂时注释，上线时开启
+		$this->queryRes();
+		parent::msgPut(true, '预约成功!' , null );
+	}
+	
+	//查询time_id值是否正确
+	private function queryRes() {
+						
+		new MemberLogService();
+		
+		
+		$find = R::findOne('reservation','id = '.$this->posts['time_id'].' and state=0');
+// 		print_r($find);
+// 		exit();
+		
+		if( is_object( $find ) ) {
+			if( ($find->along-$find->mark) < 1 ) {
+				parent::msgPut(4, '该预约时间段已经无号了', null);
+			}else{
+				$this->runRes( $find );
+			}
+		}else{
+			parent::msgPut(3, 'time_id对应的预约信息不存在', null);
+		}
+	}
+	
+
+	
+	private function voluation() {
+		
+		foreach ( $this->params as $key => $value ) {
+			if( isset( $_REQUEST[$key] ) && $_REQUEST[$key] != '' ) {
+				$this->posts[$key] = trim( $_REQUEST[$key] );
+			}else{
+				if( $value['check'] === true ) {
+					parent::msgPut(0, '参数缺失：'.$value['info'].':'.$key, null);
+				}else{
+					$this->posts[$key] = '';
+				}
+			}
+		}
+	}
+	
+}
+new MemberHwibsc();

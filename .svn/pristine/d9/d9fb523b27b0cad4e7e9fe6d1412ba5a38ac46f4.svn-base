@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,member-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/common.css">
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>审核选手-投票活动</title>
+</head>
+<body>
+<div class="pd-5">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabCon">
+				<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;" class="btn btn-danger radius" onclick="gVote.delPlayerBatch()"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> </span></div>
+				<div class="pd-10 mt-5">
+					<table class="table table-border table-bordered table-bg table-hover table-sort" id="voteitem">
+						<thead>
+							<tr class="text-c">
+								<th width="25"><input type="checkbox" name="" value=""></th>
+								<th width="50">序号</th>
+								<th width="120">姓名</th>
+								<th>活动名称</th>
+								<th width="120">电话</th>
+								<th width="120">报名时间</th>
+								<th width="120">审核状态</th>	
+							</tr>
+						</thead>
+						<tbody>							
+						</tbody>
+					</table>
+				</div>
+			</div><!--奖品设置-->			
+		</div>
+		<div style="width:100%;height:60px;clear:both;"></div>
+	
+
+</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/vote.js"></script>
+<script type="text/javascript">
+var gVote = new Vote();
+gVote.setThisName('gVote');
+gVote.initPlayerList();
+</script>
+</body>
+</html>

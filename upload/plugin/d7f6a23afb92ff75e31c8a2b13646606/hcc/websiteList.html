@@ -1,0 +1,47 @@
+<style type="text/css">
+	div.content_box{width:400px;overflow:hidden;height:30px;line-height:30px;text-align:left;padding:0px 6px;}
+	div.content_box p{line-height:30px;}
+</style>
+
+<div id="navTab" class="tabsPage">
+	<div class="navTab-panel tabsPageContent layoutBox" style="">
+		<div class="page unitBox">
+			<div class="pageContent">
+				<form id="frm_post"  class="pageForm required-validate">
+					<div class="panel">
+						<div class="panelHeader">
+							<div class="panelHeaderContent">
+								<h1>快捷搜索</h1>
+							</div>
+						</div>
+						<div class="panelContent">
+							<div style="float:left">
+							&nbsp;&nbsp;医院名称：
+							<input class="textInput search_input" style="width:187px;" name="hospital" id="hospital" type="text" size="20" value=""/>
+							&nbsp;&nbsp;域名：
+							<input class="textInput search_input" style="width:187px;" name="domain" id="domain" type="text" size="20" value=""/>
+							</div>
+							<img id="qry" src="./public/img/select.gif" width="93px;" style="margin-top:0px;"/>
+							<span class="clear"></span>
+						</div>
+						<div class="panelFooter">
+							<div class="panelFooterContent"></div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="pageContent">
+				<div class="panelBar">
+					<ul class="toolBar" id="toolBar">
+						<li class=""><a href="javascript:void(0)" id="del" class="delete"><span>删除</span></a></li>
+						<li class=""><a href="javascript:void(0)" id="add" class="add"><span>新增</span></a></li>
+						<li class=""><a href="javascript:void(0)" id="refresh" class="refresh"><span>刷新</span></a></li>
+					</ul>
+				</div>
+				<div id="listAll"></div>
+				<div id="listAll2"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="message"></div>

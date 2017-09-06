@@ -1,0 +1,53 @@
+{{include file="Common/header.html"}}
+<link href="{{$RESOURCE}}/css/yangshi.css" rel="stylesheet" type="text/css">
+
+</div>
+<!--内容开始 -->
+<div class="crumb" style="width:318px;margin:0 auto;background-color: #00632A;color: #fff;height: 37px;line-height: 37px;
+	text-indent: 10px;margin-top:40px;">当前位置：<a href="{{$MOBILE}}" style="color: #fff;">主页</a>&gt; <a href="{{$MOBILE}}/success.php?method=query" style="color: #fff;">康复案例</a>
+	&gt; <a href="" style="color: #fff;">详情</a>
+	</div>
+<div class="content">
+<div class="contentall">
+        <div class="content4">
+            <h1 style="width: 100%;text-align: center;color: #0000ff;">{{$data->subject}}</h1>
+            <script>
+                <!--此段代码从离线宝后台获取开始-->
+                document.getElementById("callBtn").onclick = function () { lxb.call(document.getElementById("telInput"));};
+                document.write('<script type="text/javascript"  data-lxb-uid="7499445" data-lxb-gid="134148" src="http://lxbjs.baidu.com/api/asset/api.js?t=' + new Date().getTime() + '" charset="utf-8"></scr' + 'ipt>' );
+                <!--此段代码从离线宝后台获取结束-->
+            </script>
+            <p>
+                {{$data->content}}
+            </p>  
+            <br>
+            <br>
+            <div class="patient_check">已有<font color="#ff0000"><script src="/plus/count.php?view=yes&aid=560&mid=1" type='text/javascript' language="javascript"></script></font>患者看完本文章后<a target="_self"  href="{{$contact.swt_link}}" style="color:#F00;">参与咨询</a></div>
+        </div>
+    </div>
+</div>
+<a href="{{$contact.swt_link}}"  style="cursor:pointer;">
+    <div class="yyzj">
+        <div class="yyzjk">
+            <div class="yyzjbox">
+                <h1>网络预约、免排队、优先就诊</h1>
+                <p><img src="{{$RESOURCE}}/images/dzx.gif"></p>
+                <span>网络值班时间：8:00-23:00(节假日不休息)</span>
+                <div class="xnl"><img src="{{$RESOURCE}}/images/xan.gif"></div>
+            </div>
+        </div>
+    </div> 
+</a>
+<div class="lanmu1">
+    <h4 style="float:left;">浏览这篇文章的人还浏览了</h4>
+    <h4 style="float:right; margin-right:8px;"><a style="color:#FFF;" href="tel:02150569136" target="_blank">电话咨询</a></h4>
+</div>
+<div class="gengduo2">
+    <ul>
+        {{foreach $recommend as  $v}}
+        <li><a href="{{$MOBILE}}/{{$url}}.php?method=get&id={{$v->id}}">{{$v->$titleField}}</a></li>
+        {{/foreach}}
+    </ul>
+</div>
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/footer.html"}}

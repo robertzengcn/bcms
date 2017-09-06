@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * 设备DAO
+ *
+ * @author Administrator
+ *
+ */
+class DeviceDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_DEVICE;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('subject', $where);
+        DTExpression::page($where);
+        if (isset($where['order']) &&  $where['order']) {
+            DTOrder::$sql = $where['order'];
+        } else {
+            DTOrder::desc('plushtime');
+        }
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('subject', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    public function getDevices() {
+        $devices = R::findAll($this->tableName);
+        $deviceArray = array();
+        foreach ($devices as $key => $value) {
+            $device = new Device();
+            $device->generateFromRedBean($value);
+            $deviceArray[] = $device;
+        }
+        return $deviceArray;
+    }
+}

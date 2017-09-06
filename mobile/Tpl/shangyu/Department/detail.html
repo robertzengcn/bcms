@@ -1,0 +1,77 @@
+{{extends file='../Common/layout.html'}}
+{{$department=$DepartmentTag->get($departmentId)}}
+{{block name=title}}{{$department->name}}{{/block}}
+{{block name=body}}
+<input type="hidden" id="depid" value="{{$department->id}}" />
+<div class="am-tabs am-margin-0 main_irm am-no-layout" data-am-widget="tabs">
+  <nav class="am-tabs-nav am-cf">
+      <li class="am-active"><a href="[data-tab-panel-0]">科室介绍</a></li>
+      <li><a href="[data-tab-panel-1]">医生介绍</a></li>
+      <li><a id="jiancha" href="[data-tab-panel-2]">健康教育</a></li>
+      <li><a id="liucheng" href="[data-tab-panel-3]">检查及流程</a></li>
+  </nav>
+  <div class="am-tabs-bd" style="-moz-user-select: none;">
+ <div data-tab-panel-0="" class="main_irm_ks float_none am-container am-tab-panel am-active">
+<input type="hidden" value="{{$department->id}}" id="department_id" />
+{{$department->content}}
+            {{if isset($picarr)&&$picarr!=""}}
+           
+            <div class="admin-content-body">
+              <div class="am-cf am-padding  am-text-center">
+                <strong class="am-text-lg">精彩图集</strong>
+              </div>
+              <ul class="am-avg-sm-2 am-avg-md-4 gallery-list" data-am-gallery="{ pureview: true }" data-am-widget="gallery">
+              {{section name=piclist loop=$picarr start=0 max=4}}
+                <li> <a href="#"> <img alt="" src="{{$smarty.const.UPLOAD}}{{$picarr[piclist]['pic']}}" class="am-img-thumbnail am-img-bdrs"></a> </li>
+              {{/section}}
+              </ul>  
+            </div>
+            {{/if}}
+    </div>
+    
+     <div data-tab-panel-1="" class="main_irm_ys float_none am-container am-tab-panel">
+     <div id="doctorlist">
+     </div>
+    <div id="page1" class="am-pagination-centered">
+    </div>
+    </div>
+    <!-- 康复训练 -->
+    <div class="main_irm_jkjy float_none am-container am-tab-panel" data-tab-panel-2="">
+      <div data-am-widget="list_news" class="am-list-news am-list-news-default am-margin-0" > 
+        <div class="am-list-news-bd">
+          <ul class="am-list" id="jiankanlist">           
+          </ul>
+        </div>
+        <div id="page2" class="am-pagination-centered">
+
+      </div>
+      </div>
+    </div>
+
+     
+<div data-tab-panel-3="" class="float_none am-container am-tab-panel">
+      <div data-am-widget="list_news" class="am-list-news am-list-news-default am-margin-0" > 
+        <div class="am-list-news-bd">
+          <ul class="am-list" id="jianchaliucheng">           
+          </ul>
+        </div>
+        <div id="page3" class="am-pagination-centered">
+
+      </div>
+      </div>
+</div>
+  </div>
+  
+</div>
+
+{{/block}}
+
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.departmentdetail(1);
+
+</script>
+{{/block}}

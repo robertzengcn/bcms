@@ -1,0 +1,74 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>用户数据管理-积分商城</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont" style="font-size:16px;">&#xe66a;</i> 积分商城 <span class="c-gray en">&gt;</span> 用户数据管理</nav>
+<div class="pd-20">
+	
+		<div class="text-c"> 
+		<form id="frm_post">
+			用户名：<input type="text" name="username" id="username" placeholder=" 请输入关键词..." style="width:150px" class="input-text"/>		
+			最后登陆：
+			<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time">
+			-
+			<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'logmin\')}',maxDate:'%y-%M-%d'})" id="logmax" class="input-text Wdate" style="width:120px;" name="end_time">
+			
+			<button name="" id="searchbtn" type="button" class="btn btn-success" /><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+			</form>
+		</div>
+		<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;"  class="btn btn-danger radius" id="deleteall"><i class="Hui-iconfont">&#xe6e2;</i> 清空数据</a><a href="javascript:;" id="export" class="btn btn-success radius ml-5"><i class="Hui-iconfont">&#xe644;</i> 导出CSV</a><a class="btn btn-success radius  ml-5" onClick="open_log('查看积分日志','integral-log.html','800','500')" href="javascript:;"><i class="Hui-iconfont">&#xe6b5;</i> 积分日志</a></span><!--清空当前条件下查询出来的所有数据--></div>
+	<div class="mt-20" id="grid">
+		<table class="table table-border table-bordered table-bg table-hover table-sort" id="dataTable">
+			<thead>
+				<tr class="text-c">					
+					<th width="40">序号</th>
+					<th width="140">用户名</th>					
+					<th width="100">联系电话</th>
+					<th width="140">消费积分（个）</th>
+					<th width="140">消费现金（元）</th>												
+					<th>现有积分（个）</th>
+					<th width="180">最后登陆</th>					
+				</tr>
+			</thead>
+			<tbody class="text-c">
+				
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript" src="../../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/member.js"></script>
+<script type="text/javascript">
+var member = new Member();
+member.setThisName('member');
+member.initList();
+</script>
+
+
+</body>
+</html>

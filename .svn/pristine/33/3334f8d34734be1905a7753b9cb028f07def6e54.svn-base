@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<title>{{$data->subject}}_医院荣誉_{{$WEBTITLE}}</title>
+<meta name="keywords" content="{{$data->keywords}}" />
+<meta name="description" content="{{$data->description}}" />
+<!-- style -->
+{{include file="Common/style.html"}}
+{{include file="Common/common.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/article.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<a name="top"></a>
+<div class="main" id="main_id">
+<div id="scroller">
+<!-- header -->
+{{include file="Common/header.html"}}
+
+<!-- <div class="txtList">
+   <p><a href='{{$MOBILE}}'>首页</a> > <a href='{{$MOBILE}}/honor.php'>医院荣誉</a> > </p>
+</div> -->
+<div class="crumb" style="width:318px;margin:0 auto;background-color: #00632A;color: #fff;height: 37px;line-height: 37px;
+	text-indent: 10px;margin-top:40px;">当前位置：<a href="{{$MOBILE}}" style="color: #fff;">主页</a>&gt; <a href="{{$MOBILE}}/news.php" style="color: #fff;">新闻动态</a>
+	&gt; <a href="{{$MOBILE}}/news.php" style="color: #fff;">详情</a>
+	</div>
+<div class="article" style="width:318px;margin:0 auto;"></br>
+  <h4>{{$data->subject}}</h4></br>
+  <p class="word">时间：{{$data->plushtime|date_format:'%Y-%m-%d %H:%M:%S'}}  来源：{{$WEBTITLE}}</p>
+  <div class="text1">{{$data->content}}</div>
+</div>
+<!-- last pre -->
+{{include file="Common/next_pre.html"}}
+<!-- recomend -->
+{{include file="Common/recomend.html"}}
+<!-- foot_nav -->
+{{include file="Common/foot_nav.html"}}
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/footer.html"}}
+</div>
+</div>
+
+
+</body>
+
+</html>

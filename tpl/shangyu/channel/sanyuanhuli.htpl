@@ -1,0 +1,81 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_hos container">
+	<div class="main_tit"><strong class="pull-left"><a href="/hulidongtai" target="_blank">护理动态</a></strong></div>
+    <div class="row">
+    	<div class="col-xs-12 col-sm-12 col-md-4">
+        
+        	<div id="myNiceCarousel2" class="carousel slide " data-ride="carousel">
+              {{scrollpicbyflag flag="scroll2" assign="pic"}}{{/scrollpicbyflag}}
+                    <!-- 圆点指示器 -->
+                    <ol class="carousel-indicators">
+                      {{foreach from=$pic item=v name=nava}}
+			          {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+                      <li data-target="#myNiceCarousel" data-slide-to="{{$smarty.foreach.nava.iteration-1}}" class="{{$active}}"></li>
+                      {{/foreach}}
+                    </ol>
+              <!-- 轮播项目 -->
+              <div class="carousel-inner">
+                    {{foreach from=$pic item=v name=nava}}
+			          {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+                  <div class="item {{$active}}"><a href="{{$v->url}}" target="_blank"><img src="{{$v->url}}"></a>
+                      <div class="carousel-caption">
+                          <h3></h3>
+                          <p></p>
+                      </div>
+                  </div>
+                   {{/foreach}}
+              </div>
+              </div>
+    
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8">
+        	{{channelarcsbyrecommend recommend_name="首页头版头条" name="护理动态"}}
+            <h3><a href="/yuanwugongkai/[field:id/].html">[field:subject/]</a></h3>
+            <p>[field:description|length:95/]</p>
+            {{/channelarcsbyrecommend}}
+            <ul>
+                {{channelarcsbyname name="护理动态" size="4" }}
+            	<li><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></li>
+                {{/channelarcsbyname}}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<div class="main_hos2 container">
+	<div class="row">
+    	<div class="main_hos2_l col-xs-12 col-sm-12 col-md-8">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/tongzhigonggao" target="_blank">通知公告</a></strong></div>
+                <ul>
+                	{{channelarcsbyname name="通知公告" size="6" }}
+		            <li><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></li>
+		            {{/channelarcsbyname}}
+                </ul>
+            </div>
+        </div>
+        <div class="main_hos2_r col-xs-12 col-sm-12 col-md-4">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/guanliguifan" target="_blank">管理规范</a></strong></div>
+                <ul>
+                    {{channelarcsbyname name="管理规范" size="6" }}
+                	<li><a href="[field:url/]" target="_blank">[field:subject/]</a></li>
+                    {{/channelarcsbyname}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="main_hos3 container">
+	<div class="main_tit"><strong class="pull-left"><a href="/tianshifengcai" target="_blank">天使风采</a></strong></div>
+    <ul>
+        {{channelarcsbyname name="天使风采" size="6" }}
+    	<li><img src="[field:pic/]"></li>
+        {{/channelarcsbyname}}
+    </ul>
+</div>
+{{/block}}

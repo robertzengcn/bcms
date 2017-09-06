@@ -1,0 +1,111 @@
+
+<div class="w320">
+    <div class="more moreDiv1"><em><a href="tel:{{$contact.tel}}">点击拨打热线</a></em><span><a href="tel:{{$contact.tel}}">{{$contact.tel}}</a></span></div>
+    <div class="more moreDiv2"><a href="{{$contact.swt_link}}" target="_blank">如有疑问?点击咨询</a></div>
+</div>
+
+
+<div class="w320 footer"> 
+地址：{{$contact.address}}<br>
+咨询热线：{{$contact.tel}}<br>
+平台支持：全球医院网技术支持
+</div>
+
+
+<div class="fix">
+<!-- 底部版权 -->
+    <ul>
+        <li class="consult"><a class="pic" href="{{$contact.swt_link}}" target="_blank">悄悄提问</a></li>
+        <li class="home"><a class="pic" href="{{$MOBILE}}">回到首页</a></li>
+        <li class="phone"><a class="pic" href="tel:{{$contact.tel}}">电话咨询</a></li>
+    </ul>
+</div>
+
+<div id = 'float-tel-left' style="top: 100px; right: 0px;z-index:9999; position: absolute;">
+<a href="tel:{{$contact.tel}}" title="电话咨询">
+<img src="{{$RESOURCE}}/images/phone.gif" />
+</a>
+</div>
+<script>
+$(function(){	
+	var divleft = document.getElementById("float-tel-left");	
+	var space=divleft.offsetTop;
+	setInterval(function(){
+		var goTo = 0;
+		var height =document.documentElement.scrollTop+document.body.scrollTop+space;
+		var top = parseInt(divleft.style.top);
+		if(height!= top){
+			goTo = height-parseInt((height - top)*0.9);
+			divleft.style.top=goTo+'px';
+		}
+	},50);
+
+});
+
+</script>
+
+
+<div id='topTip' class="topTips showTip" style='transition: all 0.5s ease 0s;display: none;'>
+<div class="tipsInner" style="transition: all 0.5s ease 0s;">
+<a href="{{$contact.swt_link}}" target="_blank">
+<img alt="qq" src="{{$RESOURCE}}/images/qqIcon.png">
+<dl>
+<dt>您好，我是{{$WEBTITLE}}专家</dt>
+<dd>请问有什么可以帮到您…… </dd>
+</dl>
+</a>
+</div>
+</div>
+
+
+<script>
+$(function(){	
+	var topTip = document.getElementById("topTip");
+	setInterval(function(){
+		    var view =topTip.style.display;
+			if(view =='none'){
+				topTip.style.display='';
+			}else{		
+				topTip.style.display='none';
+			}
+	},20000+parseInt(Math.random()*10000));
+
+});
+</script>
+
+<div id="swtCenter" class="swtCenter " style="display: block;">
+<div class="swtClose" id='swtClose'>
+<a href="#"  onclick="myclose();return false;"></a>
+</div>
+<div class="h3">专家在线</div>
+<div class="h4">Doctors Online</div>
+<p>您好，这里是{{$WEBTITLE}}，我们为你提供最专业的咨询。</p>
+<div class="swtList">
+<p>
+<a class="telphone" href="tel:{{$contact.tel}}">
+<i></i>
+<em>拨打电话</em>
+</a>
+</p>
+<p>
+<a class="question" href="{{$contact.swt_link}}" target="_blank">
+<i></i>
+<i id="divRsjs" class="divRsjs">3</i>
+<em>悄悄提问</em>
+</a>
+</p>
+</div>
+</div>
+
+<script>
+function myclose(){
+	var swtCenter = document.getElementById("swtCenter");
+	var view =swtCenter.style.display;
+	swtCenter.style.display='none';
+	setInterval(function(){
+		swtCenter.style.display='block';	    
+	},40000+parseInt(Math.random()*10000));
+}
+</script>
+
+

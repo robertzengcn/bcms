@@ -1,0 +1,44 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+{{$obj=$tagOb->get($id)}}
+<ol class="breadcrumb container list_nav">您现在的位置：
+        <li><a href="{{$WEBSITE}}"><i class="icon icon-home"></i> 首页</a></li>
+        <li><a href="{{$WEBSITE}}/hospital/success"> <i class="icon icon-home"></i>>医院案例</a></li>
+        <li class="active">案例详情</li>
+      </ol>
+
+
+<div class="main_cont1 main_cont2 container">
+	
+	<div class="listdet_l col-xs-12 col-sm-9">
+    	<h1>{{$obj->subject}}</h1>
+        <span class="listdet_sj">{{date('Y-m-d',$obj->plushtime)}} 阅读：{{$obj->click_count}}次 来源：{{$ContactTag->get(name)}}</span>
+        {{$obj->content}}
+        <ul class="pager pager-justify">
+            {{$arti=$tagOb->get($id-1)}}
+            {{if $id eq 1}}
+            <li class="previous"><a>« 上一篇：无</a></li>
+            {{elseif $arti->id eq ''}}}}
+            <li class="previous"><a>« 上一篇：无</a></li>
+            {{else}}
+            <li class="previous"><a href="./{{$id-1}}.html">« 上一篇：{{$arti->subject|truncate:18}}</a></li>
+            {{/if}}
+            {{$arti=$tagOb->get($id+1)}}
+            {{if $arti->id eq ''}}
+            <li class="next"><a>下一篇：无 »</a></li>
+            {{else}}
+            <li class="next"><a href="./{{$id+1}}.html">下一篇：{{$arti->subject|truncate:18}} »</a></li>
+            {{/if}}
+        </ul>
+        <div class="listdet_xgyd">
+        <h3><strong>推荐阅读</strong><a href="#" target="_blank">查看更多>></a></h3>
+        <ul>
+            {{foreach from=$tagOb->getList(1,10) item=v}}
+        	<li class="col-xs-12 col-sm-6"><a class="col-xs-7" href="/{{$v->id}}.html">{{$v->subject|truncate:15}}</a><span class="col-xs-5">「{{date('Y-m-d',$obj->plushtime)}}」</span></li>
+            {{/foreach}}
+        </ul>
+        </div>
+    </div> 
+    {{include file=$layout_right}}
+</div>
+{{/block}}

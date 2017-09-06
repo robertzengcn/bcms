@@ -1,0 +1,34 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/doctor.css">
+{{/block}}
+{{block name=body}}
+{{doctor id=$id assign="doctor"}}
+{{departmentsVector id={{$doctor->department_id}} assign="depVector"}}
+  <div id="breadcrumb"><span>您的位置：<a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a>>
+         <a href='{{$WEBSITE}}{{$HTMLURL}}'>专家团队</a> > <a>{{$doctor->name}}</a></div>
+      </span>
+  </div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+    <div class="par-main">
+      <h2><span>医生介绍</span></h2>
+      <div class="doctor_par"><div><img src="{{$UPLOAD}}{{$doctor->pic}}"></div>
+        <h4><span>医生姓名：</span><strong>{{$doctor->name}}</strong>{{$doctor->position}}<br />
+            <span>所属科室：</span>{{foreach $depVector as $v}}{{$v->name}}{{/foreach}}</h4>
+      </div>   
+      <div class="par-ask"><a href="{{$ContactTag->get('swt')}}"><img src="../public/images/zx.gif" alt="#" /></a>
+          <a href="{{$WEBSITE}}/reservation.html"><img src="../public/images/yy.gif" alt="#" /></a></div>
+      <div class="doctor_par_content">
+      <span>擅长疾病: </span>{{$doctor->specialty}}
+      <p>{{$doctor->content}}</p>
+      </div>
+      <!--ҽ��end-->
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+{{/block}}

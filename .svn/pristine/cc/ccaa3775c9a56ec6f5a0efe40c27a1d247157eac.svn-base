@@ -1,0 +1,140 @@
+function Dedecopy(){
+	BaseFunc.call(this);
+	var self = this;
+	
+	this.dede_connect = function(para){
+		var self = this;
+		self.cmd(gHttp,{controller:'Zhimeng',method:'haveMsg'},function(ret){
+				if(ret.statu){
+					$('#IPAdress').val(ret.data.url);
+					$('#name').val(ret.data.name);
+					$('#username').val(ret.data.user);
+					$('#password').val(ret.data.pwd);
+					$('#isremmenber').attr('checked','checked');
+				}else{
+					$('#username').val('');
+					$('#password').val('');
+				}
+			});
+			
+				$(".form").Validform({
+				tiptype: 2,
+				ajaxPost: true,
+				url: '/controller/index.php?controller=Zhimeng&method=addDatabase',
+				btnSubmit: '#savedata',
+				tipSweep:false,
+				//showAllError:false,
+				callback: function(data){
+					//alert(data);
+					if (data.statu) {
+						$("#Validform_msg").hide();
+						layer.msg('设置成功');
+						$("#startcopy").trigger("click");
+						self.dataList();
+
+						
+						
+					}else {
+						layer.msg(data.msg, function(){
+						});
+					}
+					
+				}
+			});
+			
+			
+			
+			
+			
+		
+	}
+	this.dataList=function(para){
+					self.cmd(gHttp,{controller:'Zhimeng',method:'getTypenames'}, function(ret){
+				var str = '';
+				$.each(ret,function(index,obj){
+					str += '<option value="'+obj.typename+'">'+obj.typename+'</option>';
+				});
+				$('#typename').append(str);
+			});
+			$('body').on('click','#qry',function(){
+				
+				self.cmd(gHttp,{controller:'Zhimeng',method:'getData'}, function(ret){
+				if(ret.statu){
+						var resertable=$("#dedetable").DataTable({
+						
+						bStateSave:false,
+						serverSide: true,
+						processing: true,
+						searching: true,
+						ajax:{
+							'url':'/controller/?controller=Zhimeng&method=getZmDatas',
+							//'dataSrc': 'data',
+							'type':'POST',
+							
+							'data': {
+								'page':function(){
+									var info=$("#reservationtable").DataTable().page.info();
+									return info.page+1;
+								},
+								'size':function(){
+									var info=$("#reservationtable").DataTable().page.info();
+									return info.length;
+								},
+
+								
+							},
+							'dataType':'json',
+							'dataSrc': function(json){
+								
+								return json.data;
+								
+							}
+							
+
+
+							
+								
+						},
+
+						order: [[ 1, "desc" ]],
+						//select: true,
+	
+						columns: [
+						            {
+						            	data : 'id',
+						            	render : function (id, type, row) {
+						            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+						            	},
+						            	name: 'xuanze',
+						            	orderable:false
+						            },
+						            { data: 'id'	
+						            	},
+						            { data: 'title',name:'title'},
+						            { data: 'description',name:'description'},
+
+						            {								  
+									  render : function(data, type, row){
+										  var str = '';
+										  str += '<a class="btn_cha" dataid="'+row.id+'" title="查看预约详情" href="javascript:;" style="text-decoration:none"><i class="Hui-iconfont"></i></a> <a class="btn_shen" dataid="'+row.id+'" title="申请加号" href="javascript:;" style="text-decoration:none"><i class="Hui-iconfont"></i></a> <a class="ml-5 btn_ting" dataid="'+row.id+'" title="停诊设置" href="javascript:;" style="text-decoration:none"><i class="Hui-iconfont"></i></a> <a title="修改排班" dataid="'+row.id+'" href="javascript:;" class="ml-5 editreser" style="text-decoration:none"><i class="Hui-iconfont"></i></a> <a title="删除" href="javascript:;" onclick="" dataid="'+row.id+'" class="ml-5 trush" style="text-decoration:none"><i class="Hui-iconfont"></i></a>';
+								    	  return str;
+									  },
+									  orderable:false
+									 }
+						        ]
+
+	
+					
+					});
+					}
+					});
+			});
+			
+			
+	}
+	
+
+	
+	
+	
+}

@@ -1,0 +1,42 @@
+/* CSS Document */
+
+#page{overflow:auto;height:100%;width:100%;background:#f3f9fc;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+.logo_link,.homenav {width:20px;height:20px;text-indent:-999;margin:15px 6px;}
+.logo_link{background:url(../i/logo.png)  no-repeat;float:left;-moz-background-size:20px 20px; /* �ϰ汾�� Firefox */background-size:20px 20px;}
+.homenav {background:url(../i/homeimg.png) no-repeat;float:right;-moz-background-size:20px 20px; /* �ϰ汾�� Firefox */background-size:20px 20px;}
+
+
+/* header over*/
+
+#body{background:#f6f6f6;height:100%;}
+.bodybox{width:100%;min-height:315px;height:100%;background:#f3f9fc;}
+.bodybg{background:url(../i/bodyback.png) center center no-repeat;width:300px;height:289px;margin:0px auto;position:relative;}
+.station{border:1px solid #27b7a1;border-radius:3px;-moz-border-radius:3px; /* Old Firefox */ background:#27b7a1;text-align:center;height:20px;color:#ffffff;font-size:15px;line-height:20px;overflow:hidden;}
+.station a{color:#ffffff;}
+.headlist{position:absolute;left:185px;top:5px;width:50px;}
+.chestpart{position:absolute;left:200px;top:55px;width:50px;}
+.abdomenpart{position:absolute;left:216px;top:99px;width:50px;}
+.ulimbpart{position:absolute;left:19px;top:83px;width:50px;}
+.llimbpart{position:absolute;left:32px;top:165px;width:50px;}
+.male{position:absolute;left:198px;top:124px;width:65px;}
+.female{position:absolute;left:216px;top:175px;width:65px;}
+.jointpart{position:absolute;left:242px;top:223px;width:50px;}
+.wholebody{position:absolute;left:0px;top:254px;width:50px;}
+.otherspart{position:absolute;left:0px;top:280px;width:50px;}
+.backpart{border:1px solid #8dc9e0;border-radius:3px;-moz-border-radius:3px; /* Old Firefox */ background:#e9f5fa;text-align:center;height:25px;color:#ffffff;font-size:15px;line-height:25px;width:60px;}
+
+
+.sonlist{width:94px;height:140px;background:url(../i/sonlistbg1.png) center -6px no-repeat;z-index:999;position:absolute;left:-22px;padding:12px 0px;-moz-background-size:20px 20px; /* 老版本的 Firefox */background-size:20px 20px;display:none;}
+.sonlist ul{border:2px solid #d3d3d3;width:92px;height:138px;background:#ffffff; box-shadow:3px 4px 1px #cdcdcd;}
+.sonlist ul li{width:100%;line-height:46px;height:46px;}
+.sonlist ul li a{background:#c4e8f6;padding:6px 10px;text-align:center;}
+
+
+/* body over*/
+#search,#searchform{width:100%;height:36px;line-height:36px;}
+#search{position:fixed;bottom:10px;}
+.searchbox{background:url(../i/search-bg.png) no-repeat;height:36px;line-height:36px;width:304px;margin:0 auto;text-align:left;}
+.searchbox input{background:none;height:32px;font-size:14jpx;color:#999999;border:none;}
+.searchbox a{font-size:16px;color:#ffffff;padding:0 8px;}

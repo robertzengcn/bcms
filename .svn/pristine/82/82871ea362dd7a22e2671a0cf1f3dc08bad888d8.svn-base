@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<title>我的奖品</title>
+<link href="{{$COMMON}}Draw/public/draw/css/style.css" rel="stylesheet">
+<script type="text/javascript"  src="{{$COMMON}}Draw/public/draw/js/jquery-1.7.min.js"></script>
+</head>
+<body>
+<div class="menu_hide"></div>
+	<div id="menu">
+		<ul>
+			{{foreach from=$drawnav key=k item=value}}
+			<li class="menu_cur"><a href="./draw.php?method={{$k}}"><span>{{$value}}</span></a></li>
+			{{/foreach}} 
+		</ul>
+	</div>
+<div class="activity_tit">
+	<div class="pull-left">我的抽奖奖品</div>
+    <div class="pull-right"><img src="{{$COMMON}}Draw/public/draw/img/icon.png"></div>
+</div>
+<ul class="activity_list result_list">
+{{foreach $winlist as $win}} 
+  <li>
+  <a href="./draw.php?method=getmydraw&id={{$win->id}}">
+      <img src="{{$win->img}}" width="80" height="80"/>
+	  <span class="red">{{$win->prize}}</span><span>1件</span>
+    <h4 class="box_desc">{{$win->draw}}<span>[{{$win->date}}]</span></h4>
+  </a>
+  </li>
+{{/foreach}} 
+</ul>
+		{{if $pagenum eq 0}}
+		<br/><div style="text-align:center;">暂无数据</div><br/>	
+		{{/if}}
+<footer style="text-align:center;">
+  <ul class="pager pager-loose" style="display: inline-block; margin:10px  auto auto;" id="pagelinks">
+{{section name=foo start=1 step=1 loop=$pagenum+1}}
+        <li class="pagelink {{if $smarty.section.foo.iteration==1}}active{{/if}}" data="{{$smarty.section.foo.index}}"><a href="javascript:void(0);">{{$smarty.section.foo.index}}</a></li>
+{{/section}}
+      </ul>
+</footer>
+</body>
+</html>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('body').on('click','.pagelink',function(){
+		var __self=this;
+		var page=$(this).attr('data');
+		$.ajax({url:'/addons/draw.php?method=ajaxdrawlist',
+				data:{'page':page},
+				dataType:"json",
+				type:'POST',
+				success:function(data){
+					if(data.stute){
+						var thtml='';
+						$.each(data.data,function(i,v){
+							thtml+='<li><a href="./draw.php?method=getmydraw&id='+v.id+'"><img src="'+v.img+'" width="80" height="80"/><span class="red">'+v.prize+'</span><h4 class="box_desc">'+v.draw+'<span>['+v.date+']</span></h4></a></li>';
+						});
+						$('.result_list').html(thtml);						
+						$('#pagelinks').find('.active').removeClass('active');
+						$(__self).addClass('active');
+					}
+				}
+				});	
+	});
+});
+$(".pull-right").click(function(){
+	$('.menu_hide').show();	
+		$("#menu").animate({right:'0'},300);
+
+})
+$(".menu_hide").click(function(){
+	$('.menu_hide').hide();	
+		$("#menu").animate({right:'-250px'},300);
+
+})
+</script>

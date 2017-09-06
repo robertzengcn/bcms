@@ -1,0 +1,127 @@
+<?php
+
+class CommodityRuleTitleService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new CommodityRuleTitleDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $commodityArray = $this->dao->getBatch($ids);
+      
+/*无此功能页面 
+        $files = array();
+        $recommendListDAO = new RecommendListDAO();
+        foreach ($commodityArray as $commodity) {
+          $filename = GENERATEPATH . 'commodity/' . $commodity->id . '.html';
+            if ($commodity->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $files[] = $filename;
+            $recommendListDAO->deleteById('$commodity_id', $$commodity->id);
+        } 
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+*/
+        return $this->dao->deleteBeans($commodityArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($commodity) {
+        $this->dao->get($commodity->id, $commodity);
+        
+            
+            
+            $commoditydescservice=new CommodityDescriptService();
+            $result=$commoditydescservice->getdesc($commodity->id);
+            $commodity->descript=$result->product_descript;
+            
+        
+        if($commodity->start_time){
+        	$commodity->start_time=date('Y-m-d',$commodity->start_time);
+        }
+        if($commodity->end_time){
+        	$commodity->end_time=date('Y-m-d',$commodity->end_time);
+        }
+        
+ //       $commodity->tags = $tagsService->getTags($commodity->plushtime);
+//         $recommend = new RecommendListService();
+//         $result = $recommend->getById('commodity_id', $commodity->id);
+//         $commodity->recommend = $result; 
+        return $this->success($commodity);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $scoreruleArray = $this->dao->query($where);
+//         foreach ($commodityArray as $key => $value) {
+//             $value->plushtime = date('Y-m-d', $value->plushtime);
+//             $value->start_time=date('Y-m-d',$value->start_time);
+//             $value->end_time=date('Y-m-d',$value->end_time);
+//         }
+
+        return $this->success($scoreruleArray);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($commodity) {
+    	
+         $commodity->validate();        
+        // 获取class对象并插入数据
+        $rs=$this->dao->save($commodity);
+        
+        if(isset($_REQUEST['descript'])&&$_REQUEST['descript']!=null){
+        $commoditydescript=new CommodityDescriptService();
+        $commoditydesc=new CommodityDescript();
+        $commoditydesc->product_id=$rs->id;
+        $commoditydesc->product_descript=$_REQUEST['descript'];
+        $commoditydescript->save($commoditydesc);
+        }
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($commodity) {
+    //    $commodity->updatetime = time();
+    	
+        $commodity->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($commodity);
+    }
+}
+

@@ -1,0 +1,60 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>所属科室医生</title>
+</head>
+<body>
+<div class="pd-20">	
+	<div class="mt-20" id="grid">
+		<table class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">					
+					<th width="80">序号</th>
+					<th width="280">姓名</th>
+					<th>医生头像</th>
+					<th width="120">编辑时间</th>	
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="text-c">					
+					<td>1</td>
+					<td class="text-l">鲍凤兰</td>
+					<td><img src="../images/boyicms/temp/201509101455136.jpg" width="90px"/></td>
+					<td>2015-06-12</td>	
+				</tr>
+				<tr class="text-c">					
+					<td>1</td>
+					<td class="text-l">鲍凤兰</td>
+					<td><img src="../images/boyicms/temp/201509101455136.jpg" width="90px"/></td>
+					<td>2015-06-12</td>	
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../js/boyicms/hospital.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	result.goMenu('news');
+});
+</script>
+</body>
+</html>

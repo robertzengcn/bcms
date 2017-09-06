@@ -1,0 +1,486 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../../css/H-ui.admin.css">
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<link href="../../../css/style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../../../lib/Hui-iconfont/1.0.1/iconfont.css">
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>自定义菜单-微信公众号管理</title>
+<style type="text/css">
+	/*导航条*/
+    .mainnav{z-index:1;background-color:#222}/*导航条背景*/
+    .mainnav > ul{ font-size: 0; line-height: 0}
+    .mainnav > ul > li,.mainnav > ul > li > a{height:40px;line-height:40px}/*导航条高度*/
+    .mainnav > ul > li{display:inline-block;color:#fff;font-size:14px;font-weight:bold}/*设置字体*/
+    .mainnav > ul > li > a{display:inline-block;padding:0 20px;color:#fff;text-align:center}/*链接颜色*/
+    .mainnav > ul > li > a:hover,.mainnav > ul > li.current > a{color:#fff;text-decoration:none; background-color:#e74c3c;-webkit-transition: background-color 0.3s ease 0s; -moz-transition: background-color 0.3s ease 0s; -o-transition: background-color 0.3s ease 0s; -ms-transition: background-color 0.3s ease 0s;transition: background-color 0.3s ease 0s}/*交互颜色*/
+    .Hui-nav-toggle{ display:none; position:absolute; top:0px; right:15px; font-size: 20px; color:#999; padding:6px 11px; -moz-border-radius:4px;-webkit-border-radius:4px;-ms-border-radius:4px;border-radius:4px; background-color:rgba(0,0,0,0.5);color:#fff;}
+    .Hui-nav-toggle:hover{ text-decoration: none;}
+	
+	/*菜单折叠*/
+	.Huifold .item{ position:relative}
+    .Huifold .item h4{margin:0;font-weight:bold;position:relative;border-top: 1px solid #fff;font-size:15px;line-height:22px;padding:7px 10px;background-color:#eee;cursor:pointer;padding-right:30px}
+    .Huifold .item h4 b{position:absolute;display: block; cursor:pointer;right:10px;top:7px;width:16px;height:16px; text-align:center; color:#666}
+    .Huifold .item .info{display:none;padding:10px}
+	
+	
+	/*执行操作标识栏*/
+	.operation{height:30px;}
+	.operation a{margin-right:14px;margin-top:4px;display:block;height:auto;}
+	.operation a:hover{text-decoration:none;}
+	.operation_obj{line-height:30px;text-indent:10px;}
+	
+	
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 微信公众号管理 <span class="c-gray en">&gt;</span> 自定义菜单 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">	
+    <nav class="mainnav cl">
+    	<ul class="cl ifr_list">
+    		<li class="menulist current"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/detail-wx.html" id="li_menu">自定义菜单</a></li>
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/detail-wx-reply.html">自动回复</a></li>
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/clickstat-menu.html">菜单点击</a></li>
+			<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/manage-text.html">素材管理</a></li>
+			<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/send-message.html">群发消息</a></li>		
+    	</ul>
+    </nav>
+    <form id="form1" name="form1">
+	<div class="mt-10">
+		<ul id="Huifold1" class="Huifold">
+			  <li class="item">
+				<h4>主菜单一<b>+</b></h4>
+				<div class="info">
+					<table name="table1"  class="table table-border table-bordered table-bg table-hover table-sort">
+						  <!--主菜单一-->
+						  <tr class="text-c">
+							<td  width="86px">主菜单名称：</td>
+							<td width="100px"><input type="text" class="input-text" id="firstName" name="parentOne[name]" placeholder="3-5个字为宜"/></td>
+							<td class="titletd" width="72px">响应事件：</td>
+							<td width="100px">
+								<span class="select-box">
+								<select class="event_set select" id="firstType" name="parentOne[type]">
+									<option flag="" value="" selected="selected">---请选择---</option>
+									<option flag="view_limited" value="view_limited">跳转至图文</option>
+									<option flag="view"  value="view">输入链接</option>
+									<option flag="wechat" value="wechat">跳转至微站</option>
+									<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+									<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+								</select>
+								</span>
+							</td>
+							<td class="titletd" width="72px">执行操作：</td>
+							<td id="firstOpt" name="parentOne[opt]" > 
+							<input type="hidden" class="url_input" name="parentOne[url]" />
+							</td>
+						  </tr>						  
+						  <!--子菜单一-->
+						  <tr id="firstSonOneTr"  class="text-c">
+							<td class="titletd">|-子菜单一：</td>
+							<td><input type="text" class="input-text"  id="firstSonOneName" name="parentOneSon[1][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="firstSonOneType" name="parentOneSon[1][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="firstSonOneOpt" name="parentOneSon[1][opt]" >
+							<input type="hidden" class="url_input" name="parentOneSon[1][url]" />
+							</td>
+						  </tr>
+						  <!--子菜单二-->
+						  <tr id="firstSonTwoTr"  class="text-c">
+							<td class="titletd">|-子菜单二：</td>
+							<td><input type="text" class="input-text" id="firstSonTwoName" name="parentOneSon[2][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="firstSonTwoType" name="parentOneSon[2][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="firstSonTwoOpt" name="parentOneSon[2][opt]">
+									<input type="hidden" class="url_input" name="parentOneSon[2][url]" />
+							</td>						
+						  </tr>
+						  <!--子菜单三-->
+						  <tr id="firstSonThreeTr"  class="text-c">
+							<td class="titletd">|-子菜单三：</td>
+							<td><input type="text" class="input-text" id="firstSonThreeName" name="parentOneSon[3][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="firstSonThreeType" name="parentOneSon[3][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="firstSonThreeOpt" name="parentOneSon[3][opt]">
+									<input type="hidden" class="url_input" name="parentOneSon[3][url]" />
+							</td>
+						
+						  </tr>
+						  <!--子菜单四-->
+						  <tr id="firstSonFourTr"  class="text-c">
+							<td class="titletd">|-子菜单四：</td>
+							<td><input type="text" class="input-text" id="firstSonFourName" name="parentOneSon[4][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select"  id="firstSonFourType" name="parentOneSon[4][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>				
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td align="left"  id="firstSonFourOpt" name="parentOneSon[4][opt]">	
+									<input type="hidden" class="url_input" name="parentOneSon[4][url]" />
+							</td>
+						
+						  </tr>
+						  <!--子菜单五-->
+						  <tr id="firstSonFiveTr"  class="text-c">
+							<td class="titletd">|-子菜单五：</td>
+							<td><input type="text" class="input-text" id="firstSonFiveName" name="parentOneSon[5][name]" /></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="firstSonFiveType" name="parentOneSon[5][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>	
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td align="left" id="firstSonFiveOpt" name="parentOneSon[5][opt]">
+									<input type="hidden" class="url_input" name="parentOneSon[5][url]" />
+							</td>
+						  </tr>
+						</table>
+				</div><!--info over-->					
+			  </li>
+			  <li class="item">
+				<h4>主菜单二<b>+</b></h4>
+				<div class="info">
+					<table name="table2" class="table table-border table-bordered table-bg table-hover table-sort">
+						  <!--主菜单-->
+						  <tr class="text-c">
+							<td class="titletd" width="86px">主菜单名称：</td>
+							<td width="100px"><input type="text" class="input-text" id="secondName" name="parentTwo[name]"  placeholder="3-5个字为宜"/></td>
+							<td class="titletd" width="72px" >响应事件：</td>
+							<td width="100px"><span class="select-box"><select class="event_set select" id="secondType" name="parentTwo[type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>					
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+										<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd" width="72px">执行操作：</td>
+							<td id="secondOpt" name="parentTwo[opt]">							
+							<input type="hidden" class="input-text"  name="parentTwo[url]"/>
+							</td>
+							
+						  </tr>
+						  <!--子菜单一-->
+						  <tr  id="secondSonOneTr"  class="text-c">
+							<td class="titletd">|-子菜单一：</td>
+							<td><input type="text" class="input-text"  id="secondSonOneName"  name="parentTwoSon[1][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="secondSonOneType" name="parentTwoSon[1][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="secondSonOneOpt" name="parentTwoSon[1][opt]">
+							<input type="hidden" class="url_input" name="parentTwoSon[1][url]" />
+							</td>
+						  </tr>
+						  <!--子菜单二-->
+						  <tr id="secondSonTwoTr"  class="text-c">
+							<td class="titletd">|-子菜单二：</td>
+							<td><input type="text" class="input-text" id="secondSonTwoName" name="parentTwoSon[2][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="secondSonTwoType" name="parentTwoSon[2][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+									<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="secondSonTwoOpt" name="parentTwoSon[2][opt]">
+							<input type="hidden" class="url_input" name="parentTwoSon[2][url]" />
+							</td>
+					
+						  </tr>
+						  <!--子菜单三-->
+						  <tr id="secondSonThreeTr"  class="text-c">
+							<td class="titletd">|-子菜单三：</td>
+							<td><input type="text" class="input-text" id="secondSonThreeName"  name="parentTwoSon[3][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="secondSonThreeType" name="parentTwoSon[3][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+									<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="secondSonThreeOpt" name="parentTwoSon[3][opt]">
+							<input type="hidden" class="url_input" name="parentTwoSon[3][url]" />
+							</td>
+						
+						  </tr>
+						  <!--子菜单四-->
+						  <tr id="secondSonFourTr"  class="text-c">
+							<td class="titletd">|-子菜单四：</td>
+							<td><input type="text" class="input-text" id="secondSonFourName" name="parentTwoSon[4][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="secondSonFourType" name="parentTwoSon[4][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+										<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td  align="left" id="secondSonFourOpt" name="parentTwoSon[4][opt]">
+							<input type="hidden" class="url_input" name="parentTwoSon[4][url]" />
+							</td>
+						
+						  </tr>
+						  <!--子菜单五-->
+						  <tr id="secondSonFiveTr"  class="text-c">
+							<td class="titletd">|-子菜单五：</td>
+							<td><input type="text" class="input-text" id="secondSonFiveName" name="parentTwoSon[5][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="secondSonFiveType" name="parentTwoSon[5][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td align="left"  id="secondSonFiveOpt" name="parentTwoSon[5][opt]">
+							<input type="hidden" class="url_input" name="parentTwoSon[5][url]" />
+							</td>
+						  </tr>
+						</table>
+				</div><!--info over-->					
+			  </li>
+			  <li class="item">
+				<h4>主菜单三<b>+</b></h4>
+				<div class="info">
+					<table name="table3"  class="table table-border table-bordered table-bg table-hover table-sort">
+						  <!--主菜单-->
+						  <tr  class="text-c">
+							<td class="titletd" width="86px">主菜单名称：</td>
+							<td width="100px"><input type="text" class="input-text" id="thirdName"  name="parentThree[name]" placeholder="3-5个字为宜"/></td>
+							<td class="titletd" width="72px">响应事件：</td>
+							<td width="100px"><span class="select-box"><select class="event_set select" id="thirdType"  name="parentThree[type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></td>
+							<td class="titletd" width="72px">执行操作：</td>
+							<td  id="thirdOpt" name="parentThree[opt]">
+							<input type="hidden" class="menutext"  name="parentThree[url]"/>
+							</td>
+						  </tr>
+						  <!--子菜单一-->
+						  <tr id="thirdSonOneTr"  class="text-c">
+							<td class="titletd">|-子菜单一：</td>
+							<td><input type="text" class="input-text" id="thirdSonOneName" name="parentThreeSon[1][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="thirdSonOneType" name="parentThreeSon[1][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="thirdSonOneOpt" name="parentThreeSon[1][opt]">
+							<input type="hidden" class="url_input" name="parentThreeSon[1][url]" />
+							</td>
+						  </tr>
+						  <!--子菜单二-->
+						  <tr id="thirdSonTwoTr"  class="text-c">
+							<td class="titletd">|-子菜单二：</td>
+							<td><input type="text" class="input-text" id="thirdSonTwoName" name="parentThreeSon[2][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="thirdSonTwoType" name="parentThreeSon[2][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="thirdSonTwoOpt" name="parentThreeSon[2][opt]">
+							<input type="hidden" class="url_input" name="parentThreeSon[2][url]" />
+							</td>
+						  </tr>
+						  <!--子菜单三-->
+						  <tr id="thirdSonThreeTr"  class="text-c">
+							<td class="titletd">|-子菜单三：</td>
+							<td><input type="text" class="input-text" id="thirdSonThreeName" name="parentThreeSon[3][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="thirdSonThreeType" name="parentThreeSon[3][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td id="thirdSonThreeOpt" name="parentThreeSon[3][opt]">
+							<input type="hidden" class="url_input" name="parentThreeSon[3][url]" />
+							</td>
+						  </tr>
+						  <!--子菜单四-->
+						  <tr id="thirdSonFourTr"  class="text-c">
+							<td class="titletd">|-子菜单四：</td>
+							<td><input type="text" class="input-text" id="thirdSonFourName" name="parentThreeSon[4][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="thirdSonFourType" name="parentThreeSon[4][type]">
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+								<option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></span></td>
+							<td class="titletd">执行操作：</td>
+							<td align="left" id="thirdSonFourOpt" name="parentThreeSon[4][opt]">	
+							<input type="hidden" class="url_input" name="parentThreeSon[4][url]" />
+							</td>
+							
+						  </tr>
+						  <!--子菜单五-->
+						  <tr id="thirdSonFiveTr"  class="text-c">
+							<td class="titletd">|-子菜单五：</td>
+							<td><input type="text" class="input-text" id="thirdSonFiveName" name="parentThreeSon[5][name]"/></td>
+							<td class="titletd">响应事件：</td>
+							<td><span class="select-box"><select class="event_set select" id="thirdSonFiveType"  name="parentThreeSon[5][type]" >
+								<option flag="" value="" selected="selected">---请选择---</option>
+								<option flag="view_limited" value="view_limited">跳转至图文</option>
+								<option flag="view"  value="view">输入链接</option>
+								<option flag="wechat" value="wechat">跳转至微站</option>
+								<option flag="weiService" value="weiService">微服务</option>
+								<option flag="weiVote" value="weiVote">微投票</option>
+								<option flag="topicWeb" value="topicWeb">跳转至专题</option>
+							    <option flag="menuClick" value="click">增加菜单点击</option>								
+							</select></span></td>
+							<td class="titletd" >执行操作：</td>
+							<td  align="left" id="thirdSonFiveOpt" name="parentThreeSon[5][opt]">
+							<input type="hidden" class="url_input" name="parentThreeSon[5][url]" />
+							</td>
+						  </tr>
+						</table>
+				</div><!--info over-->					
+			  </li>		
+			</ul>
+	</div>
+	
+	<div class="mt-10">
+	    <div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<button id="savemenu" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe676;</i> 保存</button>
+			<button name="reset" id="clearMenu" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe6e2;</i> 清空菜单</button>
+		</div>
+	</div>
+	
+	</form>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/weixin/js/weixin.js"></script>
+<script type="text/javascript">
+var gWeiXin = new WeiXin();
+gWeiXin.setThisName('gWeiXin');
+gWeiXin.initManage();
+</script>
+</body>
+</html>

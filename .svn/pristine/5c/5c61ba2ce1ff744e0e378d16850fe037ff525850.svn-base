@@ -1,0 +1,52 @@
+<?php
+/**
+ * 
+ * 获取用户积分
+ * @author Administrator
+ * @version v1.0
+ * @example 该接口在进行预约后,由总控中心发起预约接口
+ */
+include '../hwibsc/common.class.php';
+
+
+class ScoreHwibsc extends common {
+	
+	//构造函数
+	public function __construct() {
+		parent::__construct();
+		$this->queryRes();
+	}
+	
+	//查询time_id值是否正确
+	private function queryRes() {
+			$token = $_REQUEST['token'];
+			if(strlen($token)<1){
+				echo json_encode(array('statu'=>false,'code'=>14,'msg'=>'用户未登陆','data'=>null));
+				exit();
+			}
+			$url = "http://www.boyicms.com/interface/hma/HmaAccountInterface.php?type=logincheck";
+			$post_data = array ("token"=>$token);
+	      
+			$ch=curl_init();
+            curl_setopt($ch,CURLOPT_URL,$url);
+            curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch,CURLOPT_POST,1);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$post_data);
+			$data=curl_exec($ch);
+			curl_close($ch);			
+	        $obj=json_decode($data);
+
+	       if($obj->code==1){			
+				$memberser=new MemberService();
+				
+				$memberarr=array('username'=>$obj->data->username);
+				$memberarray=$memberser->getmembyname($memberarr)->data;//获取会员信息
+				$memberarray['ownscore'] = ($memberarray['ownscore'] == null) ? 0 : (int)$memberarray['ownscore']; 
+				echo json_encode(array('statu'=>true,'msg'=>null,'code'=>0,'data'=>$memberarray));
+			}else{
+				echo json_encode(array('statu'=>false,'code'=>15,'msg'=>'用户错误','data'=>null));
+				exit();
+			}
+	}	
+}
+new ScoreHwibsc();

@@ -1,0 +1,16 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_ps1 container">
+	<ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a href="/yiyuangaikuang">医院概况</a></li>
+      <li class="active">医院文化</li>
+    </ol>
+    <div class="main_ps1_box">
+    	{{channelarcsbyname name="医院文化" size='1'}}
+                      [field:content/] 
+                {{/channelarcsbyname}}
+    </div>
+</div>
+{{/block}}
+        

@@ -1,0 +1,119 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>中奖记录-每日抽奖</title>
+<style type="text/css">
+	/*导航条*/
+    .mainnav{z-index:1;background-color:#222}/*导航条背景*/
+    .mainnav > ul{ font-size: 0; line-height: 0}
+    .mainnav > ul > li,.mainnav > ul > li > a{height:40px;line-height:40px}/*导航条高度*/
+    .mainnav > ul > li{display:inline-block;color:#fff;font-size:14px;font-weight:bold}/*设置字体*/
+    .mainnav > ul > li > a{display:inline-block;padding:0 20px;color:#fff;text-align:center}/*链接颜色*/
+    .mainnav > ul > li > a:hover,.mainnav > ul > li.current > a{color:#fff;text-decoration:none; background-color:#e74c3c;-webkit-transition: background-color 0.3s ease 0s; -moz-transition: background-color 0.3s ease 0s; -o-transition: background-color 0.3s ease 0s; -ms-transition: background-color 0.3s ease 0s;transition: background-color 0.3s ease 0s}/*交互颜色*/
+    .Hui-nav-toggle{ display:none; position:absolute; top:0px; right:15px; font-size: 20px; color:#999; padding:6px 11px; -moz-border-radius:4px;-webkit-border-radius:4px;-ms-border-radius:4px;border-radius:4px; background-color:rgba(0,0,0,0.5);color:#fff;}
+    .Hui-nav-toggle:hover{ text-decoration: none;}
+	
+	/*菜单折叠*/
+	.Huifold .item{ position:relative}
+    .Huifold .item h4{margin:0;font-weight:bold;position:relative;border-top: 1px solid #fff;font-size:15px;line-height:22px;padding:7px 10px;background-color:#eee;cursor:pointer;padding-right:30px}
+    .Huifold .item h4 b{position:absolute;display: block; cursor:pointer;right:10px;top:7px;width:16px;height:16px; text-align:center; color:#666}
+    .Huifold .item .info{display:none;padding:10px}
+	
+	
+	/*执行操作标识栏*/
+	.operation{height:30px;}
+	.operation a{margin-right:14px;margin-top:4px;display:block;height:auto;}
+	.operation a:hover{text-decoration:none;}
+	.operation_obj{line-height:30px;text-indent:10px;}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont" style="font-size:16px;">&#xe6c3;</i> 营销活动策划 <span class="c-gray en">&gt;</span> 每日抽奖 <span class="c-gray en">&gt;</span> 中奖记录</nav>
+<div class="pd-20">
+	<nav class="mainnav cl">
+		<ul class="cl ifr_list">
+			<li class="menulist "><a href="javascript:;" _href="/hcc/activities/luckdraw/luckdraw-list.html" id="li_menu">活动列表</a></li>
+			<li class="menulist current"><a href="javascript:;" _href="/hcc/activities/luckdraw/lottery-log.html">中奖记录</a></li>
+		</ul>
+	</nav>
+	<form id="frm_post">
+		<div class="text-c pd-10"> 
+		用户名：<input type="text" name="username" id="name" placeholder=" 请输入关键词..." style="width:150px" class="input-text">
+		奖品名称：<input type="text" name="name" id="prize" placeholder=" 请输入关键词..." style="width:150px" class="input-text">
+		<span class="select-box inline">
+			<select name="id" class="select" id="draw"></select>
+		</span>	
+		<span class="select-box inline" >
+			<select name="statue" class="select" id="statue">
+				<option value="">状态</option>
+				<option value="1">己领取</option>
+				<option value="q">未领取</option>
+			</select>
+		</span>			
+		日期：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'logmin\')}',maxDate:'%y-%M-%d'})" id="logmax" class="input-text Wdate" style="width:120px;" name="end_time">
+		
+		<button id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	</div>
+	</form>
+	<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;" class="btn btn-danger radius" id="batdel"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a></span></div>
+	<div class="mt-20" id="grid">
+		<table class="table table-border table-bordered table-bg table-hover table-sort" id="dataTable">
+			<thead class="text-c">
+				<tr>
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th width="30">序号</th>
+					<th width="120">奖品名称</th>	
+					<th>所属活动</th>					
+					<th width="90">中奖用户名</th>
+					<th width="100">联系电话</th>					
+					<th width="70">领取方式</th>
+					<th width="60">状态</th>
+					<th width="90">中奖日期</th>
+					<th width="30">操作</th>
+				</tr>
+			</thead>
+			<tbody class="text-c">
+				
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/winner.js"></script>
+<script type="text/javascript">
+var Winner = new Winner();
+Winner.setThisName('winner');
+Winner.initList();
+
+
+</script>	
+</body>
+</html>

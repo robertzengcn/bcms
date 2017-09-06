@@ -1,0 +1,444 @@
+<?php
+
+class ReservationDetailDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_RESERVATIONDETAIL;
+    }
+
+    /**
+     * 查询指定的数据.
+     *
+     * @param unknown_type $where
+     * @return Ambigous <array(Entity), multitype:, unknown>
+     */
+    public function query($where) {
+
+         DTExpression::ge('times', $where, 'starttime');
+         DTExpression::le('times', $where, 'endtime');
+        DTExpression::eq('doctor_id', $where);
+        DTExpression::eq('reserver_id', $where);
+        DTExpression::eq('member_id', $where);
+        DTExpression::eq('department_id', $where);
+        DTExpression::eq('date', $where);
+        DTExpression::page($where);
+        DTOrder::sort('id desc');
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+       
+    }
+
+    /**
+     * 获取表中总条数 .
+     * ..
+     *
+     * @param array $where
+     * @return Ambigous <number, number>
+     */
+    public function totalRows($where) {
+   
+    	DTExpression::ge('times', $where, 'start');
+    	DTExpression::le('times', $where, 'end');
+    	DTExpression::le('member_id', $where);
+    	DTExpression::eq('doctor_id', $where);
+    	DTExpression::eq('department_id', $where);
+    	DTExpression::eq('date', $where);
+    	DTExpression::page($where);
+    	DTOrder::sort('id desc');
+//         DTExpression::eq('department_id', $where);
+//         if (isset($where['name']) && empty($where['department_id'])) {
+//             if (strlen($where['name'])) {
+//                 $sql = "select count(*) from reservation as r left join doctor as d on doctor_id=d.id where name like '%{$where['name']}%'";
+//                 $count = R::getAll($sql);
+//                 return $count[0]['count(*)'];
+//             }
+//         } else
+//             if (isset($where['department_id']) && isset($where['name'])) {
+//                 if (! empty($where['department_id']) && ! empty($where['name'])) {
+//                     $sql = "select count(*) from reservation as r left join doctor as d on doctor_id=d.id where name like '%{$where['name']}%' and r.department_id={$where['department_id']}";
+//                     $count = R::getAll($sql);
+//                     return $count[0]['count(*)'];
+//                 }
+//             }
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 添加到详细表 .
+     * ..
+     *
+     * @param object $detail
+     */
+    public function addToDetail($detail) {
+        $bean = R::dispense('reservationdetail');
+        $detail->generateRedBean($bean);
+        R::store($bean);
+    }
+    
+    public function gettotalCount(){
+    	return $count = R::count($this->tableName);
+    }
+
+    /**
+     * 获取详细页的列表...
+     *
+     * @param array $where
+     * @return array
+     */
+    public function getDetail($where) {
+        DTExpression::ge('times', $where, 'start');
+        DTExpression::le('times', $where, 'end');
+        DTExpression::eq('date', $where);
+        DTExpression::eq('department_id', $where);
+        DTExpression::eq('doctor_id', $where);
+        DTExpression::page($where);
+        $res = R::find('reservationdetail', DTExpression::$sql . 'order by times asc' . DTExpression::$limit, DTExpression::$params);
+        $arr = array();
+        foreach ($res as $k => $bean) {
+            $entity = new ReservationDetail();
+            $entity->generateFromRedBean($bean);
+            $arr[] = $entity;
+        }
+        R::close();
+        return $arr;
+    }
+
+    /**
+     * 获取详细页总数...
+     *
+     * @param array $where
+     * @return number
+     */
+    public function getCount($where) {
+        DTExpression::eq('date', $where);
+        DTExpression::eq('department_id', $where);
+        DTExpression::eq('doctor_id', $where);
+        $count = R::count('reservationdetail', DTExpression::$sql, DTExpression::$params);
+        R::close();
+        return $count;
+    }
+
+    /**
+     * 根据id数组查询详细列表...
+     *
+     * @param array $ids
+     * @return Ambigous <multitype:, RedBean_OODBBean, mixed>
+     */
+    public function detailBatch($ids = array()) {
+        $beans = R::batch('reservationdetail', $ids);
+        R::close();
+        return $beans;
+    }
+
+    /**
+     * 批量删除...
+     *
+     * @param unknown_type $beans
+     * @return Result
+     */
+    public function deleteDetail($beans) {
+        R::trashAll($beans);
+        R::close();
+
+        return new Result(true, 0, '', NULL);
+    }
+
+    /**
+     * 根据科室，医生，日期删除详细表中的记录 .
+     * ..
+     */
+    public function deleteAll($arr) {
+        $beans = R::findAll('reservationdetail', "department_id=:department_id and doctor_id=:doctor_id and date=:date", $arr);
+        // $beans = R::findAll('reservationdetail',"department_id=:department_id and doctor_id=:doctor_id and date=':date'",$arr);
+        R::trashAll($beans);
+        R::close();
+    }
+    /*
+     * 根据日期和科室删除详细列表中的记录
+     * @param $array
+     * */
+    public function delete_indate($arr) {
+    	$beans = R::findAll($this->tableName, "department_id=:department_id and date=:date", $arr);
+    	// $beans = R::findAll('reservationdetail',"department_id=:department_id and doctor_id=:doctor_id and date=':date'",$arr);
+    	R::trashAll($beans);
+    	R::close();
+    }
+    
+
+    /**
+     * 获得已约总数...
+     */
+    public function getApproximately($array) {
+        $sql = "select count(*) as num from reservationdetail where statu='已约' and department_id=:department_id and doctor_id=:doctor_id and date=:date and times>=:start and times<=:end";
+        $countArr = R::getAll($sql, $array);
+        return $countArr[0]['num'];
+    }
+    
+    /**
+     * 获取某个医生的总号数...
+     */
+    public function getAllVerification($array){
+    	$sql = "select count(*) as num from reservationdetail where department_id=:department_id and doctor_id=:doctor_id and date=:date and times>=:start and times<=:end";
+    	$countArr = R::getAll($sql, $array);
+    	return $countArr[0]['num'];
+    }
+
+    /**
+     * 获取详细表中所有数据
+     *
+     * @return Ambigous <multitype:, ReservationDetail>
+     */
+    public function getDetailAll() {
+        $beans = R::findAll('reservationdetail');
+        $detailAll = array();
+        foreach ($beans as $bean) {
+            $ReservationDetail = new ReservationDetail();
+            $ReservationDetail->generateFromRedBean($bean);
+            $detailAll[] = $ReservationDetail;
+        }
+        return $detailAll;
+    }
+
+    /**
+     * 将预约者添加到预约表中去
+     *
+     * @param unknown_type $entity
+     * @return Ambiguous
+     */
+    public function reserUser($entity) {
+        $bean = R::dispense('reseruser');
+        $entity->generateRedBean($bean);
+        $insertId = R::store($bean);
+        $entity->generateFromRedBean($bean);
+        R::close();
+        return $entity;
+    }
+	
+    public function queryDetail(){	
+        DTExpression::eq('department_id', $_REQUEST['department_id']);
+        DTExpression::eq('doctor_id', $_REQUEST['doctor_id']);
+        DTExpression::eq('date', strtotime($_REQUEST['date']) );
+        DTExpression::eq('times', strtotime($_REQUEST['date'] . ' ' . $_REQUEST['time']. ':00') );
+        
+        $res = R::getAll('select * from reservationdetail where ' . DTExpression::$sql, DTExpression::$params);
+         
+        $bean = R::convertToBeans('bean', $res);
+        $reservations = array();
+        foreach ($bean as $v) {
+            $entity = new ReservationDetail();
+            $entity->generateFromRedBean($v);
+            $reservations[] = $entity;
+        }
+        return $reservations[0];
+        
+
+    }
+    
+    
+	public function reservationDetail($entity){
+	    $bean = R::load('reservationdetail', $entity->id);  
+	    $entity->generateRedBean ( $bean );	        
+	    $insertId = R::store ( $bean );
+	    $entity->generateFromRedBean ( $bean );
+	    R::close ();
+	    return $entity;
+	}
+	
+	public function getPaibanCount($where){
+		DTOrder::asc('date,department_id');
+		$cond=" where 1=1";
+		if(!empty($where['dept_name'])){
+			$cond.=" and result.department like '%".$where['dept_name']."%'";
+		}
+		if(!empty($where['doctor_name'])){
+			$cond.=" and result.doctor like '%".$where['doctor_name']."%'";
+		}
+		if(!empty($where['date'])){
+			$now=strtotime($where['date']);
+			$end=strtotime($where['date'].' 23:59:59');
+			$cond.=' and date <='.$end.' and date>='.$now;
+		}else{
+			$now=strtotime(date('Y-m-d',time()));
+			$cond.=' and date>='.$now;
+		}
+		$sqlhead="select result.* from (select r.*,dep.name as department,doc.name as doctor,doc.specialty from {$this->tableName} r left join department dep on dep.id=r.department_id left join doctor doc on doc.id=r.doctor_id) as result";
+		$sql=$sqlhead . $cond . DTOrder::$sql ;
+		$array = $this->getJoin($sql);
+		return count($array);
+	}
+	
+	public function getPaiban($where){
+		DTOrder::asc('date,department_id');
+		$cond=" where 1=1";
+		if(!empty($where['dept_name'])){
+			$cond.=" and result.department like '%".$where['dept_name']."%'";
+		}
+		if(!empty($where['doctor_name'])){
+			$cond.=" and result.doctor like '%".$where['doctor_name']."%'";
+		}
+		if(!empty($where['date'])){
+			$now=strtotime($where['date']);
+			$end=strtotime($where['date'].' 23:59:59');
+			$cond.=' and date <='.$end.' and date>='.$now;
+		}else{
+			$now=strtotime(date('Y-m-d',time()));
+			$cond.=' and date>='.$now;
+		}
+		$page=empty($where['page']) ? 1 : (int)$where['page'];
+		$size=(int)$where['size'];
+		$start=($page-1)*$size;
+		DTExpression::$limit='limit '.$start.','.$size;
+		$sqlhead="select result.* from (select r.*,dep.name as department,dep.url as depurl,doc.name as doctor,doc.specialty from {$this->tableName} r left join department dep on dep.id=r.department_id left join doctor doc on doc.id=r.doctor_id) as result";
+		$sql=$sqlhead . $cond . DTOrder::$sql . DTExpression::$limit;
+		$array = $this->getJoin($sql);
+		return $array;
+	}
+	/*
+	 * 
+	 * check date exist, return id
+	 * */
+	public function date_exist($date){
+		
+	
+	
+		$result  = R::findOne( $this->tableName, 'date =:date', $date);
+		if($result!=null){
+		return $result->id;
+		}else{
+			return null;
+		}
+		
+	}
+	
+	/*
+	 * 
+	 * check date exist return bean
+	 * */
+	
+	public function date_existbean($date){
+		$result  = R::findOne( $this->tableName, 'date =:date and department_id=:department_id and doctor_id=:doctor_id', $date);
+		if($result!=null){
+			return $result;
+		}else{
+			return null;
+		}
+	}
+	
+	/*
+	 * 判断特定科室，特定日期下有无数据
+	 * 
+	 * @param $array
+	 * 
+	 * 
+	 * */
+	public function date_deparment_exist($array){
+		
+
+	
+		$result  = R::findOne( $this->tableName, 'date =:date and department_id=:department_id and doctor_id=:doctor_id', $array);
+		R::close();
+	
+		return $result;
+	
+	
+	}
+	
+	/*
+	 * 更新早上时间
+	 * 
+	 * */
+	
+	public function update($bean){
+		R::store($bean);
+		R::close();
+		
+	}
+	
+	/*
+	 * 取一定范围内的已预约数据
+	* */
+	public function getreserbetwmon($array){
+		
+		$result  = R::findall( $this->tableName, 'date =:date and department_id=:department_id and doctor_id=:doctor_id and times>=:timestart and times<:timeend', $array);
+		R::close();	
+		return $result;
+	}
+	
+	/*
+	 * 取一定范围内的已预约数据
+	* */
+	public function getreserbetwaft($array){
+	
+		$result  = R::findall( $this->tableName, 'date =:date and department_id=:department_id and doctor_id=:doctor_id and times>=:timestart and times<:timeend', $array);
+		R::close();
+		return $result;
+	}
+	
+	/*
+	 * 取一定范围内的已预约数据
+	* */
+	public function getreserbetwnig($array){
+	
+		$result  = R::findall( $this->tableName, 'date =:date and department_id=:department_id and doctor_id=:doctor_id and times>=:timestart and times<:timeend', $array);
+		R::close();
+		return $result;
+	}
+	
+	/*
+	 * 删除某个用户的预约
+	 * */
+	public function deletereser($array){
+		$result=R::findone( $this->tableName, 'id =:id and member_id=:member_id', $array);
+		if($result!=null){
+		R::trash($result);
+		}
+		R::close();		
+	}
+	
+	/*
+	 * 更改预约状态为到诊
+	 * */
+	public function changestatu($arr){
+		$result=R::findone( $this->tableName, 'id =:id', $arr);
+		
+		if($result!=null){
+			$result->statu='到诊';
+		}
+		R::store($result);
+		R::close();
+	}
+	
+	/*
+	 * 获取某个时段待诊的人数
+	 * */
+	public function getresnum($arr){
+		$result=R::count($this->tableName,'reserver_id=:reserver_id and statu="待约"',$arr);
+		return $result;
+	}
+	
+	
+	/*
+	 * 取挂号信息根据用户Id
+	 * */
+	public function getreserdetailbymember($arr){
+		$bean=R::findAll( $this->tableName, 'member_id =:member_id', $arr);
+		
+		 $reservations = array();
+        foreach ($bean as $v) {
+            $entity = new ReservationDetail();
+            $entity->generateFromRedBean($v);
+            $reservations[] = $entity;
+        }
+        return $reservations;
+		
+	}
+	/*
+	 * 取某个时间段的号源
+	 * */
+	public function checkdaytime($arr){
+		$bean=R::findOne($this->tableName,'date=:date and times=:times',$arr);
+		return $bean;
+	}
+	
+}

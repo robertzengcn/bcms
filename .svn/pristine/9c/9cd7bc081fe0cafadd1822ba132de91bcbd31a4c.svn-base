@@ -1,0 +1,532 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for `commodity`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `commodity` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `subject` varchar(100) NOT NULL COMMENT '商品名称',
+  `quantity` int(20) NOT NULL,
+  `salenum` int(20) NOT NULL DEFAULT '0' COMMENT '已销数量',
+  `pic` varchar(250) DEFAULT NULL COMMENT '商品图片',
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '商品状态 1为启用，0为关闭',
+  `types` int(1) NOT NULL DEFAULT '1' COMMENT '商品类型 1：医疗服务 2：医院购买  3：商城配送',
+  `counts` int(8) DEFAULT NULL COMMENT '点击数',
+  `model` varchar(25) NOT NULL COMMENT '商品型号',
+  `exchange` int(10) DEFAULT '1' COMMENT '兑换方式：1为纯积分，2为积分加现金',
+  `limit` int(1) DEFAULT '0' COMMENT '每个账户限购',
+  `score` int(8) NOT NULL COMMENT '积分数量',
+  `price` varchar(20) NOT NULL COMMENT '商品价格',
+  `plushtime` int(11) unsigned DEFAULT NULL COMMENT '发布时间',
+  `updatetime` int(11) unsigned DEFAULT NULL COMMENT '更新时间',
+  `click_count` tinyint(3) unsigned DEFAULT NULL,
+  `flag` text,
+  `get` tinyint(1) unsigned DEFAULT NULL,
+  `start_time` int(15) NOT NULL COMMENT '活动开始时间',
+  `end_time` int(15) NOT NULL COMMENT '活动结束时间',
+  `categories_id` int(10) DEFAULT NULL,
+  `pattern` tinyint(3) unsigned DEFAULT NULL,
+  `shelf` tinyint(1) unsigned DEFAULT NULL,
+  `discount` int(25) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `commodity_supplier`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `commodity_supplier` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(10) NOT NULL COMMENT '商品id ',
+  `source` varchar(250) NOT NULL COMMENT '来源',
+  `model` varchar(50) NOT NULL COMMENT '接入商品的特殊值，用来确定唯一性',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='第三方供应商信息表';
+
+-- ----------------------------
+-- Table structure for `commoditycategories`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `commoditycategories` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '分类id',
+  `name` varchar(200) CHARACTER SET utf8 DEFAULT NULL COMMENT '分类名',
+  `categories_image` varchar(200) CHARACTER SET utf8 DEFAULT NULL COMMENT '分类图片',
+  `categories_status` int(10) DEFAULT '0' COMMENT '分类状态, 0为开启，1为关闭',
+  `types` int(5) DEFAULT '1',
+  `descript` text CHARACTER SET utf8,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='商品目录表';
+
+-- ----------------------------
+-- Table structure for `commoditydescript`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `commoditydescript` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_descript` text,
+  `product_id` int(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `commoditydescript_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `commodity` (`id`),
+  CONSTRAINT `commoditydescript_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `commodity` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `consumptionlog`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `consumptionlog` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL COMMENT '用户id',
+  `totalscore` int(15) unsigned DEFAULT '0' COMMENT '用户消费积分数',
+  `totalcash` decimal(14,2) unsigned DEFAULT '0.00' COMMENT '用户消费现金数',
+  PRIMARY KEY (`id`),
+  KEY `member_id` (`uid`) USING BTREE,
+  CONSTRAINT `consumptionlog_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+
+
+-- ----------------------------
+-- Table structure for `member`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `member` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(10) CHARACTER SET utf8 NOT NULL,
+  `telephone` varchar(11) CHARACTER SET utf8 DEFAULT NULL,
+  `ownscore` int(11) unsigned DEFAULT '0' COMMENT '已消费积分',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `memberlog`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `memberlog` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `last_log` int(10) DEFAULT NULL COMMENT '最后登陆时间',
+  `type` int(2) DEFAULT '2' COMMENT '2为登陆',
+  `score` int(10) DEFAULT '0' COMMENT '改行为获得的积分数',
+  PRIMARY KEY (`id`),
+  KEY `uid_log` (`uid`) USING BTREE,
+  CONSTRAINT `memberlog_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `memberscorelog`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `memberscorelog` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `type` int(10) NOT NULL,
+  `score` int(10) DEFAULT '0' COMMENT '获得积分数量',
+  `date` int(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_id` (`uid`) USING BTREE,
+  KEY `score_type` (`type`) USING BTREE,
+  CONSTRAINT `memberscorelog_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `memberscorelog_ibfk_2` FOREIGN KEY (`type`) REFERENCES `scoretitle` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `draw`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `draw` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET utf8 DEFAULT NULL COMMENT '活动名称',
+  `start_time` int(10) NOT NULL COMMENT '活动开始时间',
+  `end_time` int(10) NOT NULL COMMENT '活动结束时间',
+  `statu` int(1) NOT NULL DEFAULT '0' COMMENT '活动是否开启，0为关闭，1为开启',
+  `type` int(1) NOT NULL DEFAULT '1' COMMENT '活动的类型:1为转盘，2为刮卡，3为转盘',
+  `limit` int(2) NOT NULL DEFAULT '0' COMMENT '每个账号限制，0为不限制，1为限制一次',
+  `descript` mediumtext CHARACTER SET utf8 COMMENT '跪着说明',
+  `bonus` int(10) NOT NULL DEFAULT '0' COMMENT '每次参与消耗积分',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `prize`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `prize` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET utf8 DEFAULT NULL,
+  `prize_count` int(15) NOT NULL DEFAULT '0' COMMENT '奖品总数',
+  `prize_every` int(15) NOT NULL DEFAULT '0',
+  `prize_percent` float(11,0) DEFAULT NULL,
+  `prize_position` int(5) unsigned DEFAULT NULL,
+  `drawid` int(10) NOT NULL COMMENT '活动id',
+  `img` varchar(150) CHARACTER SET utf8 DEFAULT NULL COMMENT '奖品图片地址',
+  `takeway` int(2) DEFAULT '1' COMMENT '奖品领取方式, 1为到院领取，2为医院配送',
+  `type` int(2) DEFAULT NULL COMMENT '奖品类型 1为医院服务类型 2为商品',
+  PRIMARY KEY (`id`),
+  KEY `draw_id` (`drawid`),
+  CONSTRAINT `draw_id` FOREIGN KEY (`drawid`) REFERENCES `draw` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `resertemplate`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `resertemplate` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(50) NOT NULL,
+  `department_id` int(11) NOT NULL,
+  `type` int(11) NOT NULL COMMENT '单周1 双周2 按月3',
+  `plushtime` varchar(10) NOT NULL COMMENT '发布时间',
+  `morning_time` varchar(30) DEFAULT NULL COMMENT '早上时间',
+  `afternoon_time` varchar(30) DEFAULT NULL COMMENT '下午时间',
+  `night_time` varchar(30) DEFAULT NULL COMMENT '晚上时间',
+  `moning_time` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=434 DEFAULT CHARSET=utf8 COMMENT='预约模板表';
+
+-- ----------------------------
+-- Table structure for `resertemplatedetail`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `resertemplatedetail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` int(11) NOT NULL,
+  `morning` varchar(30) DEFAULT NULL,
+  `afternoon` varchar(30) DEFAULT NULL,
+  `night` varchar(30) DEFAULT NULL,
+  `type` int(11) NOT NULL,
+  `doctor_num` varchar(255) NOT NULL,
+  `tem_id` int(11) NOT NULL,
+  `num` int(11) DEFAULT '0',
+  `plushtime` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `getdate` (`type`,`tem_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=226 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `scorerule`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `scorerule` (
+  `id` int(25) unsigned NOT NULL AUTO_INCREMENT,
+  `descript` text CHARACTER SET utf8,
+  `score` int(10) DEFAULT NULL,
+  `limit` int(10) DEFAULT NULL,
+  `type` int(10) NOT NULL COMMENT '规则类型',
+  PRIMARY KEY (`id`),
+  KEY `scorerule_ibfk_1` (`type`),
+  CONSTRAINT `scorerule_ibfk_1` FOREIGN KEY (`type`) REFERENCES `scoretitle` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `scoretitle`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `scoretitle` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) CHARACTER SET utf8 NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Table structure for `winlog`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `winlog` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `prize_id` int(10) NOT NULL,
+  `member_id` int(10) unsigned NOT NULL,
+  `draw_id` int(10) NOT NULL,
+  `statue` int(2) DEFAULT '0' COMMENT '状态0为未领取,1为已领取',
+  `date` int(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `win_prize` (`prize_id`),
+  KEY `win_member` (`member_id`),
+  KEY `win_draw` (`draw_id`),
+  CONSTRAINT `win_draw` FOREIGN KEY (`draw_id`) REFERENCES `draw` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `win_member` FOREIGN KEY (`member_id`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `win_prize` FOREIGN KEY (`prize_id`) REFERENCES `prize` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+-- ----------------------------
+-- Table structure for `commodityorder`
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `commodityorder` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `orders` char(16) NOT NULL  COMMENT '订单号',
+  `uid` int(10) NOT NULL  COMMENT '用户id',
+  `qrcode` char(10) NOT NULL  COMMENT '商品条形码',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='商品订单表';
+-- ----------------------------
+-- Table structure for `commoditykey`
+-- ----------------------------
+DROP TABLE IF EXISTS `commoditykey`;
+CREATE TABLE `commoditykey` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `remember_key` char(32) NOT NULL  COMMENT '随机键值',
+  `lose_time` int(11) unsigned NOT NULL COMMENT '失效时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='商城自动登录表';
+
+DROP TABLE IF EXISTS `resbookinginfo`;
+
+CREATE TABLE `resbookinginfo` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `department_id` varchar(255) DEFAULT NULL,
+  `doctor_id` int(11) unsigned NOT NULL COMMENT '关联医生',
+  `date` int(11) NOT NULL,
+  `times` varchar(50) DEFAULT NULL COMMENT '时间段',
+  `statu` varchar(20) DEFAULT NULL COMMENT '预约状态',
+  `username` varchar(20) DEFAULT NULL COMMENT '预约人姓名',
+  `telephone` varchar(20) DEFAULT NULL COMMENT '电话号码',
+  `id_card` varchar(30) DEFAULT NULL COMMENT '身份证号',
+  `member_id` int(10) DEFAULT NULL COMMENT '用户Id',
+  `resvation_id` int(10) DEFAULT '0' COMMENT '对应预约表id',
+  `make_time` int(11) DEFAULT NULL COMMENT '下单时间',
+  `medical_card` varchar(30) DEFAULT NULL COMMENT '就诊卡/HIS系统卡号',
+  `description` text COMMENT '病情描述',
+  `email` varchar(90) DEFAULT NULL COMMENT '邮箱',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=86 DEFAULT CHARSET=utf8 COMMENT='预约详细表';
+
+/*Data for the table `resbookinginfo` */
+
+/*Table structure for table `resdepartment` */
+
+DROP TABLE IF EXISTS `resdepartment`;
+
+CREATE TABLE `resdepartment` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT '科室名称',
+  `description` varchar(250) NOT NULL,
+  `content` text NOT NULL,
+  `belong` tinyint(3) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+
+/*Data for the table `resdepartment` */
+
+/*Table structure for table `resdoctor` */
+
+DROP TABLE IF EXISTS `resdoctor`;
+
+CREATE TABLE `resdoctor` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT '医生名称',
+  `pic` varchar(200) DEFAULT NULL COMMENT '医生照片',
+  `birthday` date NOT NULL COMMENT '生日',
+  `gender` tinyint(1) NOT NULL DEFAULT '0' COMMENT '性别 0男 1女',
+  `content` text,
+  `certificate` varchar(200) DEFAULT NULL COMMENT '资格证(图片)',
+  `specialty` varchar(200) DEFAULT NULL,
+  `cultural` varchar(50) NOT NULL COMMENT '学历',
+  `university` varchar(50) NOT NULL COMMENT '毕业院校',
+  `plushtime` char(10) DEFAULT NULL,
+  `position` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `department_id` tinyint(3) unsigned DEFAULT NULL,
+  `relation_id` int(11) DEFAULT NULL COMMENT '与doctor表的ID关联',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+/*Data for the table `resdoctor` */
+
+/*Table structure for table `resschedule` */
+
+DROP TABLE IF EXISTS `resschedule`;
+
+CREATE TABLE `resschedule` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` int(11) NOT NULL COMMENT '医生排每周的第几天，1即星期一，2星期二',
+  `morning` varchar(30) DEFAULT NULL,
+  `afternoon` varchar(30) DEFAULT NULL,
+  `night` varchar(30) DEFAULT NULL,
+  `type` int(11) NOT NULL,
+  `doctor_num` varchar(255) NOT NULL,
+  `tem_id` int(11) NOT NULL,
+  `num` int(11) DEFAULT '0',
+  `plushtime` int(11) unsigned DEFAULT NULL,
+  `click_count` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `getdate` (`type`,`tem_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=296 DEFAULT CHARSET=latin1;
+
+/*Data for the table `resschedule` */
+
+/*Table structure for table `restemplate` */
+
+DROP TABLE IF EXISTS `restemplate`;
+
+CREATE TABLE `restemplate` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(50) NOT NULL,
+  `department_id` int(11) DEFAULT NULL,
+  `type` int(11) NOT NULL COMMENT '单周1 双周2 按月3',
+  `plushtime` varchar(10) NOT NULL COMMENT '发布时间',
+  `morning_time` varchar(30) DEFAULT NULL COMMENT '早上时间',
+  `afternoon_time` varchar(30) DEFAULT NULL COMMENT '下午时间',
+  `night_time` varchar(30) DEFAULT NULL COMMENT '晚上时间',
+  `moning_time` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=514 DEFAULT CHARSET=utf8 COMMENT='预约模板表';
+
+/*Data for the table `restemplate` */
+
+/*Table structure for table `resvation` */
+
+DROP TABLE IF EXISTS `resvation`;
+
+CREATE TABLE `resvation` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `department_id` int(11) unsigned NOT NULL COMMENT '关联科室',
+  `doctor_id` int(11) unsigned NOT NULL COMMENT '关联医生',
+  `date` int(11) NOT NULL,
+  `morning` varchar(50) DEFAULT NULL COMMENT '上午诊断时间',
+  `afternoon` varchar(50) DEFAULT NULL COMMENT '下午诊断时间',
+  `night` varchar(50) DEFAULT NULL COMMENT '晚上诊断时间',
+  `state` int(11) DEFAULT '0' COMMENT '排班状态，0为可预约，1为停诊，2为过期',
+  `mark` int(11) NOT NULL DEFAULT '0' COMMENT '已预约人数',
+  `morning_source` int(11) DEFAULT NULL COMMENT '上午号源数，如10表示该医生上午要接诊10个病人',
+  `afternoon_source` int(11) DEFAULT NULL COMMENT '下午号源数，如10表示该医生下午要接诊10个病人',
+  `night_source` int(11) DEFAULT NULL COMMENT '晚班号源数，如10表示该医生晚班要接诊10个病人',
+  `time_point` text COMMENT '总时间点',
+  `morning_point` varchar(255) DEFAULT NULL COMMENT '上午排班可约时间点',
+  `after_point` varchar(255) DEFAULT NULL COMMENT '下午排班可约时间点',
+  `night_point` varchar(255) DEFAULT NULL COMMENT '晚上排班可约时间点',
+  PRIMARY KEY (`id`),
+  KEY `doctor_department_date` (`department_id`,`doctor_id`,`date`),
+  KEY `doctor_department` (`department_id`,`doctor_id`),
+  KEY `doctor_reser` (`doctor_id`),
+  CONSTRAINT `resvation_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `resdepartment` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `resvation_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `resdoctor` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8 COMMENT='预约排班表';
+
+ALTER TABLE `ask` ADD `isdisplay` tinyint(1) UNSIGNED DEFAULT '0' COMMENT '是否显示，默认0，不显示';
+
+ALTER TABLE `reservation` ADD `mark` int(11) NOT NULL DEFAULT '0' COMMENT '已预约人数';
+
+ALTER TABLE `worker` ADD `acls` TEXT NOT NULL DEFAULT '' COMMENT '菜单访问权限' ;
+
+ALTER TABLE `mediaid` ADD `tag` VARCHAR(255) NOT NULL DEFAULT '' ;
+ALTER TABLE `mediaid` ADD `flag` CHAR(1) NOT NULL DEFAULT '' ;
+
+ALTER TABLE `article` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `topic` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `success` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `technology` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `channelarticle` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `news` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `mediareport` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `doctor` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+ALTER TABLE `ask` ADD `show_position` VARCHAR(10) NULL DEFAULT '0' COMMENT '显示位置：1(pc), 2(手机网页), 3(app), 4(微站)' ;
+
+-- 20160902
+ALTER TABLE `worker` ADD `belonggroups` VARCHAR(255) NULL DEFAULT '' COMMENT '所属组' ;
+ALTER TABLE `reseruser` CHANGE `hometel` `hometel` VARCHAR(12) NOT NULL DEFAULT '' COMMENT '电话号码';
+ALTER TABLE `reseruser` CHANGE `date` `date` INT(11) NOT NULL COMMENT '预约日期';
+
+-- ----------------------------
+-- Records of Contact
+-- ----------------------------
+INSERT INTO `contact` (name,is_retain, flag)VALUES('新浪微博AppKey', 1,'weibo_appkey');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('新浪微博App Secret', 1,'weibo_appsecret');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('新浪微博Code', 1,'weibo_code');
+
+-- ----------------------------
+-- Records of Duanxin
+-- ----------------------------
+INSERT INTO `contact` (name,is_retain, flag)VALUES('短信接口url', 1,'msg_url');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('短信接口cid', 1,'msg_cid');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('短信接口pwd', 1,'msg_pwd');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('短信接口cell', 1,'msg_cell');
+
+-- ----------------------------
+-- Records of UDESK
+-- ----------------------------
+INSERT INTO `contact` (name,is_retain, flag)VALUES('Udesk url', 1,'udesk');
+
+-- ----------------------------
+-- Records of scoretitle
+-- ----------------------------
+INSERT INTO `scoretitle` VALUES ('1', '首次下载APP并登陆');
+INSERT INTO `scoretitle` VALUES ('2', '完善个人资料');
+INSERT INTO `scoretitle` VALUES ('3', '分享APP给他人');
+INSERT INTO `scoretitle` VALUES ('4', '每日登陆');
+INSERT INTO `scoretitle` VALUES ('5', '连续登陆');
+
+-- ----------------------------
+-- Records of Wuxianduanxin
+-- ----------------------------
+INSERT INTO `contact` (name,is_retain, flag)VALUES('无线短信ip', 1,'wuxian_ip');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('无线短信账户', 1,'wuxian_account');
+INSERT INTO `contact` (name,is_retain, flag)VALUES('无线短信密码', 1,'wuxian_password');
+
+alter table reseruser add member_id int(10) default null;
+alter table reservationdetail add member_id int(10) default null;
+alter table reservationdetail add reserver_id int(10) default '0';
+alter table reservationdetail add make_time datetime default null;
+
+-- 20161122  
+ALTER  TABLE `client` ADD `appointment` char(12) DEFAULT '0' COMMENT '预约时间';
+ALTER  TABLE  `commodity`  CHANGE descript description VARCHAR(255) DEFAULT NULL COMMENT '商品描述';
+ALTER  TABLE `commodity` ADD `piclist` varchar(255) DEFAULT NULL COMMENT '商品轮播图';
+
+-- 20161125
+INSERT INTO `picmanager`(id,name,flag,img,kind) VALUES (null, '商城logo', 'shop_logo', 'picmanager/shop_logo.png','1');
+INSERT INTO `picmanager`(id,name,flag,img,kind) VALUES (null, '商城icon', 'shop_icon_72', 'picmanager/shop_icon_72.png', '1');
+INSERT INTO `picmanager`(id,name,flag,img,kind) VALUES (null, '商城icon', 'shop_icon_32', 'picmanager/shop_icon_32.png', '1');
+INSERT INTO `mobilepicmanager`(id,name,flag,kind,cate) VALUES (null, '手机商城首页轮播图', 'commodity_index', '2', '1');
+-- 20161129
+ALTER  TABLE  `commodity` ADD `subtitle`  VARCHAR(32) DEFAULT NULL COMMENT '商品副标题';
+ALTER  TABLE `consumptionlog` ADD `gid` int(10) DEFAULT null COMMENT '消费的商品id';
+ALTER  TABLE `consumptionlog` ADD `buytime` char(12) DEFAULT '0' COMMENT '消费时间';
+ALTER  TABLE `consumptionlog` ADD `orders` char(20) DEFAULT null COMMENT '成功换取商品生成的订单号';
+ALTER  TABLE `consumptionlog` ADD `status` int(10) DEFAULT '0' COMMENT '提取状态:0未提取,1已提取';
+ALTER  TABLE `consumptionlog` ADD `taketime` int(10) DEFAULT null COMMENT '提取时间';
+ALTER  TABLE `consumptionlog` ADD `num` int(10) DEFAULT 1 COMMENT '商品数量';
+
+alter table `commodity_supplier` convert to character set utf8;
+alter table `commoditycategories` convert to character set utf8;
+alter table `consumptionlog` convert to character set utf8;
+alter table `doctormangertodisease` convert to character set utf8;
+alter table `member` convert to character set utf8;
+alter table `memberlog` convert to character set utf8;
+alter table `memberscorelog` convert to character set utf8;
+alter table `draw` convert to character set utf8;
+alter table `prize` convert to character set utf8;
+alter table `resertemplatedetail` convert to character set utf8;
+alter table `scorerule` convert to character set utf8;
+alter table `scoretitle` convert to character set utf8;
+alter table `winlog` convert to character set utf8;
+-- 20161202
+alter table `consumptionlog` rename `commoditylog`;
+alter table `scorerule` rename `commodityrule`;
+alter table `scoretitle` rename `commodityruletitle`;
+alter table `cart` rename `commoditycart`;
+-- 20161205
+ALTER  TABLE `commoditylog` ADD `qrcode` char(10) NOT NULL  COMMENT '商品条形码';
+
+---20161227
+ALTER  TABLE  `commodityrule` ADD `name`  VARCHAR(255) DEFAULT NULL COMMENT '规则名称';
+ALTER  TABLE  `commodityrule` ADD `status`  tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否开启 0否 1是';
+INSERT INTO `commodityrule`(id,descript,score,`limit`,name,status) VALUES ('1', '首次下载APP并登陆可获积分', '100', '0', '首次下载APP并登陆', '0');
+INSERT INTO `commodityrule`(id,descript,score,`limit`,name,status) VALUES ('2', '完善个人资料(姓名、电话)，获得积分', '100', '0', '完善个人资料', '0');
+INSERT INTO `commodityrule`(id,descript,score,`limit`,name,status) VALUES ('3', '使用微信/APP分享功能分享院内信息给他人，并激活链接', '10', '100', '微信/APP分享功能', '0');
+INSERT INTO `commodityrule`(id,descript,score,`limit`,name,status) VALUES ('4', '每日登陆可获积分', '10', '100', '每日登陆', '0');
+INSERT INTO `commodityrule`(id,descript,score,`limit`,name,status) VALUES ('5', '设置多少天连续登陆获得相应积分，', '100', '0', '连续登陆', '7');
+INSERT INTO `commodityrule`(id,descript,score,`limit`,name,status) VALUES ('6', '关注微信公众号的用户首次注册商城并登陆可获取积分', '100', '0', '微信首次注册并登录', '0');
+alter table commodityrule drop foreign key commodityrule_ibfk_1;
+alter table memberscorelog drop foreign key memberscorelog_ibfk_2; 
+alter table commodityrule drop column type;
+
+DROP TABLE IF EXISTS `drawlog`;
+CREATE TABLE `drawlog` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `draw_id` int(10) NOT NULL,
+  `result` varchar(100)  NOT NULL,
+  `date` char(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='抽奖记录';
+
+DROP TABLE IF EXISTS `commodityruletitle`;
+DROP TABLE IF EXISTS `order`;
+DROP TABLE IF EXISTS `ordercommodity`;
+alter table `memberscorelog` rename `commodityaddscorelog`;
+alter table `prize` rename `drawprize`;
+alter table `winlog` rename `drawwinlog`;
+DROP TABLE IF EXISTS `memberlog`;
+ALTER  TABLE  `commodityaddscorelog` ADD `ip`  char(16) NOT NULL COMMENT 'IP地址';
+ALTER  TABLE  `draw` ADD `pic`  varchar(255) NOT NULL COMMENT '图片地址';
+ALTER  TABLE  `drawwinlog` ADD `flag`  char(12) NOT NULL COMMENT '订单号';
+alter table `commodity` drop column `pattern`;
+alter table `commodity` drop column `shelf`;

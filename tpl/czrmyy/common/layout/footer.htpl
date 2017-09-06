@@ -1,0 +1,24 @@
+<div class="footer hidden-xs">
+{{$tu5=$PicManagerTag->getPic(bottom)}}
+	<p style="margin-bottom:8px;">
+	    {{$nav=$NavigationTag->getNavgroup(bottom)}}
+	    {{foreach from=$nav item=v name=name}}
+	    {{if $smarty.foreach.name.last}}
+    	<a href="{{$v.url}}">{{$v.subject}}</a>
+    	{{else}}
+        <a href="{{$v.url}}">{{$v.subject}}</a><span>|</span>
+        {{/if}}
+        {{/foreach}}
+    </p>
+    <p>{{$ContactTag->get(cop)}}　　{{$ContactTag->get(domain)}}</p>
+    <p><b>联系电话:</b> {{$ContactTag->get(tel)}}　<b>急救电话：</b>市区拨打：120 各县市及外省市拨打{{$ContactTag->get(tel)}} Email: {{$ContactTag->get(email)}} </p>
+    <p>医院本部 地址: {{$ContactTag->get(address)}} 电话：{{$ContactTag->get(tel)}}   {{$ContactTag->get(icp)}} 本网站已被访问<strong>6337531</strong>次</p>
+ <p>技术支持：<a href="http://www.boyicms.com">{{$ContactTag->get(support)}}<img height="18" src="{{$RESOURCE}}/images/logo/logo1.png"></a></p>
+ <p><a href="{{$tu5->link}}"><img src="{{$tu5->src}}"></a></p>
+</div>
+<div class="footer visible-xs">
+<p>{{$ContactTag->get(icp)}}</p>
+<p>{{$ContactTag->get(icp)}}</p>
+ <p>技术支持：<a href="http://www.boyicms.com"><img height="18" src="{{$RESOURCE}}/images/logo/logo1.png"></a></p>
+ <p><a href="{{$tu5->link}}"><img src="{{$tu5->src}}"></a></p>
+</div>

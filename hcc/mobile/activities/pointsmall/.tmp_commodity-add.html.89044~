@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../../../lib/Hui-iconfont/1.0.1/iconfont.css"/>
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增商品-积分商城</title>
+<style type="text/css">
+ div.addweixin-btbox{width:500px;height:140px;margin:26px auto;padding:30px 26px;}
+ div.bt-box{width:140px;height:140px; cursor:pointer;margin:0px 13px;}
+ div.bt-box div{width:116px;height:116px;padding:12px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="pd-20">
+	<div class="addweixin-btbox">
+		<div class="l btn-success radius bt-box"  info="以本院的医疗服务包装成商城商品，如就诊优惠券、代金券等...">
+			<div id="medicalservice"><i class="Hui-iconfont" style="font-size:55px;">&#xe6ca;</i><br/><span style="font-size:16px;font-weight:bold;">医疗服务</span></div>
+		</div>
+		<div class="l btn-secondary radius bt-box"  info="本院自行购买部分实体商品上架到积分商城，如一些小装饰品、鼠标垫、水杯等，也可是印有本院广告的其他赠品...">
+			<div onClick="open_newindows('添加医院自行购买的实体商品','c-selfbuy.html','840','500')"><i class="Hui-iconfont" style="font-size:55px;">&#xe6bb;</i><br/><span style="font-size:16px;font-weight:bold;">医院购买</span></div>
+		</div>
+		<div class="l btn-warning radius bt-box"  info="挑选由第三方商城提供的商品上架到我院积分商城，商品的购买、配送、售后一律由第三方商城负责...">
+			<div onClick="open_newindows('添加第三方电商提供的商品','c-electronicmall.html','900','700')"><i class="Hui-iconfont" style="font-size:55px;">&#xe669;</i><br/><span style="font-size:16px;font-weight:bold;">商城配送</span></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript">
+/*打开新窗口*/
+function open_newindows(title,url,w,h){	
+	parent.layer.open({
+		type: 2,
+		area: [w+'px', h +'px'],
+		fix: false, //不固定
+		maxmin: true,
+		shade:0.4,
+		title: title,
+		content: url,
+		
+	});
+}
+
+$(function(){
+	$('.bt-box').on('mouseenter',function(){
+		var msg=$(this).attr('info');
+		layer.tips(msg, $(this), {
+			tips: 3,
+			time:100000
+		});
+	});
+	
+	$('body').on('click','#medicalservice',function(){
+				parent.layer.open({
+				type:2,	
+				area: ['840px', '500px'],
+				fix: false, //不固定
+		        maxmin: true,
+			    content: 'c-medicalservice.html',
+			    success: function(layero,index){
+			        //layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			       // $(window.frames["iframeSon"].document).find(":text");
+			        //console.log(body.html());
+			      //iframeWin.deparedit.add_department();//这里
+				  iframeWin.sCommodity.addservice();//这里
+				  
+			    }
+			});
+	});
+
+});
+
+</script>
+</body>
+</html>

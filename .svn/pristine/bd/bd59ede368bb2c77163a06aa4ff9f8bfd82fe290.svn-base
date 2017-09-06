@@ -1,0 +1,110 @@
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker: */
+
+/**
+ * 用户登录操作
+ *
+ * @fileOverview
+ * @author $_EYOUMBR_COPYRIGHT_$
+ * @version $_EYOUMBR_VERSION_$
+ */
+
+
+/**
+ * 用户登录操作
+ *
+ * @class
+ * @augments ModuleBase
+ */
+function Login() {
+	BaseFunc.call(this);
+    var self = this;
+
+    // {{{ functions
+    // {{{ function initLogin()
+
+    /**
+     * 初始化登录
+     *
+     * @returns {Void}
+     */
+    this.initLogin = function () {
+        $(document).ready(function() {
+        	self.cmd(gHttp,{controller : 'Login',method : 'isLoginTwo'},function(ret){
+        		if(ret.statu){
+        			top.window.location.replace('main.html');
+        		}
+        	});
+        	
+        	var http = './public/token.php';
+        	self.cmd(http,{},function(ret){
+        		if (ret.statu) {
+    				$('#token').val(ret.time);
+    			}
+        	});
+
+        	$("#verify").blur(function(){
+        		self.cmd(gHttp,{controller:'Login',method:'checkVerify',verify:$("#verify").val()},function(ret){
+        			if( ret.statu === true ){
+    					$("#verify_img_trip").show().attr("src","/hcc/public/img/accept.png");
+    				}else{
+    					$("#verify_img_trip").show().attr("src","/hcc/public/img/cross.png");
+    				}
+        		});
+        	});
+        	
+        	$('#save').click(function(){
+        		self.login();
+        	});
+        	
+        	$('#user_name').focus();
+        	$('#verify').keyup(function(e) {
+        		var code = e.keyCode;
+        		if (code == 13) {
+        			$('#save').click();
+        		}
+        	});
+        	
+        });
+    }
+
+    // }}}
+    this.fun = function() {
+    	$('#change').attr('src', './public/img/verify.php?' + Math.random());
+    }
+    // {{{ function login()
+    
+    /**
+     * 执行登录操作
+     *
+     * @returns {Void}
+     */
+    this.login = function () {
+    	var data = {controller:'Login',method:'checkVerify',verify:$("#verify").val()};
+        self.cmd(gHttp,data,function(result){
+        	if( result.statu === true ){
+				$("#verify_img_trip").hide();
+				$('#user').frmPost({controller : 'Login',method : 'login'},function(ret) {
+					console.log(ret);
+					if (ret.statu) {
+						if (ret.data == 2) {
+							location.href = './user_center.html';
+						} else if (ret.data == 1) {
+							location.href = './main.html';
+						}
+					} else {
+						$('#message').message(ret.msg);
+						$('#password').val('');
+						$('#verify').val('');
+						return false;
+					}
+				});
+			}else{
+				$("#verify_img_trip").show();
+			}
+        });
+    }
+
+    // }}}
+   
+    // }}} end functions
+}

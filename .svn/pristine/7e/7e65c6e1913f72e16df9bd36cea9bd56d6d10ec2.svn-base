@@ -1,0 +1,64 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>云同步功能</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe6d5;</i>  营销渠道管理 <span class="c-gray en">&gt;</span> “云”同步 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<div id="tab-system" class="HuiTab">		
+		<div class="tabBar cl boyicms-br"><span>柒众媒微信</span></div>		
+		<div class="cl pd-5 mv-30" id="showmsg2"> 
+			<a id="generate_index" href="javascript:void(0);" onClick="open_newindow('柒众媒微信','cloudsync/cloudsync_login.html?type=1','640','380')" class="btn btn-primary radius mgl-18" info="柒众媒是深圳市斐波那契数据咨询有限公司旗下产品，是一家拥有智能大数据分析技术的社会化媒体营销平台。柒众媒拥有海量的微信公众号数据，科学的影响力评分，精准的公众号定位和专业一对一服务，为社会化媒体营销者提供更佳的传播渠道。独有的智能推荐技术结合用户行为分析算法，可预测投放数据及推荐用户喜欢的公众号及文章；分钟级的数据监测和粉丝社群分析，能甄选出优质的广告投放渠道。"><i class="Hui-iconfont">&#xe642;</i> 柒众媒平台</a>						
+		</div>
+		
+		<div class="tabBar cl boyicms-br"><span>星空媒体</span></div>		
+		<div class="cl pd-5 mv-30" id="showmsg2"> 
+			<a id="generate_index" href="javascript:void(0);" onClick="open_newindow('星空媒体','cloudsync/cloudsync_login.html?type=2','640','380')" class="btn btn-primary radius mgl-18" info="星空媒体"><i class="Hui-iconfont">&#xe642;</i> 星空媒体</a>					
+		</div>		
+	</div>
+
+
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript">
+/*打开新窗口*/
+function open_newindow(title,url,w,h){	
+	parent.layer.open({
+		type: 2,
+		area: [w+'px', h +'px'],
+		fix: false, //不固定
+		maxmin: true,
+		shade:0.4,
+		title: title,
+		content: url
+		
+	});
+}
+</script>
+</body>
+</html>

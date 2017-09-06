@@ -1,0 +1,352 @@
+<?php
+
+/**
+ * 资讯(StatisticsLog)DAO
+ *
+ * @author Administrator
+ *
+ */
+class StatisticsLogDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_STATISTICSLOG;
+    }
+
+    /**
+     * 批量删除
+     */
+    public function clear() {
+        DTExpression::ge('visittime', $_REQUEST, 'start_time');
+        DTExpression::le('visittime', $_REQUEST, 'end_time');
+        DTExpression::eq('ip', $_REQUEST);
+        DTExpression::eq('sessionid', $_REQUEST);
+        //DTOrder::desc('visittime');
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+
+        $StatisticsLogArray = $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+
+        $ids = array();
+        foreach ($StatisticsLogArray as $key => $value) {
+            $ids[] = $value->id;
+        }
+        $StatisticsLogArray = $this->getBatch($ids);
+        R::trashAll($StatisticsLogArray);
+
+        return new Result(true, 0, '', NULL);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $array
+     */
+    public function query($where) {
+        DTExpression::ge('visittime', $where, 'start_time');
+        DTExpression::le('visittime', $where, 'end_time');
+        DTExpression::eq('ip', $where);
+        DTExpression::eq('sessionid', $where);
+        DTExpression::page($where);
+        DTOrder::desc('visittime');
+
+        return $this->getByComposite('StatisticsLog', DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $array
+     */
+    public function totalRows($where) {
+        DTExpression::ge('visittime', $where, 'start_time');
+        DTExpression::le('visittime', $where, 'end_time');
+        DTExpression::eq('ip', $where);
+        DTExpression::eq('sessionid', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 获得昨日总数
+     *
+     * @param array $data
+     */
+    public function getYes($data) {
+        // 获得昨日总数
+        DTExpression::ge('visittime', $data, 'yestoday_start');
+        DTExpression::le('visittime', $data, 'yestoday_end');
+        DTExpression::eq('url', $data);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 获得各种总数
+     *
+     * @param array $para
+     *            return object $array
+     */
+    public function getStat($data) {
+        // 获得昨日总数
+        DTExpression::ge('visittime', $data, 'yestoday_start');
+        DTExpression::le('visittime', $data, 'yestoday_end');
+        DTExpression::eq('url', $data);
+
+        $yesTotalRows = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        // 获得本周该文章总数
+        DTExpression::ge('visittime', $data, 'yestoday_start');
+        DTExpression::le('visittime', $data, 'yestoday_end');
+        DTExpression::eq('url', $data);
+        $weekTotalRows = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        // 获得本周总数
+        DTExpression::ge('visittime', $data, 'week_start');
+        DTExpression::le('visittime', $data, 'week_end');
+        $totalRows = $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+
+        return array(
+            'yestoday' => $yesTotalRows,
+            'week_ttl' => $weekTotalRows,
+            'ttl' => $totalRows
+        );
+    }
+
+    /**
+     * 流量统计
+     *
+     * @param 时间戳 $starTime
+     * @param 时间戳 $endTime
+     * @return multitype:number
+     */
+    public function trend($starTime, $endTime, $url = '') {
+        if ($starTime > time()) {
+            $array = array();
+            $array['fwnum'] = null;
+            $array['ipnum'] = null;
+            $array['dlnum'] = null;
+            return $array;
+        }
+
+        if ($url != '') {
+            // 获取访问总数
+            $fwnum = R::getRow(ORMMap::$sqlMap['fwnumu'], array(
+                ':url' => $url,
+                ':star_time' => $starTime,
+                ':end_time' => $endTime
+            ));
+
+            // 获取独立IP
+            $ipnum = R::getRow(ORMMap::$sqlMap['ipnumu'], array(
+                ':url' => $url,
+                ':star_time' => $starTime,
+                ':end_time' => $endTime
+            ));
+
+            // 获取独立访客
+            $dlnum = R::getRow(ORMMap::$sqlMap['dlnumu'], array(
+                ':url' => $url,
+                ':star_time' => $starTime,
+                ':end_time' => $endTime
+            ));
+        } else {
+            // 获取访问总数
+            $fwnum = R::getRow(ORMMap::$sqlMap['fwnum'], array(
+                ':star_time' => $starTime,
+                ':end_time' => $endTime
+            ));
+
+            // 获取独立IP
+            $ipnum = R::getRow(ORMMap::$sqlMap['ipnum'], array(
+                ':star_time' => $starTime,
+                ':end_time' => $endTime
+            ));
+
+            // 获取独立访客
+            $dlnum = R::getRow(ORMMap::$sqlMap['dlnum'], array(
+                ':star_time' => $starTime,
+                ':end_time' => $endTime
+            ));
+        }
+
+        $array = array();
+        $array['fwnum'] = ($fwnum['count'] == null) ? 0 : intval($fwnum['count']);
+        $array['ipnum'] = ($ipnum['count'] == null) ? 0 : intval($ipnum['count']);
+        $array['dlnum'] = ($dlnum['count'] == null) ? 0 : intval($dlnum['count']);
+
+        return $array;
+    }
+
+    /**
+     * 新老访客分布
+     *
+     * @param 时间戳 $starTime
+     * @param 时间戳 $endTime
+     * @return multitype:number
+     */
+    public function distributed($starTime, $endTime) {
+        $num = 0;
+        // 获取今日独立IP
+        $ips = R::getAll(ORMMap::$sqlMap['getNewIP'], array(
+            ':star_time' => $starTime,
+            ':end_time' => $endTime
+        ));
+
+        foreach ($ips as $ip) {
+            $count = R::getRow(ORMMap::$sqlMap['getIPByTime'], array(
+                ':ip' => $ip['ip'],
+                ':star_time' => $starTime
+            ));
+            if ($count['id'] == null) {
+                $num ++;
+            }
+        }
+
+        // 获取旧IP
+        $oldnum = R::getRow(ORMMap::$sqlMap['getOldIP'], array(
+            ':star_time' => $starTime,
+            ':end_time' => $endTime
+        ));
+
+        $array = array();
+        $array['oldnum'] = ($oldnum['count'] == null) ? 0 : $oldnum['count'];
+        $array['newnum'] = $num;
+
+        return $array;
+    }
+    
+    /**
+     * 新老访客分布-时间曲线
+     *
+     * @param 时间戳 $starTime
+     * @param 时间戳 $endTime
+     * @return multitype:number
+     */
+    public function distributedByLine($starTime, $endTime) {
+        //获取时间段内的ip，并区分新旧IP
+        $sql = 'select count(ip) as count,  ip from statisticslog where visittime >= :star_time and visittime < :end_time group by ip';
+        $ips = R::getAll($sql, array(
+            ':star_time' => $starTime,
+            ':end_time' => $endTime
+        ));
+        
+        $newIp = $oldIp = array();
+        foreach ($ips as $v) {
+        	if ($v['count'] > 1) {
+        		$oldIp[$v['ip']] = $v['ip'];
+        	} else {
+        		$newIp[$v['ip']] = $v['ip'];
+        	}
+        }
+        
+        //获取开始时间之前的数据，从新ip中筛选出旧ip
+        foreach ($newIp as $ip) {
+            $count = R::getRow(ORMMap::$sqlMap['getIPByTime'], array(
+                ':ip' => $ip,
+                ':star_time' => $starTime
+            ));
+        
+            if (!empty($count)) { //旧
+                $oldIp[$ip] = $ip;
+            	unset($newIp[$ip]);
+            }
+        }
+        
+        $newIp = array_values($newIp);
+        $oldIp = array_values($oldIp);
+        
+        $array = $this->formatTimeByDay($starTime, $endTime);
+        $new = $old = array();
+        $sql = 'select distinct(ip) as ip, visittime from statisticslog where visittime >= :star_time and visittime < :end_time';
+        $all = R::getAll($sql, array(
+            ':star_time' => $starTime,
+            ':end_time' => $endTime
+        ));
+        
+        if (!empty($all)) {
+            foreach ($all as $v) {
+                $time = date('Y-m-d', $v['visittime']);
+                if (in_array($v['ip'], $newIp)) {
+                    //同一IP视为同一用户
+                    $new[$time][$v['ip']] += 1;
+                    $array['newnum'][$time] = count($new[$time]);
+                }
+                if (in_array($v['ip'], $oldIp)) {
+                    $old[$time][$v['ip']] += 1;
+                    $array['oldnum'][$time] = count($old[$time]);
+                }
+            }
+        }
+        
+        return array('visittime'=>$array['visittime'], 'newnum'=>array_values($array['newnum']), 'oldnum'=>array_values($array['oldnum']));
+    }
+    
+    /**
+     * 格式化时间
+     * 
+     * @$day 间隔天数，默认1天，即每天都统计
+     * */
+    public function formatTimeByDay($starTime, $endTime) {
+        $array = array();
+        for ($i = $starTime; $i <= $endTime;) {
+            $j = $i + 86400;
+            $field = date('Y-m-d', $i);
+            $array['visittime'][] = $field;
+            $array['newnum'][$field] = 0;
+            $array['oldnum'][$field] = 0;
+            $i = $j;
+        }
+        
+        return $array;
+    }
+    
+    /**
+     * 根据时间点，重组新老访客数据
+     * */
+    public function getVisitorsByTime($starTime, $endTime, $newIp = array(), $oldIp = array(), &$array = array()) {
+        $new = $old = array();
+        $sql = 'select distinct(ip) as ip, visittime from statisticslog where visittime >= :star_time and visittime < :end_time';
+        $all = R::getAll($sql, array(
+            ':star_time' => $starTime,
+            ':end_time' => $endTime
+        ));
+        
+        if (!empty($all)) {
+            foreach ($all as $v) {
+                $time = date('Y-m-d', $starTime);
+                if (in_array($v['ip'], $newIp)) {
+                    //同一IP视为同一用户
+                    $new[$time][$v['ip']] += 1;
+                    $array['newnum'][$time] = count($new[$time]);
+                }
+                if (in_array($v['ip'], $oldIp)) {
+                    $old[$time][$v['ip']] += 1;
+                    $array['oldnum'][$time] = count($old[$time]);
+                }
+            }
+        }
+        
+    }
+    
+    /**
+     * 获取来路排名
+     *
+     * @return multitype:unknown Ambigous <number, unknown>
+     */
+    public function selFrom() {
+        return R::getAll(ORMMap::$sqlMap['selFrom']);
+    }
+
+    /**
+     * 获取受访排名
+     *
+     * @return multitype:unknown Ambigous <number, unknown>
+     */
+    public function selTo() {
+        return R::getAll(ORMMap::$sqlMap['selTo']);
+    }
+}

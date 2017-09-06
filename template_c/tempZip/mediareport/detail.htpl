@@ -1,0 +1,30 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/article.css">
+{{/block}}
+{{block name=body}}
+{{$media = $tagOb->get($id)}}
+<div id="breadcrumb" ><span>您当前的位置:&nbsp;</span><a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> >
+    <a href="{{$WEBSITE}}{{$HTMLURL}}">媒体报道</a> > <a href="####" onclick="return false;">{{$media->subject}}</a></div>
+<div class="clear"></div>
+<div class="main">
+    <div  class="par-main" >
+        <div class="content_title">
+            <h1>{{$media->subject}}</h1>
+            <p class="add-time">发布时间：{{'Y-m-d'|date:$media->plushtime}}</p>
+            <p>来源地址：{{$media->source}}</p>
+            <p class="top-zx"><a href="{{$WEBSITE}}/reservation.html">立即咨询专家</a></p>
+        </div>
+        <div class="article_content">
+            {{$media->content}}
+        </div>
+    </div>
+
+   <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+
+</div>
+<div class="main-bottom"></div>
+
+{{/block}}

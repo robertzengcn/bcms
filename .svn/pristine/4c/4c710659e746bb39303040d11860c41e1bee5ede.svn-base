@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class MemberLogDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_MEMBERLOG;
+    }
+    
+    public function counttodaylog($arr){
+    	
+    	$result=R::count($this->tableName,'uid=:uid and last_log>:start and last_log<=:end and type=2',$arr);
+    	
+    	R::close();
+    	return $result;
+    }
+
+
+    
+}
+

@@ -1,0 +1,44 @@
+<?php
+
+/**
+ *
+ * 投票dao层
+ * @author Administrator
+ *
+ */
+class VotePrizeDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_VOTEPRIZE;
+    }
+   /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+
+        DTExpression::eq('voteid', $where);
+        DTExpression::page($where);
+
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+ 
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql);
+	}
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::eq('voteid', $where);
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+	
+}

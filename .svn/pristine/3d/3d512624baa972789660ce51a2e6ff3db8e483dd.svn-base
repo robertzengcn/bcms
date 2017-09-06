@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class MemberLogDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_MEMBERLOG;
+    }
+    
+    /*
+     * 
+     * 计算今日用户登陆次数
+     * */
+    
+    public function counttodaylog($arr){
+    	
+    	$result=R::count($this->tableName,'uid=:uid and last_log>:start and last_log<=:end and type=:type',$arr);
+    	
+    	R::close();
+    	return $result;
+    }
+    
+    /*
+     * 计算某个会员的登陆次数
+     * @param array(array('uid'=>uid))
+     * */
+    public function countmember($arr){
+    	$result=R::count($this->tableName,'uid=:uid and type=:type',$arr);
+    	 
+    	R::close();
+    	return $result;
+    }
+    
+    /*
+     * 计算某个会员某个时间段获取的积分总数
+     * @param array
+     * */
+    public function summember($arr){
+    	DTExpression::eq('uid', $arr);
+    	DTExpression::eq('type', $arr);
+    	DTExpression::ge('last_log', $arr, 'start_time');
+    	DTExpression::le('last_log', $arr, 'end_time');
+    	$sql=ORMMap::$sqlMap['summemberscore']. ' where '.DTEXPRESSION::$sql;
+    	
+    	return $this->getjoin($sql);
+    }
+
+    public function getbyuid($arr){
+    	$result=R::find($this->tableName,'uid=:uid',$arr);
+    	foreach ($result as $key => $value) {
+    		$result->generateFromRedBean($value);
+    	}
+    	R::close();
+    	return $member;
+    	
+    }
+     /*
+     * 最后登录时间
+     * @param array
+     * */
+    public function getLastLog($where){
+        DTEXPRESSION::eq('uid', $where);
+        DTOrder::$sql = $where['order'];
+		DTExpression::$limit = ' limit 1';
+		return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+	}
+     /*
+     * 完善个人资料
+     * 
+     * */ 
+    public function perfectmember($arr){
+    	$result=R::count($this->tableName,'uid=:uid and type=:type',$arr);    	 
+    	R::close();
+    	return $result;
+    }	 
+}
+

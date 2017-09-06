@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抽奖大转盘 </title>
+<link href="{{$COMMON}}Drawtemp/style/zhuanpan/css/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{{$COMMON}}Drawtemp/style/zhuanpan/js/jquery-1.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Drawtemp/style/zhuanpan/js/awardRotate.js"></script>
+<script type="text/javascript">
+var turnplate={
+		restaraunts:[],				//大转盘奖品名称
+		prizeids:[],
+		colors:[],					//大转盘奖品区块对应背景颜色
+		outsideRadius:184,			//大转盘外圆的半径
+		textRadius:155,				//大转盘奖品位置距离圆心的距离
+		insideRadius:68,			//大转盘内圆的半径
+		startAngle:0,				//开始角度
+		
+		bRotate:false				//false:停止;ture:旋转
+};
+
+$(document).ready(function(){
+	//动态添加大转盘的奖品与奖品区域背景颜色
+	turnplate.restaraunts = [{{$strname}}];
+	turnplate.prizeids=[{{$strid}}];	
+	turnplate.colors = [{{$random_color}}];	
+	var rotateTimeOut = function (){
+		$('#wheelcanvas').rotate({
+			angle:0,
+			animateTo:2160,
+			duration:8000,
+			callback:function (){			
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Drawtemp/style/zadan/images/n_winning.png)","background-size":"100% 100%"});
+				$(".pop-title").html("网络超时...");
+				$(".layer ,.pop").show();
+			}
+		});
+	};
+
+	//旋转转盘 item:奖品位置; txt：提示语;
+	var rotateFn = function (item, txt,img,zid){
+		var angles = item * (360 / turnplate.restaraunts.length) - (360 / (turnplate.restaraunts.length*2));
+		if(angles<270){
+			angles = 270 - angles; 
+		}else{
+			angles = 360 - angles + 270;
+		}
+		$('#wheelcanvas').stopRotate();
+		$('#wheelcanvas').rotate({
+			angle:0,
+			animateTo:angles+1800,
+			duration:8000,
+			callback:function (){
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Drawtemp/style/zadan/images/winning.png)","background-size":"100% 100%"});
+				$('.pop-box').append('<div class="pop-img"><img src="'+img+'"></div>');
+				$(".pop-box").append('<div class="pop-font"><a href="./draw.php?method=getmydraw&id='+zid+'">前去领奖</a></div>');
+				$(".pop-title").html("恭喜，您中得"+txt+"!");
+				$(".layer ,.pop").show();
+				turnplate.bRotate = !turnplate.bRotate;
+			}
+		});
+	};
+
+	$('.pointer').click(function (){
+		if(turnplate.bRotate)return;
+		turnplate.bRotate = !turnplate.bRotate;
+		//获取随机数(奖品个数范围内)
+			$.ajax({
+		url:'./draw.php?method=drawdan&drawid={{$draw_id}}',  
+		    type:'post',  
+		     cache:false,  
+		    dataType:'json',  
+		    success:function(data) {
+		    	if(data.statu){
+		    		if(data.code==1){
+		    		var weizhi=turnplate.prizeids.indexOf(parseInt(data.data.id));		    		
+						rotateFn(weizhi+1, turnplate.restaraunts[weizhi],data.img,data.data.zid);
+						turnplate.bRotate = false;
+		    		}else{
+						$('.pop-box').css({"background-image":"url({{$COMMON}}Drawtemp/style/zadan/images/n_winning.png)","background-size":"100% 100%"});
+						$(".pop-title").html(data.msg);
+						$(".layer ,.pop").show();
+						turnplate.bRotate = false;
+		    		}
+		    	}else{
+					$('.pop-box').css({"background-image":"url({{$COMMON}}Drawtemp/style/zadan/images/n_winning.png)","background-size":"100% 100%"});
+					$(".pop-title").html(data.msg);
+					$(".layer ,.pop").show();
+					turnplate.bRotate = false;
+		    	}
+		    
+		    }	
+	});		
+	});
+});
+
+//页面所有元素加载完毕后执行drawRouletteWheel()方法对转盘进行渲染
+window.onload=function(){
+	drawRouletteWheel();
+};
+
+function drawRouletteWheel() {    
+  var canvas = document.getElementById("wheelcanvas");    
+  if (canvas.getContext) {
+	  //根据奖品个数计算圆周角度
+	  var arc = Math.PI / (turnplate.restaraunts.length/2);
+	  var ctx = canvas.getContext("2d");
+	  //在给定矩形内清空一个矩形
+	  ctx.clearRect(0,0,422,422);
+	  //strokeStyle 属性设置或返回用于笔触的颜色、渐变或模式  
+	  ctx.strokeStyle = "#FFBE04";
+	  //font 属性设置或返回画布上文本内容的当前字体属性
+	  ctx.font = '16px Microsoft YaHei';      
+	  for(var i = 0; i < turnplate.restaraunts.length; i++) {       
+		  var angle = turnplate.startAngle + i * arc;
+		  ctx.fillStyle = turnplate.colors[i];
+		  ctx.beginPath();
+		  //arc(x,y,r,起始角,结束角,绘制方向) 方法创建弧/曲线（用于创建圆或部分圆）    
+		  ctx.arc(211, 211, turnplate.outsideRadius, angle, angle + arc, false);    
+		  ctx.arc(211, 211, turnplate.insideRadius, angle + arc, angle, true);
+		  ctx.stroke();  
+		  ctx.fill();
+		  //锁画布(为了保存之前的画布状态)
+		  ctx.save();   
+		  
+		  //----绘制奖品开始----
+		  ctx.fillStyle = "#731110";
+		  var text = turnplate.restaraunts[i];
+		  var line_height = 17;
+		  //translate方法重新映射画布上的 (0,0) 位置
+		  ctx.translate(211 + Math.cos(angle + arc / 2) * turnplate.textRadius, 211 + Math.sin(angle + arc / 2) * turnplate.textRadius);
+		  
+		  //rotate方法旋转当前的绘图
+		  ctx.rotate(angle + arc / 2 + Math.PI / 2);
+		  
+		  /** 下面代码根据奖品类型、奖品名称长度渲染不同效果，如字体、颜色、图片效果。(具体根据实际情况改变) **/
+		  if(text.indexOf("元")>0){//
+			  var texts = text.split("元");
+			  for(var j = 0; j<texts.length; j++){
+				  ctx.font = j == 0?'bold 20px Microsoft YaHei':'16px Microsoft YaHei';
+				  if(j == 0){
+					  ctx.fillText(texts[j]+"元", -ctx.measureText(texts[j]+"元").width / 2, j * line_height);
+				  }else{
+					  ctx.fillText(texts[j], -ctx.measureText(texts[j]).width / 2, j * line_height);
+				  }
+			  }
+		  }else if(text.indexOf("元") == -1 && text.length>6){//奖品名称长度超过一定范围 
+			  text = text.substring(0,6)+"||"+text.substring(6);
+			  var texts = text.split("||");
+			  for(var j = 0; j<texts.length; j++){
+				  ctx.fillText(texts[j], -ctx.measureText(texts[j]).width / 2, j * line_height);
+			  }
+		  }else{
+			  //在画布上绘制填色的文本。文本的默认颜色是黑色
+			  //measureText()方法返回包含一个对象，该对象包含以像素计的指定字体宽度
+			  ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+		  }
+		  //添加对应图标
+				  var img= document.getElementById(turnplate.prizeids[i]+"-img");
+					ctx.drawImage(img,-40,12,75,75);
+		  //把当前画布返回（调整）到上一个save()状态之前 
+		  ctx.restore();
+		  //----绘制奖品结束----
+	  }     
+  } 
+}
+
+</script>
+<style>
+html,body{overflow-x:hidden;} 
+body{background:#e62d2d url("{{$COMMON}}Drawtemp/style/zhuanpan/images/guaguaka_bg.jpg") no-repeat scroll 0% 0%;overflow-x:hidden;background-size: cover;}
+#name{ width:80%; margin:35px auto;}
+#name img{ width:100%;}
+.layer { display:none; position:fixed; width:100%; max-width:720px; height:100%; top:0; left:0; z-index:9; background:rgba(0,0,0,0.6)} 
+
+.pop {display:none; position:fixed; width:100%;  height:100%; top:0; left:0; z-index:9999; }
+.pop-box { position: relative;width:80%; height:80%; max-height:300px; margin:40% auto;}
+.close-pop { float:right;padding-top:5px;padding-right:5px;}
+.pop-title{font-size:20px;color:#FFFFFF;position: absolute;top:55%;width: 90%;margin-left:10px;text-align:center;}
+.pop-img{position: absolute;top:16%;left:32%;}
+.pop-img img{width:100px;height:100px;}
+.pop-font{font-size:20px;position: absolute;top:75%;width: 90%;margin-left:10px;text-align:center;}
+.pop-font a{text-decoration:none;}
+
+.btn-rule {font-size:12px; color:#FDB012;  float:right; cursor:pointer;margin-right:15px;text-decoration:underline;}
+.btn-rule:hover,.btn-rule:focur{color:#FDB012;}
+.rule { display:none;  position:fixed; width:100%; max-width:720px; height:100%; top:0; left:0; z-index:99; }
+.rule-box {position: relative; padding:15px 15px 30px 15px; width:86%; height:70%; max-height:220px; margin:40% auto; background:rgba(247,98,116,1); background-size:100% 90%; }
+.close-rule { position: absolute;top:5px;right:5px;}
+.rule-title{ font-size:16px; font-weight: bold; color:#524120; margin-bottom:5px;color:#FFFFFF;}
+.rule-time{color:#FDB012;font-size:12px; float:left;margin-left:15px;}
+.rule-detail { margin-left:25px;margin-bottom:20px;overflow:scroll;max-height:200px;color:#FFFFFF;font-size:14px;}
+</style>
+</head>
+<body>
+	<div id="name" ><img src="{{$COMMON}}Drawtemp/style/zhuanpan/images/name.png" /></div>
+   {{foreach from=$prizeall item=v}}
+		<img src="{{$v->img}}" id="{{$v->id}}-img" style="display:none;" width="80" height="80" />
+	{{/foreach}}
+
+	<div class="banner">
+		<div class="turnplate" style="background-image:url({{$COMMON}}Drawtemp/style/zhuanpan/images/turnplate-bg.gif);background-size:100% 100%;">
+			<canvas class="item" id="wheelcanvas" width="422px" height="422px"></canvas>
+			<img class="pointer" src="{{$COMMON}}Drawtemp/style/zhuanpan/images/turnplate-pointer.png"/>
+		</div>
+	</div>
+	<div class="title"><span class="rule-time">活动时间:{{$ruletime}}</span><a class="btn-rule">活动规则</a></div>
+	<div class="layer"></div>
+	<div class="rule">
+		<div class="rule-box">
+			<div class="close-rule"><img src="{{$COMMON}}Drawtemp/style/zhuanpan/images/close.png" width="26"></div>
+			<div class="rule-title">活动细则:</div>
+			<div class="rule-detail">{{$rulecontent}}</div>
+		</div>
+	</div>
+	<div class="pop">
+		<div class="pop-box">
+			<div class="close-pop"><img src="{{$COMMON}}Drawtemp/style/zhuanpan/images/close.png" width="26"></div>
+			<div class="pop-title"></div>
+		</div>
+	</div>	
+	<div style="height:50px;">&nbsp;</div>
+ <div id="pageDialogBG" class="pageDialogBG"><div class="Prompt"></div> </div>
+</body>
+</html>
+<script type="text/javascript">
+	$(".btn-rule").click(function() {
+		$(".layer ,.rule").show()
+	});
+	$(".close-rule").click(function() {
+		$(".layer ,.rule").hide()
+	});
+$(".pop-box,.close-pop").click(function() {
+	$(".layer ,.pop").hide();
+});
+</script>

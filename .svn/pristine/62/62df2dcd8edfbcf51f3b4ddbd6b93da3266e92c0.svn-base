@@ -1,0 +1,122 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="../lib/zTree/v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>手机营销</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 手机营销 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<table class="table">
+	<tr>
+		<td width="160" class="va-t"><ul id="treeDemo" class="ztree"></ul></td>
+		<td class="va-t"><IFRAME ID="mainiframe" Name="mainiframe" FRAMEBORDER=0 SCROLLING=AUTO width=100%  height=600px SRC="mobile-welcome.html"></IFRAME></td>
+	</tr>
+</table>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/zTree/v3/js/jquery.ztree.core-3.5.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+var setting = {
+	view: {
+		dblClickExpand: false,
+		showLine: false,
+		selectedMulti: false
+	},
+	data: {
+		simpleData: {
+			enable:true,
+			idKey: "id",
+			pIdKey: "pId",
+			rootPId: ""
+		}
+	},
+	callback: {
+		beforeClick: function(treeId, treeNode) {
+			var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+			if (treeNode.isParent) {
+				zTree.expandNode(treeNode);
+				return false;
+			} else {
+				demoIframe.attr("src",treeNode.file + ".html");
+				return true;
+			}
+		}
+	}
+};
+
+var zNodes =[
+	{ id:1, pId:0, name:"手机营销", open:true,iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon01_close.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon01_open.png"},
+	{ id:11, pId:1, name:"手机网页", open:true,iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon02_close.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon02_open.png"},
+	{ id:111, pId:11, name:"模板管理",file:"web/template/manage-template",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon01.png"},
+	{ id:112, pId:11, name:"单图管理",file:"web/picmanage/pic-list",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon02.png"},
+	{ id:113, pId:11, name:"轮播管理",file:"web/picmanage/pic-scroll",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon03.png"},
+	{ id:114, pId:11, name:"导航管理",file:"web/nav/mobile-navs",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon04.png"},
+	{ id:12, pId:1, name:"安卓APK",iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon03_close.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon03_open.png"},
+	{ id:121, pId:12, name:"模板管理",file:"apk/template/manage-template",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon01.png"},
+	{ id:122, pId:12, name:"单图管理",file:"apk/picmanage/pic-list",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon02.png"},
+	{ id:123, pId:12, name:"轮播管理",file:"apk/picmanage/pic-scroll",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon03.png"},
+	{ id:124, pId:12, name:"导航管理",file:"apk/nav/apk-navs",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon04.png"},
+	{ id:125, pId:12, name:"应用分享",file:"apk/share",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon05.png"},	
+	{ id:13, pId:1, name:"微站管理",iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon04_close.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon04_open.png"},
+	{ id:131, pId:13, name:"模板管理",file:"wechat/template/manage-template",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon01.png"},
+	{ id:132, pId:13, name:"单图管理",file:"wechat/picmanage/pic-list",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon02.png"},
+	{ id:133, pId:13, name:"轮播管理",file:"wechat/picmanage/pic-scroll",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon03.png"},
+	{ id:134, pId:13, name:"导航管理",file:"wechat/nav/wechat-navs",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon04.png"},	
+	/*{ id:2, pId:0, name:"营销活动", open:true,iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon01_close.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon01_open.png"},
+	{ id:21, pId:2, name:"积分商城",iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon06_open.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon06_close.png"},
+	{ id:211, pId:21, name:"商城商品管理",file:"activities/pointsmall/commodity-list",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon06.png"},
+	{ id:212, pId:21, name:"积分规则管理",file:"activities/pointsmall/integral-rule",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon07.png"},
+	{ id:213, pId:21, name:"用户数据管理",file:"activities/pointsmall/user-data",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon08.png"},
+	{ id:22, pId:2, name:"每日抽奖",iconOpen:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon05_open.png", iconClose:"../lib/zTree/v3/css/zTreeStyle/img/diy/pIcon05_close.png"},
+	{ id:221, pId:22, name:"活动列表",file:"activities/luckdraw/luckdraw-list",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon09.png"},
+	{ id:222, pId:22, name:"中奖记录",file:"activities/luckdraw/lottery-log",icon:"../lib/zTree/v3/css/zTreeStyle/img/diy/icon10.png"},*/
+];
+		
+var code;
+		
+function showCode(str) {
+	if (!code) code = $("#code");
+	code.empty();
+	code.append("<li>"+str+"</li>");
+}
+		
+$(document).ready(function(){
+	var t = $("#treeDemo");
+	t = $.fn.zTree.init(t, setting, zNodes);
+	demoIframe = $("#mainiframe");
+	demoIframe.bind("load", loadReady);
+	var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+	zTree.selectNode(zTree.getNodeByParam("id",'11'));
+});
+
+function loadReady() {
+	var bodyH = demoIframe.contents().find("body").get(0).scrollHeight,
+	htmlH = demoIframe.contents().find("html").get(0).scrollHeight,
+	maxH = Math.max(bodyH, htmlH), minH = Math.min(bodyH, htmlH),
+	h = demoIframe.height() >= maxH ? minH:maxH ;
+	if (h < 530) h = 530;
+	demoIframe.height(h);
+}
+</script>
+</body>
+</html>

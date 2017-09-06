@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/doctor.css">
+</head>
+<body>
+{{include file="Common/right.html"}}
+	{{$doc=$PicManagerTag->getMobilePic(appdoctor,app)}}
+	 <img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+      {{foreach $list as $v}}
+
+      <div id="frame" ><div class="line"></div>
+      <a href="{{$MOBILE}}/doctor.php?method=get&id={{$v->id}}"><span style=""><h2><img src="{{$smarty.const.UPLOAD}}{{$v->pic}}"></h2>
+      <h1><b >{{$v->name}}</b>&nbsp;&nbsp;&nbsp;{{$v->position}}</h1>
+      <p class="text_one" >擅长：{{$v->specialty|truncate:26}}... </p>
+      <p class="text_two"  style="display:none;" >{{$v->description}}</p>
+      <div class="btn1"></div>
+      </span></a></div>
+
+      {{/foreach}}
+</body>
+</html>

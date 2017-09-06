@@ -1,0 +1,249 @@
+<!doctype html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>购物车</title>
+
+<!-- Set render engine for 360 browser -->
+<meta name="renderer" content="webkit">
+
+<!-- No Baidu Siteapp-->
+<meta http-equiv="Cache-Control" content="no-siteapp"/>
+<link rel="icon" type="image/png" href="{{$LOGO[2]}}">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="192x192" href="{{$LOGO[1]}}">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="UI"/>
+<link rel="apple-touch-icon-precomposed" href="{{$LOGO[1]}}">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="{{$LOGO[1]}}">
+<meta name="msapplication-TileColor" content="#0e90d2">
+
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/amazeui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/admin.css">
+
+<!--新增基础样式-->
+<link href="{{$COMMON}}Commodity/public/css/demo.css" rel="stylesheet" type="text/css" />
+<!--单页样式-->
+<link href="{{$COMMON}}Commodity/public/css/shopcart-style.css" rel="stylesheet" type="text/css" />
+<script src="{{$COMMON}}Commodity/public/js/jquery.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/pop.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/script.js"></script>
+<link href="{{$COMMON}}Commodity/public/css/pop.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器 UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>  以获得更好的体验！</p>
+<![endif]--> 
+
+<!--[if lt IE 9]>
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/modernizr.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+<div class="hmtop"> 
+  <!--悬浮搜索框-->
+  <div class="nav white">
+    <div class="logo"><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></div>
+    <div class="logoBig">
+      <li><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></li>
+    </div>
+    <div class="search-bar pr"><a name="index_none_header_sysc" href="#"></a>
+      <form action="{{$COMMODITY}}" method="get">
+        <input  name="method" type="hidden" value="goodslist">
+        <input id="searchInput" name="keyword" placeholder="搜索" autocomplete="off" type="text">
+        <input id="ai-topsearch" class="submit am-btn" value="搜索" index="1" type="submit">
+      </form>
+    </div>
+  <div data-am-widget="menu" class="am-menu  am-menu-offcanvas1"  data-am-menu-offcanvas> 
+    <a href="javascript: void(0)" class="am-menu-toggle" style="right:0px;">
+          <i class="am-menu-toggle-icon am-icon-bars" style="font-size:25px;color:#F03726;"></i>
+    </a>
+    <div class="am-offcanvas" >
+      <div class="am-offcanvas-bar am-offcanvas-bar-flip">
+      <ul class="am-menu-nav am-avg-sm-1">
+		{{foreach from=$shopnav key=k item=value}}
+          <li><a href="{{$METHOD}}{{$k}}" style="font-size:14px;" >{{$value}}</a></li>
+        {{/foreach}} 
+      </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+
+
+
+<!--购物车 -->
+<div class="concent">
+  <div class="am-alert am-alert-danger">
+	重要提示：兑换后请凭二维码到院领取物品
+</div>
+  <div id="cartTable">
+    <div class="cart-table-th">
+      <div class="wp">
+        <div class="th th-chk">
+          <div id="J_SelectAll1" class="select-all J_SelectAll"> </div>
+        </div>
+        <div class="th th-item">
+          <div class="td-inner">商品信息</div>
+        </div>
+        <div class="th th-price">
+          <div class="td-inner">单价</div>
+        </div>
+        <div class="th th-amount">
+          <div class="td-inner">数量</div>
+        </div>
+        <div class="th th-sum">
+          <div class="td-inner">金额</div>
+        </div>
+        <div class="th th-op">
+          <div class="td-inner">操作</div>
+        </div>
+      </div>
+    </div>
+    <div class="clear"></div>
+	{{if $CartCount eq 0}}
+<br/><div style="text-align:center;">购物车暂无物品</div><br/>	
+	{{/if}}
+	<div id="cartBody">
+		  	<input  type="hidden" name="MoenyCount" value="{{$MoenyCount}}" >
+	  		<input  type="hidden" name="ScoreCount" value="{{$ScoreCount}}" >
+		{{foreach from=$shoplists  item=vo}}
+    <tr class="item-list" >
+      <div class="bundle  bundle-last " id="goods{{$vo['id']}}">
+	  		<input class="J_stock" type="hidden" name="" value="{{$vo['quantity']}}" >
+	  		<input class="J_score" type="hidden" name="" value="{{$vo['score']}}" >
+	  		<input class="J_limit" type="hidden" name="" value="{{$vo['limit']}}" >
+        <div class="bundle-hd">
+          <div class="bd-promos">
+            <div class="bd-has-promo">已享优惠:<span class="bd-has-promo-content">省￥{{$vo['dis_price']}}</span>&nbsp;&nbsp;</div>
+            <span class="list-change theme-login" flag="{{$vo['id']}}">编辑</span>
+            <span class="list-del" flag="{{$vo['id']}}">删除</span>
+		  </div>
+        </div>
+        <div class="clear"></div>
+        <div class="bundle-main">
+          <ul class="item-content clearfix">
+            <li class="td td-item">
+              <div class="item-pic"> <a href="{{$vo['cart_url']}}" target="_blank"  class="J_MakePoint" > <img src="{{$vo['pic']}}" class="itempic J_ItemImg"></a> </div>
+              <div class="item-info">
+                <div class="item-basic-info"> <a href="{{$vo['cart_url']}}" target="_blank" title="{{$vo['subject']}}" class="item-title J_MakePoint" >{{$vo['subject']}}</a> </div>
+              </div>
+            </li>
+            <li class="td td-info">
+              <div class="item-props item-props-can"> <span class="sku-line">{{$vo['subtitle']}}</span><!--<span class="sku-line">颜色：MMMM</span> <span class="sku-line">包装：裸装</span>  <span tabindex="0" class="btn-edit-sku theme-login">修改</span>--><i class="theme-login am-icon-sort-desc"></i> </div>
+            </li>
+            <li class="td td-price">
+              <div class="item-price price-promo-promo">
+                <div class="price-content">
+                  <div class="price-line"> <em class="J_Price price-now" tabindex="0">{{if $vo['exchange'] eq 1}}{{$vo['cart_score']}}积分{{else}}{{$vo['cart_score']}}积分+￥{{$vo['real_price']}}{{/if}}</em> </div>
+                </div>
+              </div>
+            </li>
+            <li class="td td-amount">
+              <div class="amount-wrapper ">
+                <div class="item-amount ">
+                  <div class="sl">{{$vo['cart_num']}}</div>
+                </div>
+              </div>
+            </li>
+            <li class="td td-sum">
+              <div class="td-inner"> <em tabindex="0" class="J_ItemSum number">{{$vo['price']}}</em> </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </tr>
+    <div class="clear"></div>
+ 			{{/foreach}}
+	</div>
+  <div class="float-bar-wrapper">
+    <div id="J_SelectAll2" class="select-all J_SelectAll">
+      <div class="cart-checkbox">
+        <label for="J_SelectAllCbx2"></label>
+      </div>
+     </div>
+    <div class="operations"> </div>
+    <div class="float-bar-right">
+      <div class="amount-sum"> <span class="txt">已选商品</span> <em id="J_SelectedItemsCount">{{$CartCount}}</em><span class="txt">件</span>
+        <div class="arrow-box"> <span class="selected-items-arrow"></span> <span class="arrow"></span> </div>
+      </div>
+      <div class="price-sum"> <span class="txt">合计:</span> 
+	  {{if $MoenyCount eq 0}}
+	  <strong class="price"><em>{{$ScoreCount}}</em>积分</strong>
+		{{else}}
+	  <strong class="price"><em>{{$ScoreCount}}</em>积分+¥<em>{{$MoenyCount}}</em></strong>
+		{{/if}}		
+	  </div>
+      <div class="btn-area"> <a  id="J_Go" class="submit-btn submit-btn-disabled" aria-label="请注意如果没有选择宝贝，将无法结算"> <span>结&nbsp;算</span></a> </div>
+    </div>
+  </div>
+<!-- <div class="footer mb-10  mt-10">
+  <div class="footer-hd ">
+    <p> <a href="{{$INDEX}}">商城首页</a> <b>|</b> <a href="tel:{{$contact.tel}}">联系我们</a> <b>|</b> <a href="#">帮助信息</a> <b>|</b> <a href="#">{{$contact.name}}版权所有</a> </p>
+  </div>
+</div> -->
+</div>
+
+<!--操作页面-->
+
+<div class="theme-popover-mask"></div>
+<div class="theme-popover">
+  <div class="theme-span"></div>
+  <div class="theme-poptit h-title"> <a href="javascript:;" title="关闭" class="close">×</a> </div>
+  <div class="theme-popbod dform">
+    <form class="theme-signin" name="loginform" action="" method="post">
+      <div class="theme-signin-left">
+         <!--<li class="theme-options">
+          <div class="cart-title">颜色：</div>
+          <ul>
+            <li class="sku-line selected">MMMM<i></i></li>
+            <li class="sku-line">MMMM+MMMM<i></i></li>
+          </ul>
+        </li>
+        <li class="theme-options">
+          <div class="cart-title">包装：</div>
+          <ul>
+            <li class="sku-line selected">包装：裸装<i></i></li>
+            <li class="sku-line">两支手袋装（送彩带）<i></i></li>
+          </ul>
+        </li> -->
+        <div class="theme-options">
+          <div class="cart-title number">数量</div>
+          <dd>
+            <input id="min" class="am-btn am-btn-default" name="" type="button" value="-" />
+            <input class="text_box" id="text_box" name="" type="text" value="1" style="width:30px;" />
+            <input id="add" class="am-btn am-btn-default" name="" type="button" value="+" />
+            <input id="limitnum"  name="" type="hidden" value="" />
+			<input type="hidden" name="" id="J_gid" value="">
+            <span  class="tb-hidden">库存<span class="stock"></span>件</span> </dd>
+        </div>
+        <div class="clear"></div>
+        <div class="btn-op">
+          <div class="btn am-btn am-btn-warning J_sure">确认</div>
+          <div class="btn close am-btn am-btn-warning">取消</div>
+        </div>
+      </div>
+      <div class="theme-signin-right">
+        <div class="img-info"> <img src="" /> </div>
+        <div class="text-info"> <span class="J_Price price-now"></span> <span id="Stock" class="tb-hidden">库存<span class="stock"></span>件</span> </div>
+      </div>
+    </form>
+  </div>
+</div>
+ <div id="pageDialogBG" class="pageDialogBG"><div class="Prompt"></div> </div>
+</body>
+</html>

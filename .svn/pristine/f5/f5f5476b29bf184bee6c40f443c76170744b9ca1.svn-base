@@ -1,0 +1,26 @@
+<?php
+
+class ReserUser extends Entity {
+
+    var $name;
+
+    var $sex;
+
+    var $age;
+
+    var $date;
+
+    var $time;
+
+    var $address;
+
+    var $hometel;
+
+    var $email;
+
+    var $ill;
+    
+    var $member_id;
+
+    public function validate() {}
+}

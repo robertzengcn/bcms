@@ -1,0 +1,5 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+登录的html代码写这里
+{{/block}}
+

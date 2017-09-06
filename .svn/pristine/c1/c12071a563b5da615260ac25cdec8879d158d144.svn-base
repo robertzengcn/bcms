@@ -1,0 +1,40 @@
+<?php
+include './HM.php';
+class Order extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+/*
+ * 获取抽奖和订单结果
+ * */
+	protected function __getorder(){
+		
+		if(isset($_REQUEST['querynum'])&&strlen($_REQUEST['querynum'])>0){
+			$querynum=$_REQUEST['querynum'];
+						$orderser=new CommodityOrderService();
+						$arr=array('orders'=>$querynum);
+						$result=$orderser->getOrderDetailByOrder($arr);
+						echo json_encode($result);
+			
+		}else{
+			$this->__msg(1,'缺少参数query num',null);
+		}				
+	}
+	
+	protected function __orderhaspay(){
+		if(!isset($_REQUEST['order_num'])||!isset($_REQUEST['qrcode'])){
+			echo json_encode(array('statue'=>false,'code'=>16,'msg'=>'缺少订单参数','data'=>null));
+			exit();
+		}
+		$arr=array('orders'=>$_REQUEST['order_num'],'qrcode'=>$_REQUEST['qrcode']);
+		//$orderser=new OrderService();
+		$orderser=new CommodityLogService();
+		$result=$orderser->makeorderhaspay($arr);
+		echo json_encode($result);
+	}
+	
+	
+	
+}
+new Order();

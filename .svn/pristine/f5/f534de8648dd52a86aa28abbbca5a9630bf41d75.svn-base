@@ -1,0 +1,114 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<style type="text/css">
+.button{margin-left:20px;}
+.list{width:100%;}
+.list td{height:62px;}
+#makehtml_loading{
+	width:0px;height:25px;line-height:25px;color:#369;font-weight:bold;border:1px solid #fff;background:#369;
+}
+#make_right,#time{
+	text-align:center;height:25px;line-height:25px;color:#369;font-weight:bold;
+}
+</style>
+<title>网站生成</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 医院信息管理 <span class="c-gray en">&gt;</span> 网站生成 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<div id="tab-system" class="HuiTab">
+		<div class="tabBar cl boyicms-br"><span>单页生成</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_index" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 网站首页</a>
+				<a id="generate_error" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 404页面</a>
+				<a id="generate_reservation" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 在线预约</a>
+				<a id="generate_search" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 站内搜索</a>
+				<a id="generate_sitemap" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 站点导航</a>					
+		</div>
+		<div class="tabBar cl boyicms-br"><span>医院信息</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_introduce" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院简介</a>
+				<a id="generate_news" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院新闻</a>
+				<a id="generate_mediaport" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 媒体报道</a>
+				<a id="generate_movie" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院视频</a>
+				<a id="generate_contacts" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 联系方式</a>
+				<a id="generate_honor" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院荣誉</a>
+				<a id="generate_enviorment" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院环境</a>
+				<a id="generate_devices" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医疗设备</a>						
+		</div>
+		<div class="tabBar cl boyicms-br"><span>医疗资讯</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_departments" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 科室首页</a>
+				<a id="generate_disease" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 疾病首页</a>
+				<a id="generate_doctors" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医生信息</a>
+				<a id="generate_asks" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 在线问答</a>	
+				<a id="generate_topic" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 精彩专题</a>
+				<a id="generate_technology" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 特色技术</a>
+				<a id="generate_success" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 案例信息</a>		
+		</div>
+		<div class="tabBar cl boyicms-br"><span>疾病资讯</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_article" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 全部生成</a>
+				<a id="generate_article_new" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 生成最新</a>
+				<a id="generate_article_part" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 按科室生成</a>		
+		</div>
+		<div class="tabBar cl boyicms-br"><span>个性频道</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_channel" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 频道首页</a>
+				<a id="generate_channelArticle" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 频道文章</a>	
+		</div>
+		<div class="tabBar cl boyicms-br"><span>百度地图</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="xml" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> XML格式</a>
+				<a id="html" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> HTML格式</a>	
+		</div>
+		
+		<div class="cl pd-5  mv-30 generate_article_break" style="display:none;"> 
+		    系统检测到您上次生成出现中断,您可以选择:<span id="generate_article_break" style="color:blue;cursor:pointer;">进行文章续生成</span>
+		 &nbsp;,<span id="generate_article_break_2" style="color:green;cursor:pointer;">否,继续生成全部</span>
+		</div>
+	</div>
+</div>
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gStatic.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>       
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/static.js"></script>
+<script type="text/javascript">
+var gStatic = new Static();
+gStatic.setThisName('gStatic');
+gStatic.initList();
+
+</script>
+</body>
+</html>

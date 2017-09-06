@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>微信公众号管理_博医CMS</title>
+<link href="./plugin/plugins/weixin/css/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/hcc/public/js/artDia/skins/blue.css" />
+<link href="./plugin/plugins/weixin/css/autoreply.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/addnewtext.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/textmanage.css" rel="stylesheet" type="text/css" />
+
+<link href="./plugin/plugins/weixin/css/wechatmenu.css" rel="stylesheet" type="text/css" />
+<!--
+<link href="./plugin/plugins/weixin/css/artificial.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/index.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/messages.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/sendAll.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/addwetch.css" rel="stylesheet" type="text/css"  />
+<link href="./plugin/plugins/weixin/css/wechatmenu.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/uploadify.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/uploadMessage.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/textmanage.css" rel="stylesheet" type="text/css" />
+<link href="./plugin/plugins/weixin/css/addnewkeywords.css" rel="stylesheet" type="text/css" />
+-->
+<script type="text/javascript" src="/hcc/public/js/plugin.js"></script>
+<script type="text/javascript" src="./plugin/plugins/weixin/js/public.js"></script>
+<script type="text/javascript" src="./plugin/plugins/weixin/js/weixin.js"></script>
+<script type="text/javascript" src="./plugin/plugins/weixin/js/common.js"></script>
+<script type="text/javascript" src="./plugin/plugins/weixin/js/jquery.qqFace.js"></script>
+<script type="text/javascript" src="./plugin/plugins/weixin/js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="./plugin/plugins/weixin/js/ckeditor/adapters/jquery.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./plugin/plugins/weixin/js/spectrum/spectrum.css" />
+<script type="text/javascript" src="./plugin/plugins/weixin/js/spectrum/spectrum.js"></script>
+<style>
+.delColor {
+    border-radius: 10px;
+    color: #000;
+    display: block;
+    height: 16px;
+    left: 7px;
+    line-height: 14px;
+    position: relative;
+    text-align: center;
+    top: -5px;
+    width: 16px;
+}
+</style>
+ 
+<script type="text/javascript">
+$(document).ready(function(){
+	result.start();
+});
+</script>
+</head>
+<body>
+<div id="each">
+
+</div>
+</body>
+</html>

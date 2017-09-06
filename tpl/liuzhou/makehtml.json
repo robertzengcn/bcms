@@ -1,0 +1,165 @@
+[
+    {
+        "name": "首页",
+        "tag": "IndexTag",
+        "key": "index",
+        "tpl": "index"
+    },
+    {
+        "name": "错误页",
+        "tag": "ErrorTag",
+        "key": "error",
+        "tpl": "error"
+    },
+    {
+        "name": "地图",
+        "tag": "SitemapTag",
+        "key": "sitemap",
+        "html_tpl": "sitemap/html",
+        "baidu_tpl": "sitemap/baidu",
+        "360_tpl": "sitemap/360"
+    },
+    {
+        "name": "搜索",
+        "tag": "SearchTag",
+        "key": "search",
+        "html_tpl": "search/search"
+    },
+    {
+        "name": "医院简介",
+        "tag": "IntroduceTag",
+        "key": "introduce",
+        "tpl": "introduce"
+    },
+    {
+        "name": "联系方式",
+        "tag": "ContactTag",
+        "key": "contact",
+        "tpl": "contact"
+    },
+    {
+        "name": "医院动态",
+        "tag": "NewsTag",
+        "key": "news",
+        "pageSize": 6,
+        "list_tpl": "news/list",
+        "detail_tpl": "news/detail"
+    },
+    {
+        "name": "医院视频",
+        "tag": "MovieTag",
+        "key": "movie",
+        "pageSize": 6,
+        "list_tpl": "movie/list",
+        "detail_tpl": "movie/detail"
+    },
+    {
+        "name": "媒体报道",
+        "tag": "MediaReportTag",
+        "key": "mediareport",
+        "pageSize": 6,
+        "list_tpl": "mediareport/list",
+        "detail_tpl": "mediareport/detail"
+    },
+    {
+        "name": "医院荣誉",
+        "tag": "HonorTag",
+        "key": "honor",
+        "pageSize": 6,
+        "list_tpl": "honor/list",
+        "detail_tpl": "honor/detail"
+    },
+    {
+        "name": "医院环境",
+        "tag": "EnvironmentTag",
+        "key": "environment",
+        "pageSize": 8,
+        "list_tpl": "environment/list",
+        "detail_tpl": "environment/detail"
+    },
+    {
+        "name": "医院设备",
+        "tag": "DeviceTag",
+        "key": "device",
+        "pageSize": 6,
+        "list_tpl": "device/list",
+        "detail_tpl": "device/detail"
+    },
+    {
+        "name": "成功案例",
+        "tag": "SuccessTag",
+        "key": "success",
+        "pageSize": 6,
+        "list_tpl": "success/list",
+        "detail_tpl": "success/detail"
+    },
+    {
+        "name": "医院医生",
+        "tag": "DoctorTag",
+        "key": "doctor",
+        "pageSize": 6,
+        "list_tpl": "doctor/list",
+        "detail_tpl": "doctor/detail"
+    },
+    {
+        "name": "特色技术",
+        "tag": "TechnologyTag",
+        "key": "technology",
+        "pageSize": 6,
+        "list_tpl": "technology/list",
+        "detail_tpl": "technology/detail"
+    },
+    {
+        "name": "在线问答",
+        "tag": "AskTag",
+        "key": "ask",
+        "pageSize": 10,
+        "list_tpl": "ask/list",
+        "detail_tpl": "ask/detail"
+    },
+    {
+        "name": "科室首页",
+        "rule": "list",
+        "tag": "DepartmentTag",
+        "key": "department",
+        "pageSize": 6,
+        "tpl": "department/index"
+    },
+    {
+        "name": "疾病列表",
+        "tag": "DiseaseTag",
+        "key": "disease",
+        "pageSize": 5,
+        "tpl": "disease/list"
+    },
+    {
+        "name": "文章详情",
+        "tag": "ArticleTag",
+        "key": "article",
+        "pageSize": 5,
+        "tpl": "article/detail_depart",
+        "depart_tpl": "article/detail_depart"
+    },
+    {
+        "name": "在线预约",
+        "tag": "ReservationTag",
+        "key": "reservation",
+        "pageSize": 5,
+        "list_tpl": "reservation/list",
+        "detail_tpl": "reservation/detail"
+    },
+    {
+    	"name": "自定义频道文章",
+        "tag": "ChannelArticleTag",
+        "key": "channelArticle",
+        "pageSize": 10,
+        "tpl": "channel/detail"
+    },
+    {
+    	"name": "自定义频道列表",
+        "tag": "ChannelTag",
+        "key": "channel",
+        "pageSize": 10,
+        "tpl": "channel/list"
+    }
+]

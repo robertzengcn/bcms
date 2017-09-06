@@ -1,0 +1,22 @@
+<!--right-->
+                    <li><a href="{{$WEBSITE}}/hospital/media/" >媒体报道 <span>News</span></a></li>
+                    <li><a href="{{$WEBSITE}}/doctor/" >专家团队 <span>Doctor</span></a></li>
+                    <li><a href="{{$WEBSITE}}/hospital/device/" >先进设备 <span>Instrument</span></a></li>
+                    <li><a href="{{$WEBSITE}}/hospital/honor/" >资质荣誉 <span>Honor</span></a></li>
+                    <li><a href="{{$WEBSITE}}/hospital/environment/">医院环境 <span>Environment</span></a></li>
+                    <li><a href="{{$WEBSITE}}/contact.html">就诊指南 <span>Route</span></a></li>
+                    <li><a href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;"  target="_blank">在线预约 <span>Online</span></a></li>
+				 </ul>
+			</div>
+                 <div class="about_gh">
+                         <strong><em>挂号通道</em><span><a href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;"  target="_blank">预约<br>挂号</a></span></strong>
+
+                         {{$tel2 = $PicManagerTag->getPic('tel3')}}
+                         <img src="{{$UPLOAD}}{{$tel2->img}}" width="230" height="146" border="0" usemap="#Map">
+                         <map name="Map" id="Map">
+                           <area shape="rect" coords="97,73,220,132"  href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" target="_blank" />
+                           <area shape="rect" coords="17,76,72,133" href="tencent://message/?uin={{$ContactTag->get('qq')}}&Site=&Menu=yes" target="_blank" />
+                         </map>
+                 </div>
+               </div>
+<!--right end-->

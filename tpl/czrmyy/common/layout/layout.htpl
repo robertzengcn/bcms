@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<title>{{$SEO_TITLE}}</title>
+<meta name="keywords" content="{{$SEO_KEYWORDS}}" />
+<meta name="description" content="{{$SEO_DESCRIPTION}}" />
+    {{$LOGO2=$PicManagerTag->getPic(logo2)}}
+<link rel="alternate icon" type="image/png" href="{{$LOGO2->src}}">
+<!--<link href="fonts/1.1/iconfont.css" rel="stylesheet" type="text/css" />-->
+<link href="{{$RESOURCE}}/boyicms/style.css" rel="stylesheet" type="text/css" />
+<link href="{{$RESOURCE}}/css/zui.min.css" rel="stylesheet" type="text/css" />
+    {{block name=css}}{{/block}}
+<script type="text/javascript" src="{{$RESOURCE}}/lib/jquery/jquery.js"></script><!--前置js 放在zui.js或zui.min.js之前-->
+<script type="text/javascript" src="{{$RESOURCE}}/js/zui.min.js"></script>
+    {{block name=js}}{{/block}}
+</head>
+<body>
+
+    <!--head-->
+    {{include file=$layout_header}}
+    <!-- center -->
+    {{block name=body}}body{{/block}}
+    <!-- footer -->
+    {{include file=$layout_footer}}
+
+</body>
+</html>
+<!-- <script language="javascript" src="{{$ContactTag->get('swt')}}" ></script> -->

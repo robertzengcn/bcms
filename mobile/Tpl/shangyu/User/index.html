@@ -1,0 +1,56 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}个人中心{{/block}}
+{{block name=body}}
+
+
+<div class="profile_haeder">
+  <div class="blue dock back" style="background-image: url({{$RESOURCE}}/i/img_1.jpg)"></div>
+  <div class="front dock">
+    <div class="avatar">
+      <img src="{{$RESOURCE}}/images/img_2.png" alt="用户头像">
+    </div>
+    <h4 class="lead">用户名</h4>
+  </div>
+</div>
+
+<a class="am-btn am-btn-primary my_persbtn" href="/mobile/user.php?method=getmyreser"><i class="am-icon-medkit"></i>  我的挂号</a>
+
+<div class="main_pers">
+  <div class="list">    
+    <a class="item" href="">
+      <div class="avatar"><img src="{{$RESOURCE}}/i/icon/icon19.png"></div>
+      <div class="title">我的报告单</div>
+      <i class="am-icon-chevron-right am-fr"></i>
+    </a>
+    <a class="item" href="/mobile/ask.php?method=myquestion">
+      <div class="avatar"><img src="{{$RESOURCE}}/i/icon/icon20.png"></div>
+      <div class="title">我的咨询/提问</div>
+      <i class="am-icon-chevron-right am-fr"></i>
+    </a>
+    <a class="item" href="/mobile/user.php?method=get">
+      <div class="avatar"><img src="{{$RESOURCE}}/i/icon/icon21.png"></div>
+      <div class="title">个人信息</div>
+      <i class="am-icon-chevron-right am-fr"></i>
+    </a>
+    <a class="item" href="/mobile/user.php?method=changepass">
+      <div class="avatar"><img src="{{$RESOURCE}}/i/icon/icon22.png"></div>
+      <div class="title">修改密码</div>
+      <i class="am-icon-chevron-right am-fr"></i>
+    </a>
+  </div>
+</div>
+
+<a class="am-btn am-btn-primary my_persbtn2" href="/mobile/login.php?method=loginout">退出登录</a>
+    
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.user();
+
+</script>
+{{/block}}

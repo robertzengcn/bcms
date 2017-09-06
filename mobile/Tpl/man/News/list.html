@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no" />
+<title>新闻动态_{{$WEBTITLE}}</title>
+<meta name="keywords" content="新闻动态" />
+<meta name="description" content="新闻动态" />
+<!-- style -->
+{{include file="Common/common.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/list.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<div class="main" id="main_id"></div>
+
+{{include file="Common/header.html"}}
+
+<div class="crumb">当前位置：<a href="{{$MOBILE}}" >主页</a>&gt; <a href="{{$MOBILE}}/news.php" >新闻动态</a></div>
+
+<ul class="list" id="listId1" style="width:318px;margin:0 auto;">
+	{{foreach $list as $v}}
+		<li><a href="{{$MOBILE}}/news.php?method=get&id={{$v->id}}" style="font-size:12px;">{{$v->subject}}</a></li>
+	{{/foreach}}
+</ul>
+{{include file="Common/page.html"}}
+<!-- foot_nav -->
+<!-- {{include file="Common/foot_nav.html"}} -->
+<!-- footer -->
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/index_footer.html"}}
+
+<!-- bootom_ph -->
+
+</body>
+</html>

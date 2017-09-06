@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+	<url>
+		<loc>{{$WEBSITE}}</loc>
+		<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>1.0</priority>
+	</url>
+	{{foreach $SiteMapTag->getDepartment() as $vo}}
+		<url>
+			<loc>{{$WEBSITE}}/{{$vo->url}}/index.html</loc>
+			<lastmod>{{$vo->lastmod}}</lastmod>
+			<changefreq>{{$vo->changefreq}}</changefreq>
+			<priority>{{$vo->priority}}</priority>
+		</url>
+		{{foreach $SiteMapTag->getDiease({{$vo->id}}) as $vo2}}
+		<url>
+			<loc>{{$WEBSITE}}/{{$vo->url}}/{{$vo2->url}}/index.html</loc>
+			<lastmod>{{$vo2->lastmod}}</lastmod>
+			<changefreq>{{$vo2->changefreq}}</changefreq>
+			<priority>{{$vo2->priority}}</priority>
+		</url>
+			{{foreach $SiteMapTag->getByDisease({{$vo2->id}}) as $vo3}}
+				<url>
+					<loc>{{$WEBSITE}}/{{$vo->url}}/{{$vo2->url}}/{{$vo3['id']}}.html</loc>
+					<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+					<changefreq>daily</changefreq>
+					<priority>0.8</priority>
+				</url>			
+			{{/foreach}}	
+		
+		{{/foreach}}
+	{{/foreach}}
+		<url>
+			<loc>{{$WEBSITE}}/hospital/introduce.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>	
+		<url>
+			<loc>{{$WEBSITE}}/contact.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.8</priority>
+		</url>	
+		<url>
+			<loc>{{$WEBSITE}}/doctor/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>	
+	{{foreach $SiteMapTag->getDoctor() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/doctor/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>		
+	{{/foreach}}		
+		
+			
+		<url>
+			<loc>{{$WEBSITE}}/hospital/environment/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>	
+	{{foreach $SiteMapTag->getEnvironment() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/environment/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}		
+		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/honor/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>	
+	{{foreach $SiteMapTag->getHonor() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/honor/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}		
+		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/device/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>	
+	{{foreach $SiteMapTag->getDevice() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/device/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}			
+			
+		<url>
+			<loc>{{$WEBSITE}}/hospital/success/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>
+	{{foreach $SiteMapTag->getSuccess() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/success/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}		
+		
+			
+		<url>
+			<loc>{{$WEBSITE}}/technology/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>	
+	{{foreach $SiteMapTag->getTechnology() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/technology/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}		
+		
+							
+		<url>
+			<loc>{{$WEBSITE}}/hospital/news/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>
+	{{foreach $SiteMapTag->getNews() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/news/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/media/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>
+	{{foreach $SiteMapTag->getMedia() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/media/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}			
+		<url>
+			<loc>{{$WEBSITE}}/hospital/movie/index.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.6</priority>
+		</url>
+	{{foreach $SiteMapTag->getMovie() as $v}}		
+		<url>
+			<loc>{{$WEBSITE}}/hospital/movie/{{$v->id}}.html</loc>
+			<lastmod>{{'Y-m-d'|date:$smarty.now}}</lastmod>
+			<changefreq>daily</changefreq>
+			<priority>0.4</priority>
+		</url>		
+	{{/foreach}}			
+	
+</urlset>

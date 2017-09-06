@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/common.css">
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>编辑弹窗信息</title>
+<style type="text/css">
+	.leftpic{width:49%;float:left;overflow:auto;height:505px;min-width:500px;border-top:2px solid #ddd;border-left:2px solid #ddd;border-bottom:2px solid #ddd;}
+	div.imgbox{background:#FAFAFA url(../images/boyicms/pagebg/popimgbg.png) center center no-repeat;width:100%;height:360px;overflow:auto;border-top:2px solid #ddd;}
+	.rightcss{width:49%;float:left;overflow:auto;height:505px;border:2px solid #B8D0D6;min-width:350px;}
+	.leftpic h1,.rightcss h1{font-size:14px;color:#FFFFFF;text-align:center;width:100%;height:30px;line-height:30px;background:#5a98de;padding:6px 0px;}
+	.thumbnailbox{top:124px;left:--410px;}
+	div#div_new  div{background:url("./public/img/buttonbg.png") repeat;font-size:12px;text-align:center;}
+	.leftpic,.rightcss{background:#eaeaea;}
+</style>
+</head>
+<body>
+<div class="pd-20">
+	<form id="frm_post" method="post" class="form form-horizontal" id="form-article-add">
+		<div class="row cl">
+			<div class="leftpic">
+				<h1>背景图片编辑</h1>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>显示：</label>
+					<div class="formControls col-8">
+						<div class="radio-box skin-minimal">
+							<input type="radio" id="" name="" >
+							<label>是</label>
+						</div>
+						<div class="radio-box skin-minimal">
+							<input type="radio" id="" name="">
+							<label>否</label>
+						</div>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">图片：</label>						
+					<div class="formControls col-98">
+						<a class="btn btn-primary radius" onClick="gPicManager.uploadImg('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&div=pop','700','540')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>						
+					</div>
+					<div class="formControls col-98">
+						<a class="btn btn-danger  radius" onClick="delete_img()" href="javascript:;"><i class="Hui-iconfont">&#xe6e2;</i> 删除图片</a>
+					</div>	
+					<input type="hidden" id="pic" value="">				
+				</div><!--上传图片-->				
+				<div class="row cl">
+					<div class="imgbox">					
+						<div style="position:relative;float:left;" id="div_new">
+							<div id="one_div" style="position:absolute;z-index:2;border:1px solid red;"></div>
+							<div id="two_div" style="position:absolute;z-index:2;border:1px solid red;"></div>
+							<div id="three_div" style="position:absolute;z-index:2;border:1px solid red;"></div>
+							<div id="six_div" style="position:absolute;z-index:2;border:1px solid red;"></div>							
+							<img src="" id="thumbnail" />
+						</div>
+					</div>
+				</div>	
+			</div>
+			<div class="rightcss">
+				<h1>功能按钮设置</h1>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>按钮功能：</label>	
+					<div class="formControls col-2"> <span class="select-box">
+						<select name="" class="select" id="add_div">
+							<option value=0>请选择</option>
+							<option value=1>关闭按钮（一）</option>
+							<option value=6>关闭按钮（二）</option>
+							<option value=2>在线咨询按钮</option>
+							<option value=3>在线问答按钮</option>
+							<option value=4>自定义按钮</option>
+							<option value=5>全图链接按钮</option>
+						</select>
+						</span> </div>
+				</div>
+				<!--关闭1-->
+				<div class="cl pd-5  mv-30 div_show" id="html1" style="display:none;"> 
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>宽度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="one_width" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>高度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="one_height" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>左偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="one_left" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>顶偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="one_top" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>边框颜色：</label>
+						<div class="formControls col-2"> <span class="select-box">
+							<select id="one_color" class="select">
+								<option value=red>红色</option>
+								<option value=green>绿色</option>
+								<option value=blue>蓝色</option>
+							</select>
+							</span> </div>
+					</div>
+				</div><!--cl pd-5  mv-30 over-->
+				<!--在线咨询-->
+				<div class="cl pd-5  mv-30 div_show" id="html2" style="display:none;"> 
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>宽度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="two_width" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>高度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="two_height" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>左偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="two_left" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>顶偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="two_top" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>边框颜色：</label>
+						<div class="formControls col-2"> <span class="select-box">
+							<select id="two_color" class="select">
+								<option value=red>红色</option>
+								<option value=green>绿色</option>
+								<option value=blue>蓝色</option>
+							</select>
+							</span> </div>
+					</div>
+				</div><!--cl pd-5  mv-30 over-->
+				<!--在线问答-->
+				<div class="cl pd-5  mv-30 div_show" id="html3" style="display:none;"> 
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>宽度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="three_width" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>高度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="three_height" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>左偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="three_left" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>顶偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="three_top" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>边框颜色：</label>
+						<div class="formControls col-2"> <span class="select-box">
+							<select id="three_color" class="select">
+								<option value=red>红色</option>
+								<option value=green>绿色</option>
+								<option value=blue>蓝色</option>
+							</select>
+							</span> </div>
+					</div>
+				</div><!--cl pd-5  mv-30 over-->
+				<!--全图链接-->
+				<div class="cl pd-5  mv-30 div_show" id="html5" style="display:none;"> 
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>链接：</label>
+						<div class="formControls col-4">
+							<input type="text" class="input-text" value="" placeholder="" id="link" name="link">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（点击图片链向的页面，请用绝对地址，如：“http://www.boyicms.com/xx/xx”，不要使用“xx/xxx.html”）</label>
+					</div>					
+				</div><!--cl pd-5  mv-30 over-->
+				<!--在线问答-->
+				<div class="cl pd-5  mv-30 div_show" id="html6" style="display:none;"> 
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>宽度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="six_width" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>高度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="six_height" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>左偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="six_left" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>顶偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="six_top" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>边框颜色：</label>
+						<div class="formControls col-2"> <span class="select-box">
+							<select id="six_color" class="select">
+								<option value=red>红色</option>
+								<option value=green>绿色</option>
+								<option value=blue>蓝色</option>
+							</select>
+							</span> </div>
+					</div>
+				</div><!--cl pd-6  mv-30 over-->
+				<!--自定义链接-->
+				<div class="cl pd-5  mv-30 div_show" id="html4" > 
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>宽度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="four_width" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>高度：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="four_height" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（按下键盘上的“<b>↑</b>”，“<b>↓</b>”键调整大小）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>左偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="four_left" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>顶偏移：</label>
+						<div class="formControls col-94">
+							<input type="text" class="input-text" value="" placeholder="" id="four_top" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（选中图中按钮框拖动）</label>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>边框颜色：</label>
+						<div class="formControls col-2"> <span class="select-box">
+							<select id="four_color" class="select">
+								<option value=red>红色</option>
+								<option value=green>绿色</option>
+								<option value=blue>蓝色</option>
+							</select>
+							</span> </div>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2"><span class="c-red">*</span>链接：</label>
+						<div class="formControls col-4">
+							<input type="text" class="input-text" value="" placeholder="" id="four_url" name="">
+						</div><label class="for-notes col-5"><span class="c-red">*</span>（点击图片链向的页面，请用绝对地址）</label>
+					</div>
+
+					<div class="row cl">
+						<div class="col-10 col-offset-2">
+							<button id="edit_confirm" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存配置</button>				
+							<button id="delete_confiem" class="btn btn-danger radius" type="button"><i class="Hui-iconfont">&#xe6e2;</i> 删除当前</button>
+							<button id="four_confirm" class="btn btn-success radius" type="button"><i class="Hui-iconfont">&#xe61f;</i> 添加新项</button>
+						</div>
+					</div>	
+				</div><!--cl pd-5  mv-30 over-->
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button id="back" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/drag_and_drop.js"></script>
+<script type="text/javascript" src="../js/boyicms/picManager.js"></script>
+<script type="text/javascript">
+var gPicManager = new PicManager();
+gPicManager.setThisName('gPicManager');
+gPicManager.initPopEdit();
+
+</script> 
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+    "layout_header": {
+        "tpl": "common/layout/header",
+        "html": "header.html"
+    },
+    "layout_footer": {
+        "tpl": "common/layout/footer",
+        "html": "footer.html"
+    },
+    "right_ask": {
+        "tpl": "common/right/common/ask",
+        "html": "ask.html"
+    },
+    "right_new_article": {
+        "tpl": "common/right/common/new_article",
+        "html": "new_article.html"
+    },
+    "right_doctor": {
+        "tpl": "common/right/common/doctor",
+        "html": "doctor.html"
+    },
+    "right_hot_article": {
+        "tpl": "common/right/common/hot_article",
+        "html": "hot_article"
+    },
+    "right_technology": {
+        "tpl": "common/right/common/technology",
+        "html": "technology"
+    },
+    "right_reservation": {
+        "tpl": "common/right/common/reservation",
+        "html": "reservation"
+    }
+}

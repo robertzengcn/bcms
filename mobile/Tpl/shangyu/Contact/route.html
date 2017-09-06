@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+{{include file="Common/common.html"}}
+</head>
+<body style="zoom: 1;">
+    <!-- style -->
+{{include file="Common/header.html"}}
+<div class="crumb" style="width:318px;margin:0 auto;background-color: #00632A;color: #fff;height: 37px;line-height: 37px;
+	text-indent: 10px;margin-top:40px;">当前位置：<a href="{{$MOBILE}}" style="color: #fff;">主页</a>&gt; <a href="" style="color: #fff;">来院路线</a></div>
+
+<!--医院地址-->       
+<p style="width:318px;margin:0 auto;"><strong>医院地址</strong>：浙江省-湖州市-雉城镇-长兴长海路26号（原老长途汽车站）</p>
+
+<p style="width:318px;margin:0 auto;">网站地图</p>
+
+<p><div class="road-img">
+                  <!--引用百度地图API-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?key=&v=1.1&services=true"></script>
+           <div style="width:300px;height:207px;border:#ccc solid 1px;margin:0px auto;" id="dituContent"></div>
+<script type="text/javascript">
+   
+    function initMap(){
+        createMap();
+        setMapEvent();
+        addMapControl();
+        addMarker();
+    }
+    
+   
+    function createMap(){
+        var map = new BMap.Map("dituContent");
+		var point = new BMap.Point({{$ContactTag->get('map')}});  
+        map.centerAndZoom(point,18);
+        window.map = map;
+    }
+    
+
+    function setMapEvent(){
+        map.enableDragging();
+        map.enableScrollWheelZoom();
+        map.enableDoubleClickZoom();
+        map.enableKeyboard();
+    }
+    
+ 
+    function addMapControl(){
+      
+	var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+	map.addControl(ctrl_nav);
+       
+
+       
+	var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+	map.addControl(ctrl_sca);
+    }
+    
+    
+
+	    var markerArr = [{title:"长兴博爱妇科医院",content:"电话：0572-6053605<br/>",point:"119.319701|26.073569",isOpen:0,icon:{w:21,h:21,l:0,t:0,x:6,lb:5}}
+		 ];
+	
+   
+    function addMarker(){
+        for(var i=0;i<markerArr.length;i++){
+            var json = markerArr[i];
+            var p0 = json.point.split("|")[0];
+            var p1 = json.point.split("|")[1];
+            var point = new BMap.Point(p0,p1);
+			var iconImg = createIcon(json.icon);
+            var marker = new BMap.Marker(point,{icon:iconImg});
+			var iw = createInfoWindow(i);
+			var label = new BMap.Label(json.title,{"offset":new BMap.Size(json.icon.lb-json.icon.x+10,-20)});
+			marker.setLabel(label);
+            map.addOverlay(marker);
+            label.setStyle({
+                        borderColor:"#808080",
+                        color:"#333",
+                        cursor:"pointer"
+            });
+			
+			(function(){
+				var index = i;
+				var _iw = createInfoWindow(i);
+				var _marker = marker;
+				_marker.addEventListener("click",function(){
+				    this.openInfoWindow(_iw);
+			    });
+			    _iw.addEventListener("open",function(){
+				    _marker.getLabel().hide();
+			    })
+			    _iw.addEventListener("close",function(){
+				    _marker.getLabel().show();
+			    })
+				label.addEventListener("click",function(){
+				    _marker.openInfoWindow(_iw);
+			    })
+				if(!!json.isOpen){
+					label.hide();
+					_marker.openInfoWindow(_iw);
+				}
+			})()
+        }
+    }
+ 
+    function createInfoWindow(i){
+        var json = markerArr[i];
+        var iw = new BMap.InfoWindow("<b class='iw_poi_title' title='" + json.title + "'>" + json.title + "</b><div class='iw_poi_content'>"+json.content+"</div>");
+        return iw;
+    }
+   
+    function createIcon(json){
+        var icon = new BMap.Icon("http://map.baidu.com/image/us_cursor.gif", new BMap.Size(json.w,json.h),{imageOffset: new BMap.Size(-json.l,-json.t),infoWindowOffset:new BMap.Size(json.lb+5,1),offset:new BMap.Size(json.x,json.h)})
+        return icon;
+    }
+    
+    initMap();
+</script>
+
+        </div>  </p>
+{{include file="Common/bootom_ph.html"}}
+{{include file="Common/index_footer.html"}}
+</body>
+</html>

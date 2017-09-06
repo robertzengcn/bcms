@@ -1,0 +1,118 @@
+function Welcome(){
+	BaseFunc.call(this);
+	
+	var self = this;
+	
+	this.init = function() {
+		$(function(){
+			//加入上次登录时间
+			self.lastLogin();
+			
+			//信息完整度检查
+			self.healthCheck();
+			
+			$('#PEIS').on('click',function(){
+				self.healthCheck();
+			});
+			
+			//导入
+			$('#cloudsync').on('click', function(){
+				$('#a_cloudsync').click();
+			});
+			
+			//显示饼图
+			self.showChart();
+			
+			//控制轮播图和新闻阅读数据填充，调用总控js实现，故需要在总控上修改样式
+			
+		});
+	}
+	
+    // {{{ function latestLogin()
+	
+	/**
+	 * 上次登录时间
+	 * */
+	
+	this.lastLogin = function() {
+		self.cmd(gHttp,{controller:'WorkerLogHistory',method:'lastLogin'},function(date){
+			$('#loginDate').html(date);
+		});
+	}
+    
+	// }}}
+	// {{{ function healthCheck()
+	
+	/**
+	 * 信息完整度检查
+	 * */
+	this.healthCheck = function() {
+		var tableNames = '';
+        $('.leftinfo').find('ul a').each(function(){                 //遍历获取需要查询的path名
+        	var path = $(this).attr('path');
+        	if (path != undefined) {
+        		tableNames += ',' + path;
+        	}
+        });
+        
+        var para = {controller:'Home',method:'health',tableNames:tableNames};
+        self.cmd(gHttp,para,function(data){
+        	$.each(data,function(key,value){
+                if(value == '0'){
+                    $('#'+key+'Item').addClass('incorrectness');
+                }
+           })
+        });
+	}
+	
+	// }}}
+	// {{{ function showChart()
+	
+	/**
+	 * 显示饼图
+	 * */
+	this.showChart = function() {
+		var para = {controller:'StatisticsLog',method:'weekDistributed'};
+		self.cmd(gHttp,para,function(result1){
+			if(result1.statu){
+				$('#container').highcharts({
+					chart : {
+						plotBackgroundColor: null,
+			            plotBorderWidth: null,
+			            plotShadow: false
+					},
+					title : {
+						text :'本周新老访客分布'
+					},
+					tooltip: {
+						pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+					},
+					plotOptions: {
+						pie: { 
+							allowPointSelect: true, 
+							cursor: 'pointer', 
+							dataLabels: { 
+								enabled: true, 
+								color: '#000000', 
+								connectorColor: '#000000', 
+								format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+							} 
+						}
+				    },
+					series : [{
+						type : 'area',
+						name : '比例',
+						data : result1.data
+					}]
+				});
+			}else{
+				layer.alert(result1.msg);
+			}
+			return false;
+		});
+		
+	}
+	
+	// }}}
+	
+}

@@ -1,0 +1,25 @@
+{{extends file='./common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/about.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您的位置：<a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> >
+ <a>医院介绍</a></span></div>
+  <div class="clear h8"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <h2><span>医院介绍</span></h2>
+      <div class="about">
+          <p>{{$content = $IntroduceTag->getContent()}}</p>
+          {{$content}}
+       </div>
+    </div>
+    <!--right-->
+      {{include file="./common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

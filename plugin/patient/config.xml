@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<Name>患者管理</Name>
+	<ByName>patient</ByName>
+	<Discription>通过患者管理插件，实现医患的互动，便于医院能够更加全面的了解患者的就诊情况和医生的坐诊情况，以便医院及医生能够高效合理的安排时间</Discription>
+	<Author>联医科技</Author>
+	<ByVersion>v2.0</ByVersion>
+	<HccinletHtml>index</HccinletHtml>
+	<SqlFile>run.sql</SqlFile>
+	<UnInstall>PatientService:uninstall</UnInstall>
+	<Kernel>
+		<Controller>PatientController.php:controller/PatientController.php</Controller>
+		<Controller>PatientDataController.php:controller/PatientDataController.php</Controller>
+		<Service>PatientService.php:kernel/PatientService.php</Service>
+		<Service>PatientCheckService.php:kernel/PatientCheckService.php</Service>
+		<Service>PatientDataService.php:kernel/PatientDataService.php</Service>
+		<Dao>PatientDAO.php:kernel/dao/PatientDAO.php</Dao>
+		<Dao>PatientCheckDAO.php:kernel/dao/PatientCheckDAO.php</Dao>
+		<Dao>PatientDataDAO.php:kernel/dao/PatientDataDAO.php</Dao>
+		<Entity1>Patient.php:kernel/entity/Patient.php</Entity1>
+		<Entity2>PatientCheck.php:kernel/entity/PatientCheck.php</Entity2>
+		<Entity3>PatientCheck.php:kernel/entity/PatientCheck.php</Entity3>
+		<Entity4>PatientCase.php:kernel/entity/PatientCase.php</Entity4>
+		<Entity5>PatientDataSource.php:kernel/entity/PatientDataSource.php</Entity5>
+		<Entity6>PatientDiagnosisDetail.php:kernel/entity/PatientDiagnosisDetail.php</Entity6>
+		<Entity7>PatientDiagnosisFee.php:kernel/entity/PatientDiagnosisFee.php</Entity7>
+		<Entity8>PatientManager.php:kernel/entity/PatientManager.php</Entity8>
+		<Entity9>PatientReceptionist.php:kernel/entity/PatientReceptionist.php</Entity9>
+		<Entity10>PatientReturnVisit.php:kernel/entity/PatientReturnVisit.php</Entity10>
+		<Entity11>PatientVipLevel.php:kernel/entity/PatientVipLevel.php</Entity11>
+		<Entity12>PatientExamineItem.php:kernel/entity/PatientExamineItem.php</Entity12>
+		<Entity13>PatientDepartment.php:kernel/entity/PatientDepartment.php</Entity13>
+		<Entity14>PatientDisease.php:kernel/entity/PatientDisease.php</Entity14>
+		<Entity15>PatientDoctor.php:kernel/entity/PatientDoctor.php</Entity15>
+		<Entity16>PatientPrescription.php:kernel/entity/PatientPrescription.php</Entity16>
+		<Entity17>PatientPrescriptionDetail.php:kernel/entity/PatientPrescriptionDetail.php</Entity17>
+	</Kernel>
+</plugin>

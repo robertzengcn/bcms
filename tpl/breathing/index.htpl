@@ -1,0 +1,346 @@
+  {{extends file="./common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/index.css">
+  {{/block}}
+  {{block name="js"}}
+  <script type="text/javascript" src="{{$RESOURCE}}/js/index_ask.js"></script>
+  <script type="text/javascript" src="{{$RESOURCE}}/js/showtab.js"></script>
+  {{/block}}
+  {{block name="body"}}
+  <div class="clear h8"></div>
+  <!--flash-->
+  <div class="flash bk">
+    <div id="flash-box">
+      <ul id="flash-comtent">
+      	{{$indexScroll = $PicManagerTag->getScroll('index')}}
+      	{{foreach $indexScroll as $value}}
+      	<li><a target="_blank" href="{{$value->url}}"><img src="{{$value->pic}}" width="270" height="380" alt="{{$value->text}}" /></a></li>
+      	{{/foreach}}
+	  </ul>
+    </div>
+    <ul id="flash-id">
+      <li class="">1</li>
+      <li class="">2</li>
+      <li class="">3</li>
+      <li class="">4</li>
+      <li class="">5</li>
+    </ul>
+    <script type="text/javascript"> 
+new Marquee(
+{
+	MSClassID : "flash-box",
+	ContentID : "flash-comtent",
+	TabID	  : "flash-id",
+	Direction : 2,
+	Step	  : 0.3,
+	Width	  : 270,
+	Height	  : 380,
+	Timer	  : 20,
+	DelayTime : 2500,
+	WaitTime  : 0,
+	ScrollStep: 270,
+	SwitchType: 1,
+	AutoStart : 1
+})
+</script>
+  </div>
+  <!--news-->
+  <div class="top-news">
+    <div class="top-news-tab bk"><span></span><h3><b style="color:white">最新新闻</b></h3></div>
+    <div class="top-news-wrap bk">
+      <div class="news-list">
+      	{{recommendArticles positionName="首页头版头条" size=1}}
+      	{{foreach $recommendArticles as $value}}
+      	{{department id=$value->department_id}}
+      	{{if $value->disease_id == false}}
+      	<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}{{$value->id}}.html"><img src="{{$UPLOAD}}{{$value->pic}}" alt="#" /></a>
+        <h4><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$value->id}}.html">{{$value->subject}}</a></h4>
+        <p>{{$value->content|truncate:"35"}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$value->id}}.html">[详细]</a></p>
+      	{{else}}
+      	{{disease id=$value->disease_id}}
+      	<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$value->id}}.html"><img src="{{$UPLOAD}}{{$value->pic}}" alt="#" /></a>
+        <h4><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$value->id}}.html">{{$value->subject}}</a></h4>
+        <p>{{$value->content|truncate:"35"}}...<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$value->id}}.html">[详细]</a></p>
+      	{{/if}} 
+        {{/foreach}}
+        <ul>
+          {{recommendArticles positionName="首页头版列表" size=6}}
+          {{foreach $recommendArticles as $v}}
+          {{department id=$v->department_id}}
+          {{if $v->disease_id == false}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$v->id}}.html">{{$v->subject|truncate:13}}</a></li>
+          {{else}}
+          {{disease id=$v->disease_id}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$v->id}}.html">{{$v->subject|truncate:13}}</a></li>
+          {{/if}}
+          {{/foreach}}
+		</ul>
+      </div>
+      <div class="top-ask-left">
+      	{{departments}}
+      	<form id="ask_form" name="addcontent" action="/controller" method="get">
+        <p class="top-ask-left_1">标题：<input type="text" name="subject" /></p>
+        <p class="top-ask-left_1"><span id="department_box">科室：<select name="departmentID"><option value="">请选择...</option>{{foreach $departments as $value}}<option value="{{$value->id}}">{{$value->name}}</option>{{/foreach}}</select></span><span id="disease_box" style="display:none;">疾病：<select name="diseaseID"><option value="">请选择...</option></select><a id="backtodepartment">返回</a></span></p>
+        <p class="top-ask-left_2">内容：<textarea name="description"></textarea></p>
+        <p class="top-ask-left_3"><input type="button" id="ask_submit" value="提交" /><input type="reset" value="重置" /></p>
+        </form>
+      </div>
+      <div class="top-ask-right">
+        <div>
+          {{foreach $AskTag->getList(1,1) as $value}}
+          {{$askInfo = $AskTag->get($value->id)}}
+          <h5><a target="_blank" href="{{$WEBSITE}}/ask/{{$value->id}}.html">{{$askInfo->subject|truncate:10}}</a></h5>
+          <p>{{$askInfo->content|truncate:35}}...<a target="_blank" href="{{$WEBSITE}}/ask/{{$value->id}}.html">[详情]</a></p>
+          {{/foreach}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--right-->
+  <div class="w225">
+    <div class="par-tool bk nonebottom">
+    {{$img = $PicManagerTag->getPic('par-title')}}
+    <h4 class="tool-h4" style="background:url({{$UPLOAD}}{{$img->img}})">{{$ContactTag->get('name')}}在线服务</h4>
+      <ul>
+        <li><a target="_blank" href="javascript:openWindow('chat')"><img src="./public/images/par-zx.gif" /></a></li>
+        <li><a target="_blank" href="{{$WEBSITE}}/reservation/index.html"><img src="./public/images/par-yy.gif" /></a></li>
+        <li><a target="_blank" href="{{$WEBSITE}}/doctor/index.html"><img src="./public/images/par-doctor.gif" /></a></li>
+        <li><a target="_blank" href="{{$WEBSITE}}/contact.html"><img src="./public/images/par-road.gif" /></a></li>
+      </ul>
+    </div>
+    <!--技术-->
+    <div class="par-technology h190 bk nonetop">
+      <h4 class="technology-h4"><a target="_blank" href="{{$WEBSITE}}/technology/index.html">先进技术</a></h4>
+      <ul>
+      	{{technologys limit="5"}}
+      	{{foreach name="technology" from=$technologys item=value}}
+      	{{if $smarty.foreach.technology.last}}
+      	<li class="nonebottom">・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+      	{{else}}
+      	<li>・<a target="_blank" href="{{$WEBSITE}}/technology/{{$value->id}}.html">{{$value->subject|truncate:12}}</a></li>
+      	{{/if}}
+      	{{/foreach}}
+     </ul>
+    </div>
+    <!--预约-->
+    <!--专家答疑-->
+  </div>
+  <!--doctor-->
+  <div class="clear h8"></div>
+  {{$img = $PicManagerTag->getPic('case-bg')}}
+  <div class="case-title" style="background:url({{$UPLOAD}}{{$img->img}}) no-repeat"><a target="_blank" href="{{$WEBSITE}}/hospital/success/index.html" title="成功案例">成功案例</a></div>
+  <div class="doctor-wrap bk">
+    <div class="doctor">
+      <div id="LeftButton4" class="doctor-btn left"><img src="./public/images/index/last.gif" /></div>
+      <div class="doctor-content" id="MarqueeDiv4">
+        <div id="MarqueeDiv4Boxent">
+          <!--list-->
+          {{doctors}}
+          {{foreach $doctors as $v}}
+          <div class="doctor-list">
+            <div class="img"><a target="_blank" href="{{$WEBSITE}}/doctor/{{$v->id}}.html"><img src="{{$UPLOAD}}{{$v->pic}}" /></a></div>
+            <div class="txt">
+              <h5><a target="_blank" href="{{$WEBSITE}}/doctor/{{$v->id}}.html">{{$v->name}}</a></h5>
+              <p>{{$v->description|truncate:35}}...<a target="_blank" href="{{$WEBSITE}}/doctor/{{$v->id}}.html">[详细]</a></p>
+              <div> <a target="_blank" href="javascript:Layout.openWindow('chat');"><img src="./public/images/zx.gif" alt="点击咨询" /></a><a target="_blank" href="{{$WEBSITE}}/reservation/index.html" class="mr"><img src="./public/images/yy.gif" alt="点击预约" /></a> </div>
+            </div>
+          </div>
+          {{/foreach}}
+          <!--list end-->
+        </div>
+      </div>
+      <div id="RightButton4" class="doctor-btn right"><img src="./public/images/index/next.gif" /></div>
+    </div>
+    <script type="text/javascript"> 
+var MarqueeDiv4Control=new Marquee(["MarqueeDiv4","MarqueeDiv4Boxent"],2,0.2,900,110,20,3000,3000)//向左翻屏滚动、缓动及跳过等待时间实例
+$("#LeftButton4").click(function(){MarqueeDiv4Control.Run(2)});	//跳过等待时间向左滚动后保持原向运动
+$("#RightButton4").click(function(){MarqueeDiv4Control.Run(3)});	//跳过等待时间向右滚动后保持原向运动
+</script>
+    <div class="doctor-bottom">
+    <p>    救死扶伤是医生的天职，我们要将这样的天职变成日常为患者治疗的每一个细小的工作中，以“医者父母心”大爱精神为每一位患者康复着想。“医生不仅是一种职业，更是一种人性的关爱，只有心中充满对患者最真切的关爱才能最大限度的为患者健康着想。”他以博大的胸怀和不断求索的精神在医院的道路上奋进，为患者的健康，为发扬祖国的医学事业兢兢业业，在患者康复的同事也感受他如春风化雨一般无声而真切的关爱。</p>
+    </div>
+    <!--case-->
+    <div class="case">
+      <div class="case-wrap" id="case-box">
+      	{{successes limit="5"}}
+      	{{foreach $successes as $value}}
+      	{{if $value@index < 6}}
+        <div class="case-list" style="height:102px;"><img src="{{$UPLOAD}}/images/temp/130-100.jpg" />
+          <h5><a href="{{$WEBSITE}}/hospital/success/{{$value->id}}.html">{{$value->subject|truncate:8}}</a></h5>
+          <p>{{$value->description|truncate:25}}...<a href="{{$WEBSITE}}/hospital/success/{{$value->id}}.html">[详情]</a></p>
+        </div>
+        {{/if}}
+        {{/foreach}}
+      </div>
+      <script> 
+new Marquee(["case-box"],0,0.1,948,102,20,2000,2000,0,3);
+</script>
+    </div>
+  </div>
+  <!--article-->
+  <div class="clear h8"></div>
+  <div class="article-tab">
+  {{$img = $PicManagerTag->getPic('department_tab')}}
+    <div style="background:url({{$UPLOAD}}{{$img->img}})"></div>
+    {{departments limit=5}}
+    {{foreach $departments as $value}}
+    {{if $value@index == 0}}
+    <h3 id="content-box_btn{{$value@index+1}}" onmouseover="showtab({{$value@index+1}},'content-box',{{$departments|@count}})" class="current"><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/index.html">{{$value->name}}</a></h3>
+    {{/if}}
+    {{if $value@index != 0 and $value@index != {{$departments|@count-1}}}}
+    <h3 id="content-box_btn{{$value@index+1}}" onmouseover="showtab({{$value@index+1}},'content-box',{{$departments|@count}})"><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/index.html">{{$value->name}}</a></h3>
+    {{/if}}
+    {{if $value@index == {{$departments|@count-1}}}}
+    <h3 id="content-box_btn{{$value@index+1}}" onmouseover="showtab({{$value@index+1}},'content-box',{{$departments|@count}})" class="last"><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/index.html">{{$value->name}}</a></h3>
+    {{/if}}
+  	{{/foreach}}
+  </div>
+  <!--article list1-->
+  {{foreach $departments as $value}}
+  {{if $value@index == 0}}
+  <div id="content-box_sub{{$value@index+1}}">
+  {{else}}
+  <div id="content-box_sub{{$value@index+1}}" class="hide">
+  {{/if}}
+    <div class="article bk">
+      <!--left-->
+      {{recommendArticles positionName="首页疾病图文" departmentName="{{$value->name}}" size=1}}
+      {{foreach $recommendArticles as $v}}
+      {{if $v->disease_id == false}}
+      <div class="article-img">
+      <a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$v->id}}.html"><img src="{{$UPLOAD}}{{$v->pic}}" alt="#" /></a>
+        <h6><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$v->id}}.html">{{$v->subject|truncate:12}}</a></h6>
+      </div>
+      {{else}}
+      {{disease id=$v->disease_id}}
+      <div class="article-img">
+      <a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$disease->url}}/{{$v->id}}.html"><img src="{{$UPLOAD}}{{$v->pic}}" alt="#" /></a>
+        <h6><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$disease->url}}/{{$v->id}}.html">{{$v->subject|truncate:12}}</a></h6>
+      </div>
+      {{/if}}
+      <!--center-->
+      <div class="article-txt">
+      	{{if $v->disease_id == false}}
+        <h4><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$v->id}}.html">{{$v->subject}}</a></h4>
+        <p>{{$v->description|truncate:50}}....<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$v->id}}.html">[详情]</a></p>
+        {{else}}
+        {{disease id=$v->disease_id}}
+        <h4><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$disease->url}}/{{$v->id}}.html">{{$v->subject}}</a></h4>
+        <p>{{$v->description|truncate:50}}....<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$disease->url}}/{{$v->id}}.html">[详情]</a></p>
+        {{/if}}
+        {{/foreach}}
+        <ul>
+          {{recommendArticles positionName="首页疾病列表" departmentName="{{$value->name}}" size=8}}
+          {{foreach $recommendArticles as $v}}
+          {{if $v->disease_id == false}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$v->id}}.html">{{$v->subject}}</a></li>
+          {{else}}
+          {{disease id=$v->disease_id}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$disease->url}}/{{$v->id}}.html">{{$v->subject}}</a></li>
+          {{/if}}
+          {{/foreach}}
+        </ul>
+        <div class="bk">
+          <h5></h5>
+          <span>
+          	{{$diseases = $DiseaseTag->getByDeparment($value->id)}}
+          	{{foreach $diseases as $val}}
+          	{{if $val@index <= 5}}
+          	{{if $val@index == 2}}
+          	<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$val->url}}/index.html">{{$val->name}}</a><br />
+          	{{/if}}
+          	{{if $val@index == 5}}
+          	<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$val->url}}/index.html">{{$val->name}}</a>
+          	{{else}}
+          	<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/{{$val->url}}/index.html">{{$val->name}}</a>|
+          	{{/if}}
+          	{{/if}}
+          	{{/foreach}}
+        	</span>
+        </div>
+      </div>
+
+      <!--right-->
+      {{if $value@index+1 == 1}}
+      {{$img = $PicManagerTag->getPic('index_department1')}}
+      {{/if}}
+      {{if $value@index+1 == 2}}
+      {{$img = $PicManagerTag->getPic('index_department2')}}
+      {{/if}}
+      {{if $value@index+1 == 3}}
+      {{$img = $PicManagerTag->getPic('index_department3')}}
+      {{/if}}
+      {{if $value@index+1 == 4}}
+      {{$img = $PicManagerTag->getPic('index_department4')}}
+      {{/if}}
+      {{if $value@index+1 == 5}}
+      {{$img = $PicManagerTag->getPic('index_department5')}}
+      {{/if}}
+      <div class="article-right"><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/index.html"><img width="230" height="140" src="{{$UPLOAD}}{{$img->img}}" alt="#" /></a>
+        <h5><a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/index.html">{{$value->name}}科室介绍</a></h5>
+        <p>{{$value->description|truncate:63}}......<a target="_blank" href="{{$WEBSITE}}/{{$value->url}}/index.html">[详细]</a></p>
+      </div>
+      <div class="clear"></div>
+    </div>
+  </div>
+  {{/foreach}}
+  <!--bottom-->
+
+  <!--设备-->
+  <div class="clear h8"></div>
+  <div class="show-tab bk nonebottom">
+  <h3>
+  <a target="_blank" href="{{$WEBSITE}}/hospital/device/index.html" id="pic-box_btn1" onmouseover="showtab(1,'pic-box',3)" class="current">尖端设备</a>
+  <a target="_blank" href="{{$WEBSITE}}/hospital/environment/index.html" id="pic-box_btn2" onmouseover="showtab(2,'pic-box',3)">医院环境</a>
+  <a target="_blank" href="{{$WEBSITE}}/hospital/honor/index.html" id="pic-box_btn3" onmouseover="showtab(3,'pic-box',3)">医院荣誉</a></h3>
+  </div>
+  <div class="pic bk">
+    <div id="pic-box_sub1">
+      <ul id="pic-content1">
+      	{{devices limit="10"}}
+      	{{foreach $devices as $value}}
+        <li><a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$value->id}}.html"><img src="{{$UPLOAD}}{{$value->pic}}" alt="{{$value->subject}}" />{{$value->subject}}</a></li>
+        {{/foreach}}
+      </ul>
+    </div>
+    <div id="pic-box_sub2" class="hide">
+      <ul id="pic-content2">
+      	{{environments limit="10"}}
+      	{{foreach $environments as $value}}
+        <li><a target="_blank" href="{{$WEBSITE}}/hospital/environment/{{$value->id}}.html"><img src="{{$UPLOAD}}{{$value->pic}}" alt="{{$value->subject}}" />{{$value->subject}}</a></li>
+        {{/foreach}}
+      </ul>
+    </div>
+    <div id="pic-box_sub3" class="hide">
+      <ul id="pic-content3">
+      	{{honors limit="10"}}
+      	{{foreach $honors as $value}}
+        <li><a target="_blank" href="{{$WEBSITE}}/hospital/honor/{{$value->id}}.html"><img src="{{$UPLOAD}}{{$value->pic}}" alt="{{$value->subject}}" />{{$value->subject}}</a></li>
+        {{/foreach}}
+      </ul>
+    </div>
+<script type="text/javascript"> 
+new Marquee(["pic-box_sub1","pic-content1"],2,2,938,150,50,0,0)
+</script>
+<script type="text/javascript"> 
+new Marquee(["pic-box_sub2","pic-content2"],2,2,938,150,50,0,0)
+</script>
+<script type="text/javascript"> 
+new Marquee(["pic-box_sub3","pic-content3"],2,2,938,150,50,0,0)
+</script>
+  </div>
+  <!--link-->
+  <div class="clear h8"></div>
+  <div class="bk link">
+    <span>友情链接：</span>
+    {{friendLink limit=5}}
+    {{foreach name='friendLink' from=$friendLink item=v}}
+    {{if $smarty.foreach.friendLink.last}}
+    <a target="_blank" href="{{$v->url}}">{{$v->name}}</a>
+    {{else}}
+    <a target="_blank" href="{{$v->url}}">{{$v->name}}</a>|
+    {{/if}}
+    {{/foreach}}
+    
+  </div>
+{{/block}}

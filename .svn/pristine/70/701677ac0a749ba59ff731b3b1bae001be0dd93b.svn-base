@@ -1,0 +1,22 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Member extends Entity {
+
+	var $id;
+	
+	var $uid;
+	
+	var $last_log;
+	
+	var $type;
+	
+
+
+
+
+
+	public function validate() {
+
+	}
+}

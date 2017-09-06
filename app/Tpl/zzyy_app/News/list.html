@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+
+</head>
+<body>
+{{include file="Common/right.html"}}
+{{$doc=$PicManagerTag->getMobilePic(appnews,app)}}
+<img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+
+<div class="border"></div> 
+
+<div id="news">
+	<div class="title">
+    <ins></ins> 医院新闻
+    </div>
+    <ul>
+        {{foreach from=$list item=v}}
+        
+    	<li><a class="news_txt" href="{{$MOBILE}}/news.php?method=get&id={{$v->id}}"><p>{{$v->subject|truncate:15}}</p></a>
+    	<a href="tel:{{$contact.phone}}"><span></span></a></li>        
+        {{/foreach}}
+    </ul>
+</div>
+
+</body>
+</html>>

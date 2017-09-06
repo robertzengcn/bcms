@@ -1,0 +1,85 @@
+/**
+ * 医院简介
+ * */
+function Hospital() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	// {{{ function init()
+	this.init = function() {
+		$(function(){
+			self.onloadCss();
+		});
+	}
+	// }}}
+	// {{{ function onloadCss()
+	
+	this.onloadCss = function() {
+		/*缩略图操作*/
+		$('div.thumbnailbox').on('mouseenter',function(){
+			$(this).find('div.img-btn').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.img-btn').stop().animate({height:"0px"});
+		});
+		$('div.img-btn').find('span').on('mouseenter',function(){
+			$(this).stop().css("background-position","-46px 0px");
+		}).on('mouseleave',function(){
+			$(this).stop().css("background-position","-46px -22px");
+		});
+		var defaultsrc=$('div.thumbnailbox img').attr('flag');
+		$('span#delete-thisimg').on('click',function(){
+			$thumbnail_img=$(this);
+			layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+				$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+				layer.msg('已删除!',1);
+			});
+		});
+		/*缩略图操作完结*/
+	}
+	
+	// }}}
+	// {{{ function introduce()
+	/**
+	 * 医院简介
+	 * */
+	this.introduce = function(para){
+			self.cmd(gHttp,{controller:'Introduce',method:'getInfo'},function(result1){
+				if(result1.statu){
+					$('#id').val(result1.data.id);
+					$('#pic').val(result1.data.pic);
+					editor.ready(function(){
+						editor.setContent(result1.data.content);
+					});			
+					self.getImgSize('hospitalsize');
+					if(result1.data.src != undefined){
+						$('#img').attr('src',result1.data.src);
+						$('#pic').val(result1.data.pic);
+						self.setImgSize('hospitalsize');
+					}
+					
+				}else{
+					layer.alert(result1.msg);
+				}
+			});
+
+			//保存
+			$('#save').click(function(){
+				$('#frm_post').frmPost({controller:'Introduce',method:'save'},function(result1){
+					if(result1.statu){
+						layer.alert('操作成功!',{icon: 1});
+					}else{
+						layer.alert(result1.msg,{icon:2});
+					}
+					return false;
+				});
+			});
+
+			$('#frm_post').on('click','.del_pic',function(){
+				$('#img').removeAttr('src');
+				$('#pic').val('');
+				$(this).remove();
+			});
+			
+	}
+	// }}}
+}

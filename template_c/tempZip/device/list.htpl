@@ -1,0 +1,31 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您现在的位置：
+          <a target="_blank" href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> > <a target="_blank">�豸�б�</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+    <div class="par-main">
+      <h2><span>设备列表</span></h2>
+        {{devices page="$cur"}}
+        {{foreach $devices as $v}}
+      <div class="device">
+          <a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$v->id}}.html"><img src="{{$UPLOAD}}/{{$v->pic}}" alt="{{$v->subject}}" /></a>
+        <h3><a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$v->id}}.html">{{$v->subject}}</a></h3>
+        <p><span>介绍：</span>{{$v->description|truncate:80}}...<a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$v->id}}.html">[详细]</a></p>
+      </div> 
+        {{/foreach}}
+      <div class="fenye">{{$DeviceTag->getPageHtml($cur)}}</div>
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+
+{{/block}}

@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * 联系方式DAO
+ *
+ * @author Administrator
+ *
+ */
+class ContactDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_CONTACT;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::like('name', $where);
+        DTExpression::eq('is_retain', $where);
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param unknown $ids
+     */
+    public function deleteBatch($ids) {
+        $contacts = $this->getBatch($ids);
+        foreach ($contacts as $key) {
+            if ($key->id == 0) {
+                return new Result(false, 78, ErrorMsgs::get(78), NULL);
+            }
+            if ($key->is_retain == 1) {
+                return new Result(false, 18, ErrorMsgs::get(18), NULL);
+            }
+        }
+        R::trashAll($contacts);
+
+        return new Result(true, 0, '', NULL);
+    }
+
+    public function getContact($flag) {
+        $result = R::findOne($this->tableName, "flag='$flag'");
+        $contacts = new Contact();
+        $contacts->generateFromRedBean($result);
+
+        return $contacts;
+    }
+    /*
+     * 更新微博app key
+     * 
+     * */
+    public function updateweiappkey($arr){
+    	return R::exec("update ".$this->tableName." set val=:val where flag='weibo_appkey'",$arr);
+    }
+    
+    /*
+     * 更新微博app secret
+     * */    
+    public function updateweiappsecret($arr){
+    	return R::exec("update ".$this->tableName." set val=:val where flag='weibo_appsecret'",$arr);
+    }
+    
+    /*
+     *获取app key 
+     * */
+    public function getappkey(){
+       $result=R::findOne($this->tableName,"flag='weibo_appkey'");
+       $contacts = new Contact();
+       $contacts->generateFromRedBean($result);       
+       return $contacts;
+    }
+    
+    /*
+     *更新app code
+     * */
+    public function updateweibocode($arr){
+    	return R::exec("update ".$this->tableName." set val=:val where flag='weibo_code'",$arr);
+    }
+    
+    /*
+     * 获取app secret
+     * */
+    public function getappsecret(){
+    	$result=R::findOne($this->tableName,"flag='weibo_appsecret'");
+    	$contacts = new Contact();
+    	$contacts->generateFromRedBean($result);
+    	return $contacts;
+    }
+    
+    /*
+     * 获取app code
+     * */
+    public function getappcode(){
+    	$result=R::findOne($this->tableName,"flag='weibo_code'");
+    	$contacts = new Contact();
+    	$contacts->generateFromRedBean($result);
+    	return $contacts;
+    }
+    
+}

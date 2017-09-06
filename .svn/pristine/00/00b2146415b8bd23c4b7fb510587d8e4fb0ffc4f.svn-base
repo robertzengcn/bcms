@@ -1,0 +1,229 @@
+<?php
+
+class PicManagerService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new PicManagerDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+    	// 验证ids是否合法
+        Entity::isIds($ids);
+        // 删除轮播组同时删除轮播下的图片
+        if (isset($_REQUEST['kind']) && $_REQUEST['kind'] == 2 && sizeof($ids) > 0) {
+            $picDao = new PicDAO();
+            $result = $picDao->getByPid($ids);
+            $picDao->deleteBeans($result);
+        }
+        return $this->dao->deleteBatch($ids);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $picManagers = $this->dao->query($where);
+        return $this->success($picManagers);
+    }
+
+    /**
+     * 获得一条数据
+     *
+     * @param Entity $picManager
+     * @return Result
+     */
+    public function get($picManager) {
+        $this->dao->get($picManager->id, $picManager);
+        if ($picManager->img) {
+            $picManager->src = UPLOAD . $picManager->img;
+            $picManager->pic = $picManager->img;
+        }
+
+        $path = ABSPATH . '/tpl/effect/' . $picManager->flag . '.json';
+        if (file_exists($path)) {
+            $con = file_get_contents($path);
+            $con = json_decode($con);
+            $picManager->config = $con;
+        }
+
+        return $this->success($picManager);
+    }
+
+    public function adEdit($picManager) {
+        $picManager->validate();
+
+        $result = $this->dao->getPic();
+
+        $picManager->text = '商务通';
+		switch(trim($picManager->flag)){
+			case 'special_one':$thisKind = 1;break;
+			case 'special_two':$thisKind = 2;break;
+			case 'special_three':$thisKind = 3;break;
+			case 'special_four':$thisKind = 4;break;
+			case 'special_five':$thisKind = 5;break;
+		}
+        $picManager->name = '弹窗' . $thisKind;
+        $picManager->sort = 0;
+        if ($result->id) { // 编辑
+            $this->update($picManager);
+        } else { // 添加
+            $this->save($picManager);
+        }
+
+        // 创建html代码
+        $fp1 = fopen(ABSPATH . '/tpl/effect/' . $picManager->flag . '.html', 'w+');
+        $fp2 = fopen(ABSPATH . '/tpl/effect/' . $picManager->flag . '.json', 'w+');
+        $con = json_encode($_REQUEST['zb']); // 创建坐标文件内容
+        $html = '<div id="' . $picManager->flag . '">' . "\n";
+        $html .= '<a target="_blank" href="' . $picManager->link . '">' . "\n";
+        $html .= '<img src="' . UPLOAD . $picManager->img . '" usemap="#' . $picManager->flag . '">' . "\n";
+        $html .= '</a>' . "\n";
+
+        $html .= '<map name="' . $picManager->flag . '">' . "\n";
+        $html .= $_REQUEST['area'] . "\n";
+        unset($_REQUEST['zb']['zb1']);
+        unset($_REQUEST['zb']['zb2']);
+        unset($_REQUEST['zb']['zb3']);
+        unset($_REQUEST['zb']['zb4']);
+        foreach ($_REQUEST['zb'] as $key => $value) {
+            $html .= '<area shape="rect" coords="' . $value[0] . ',' . $value[1] . ',' . ($value[2] + $value[0]) . ',' . ($value[3] + $value[1]) . '" target="_blank" href="' . $value[4] . '">';
+        }
+        $html .= '</map>' . "\n";
+        $html .= '</div>' . "\n";
+        $html = str_replace('\"', '"', $html);
+        $html = str_replace("\'", "'", $html);
+        fwrite($fp2, $con);
+        fwrite($fp1, $html);
+        fclose($fp1);
+        fclose($fp2);
+
+        return $this->success();
+    }
+
+    /**
+     * 获取pics
+     *
+     * @return Result
+     */
+    public function getByFlag($flag) {
+        $picManagers = $this->dao->getByFlag($flag);
+        foreach ($picManagers as $picManager) {
+            if ($picManager->img) {
+                $picManager->src = UPLOAD . $picManager->img;
+                $picManager->picture = $picManager->img;
+            }
+        }
+
+        return $this->success($picManagers);
+    }
+
+    /**
+     * 添加轮播组
+     *
+     * @return Result
+     */
+    public function addSlide($data) {
+        if (isset($data)) {
+            foreach ($data as $slide) {
+                $picManager = new PicManager();
+                $picManager->name = trim($slide->name);
+                $picManager->flag = trim($slide->flag);
+                $picManager->sort = (isset($slide->sort)) ? intval($slide->sort) : 0;
+                $picManager->text = addslashes(trim($slide->text));
+                $picManager->img = '';
+                $picManager->link = '';
+                $picManager->kind = '2';
+                $result = $this->save($picManager);
+                if (! $result->statu) {
+                    return $result;
+                }
+            }
+        }
+        return $this->success();
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $picManager
+     * @return Result
+     */
+    public function save($picManager) {
+        unset($picManager->id);
+        if (isset($_REQUEST['kind']) && $_REQUEST['kind'] == 1) {
+            // $picManager->validate();
+        }
+        $pictures = $this->dao->getByFlag($picManager->flag);
+        if (isset($pictures) && sizeof($pictures) > 0) {
+            throw new ValidatorException(40);
+        }
+        if ($picManager->kind == 2) {
+            $picManager->img = '1';
+        }else{
+            // $picManager->validate();
+        }
+        try {
+            // 获取class对象并插入数据
+            $this->dao->save($picManager);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+        return $this->success();
+    }
+
+    /**
+     * 获得广告数据
+     */
+    public function getAd() {
+        $result = $this->dao->getAd();
+        foreach ($result as $key) {
+            $key->img = UPLOAD . $key->img;
+        }
+
+        return $this->success($result);
+    }
+
+    /**
+     * 更改数据
+     *
+     * @param Entity $picManager
+     * @return Result
+     */
+    public function update($picManager) {
+        if ($_REQUEST['kind'] == 1) {
+            // $picManager->validate();
+        }
+
+        $result = $this->dao->getByFlag($picManager->flag);
+
+        $length = count($result);
+        if ($length > 1 || ($length == 1 && $result[0]->id != $picManager->id)) {
+            throw new ValidatorException(40);
+        }
+
+        return $this->dao->update($picManager);
+    }
+
+    /*
+     * 根据kind获取
+     */
+    public function getOne() {
+        $result = $this->dao->getPic();
+        $result->src = UPLOAD . $result->img;
+
+        return $this->success($result);
+    }
+}

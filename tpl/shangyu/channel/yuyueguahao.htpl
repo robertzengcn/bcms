@@ -1,0 +1,49 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_psapp container">
+	<ul class="mpsapp_title">
+    	<li class="active"><span>电话/QQ预约</span>|</li>
+        <li><span>微信预约</span>|</li>
+        <li><span>手机APP</span>|</li>
+        <li><span>现场预约</span>|</li>
+    </ul>
+    <ul class="mpsapp_box">
+    	<li>
+    	    {{channelarcsbyname name="预约挂号" page=1 size=1}}
+        	[field:content/]
+        	{{/channelarcsbyname}}
+        </li>
+        <li style="display:none;">
+            {{channelarcsbyname name="预约挂号" page=2 size=1}}
+        	[field:content/]
+        	{{/channelarcsbyname}}
+        </li>
+    	<li  style="display:none;">
+    	    {{channelarcsbyname name="预约挂号" page=3 size=1}}
+        	[field:content/]
+        	{{/channelarcsbyname}}
+        </li>
+        <li style="display:none;">
+        {{channelarcsbyname name="预约挂号" page=4 size=1}}
+        	[field:content/]
+        	{{/channelarcsbyname}}
+        </li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+	$(function ()
+	{
+			$('.main_psapp .mpsapp_title li:not(.disabled)').click(function() {
+					$(this).closest('.mpsapp_title').find('li.active').removeClass('active');
+					$(this).addClass('active');
+					 $(".main_psapp .mpsapp_box li").css("display","none");//将main下所有的div都隐藏
+					 $(".main_psapp .mpsapp_box li:eq(" + $(this).index() + ")").css("display","block"); //链接对应的div显示
+			});
+	
+	});  
+</script>
+
+
+
+{{/block}}

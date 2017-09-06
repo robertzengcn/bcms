@@ -1,0 +1,103 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+
+<div class="main_dpc container">
+	<div class="row">
+    	<div class="mdpc_l col-xs-12 col-sm-12 col-md-8">
+        	<ul class="mdpcl_tit">
+            	<li class="active"><a>我的问题</a></li>
+            </ul>
+            <ul class="mdpcl_list" id="str3">
+            </ul>
+        </div>
+        <div class="mdpc_r col-xs-12 col-sm-12 col-md-4">
+            <div class="mdpcr_doc">
+            	<div class="mdpcrask_tit"><h2><span>推荐医师</span></h2></div>
+                <ul>
+                {{doctorsbyrecommend recommend_name='首页头版头条'   assign="doc"}}{{/doctorsbyrecommend}}
+            	{{foreach from=$doc name=docs item=v}}
+            	{{if $smarty.foreach.docs.iteration lt 3}}
+                	<li class="row">
+                      <div class="col-xs-12 col-sm-5 mdpcr_docl"><a href="/doctor/{{$v->id}}.html" target="_blank"><img src="{{$v->pic}}"></a></div>
+                      <div class="col-xs-12 col-sm-7 mdpcr_docr">
+                          <h4><a href="{{$v->url}}" target="_blank">{{$v->name}}</a></h4>
+                          <h5><b>科室：</b>{{deptinfo name_or_id=$v->department_id}}[field:name/]{{/deptinfo}}<br><b>职称：</b>{{$v->position}}</span></h5>
+                          <p><b>个人简介：</b>{{$v->description|truncate:25}}<a href="{{$v->url}}" target="_blank">&lt;详情&gt;</a></p>
+                      </div>
+                    </li>
+                    {{/if}}
+                {{/foreach}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+function aska(curr){
+	$.ajax({
+		   type:"GET",
+		   url:"/home.php?mod=askss&method=myask&page="+curr,
+		   dataType: "json",
+		   success:function(ret){
+		      if(ret.statu){
+				   var str3 = '';
+				   for(var p in ret.rows){
+					  if(ret.rows[p].isanswer == '否'){
+					      str3 += '<li><span class="col-xs-12 col-sm-8 tit"><a class="mr5" href="/home.php?mod=askss&method=askinfo&id='+ret.rows[p].id+'">['+ret.rows[p].department_name+']</a><a href="/home.php?mod=askss&method=askinfo&id='+ret.rows[p].id+'">请问：'+ret.rows[p].subject+'</a></span>';
+					      str3 += '<span class="col-xs-6 col-sm-2 incomplete">未解决</span>';
+					      str3 += '<span class="col-xs-6 col-sm-2 time">'+ret.rows[p].plushtime+'</span></li>';
+					  }else{
+					      str3 += '<li><span class="col-xs-12 col-sm-8 tit"><a class="mr5" href="/home.php?mod=askss&method=askinfo&id='+ret.rows[p].id+'">['+ret.rows[p].department_name+']</a><a href="/home.php?mod=askss&method=askinfo&id='+ret.rows[p].id+'">请问：'+ret.rows[p].subject+'</a></span>';
+					      str3 += '<span class="col-xs-6 col-sm-2 completed">已解决</span>';
+					      str3 += '<span class="col-xs-6 col-sm-2 time">'+ret.rows[p].plushtime+'</span></li>';
+					  }
+				  }
+				  str3 += '<footer id="page1" style="text-align:center;"> </footer>';
+				  $("#str3").html(str3);
+				  if(ret.pages > 1){
+					  laypage({
+				            cont: 'page1', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
+				            pages:parseInt(ret.pages), //通过后台拿到的总页数
+				            curr: curr || 1, //当前页
+				            jump: function(obj, first){ //触发分页后的回调
+				                if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+				                	aska(obj.curr);
+				                }
+				            }
+				        });
+				  }			   
+			  }else if(ret.statu == 'unlogin'){
+				  alert("请重新登入！");
+			  }
+
+			  
+				
+		  }
+	   });
+}
+
+window.onload=function(){
+	aska('');
+}
+		 
+</script>
+
+
+
+
+{{/block}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,33 @@
+<?php
+
+class ReserUserDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_RESERUSER;
+        
+    }
+    
+    public function getreserbyfid($arr){
+    	$result=R::findOne($this->tableName,'reservation_fid=:id',$arr);
+    	if($result!=null){
+        	$reserusers = array();
+    	foreach ($result as $key => $value) {
+    		$reserusers[$key]=$value;
+    	}
+    	return $reserusers;
+    	}
+    	
+    }
+    
+    public function deleteser($arr){
+    	$result=R::findone( $this->tableName, 'reservation_fid =:reservation_fid and member_id=:member_id', $arr);
+    	if($result!=null){
+    	R::trash($result);
+    	}
+    	R::close();
+    }
+  
+	
+	
+}

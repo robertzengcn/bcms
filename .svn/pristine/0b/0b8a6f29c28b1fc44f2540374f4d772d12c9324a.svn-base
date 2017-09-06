@@ -1,0 +1,69 @@
+<?php
+
+class replyaskobserver  extends Controller{
+	/* (non-PHPdoc)
+	 * @see Controller::filter()
+	*/
+	public function filter() {
+		// TODO Auto-generated method stub
+		$filterService = new FilterService();
+		$filterService->addFunc($filterService::$SQLINJECTION);
+		$filterService->addFunc($filterService::$FILERPLUSHTIME);
+
+		return $filterService->execute();
+	
+	}
+	
+	public function __construct() {
+      global $controller;
+
+		$controller->attach($this, array('NOTIFY_REPLY_ASK'));
+		
+	}
+	
+	function update(&$class, $eventID, $paramArray) {
+		$contactser=new ContactService();
+		$jpushkeydata=$contactser->getContact('jpushkey')->data;
+		$jpushsecdata=$contactser->getContact('jpushsec')->data;
+		fb($jpushkeydata);
+		if($jpushkeydata){
+			$jpushkeyval=$jpushkeydata->val;
+		}else{
+			die(json_encode(array('statu'=>false,'code'=>2,'msg'=>'推送应用app key为空')));
+		}
+		if($jpushsecdata){
+			$jpushsecval=$jpushsecdata->val;
+		}else{
+			die(json_encode(array('statu'=>false,'code'=>3,'msg'=>'推送应用app sec为空')));
+		}
+     $jpushser=new JpushService($jpushkeyval,$jpushsecval);
+     $jpushser->setPlatform(array('ios', 'android'));
+     $jpushser->addAlias('341');
+     $jpushser->setNotificationAlert('Hi, today is a good day!!');
+     $jpushser->iosNotification('Hello IOS', array(
+            'sound' => 'sound.caf',
+            // 'badge' => '+1',
+            // 'content-available' => true,
+            // 'mutable-content' => true,
+            'category' => 'jiguang',
+            'extras' => array(
+                'key' => 'value',
+                'jiguang'
+            ),
+        ));
+     $jpushser->androidNotification('Hello Android 1', array(
+     		'title' => 'hello jpush',
+     		// 'build_id' => 2,
+     		'extras' => array(
+     				'key' => 'value',
+     				'jiguang'
+     		),
+     ));
+     
+     $jpushser->send();
+     
+     
+	}
+
+
+}

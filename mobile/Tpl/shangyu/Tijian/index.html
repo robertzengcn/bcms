@@ -1,0 +1,123 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}健康体检{{/block}}{{block name="navchose"}}<a href="#" data-am-modal="{target: '#my-share'}">分享</a>{{/block}}
+{{block name=body}}
+<div data-am-widget="tabs" class="am-tabs am-tabs-default main_crt main_slide">
+
+<div class="pos_fix">
+	<i class="am-icon-chevron-left left fleft"></i>
+    <i class="am-icon-chevron-right right fright"></i>
+  </div>   
+      <ul class="am-tabs-nav am-cf" id="depnavlist">
+     
+      {{foreach from=$tijiannav key=s name=tinav item=i}}
+          <li {{if $smarty.foreach.tinav.index==0}} class="am-active"{{/if}}><a href="[data-tab-panel-{{$smarty.foreach.tinav.index}}]">{{$i.subject}}</a></li>
+      {{/foreach}}
+      </ul>
+  
+      {{foreach from=$tijiannav key=s name=ticon item=ss}}
+      
+      <div class="am-tabs-bd mian_jktj main_slide">
+          <div data-tab-panel-{{$smarty.foreach.ticon.index}} class="am-tab-panel {{if $smarty.foreach.ticon.index==0}} am-active{{/if}}">
+          <div data-am-widget="tabs" class="am-tabs am-tabs-d2">
+  
+            	<ul class="jktj_nav am-tabs-nav am-cf speti">
+
+            	{{channelarcsbyname name={{$ss.subject}} assign=charticles}}{{/channelarcsbyname}}
+            	
+            	{{foreach from=$charticles key=s name=articles item=i}}
+                	<li {{if $smarty.foreach.articles.index==0}} class="active"{{/if}}><a href="[data-tab-panel-{{$smarty.foreach.articles.index}}]">{{$i->subject}}</a></li>
+                {{/foreach}}    
+                
+                </ul>
+                <div class="jktj_box am-tabs-bd">
+                {{foreach from=$charticles key=s name=articlesc item=i}}
+                	<div class="am-tab-panel" data-tab-panel-{{$smarty.foreach.articlesc.index}}>{{$i->content}}</div>
+                {{/foreach}} 
+                </div>
+           </div>    
+          </div>
+      </div>
+      {{/foreach}}
+  </div>
+  
+  <div class="am-modal am-modal-no-btn" tabindex="-1" id="tijianyuyue">
+  <div class="am-modal-dialog">
+    <div class="am-modal-hd">选择时间
+      <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+    </div>
+    <div class="am-modal-bd">
+<form id="form1" class="am-form">
+<div class="am-form-group row">
+<div class="col-md-6">
+<input class="form-control choosedate" placeholder="日期" id="date" nullmsg="年龄输入错误！" datatype="n" name="date" onfocus="WdatePicker({minDate:'%y-%M-%d'})">
+</div>                         
+<div></div>
+</div>
+
+<div class="am-form-group row">
+<div class="col-md-6">
+<input class="form-control choosedate" placeholder="姓名" id="name" nullmsg="姓名输入错误！" datatype="n" name="date">
+</div>                         
+<div></div>
+</div>
+<p class="usered">体检项目就诊时间为：8:00-11:30</p>
+<button type="button" class="am-btn am-btn-primary am-btn-block" id="yuyuebutton" onclick="submitinfo()">确认预约</button>
+</form>
+    </div>
+  </div>
+</div>
+  
+
+  
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/jiashare.js"></script>
+<script src="{{$RESOURCE}}/js/date/WdatePicker.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.tijian();
+
+if (top.location != location) {
+		top.location.href = location.href;
+	}
+var SITE_URL = '{{$MOBILE}}';
+var services = {'email':'邮件,yj','copy':'复制网址,fzwz','fav':'收藏夹,scj','print':'打印,dy','tsina':'新浪微博,xlwb','weixin':'微信,wx','qzone':'QQ空间,qqkj','tqq':'腾讯微博,txwb','cqq':'QQ好友,qqhy','renren':'人人网,rrw','feixin':'飞信,fx','tieba':'百度贴吧,bdtb','douban':'豆瓣,db','kaixin001':'开心网,kxw','msn':'MSN,msn','baidu':'百度搜藏,bdsc','yixin':'易信,yx','xiaoyou':'朋友网,pyw','fb':'Facebook,facebook','twitter':'Twitter,twitter','hi':'百度空间,bdkj','tpeople':'人民微博,rmwb','googleplus':'Google+,google+','huaban':'花瓣网,hbw','qq':'QQ收藏,qqsc','alibaba':'阿里巴巴,albb','linkedin':'LinkedIn,linkedin','tianya':'天涯社区,tysq','ydnote':'有道云笔记,ydybj','miliao':'米聊,ml','thexun':'和讯微博,hxwb','ganniu':'赶牛网,gnw','txinhua':'新华微博,xhwb','meilishuo':'美丽说,mls','duitang':'堆糖,dt','sdonote':'麦库,mk','51':'51社区,51sq','gmail':'Gmail邮箱,gmailyx','hexun':'和讯,hx','tifeng':'凤凰微博,fhwb','mogujie':'蘑菇街,mgj','pinterest':'pinterest,pinterest','fanfou':'饭否,ff','gmw':'光明网,gmw','yijee':'易集网,yjw','mingdao':'明道,md','115':'115收藏,115sc','139mail':'139邮箱,139yx','189share':'手机快传,sjkc','evernote':'EverNote,evernote','douban9dian':'豆瓣9点,db9d','qingbiji':'轻笔记,qbj','waakee':'挖客网,wkw','google':'谷歌,gg','xqw':'雪球,xq','diandian':'点点网,ddw','i139':'爱分享,afx','cyzone':'创业邦,cyb','139':'移动微博,ydwb','poco':'Poco,poco','189cn':'翼友圈,yyq','189mail':'189邮箱,189yx','dig24':'递客网,dkw','hotmail':'Hotmail邮箱,hotmailyx','mop':'猫扑推客,mptk','tianji':'天际网,tjw','phonefavs':'PhoneFavs,phonefavs','dream163':'游戏江湖,yxjh','toeeee':'南方微博,nfwb','chouti':'抽屉网,ctw','jcrb':'法律微博,flwb','stumbleupon':'StumbleUpon,stumbleupon','tyaolan':'摇篮网,ylw','99earth':'救救地球,jjdq','caimi':'财迷,cm','buzz':'谷歌Buzz,ggbuzz','pdfonline':'PDF Online,pdfzxzh','tumblr':'Tumblr,tumblr','iwo':'WO+分享,wo+fx','myspace':'Myspace,myspace','myshare':'Myshare,myshare','cnfol':'中金微博,zjwb','digg':'Digg,digg','wong':'Mister Wong,mister wong','tuita':'推他,tt','fwisp':'fwisp,fwisp','delicious':'Delicious,delicious','masar':'玛撒网,msw','digu':'嘀咕网,dgw','plurk':'Plurk,plurk','mailru':'Mail.ru,mail.ru','youdao':'有道书签,ydsq','pocket':'Pocket,pocket','leihou':'雷猴,lh','translate':'谷歌翻译,ggfy','netvibes':'Netvibes,netvibes','w3c':'w3c验证,w3cyz','reddit':'Reddit,reddit','plaxo':'Plaxo,plaxo','bitly':'Bit.ly,bit.ly','funp':'FunP,funp','instapaper':'Instapaper,instapaper','mixx':'Mixx,mixx','netlog':'NetLog,netlog','printfriendly':'PrintFriendly,printfriendly','pingfm':'Ping.fm,ping.fm','friendfeed':'FriendFeed,friendfeed','diigo':'Diigo,diigo','ishare':'一键分享,yjfx','ujian':'猜你喜欢,cnxh'};
+
+function jump(){
+	$('#tijianyuyue').modal();
+}
+function submitinfo(){
+	var chday=$('#date').val();
+	if(chday==""){
+		gShangyu.startmodal('请填写预约日期');	
+		return false;
+	}
+	var name=$('#name').val();
+	if(name==""){
+		gShangyu.startmodal('请填写姓名');	
+		return false;
+	}
+	$.ajax({//获取某个用户的预约信息
+		type: "POST",
+        url: "/home.php?mod=tijians&method=resertijian",	        	        
+        dataType: "json",
+        data:{'date':chday,'name':name},
+        success: function(datas){
+        	if(datas.status){
+        		$('#tijianyuyue').modal('close');
+        		gShangyu.startmodal('预约成功');	
+        		
+	        	
+        	}else{
+        		gShangyu.startmodal(datas.msg);	
+        	}
+        } 
+	});	
+}
+</script>
+
+{{/block}}

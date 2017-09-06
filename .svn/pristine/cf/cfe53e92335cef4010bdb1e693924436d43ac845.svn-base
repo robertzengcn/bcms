@@ -1,0 +1,172 @@
+<?php
+
+class SeoController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        $this->service = new SeoService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除
+     */
+    public function del() {
+        $this->blindParams($seo = new Seo());
+        $result = $this->service->delete($seo);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 批量删除
+     */
+    public function delBatch() {
+        $result = $this->service->deleteBatch($_REQUEST['id']);
+        echo json_encode($result);
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+        $result = $this->service->query($_REQUEST);
+        if( count( $result->data ) >= 1 ){
+	        foreach ($result->data as $key => $value) {
+	            // title截取
+	            if (isset($value->title)) {
+	                //$result->data[$key]->title = mb_substr($value->title, 0, 80, 'utf-8') ;
+	                $result->data[$key]->title = $value->title;
+	            }
+	            // keywords截取
+	            if (isset($value->keywords)) {
+	                //$result->data[$key]->keywords = mb_substr($value->keywords, 0, 100, 'utf-8');
+	                $result->data[$key]->keywords = $value->keywords;
+	            }
+	            // description截取  不截取，截取工作由前端JS统一处理
+	            if (isset($value->description)) {
+	                //$result->data[$key]->description = mb_substr($value->description, 0, 80, 'utf-8') . '...';
+	                $result->data[$key]->description = $value->description;
+	            }
+	        }
+        }
+        $totalRows = $this->service->totalRows($_REQUEST);
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得单笔
+     */
+    public function get() {
+        $this->blindParams($seo = new Seo());
+        $result = $this->service->get($seo);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+        $this->blindParams($seo = new Seo());
+        $result = $this->service->update($seo);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+        $this->blindParams($seo = new Seo());
+        $result = $this->service->save($seo);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 采集百度权重信息
+     */
+    public function baidu() {
+        if (! isset($_REQUEST['page']) || $_REQUEST['page'] == '') {
+            $_REQUEST['page'] = 1;
+        }
+        // 初始化
+        $ch = curl_init();
+        // 设置选项，包括URL
+        curl_setopt($ch, CURLOPT_URL, BAIDU_SEARCH . "?host=" . $_REQUEST['host'] . "&" . $_REQUEST['sortType'] . "&page=" . $_REQUEST['page']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+
+        // 执行并获取HTML文档内容
+        $str = curl_exec($ch);
+        // 释放curl句柄
+        curl_close($ch);
+        // siteinfo
+        $match = '/<div class="siteinfo">(.*)<\/div>/isU';
+        preg_match($match, $str, $output);
+
+        // datatable
+        $match = '/<table class="datatable">(.*)<\/table>/isU';
+        preg_match($match, $str, $table);
+        if (! $table) {
+            echo json_encode(array(
+                'statu' => false
+            ));
+            return false;
+        }
+        // sopages
+        $match = '/<div class="sopages">(.*)<\/div>/isU';
+        preg_match($match, $str, $page);
+        if ($page) {
+            // 过滤page
+            $pattern = "/href=\"([^\"]+)\"/";
+            $page = preg_replace($pattern, 'href="javascript:void(0);"', $page[0]);
+        } else {
+            $page = '';
+        }
+
+        echo json_encode(array(
+            'statu' => true,
+            'con' => $output[0] . $table[0] . $page
+        ));
+    }
+
+    /**
+     * 获取 iframe src
+     */
+    public function getSchool() {
+        $configFile = ABSPATH . '/config.json';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+
+            $result = new Result(true, 0, '', $config);
+        } else {
+            $result = new Result(false, 33, ErrorMsgs::get(33), Null);
+        }
+
+        echo json_encode($result);
+    }
+}
+

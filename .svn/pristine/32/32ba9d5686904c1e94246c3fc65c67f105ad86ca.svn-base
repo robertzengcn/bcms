@@ -1,0 +1,168 @@
+<?php
+/**
+ * 网站站点地址
+ */
+function smarty_function_website($params, $template) {
+    return NETADDRESS;
+}
+
+/**
+ * 网站上传/下载目录
+ */
+function smarty_function_upload($params, $template) {
+    return UPLOAD;
+}
+
+/**
+ * public目录
+ */
+function smarty_function_resource($params, $template) {
+    return NETADDRESS . '/public';
+}
+
+/**
+ * 根据flag获取联系人数据
+ *
+ * 对应function标签中的{contact}
+ */
+function smarty_function_contactinfo( $params, $template ) {
+    $flag = isset($params['flag']) ? $params['flag'] : ($template->getTemplateVars('flag'));
+    $ser = new ContactTag();
+    return $ser->get($flag);
+}
+
+/**
+ * 获取静态文件路径
+ *
+ */
+function smarty_function_htmlurl( $params, $template ) {
+    $htmlurl = $template->getTemplateVars('HTMLURL');
+    return $htmlurl;
+}
+
+/**
+ * 获取pic信息
+ *
+ * 对应function标签中的{introduce_pic}
+ */
+function smarty_function_introducepic( $params, $template ) {
+    $ser = new IntroduceTag();
+    return $ser->getPic();
+}
+
+/**
+ * 获取content信息
+ *
+ * 对应function标签中的{introduce_content}
+ */
+function smarty_function_introducecontent($params, $template) {
+    $ser = new IntroduceTag();
+    return $ser->getContent();
+}
+
+/**
+ * 根据频道名取频道链接
+ */
+function smarty_function_channelurl( $params, $template) {
+    $channelname = isset($params['name']) ? $params['name'] : '';
+
+    $ser = new ChannelTag();
+    return $ser->getChannelUrl($channelname);
+}
+
+/**
+ * 根据flag获取对应的弹窗html文本
+ *
+ * 对应function标签中的{jsadv}
+ * 
+ * @param $flag 弹窗图片标识，one|two|three|four|five|six
+ */
+function smarty_function_poppicbyflag($params, $template) {
+    $flag = isset($params['flag']) ? $params['flag'] : '';
+
+    $ser = new PicManagerTag();
+    return $ser->getSpecial($flag);
+}
+
+/**
+ * 通过外部代码标识符(来源)获取指定的外部代码
+ * 
+ * @return string js代码
+ */
+function smarty_function_thirddetail( $params, $template) {
+    $flag = isset($params['flag']) ? $params['flag'] : '';
+
+    $ser = new ThirdTag();
+    return $ser->get($flag);
+}
+
+/**
+ * 获取所有可显示代码
+ *
+ * @return string 代码
+ */
+function smarty_function_thirdstat( $params, $template) {
+    $ser = new ThirdTag();
+    $data = $ser->getThirdStats();
+    $js = '';
+    foreach ($data as $value) {
+        $js .= $value->js;
+    }
+    return $js;
+}
+
+/**
+ * 获取医生列表页地址
+ * */
+function smarty_function_doctorlisturl( $params, $template) {
+    return NETADDRESS . '/doctor/';
+}
+
+/**
+ * 获取医疗设备列表页地址
+ * */
+function smarty_function_devicelisturl( $params, $template) {
+    return NETADDRESS . '/hospital/device/';
+}
+
+/**
+ * 获取医院环境列表页地址
+ * */
+function smarty_function_envlisturl( $params, $template) {
+    return NETADDRESS . '/hospital/environment/';
+}
+
+/**
+ * 获取医院荣誉列表页地址
+ * */
+function smarty_function_honorlisturl( $params, $template) {
+    return NETADDRESS . '/hospital/honor/';
+}
+
+/**
+ * 获取医院特色技术列表页地址
+ * */
+function smarty_function_technologylisturl( $params, $template) {
+    return NETADDRESS . '/technology/';
+}
+
+/**
+ * 获取医院案例列表页地址
+ * */
+function smarty_function_successurl( $params, $template) {
+    return NETADDRESS . '/hospital/success/';
+}
+
+/**
+ * 获取医院媒体列表页地址
+ * */
+function smarty_function_mediaurl( $params, $template) {
+    return NETADDRESS . '/hospital/media/';
+}
+
+/**
+ * 获取医院新闻列表页地址
+ * */
+function smarty_function_newsurl( $params, $template) {
+    return NETADDRESS . '/hospital/news/';
+}

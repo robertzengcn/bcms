@@ -1,0 +1,287 @@
+<?php
+
+/**
+ *
+ * 投票dao层
+ * @author Administrator
+ *
+ */
+class VoteItemDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_VOTEITEM;
+    }
+
+    /**
+     *
+     *
+     * 获取多条数据::debug,需使用ORMMap语句映射获取demarment名称
+     *
+     * @param $params 参数包
+     */
+    public function query($params) {
+        DTExpression::eq('vid', $params);
+        DTExpression::eq('status', $params);
+        DTExpression::page($params);
+        if (isset($params['order']) &&  $params['order']) {
+            DTOrder::$sql = $params['order'];
+        }else{
+            DTOrder::desc('addtime');		
+		}
+         return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit, ORMMap::$sqlMap['common_fields_voteitem']); 
+    }
+
+    /**
+     *
+     *
+     * 获取数据总数
+     *
+     * @param $params 参数包
+     */
+    public function totalRows($params) {
+        DTExpression::eq('vid', $params);
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+    /**
+     * 修改数据
+     *
+     * @param object $entity
+     * @return boolean
+     */
+    public function update($entity) {
+        $bean = R::load($this->tableName, $entity->id);
+
+        if ($bean->id == 0) {
+            return new Result(false, 78, ErrorMsgs::get(78), NULL);
+        }
+        $entity->generateRedBean($bean);
+        $entity->id= R::store($bean);
+
+        return new Result(true, 0, '', NULL);
+    }
+	/*
+     * 获取某个报名时间段人数
+     * */
+    
+    public function countInTimeSlot($where) {   	 
+		$count = R::count($this->tableName,'addtime>:s_time and addtime<:e_time',$where);
+    	return $count;
+	}
+	/*
+     * 获取某个时间段点击量
+     * */
+    
+    public function getDcountByTime($time) {   	 
+		$sql1 = 'select ed_dcount from voteitem where status=1';
+		$dnum = R::getAll($sql1);
+		$num = 0;
+		foreach ($dnum as $value) {
+			if(isset($value['ed_dcount']) && $value['ed_dcount']){
+				$ed_dcount = unserialize($value['ed_dcount']);
+				$key = array_keys($ed_dcount);
+				if($key[0] == $time){
+					$num += $ed_dcount[$key[0]];
+				}
+			}		
+		}
+		return $num;
+	
+	}
+    /**
+     *
+     * 获得数量
+     *
+     */
+    
+    public function getCount($arr){
+		$count = R::count($this->tableName,'vid=:vid',$arr);
+    	return $count;
+    }
+	/*
+     * 获取未通过的报名人数
+     * */
+    
+    public function notPassedCount($where) {   	 
+		$count = R::count($this->tableName,'status=:status',$where);
+    	return $count;
+	}
+	/*
+     * 获取通过的报名人数
+     * 
+	 */
+    
+    public function passedCount($where) {   	 
+		$count = R::count($this->tableName,'status=:status and vid=:vid',$where);
+    	return $count;
+	}
+     /**
+     * 开启关闭按钮
+     */
+    public function updateSwitch($arr) {
+    	$result = R::exec('update '.$this->tableName.' set status =:status where id=:id',$arr);
+    	R::close();
+		return $result;
+    }
+    /**
+     * 获取对应的报名id
+     */	
+	public function getAllByVid($vid){
+		$idArray = R::getAll(ORMMap::$sqlMap['voteitem_id_all'], array(':vid' =>$vid));
+		$array =array();
+		foreach($idArray as $value){
+			$array[] = $value['id'];
+		}
+		return $array;		
+	}
+    /**
+     * 累积投票/访问量
+     */	
+	public function totalVotesClicks($vid){
+		$arraycount = R::getRow(ORMMap::$sqlMap['voteitem_vdcount'], array(':vid' =>$vid));
+		return $arraycount;		
+	}
+    /**
+     * 选手列表
+     */	
+	public function playersList($vid){
+		$listArray = R::getAll(ORMMap::$sqlMap['list_voteitem_dcount'], array(':vid' =>$vid));
+		return $listArray;		
+	}
+    /**
+     * 选手列表2
+     */	
+	public function playersListByType($params){
+         DTExpression::eq('vid', $params);
+        DTExpression::eq('status', 1);
+        DTExpression::page($params);
+        if (isset($params['order']) &&  $params['order']) {
+            DTOrder::$sql = $params['order'];
+        }else{
+            DTOrder::desc('dcount');		
+		}	
+         $listArray =$this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit, ORMMap::$sqlMap['list_fields_voteitem']);
+/*  		$listArray = R::getAll(ORMMap::$sqlMap['list_voteitem'], array(
+                ':vid' => $array['vid'],
+                ':order' => $array['order'],
+                ':n' => $array['n'],
+                ':m' => $array['m']
+            )); */
+		return $listArray;		
+	}
+     /**
+     *
+     * 搜索
+     */
+    public function searchKeyWord($arr){
+        DTExpression::eq('status', $arr);
+        DTExpression::like('item', $arr);
+        DTExpression::eq('vid', $arr);
+        DTExpression::eq('id', $arr);
+        if (isset($arr['order']) &&  $arr['order']) {
+            DTOrder::$sql = $arr['order'];
+        }
+         return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit, ORMMap::$sqlMap['list_fields_voteitem']); 		
+	}
+     /**
+     *
+     * 加载
+     */
+    public function getPassedList($params){
+        DTExpression::eq('status', $params);
+        DTExpression::eq('vid', $params);
+        DTExpression::eq('id', $params);
+        if (isset($params['order']) &&  $params['order']) {
+            DTOrder::$sql = 'order by '.$params['order'].' desc';
+        }
+        DTExpression::page($params);
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit, ORMMap::$sqlMap['list_fields_voteitem']);		
+	}
+    /**
+     * 投票
+     */	
+    public function addPoll($arr) {
+    	$result = R::exec('update '.$this->tableName.' set vcount=vcount+:vinum where id=:id',$arr);
+    	R::close();
+		return $result;		
+	}
+
+    /**
+     * 插入数据
+     *
+     * @param unknown $entity
+     * @return boolean
+     */
+    public function addVoteitem($entity) {
+    	
+        $bean = R::dispense($this->tableName);
+        $entity->generateRedBean($bean);
+        $entity->id= R::store($bean);
+        return $entity;
+    }
+    /**
+     * 获得选手信息
+     */	
+    public function getPlayerInfo($arr) {
+		$result = R::findOne($this->tableName,'vid=:vid and id=:id and status=:status',$arr);
+		if($result){
+    	$class = ORMMap::$classes[$this->tableName];
+    		$entity = new $class();
+    		$entity->generateFromRedBean($result);
+		}else{
+			$entity = '';
+		}
+    	return $entity;		
+	}
+    /**
+     * 获得选手名次
+     */	
+    public function getPlayerRanking($arr) {
+		$result = R::getRow(ORMMap::$sqlMap['voteitem_mingci'], array(':id' => $arr['id']));
+    	return $result['mingci'];	
+	}
+    /**
+     * 选手排名
+     */	
+	public function playersRanking($vid){
+		$listArray = R::getAll(ORMMap::$sqlMap['list_voteitem_vcount'], array(':vid' =>$vid));
+		return $listArray;		
+	}
+    /**
+     * 浏览量 +1
+     */	
+    public function initAddView($arr) {
+    	$result = R::exec('update '.$this->tableName.' set dcount=dcount+1,ed_dcount=:ed_dcount where id=:id',$arr);
+    	R::close();
+		return $result;		
+	}
+	/**
+	 * 根据id获取
+	 * */
+	public function getPassedListByIds($ids) {
+    	$sql = 'select id,vid,item,vcount,startpicurl1 from voteitem where id in (' . $ids . ')';
+    	$arr = R::getAll($sql);
+        return $arr;
+	}
+    /**
+     * 获得报名用户id=>dcount
+     */	
+    public function getIdsDcount($vid) {
+		$ids = R::getAll(ORMMap::$sqlMap['voteitem_id'], array(':vid' =>$vid));
+		$array= array();
+		foreach($ids as $key=> $value){
+			$array[$value['id']] = $value['dcount'] ? (int)$value['dcount'] : 0;
+		}
+        return $array;		
+	}
+   /**
+     * 获得报名用户status
+     */
+	 public function getPlayerStatusByOpenid($arr){
+		$result = R::getRow(ORMMap::$sqlMap['getSignUpStatus'], array(
+			':vid' => $arr['vid'],
+			':openid' => $arr['openid']
+		));
+		return $result;
+	 }
+}

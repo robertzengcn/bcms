@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body> 
+
+    <section id="body">
+ {{foreach $list as $v}}   
+
+    	<a href="{{$MOBILE}}/doctor.php?method=get&id={{$v->id}}"><article class="dmenu">
+        <img src="{{$smarty.const.UPLOAD}}{{$v->pic}}"><span></span>
+        <b><h1><a>{{$v->name}}</a>&nbsp;&nbsp;&nbsp;{{$list->position}}</h1><h2>擅长：{{$v->specialty|truncate:18}}...</h2></b>	
+        </article></a>
+{{/foreach}}
+           
+    </section>
+    
+
+    
+</body>
+</html>

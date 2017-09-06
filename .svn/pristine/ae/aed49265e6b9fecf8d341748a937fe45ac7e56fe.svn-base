@@ -1,0 +1,203 @@
+<?php
+
+/**
+ * 投票
+ * @author Administrator
+ *
+ */
+class VoteService extends BaseService {
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化dao数据表处理层,并将其赋值给dao属性
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->dao = new VoteDAO();
+    }
+
+   /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+    	
+        $voteArray = $this->dao->query($where);
+		$viService = new VoteItemService();	
+        if(count($voteArray)>0){
+			foreach ($voteArray as $key => $value) {
+				$count = $viService->getSignUpCount(array('vid'=>$value->id));
+				$value->vi_num = $count;
+				$value->bm_time=date('Y-m-d',$value->start_time).'-'.date('Y-m-d',$value->over_time);
+				$value->tp_time=date('Y-m-d',$value->statdate).'-'.date('Y-m-d',$value->enddate);
+				$value->hd_link=NETADDRESS . '/addons/vote.php?method=index&id='.$value->id.'&type=view';
+				unset($value->fxms,$value->fxtb,$value->wxgzurl,$value->ktcs,$value->gztb,$value->wappicurl,$value->votelimit,$value->shuma,$value->shumat,$value->shumb,$value->shumbt,$value->shumc,$value->shumct,$value->xntps,$value->xncheck,$value->xnbms,$value->wfbmbz,$value->is_sh,$value->is_sendsms,$value->sms_content,$value->gonggao,$value->ed_dcount);
+			}
+		}
+        return $this->success($voteArray);
+    }
+    /**
+     * 查询数据总量
+     *
+     * @see kernel/BaseService::totalRows()
+     */
+    public function totalRows($params) {	
+        return $this->success($this->dao->totalRows($params));
+    }
+   /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function getOneById($where) {
+        $voteArray = $this->dao->query($where);
+		if(isset($where['id'])){
+			return $this->success($voteArray[0]);			
+		}else{
+			return $this->success($voteArray);			
+		}
+	
+	}
+   /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($vote) {
+    	
+        $vote->validate();        
+        $res=$this->dao->save($vote);
+        return $this->success($res);
+    }
+   /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($vote) {
+        $this->dao->get($vote->id, $vote);
+        if ($vote->fxtb) {
+            $vote->src = $vote->fxtb;
+        }
+        if($vote->add_time){
+        	$vote->add_time=date('Y-m-d',$vote->add_time);
+        }		
+        if($vote->start_time){
+        	$vote->start_time=date('Y-m-d',$vote->start_time);
+        }
+        if($vote->over_time){
+        	$vote->over_time=date('Y-m-d',$vote->over_time);
+        }
+        if($vote->statdate){
+        	$vote->statdate=date('Y-m-d',$vote->statdate);
+        }
+        if($vote->enddate){
+        	$vote->enddate=date('Y-m-d',$vote->enddate);
+        }
+		$vote->fxtb = str_replace(NETADDRESS . '/upload', '', $vote->fxtb);
+		$vote->gztb2 = str_replace(NETADDRESS . '/upload', '', $vote->gztb);
+		$votewxszService = new VoteWxszService();
+		$votewxsz = $votewxszService->getAppsecret($vote->id);
+		$vote->appid = $votewxsz->appid;
+		$vote->appsecret = $votewxsz->appsecret;
+        return $this->success($vote);
+    }
+	
+   /**
+     * 通过获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+	public function getActiveInfo($id) {
+		return $this->success($this->dao->activeInfo($id));
+	}
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($vote) {	
+        $vote->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($vote);
+    }
+    /**
+     * 获得活动名称
+     */	
+    public function getName() {
+        return $this->success($this->dao->getAllActiveName());	
+	}
+    /**
+     * id获得活动名称
+     */	
+    public function getNameById($id) {
+        return $this->dao->getActiveName($id);	
+	}
+   /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $voteArray = $this->dao->getBatch($ids);
+			$voteitem = new VoteItemService();
+			
+		foreach($ids as $val){
+			$idVis = $voteitem->allByVid($val);
+		}
+        try {   
+			if(count($idVis)>0){
+				$voteitem->deleteBatch($idVis);
+			}
+			return $this->dao->deleteBeans($voteArray);
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+    }
+    /**
+     * 增加浏览量 +1
+     */	
+    public function initAddView($arr) {
+		$result = $this->dao->initAddView($arr);
+        return $result;		
+	}
+    /**
+     * 设置mysql定时器
+     */	
+    public function onMysqlEvent($id) {
+		$result = $this->dao->onMysqlEvent($id);
+        return $result;		
+	}
+    /**
+     * 设置mysql定时器
+     */	
+    public function offMysqlEvent($id) {
+		$result = $this->dao->offMysqlEvent($id);
+        return $result;		
+	}
+	/*
+     * 获取某个时间段点击量
+     * */
+    
+    public function getIcountByTime($t,$id) {   	 
+    	return $this->dao->getIcountByTime($t,$id);
+	}
+	/*
+     * 获取投票列表名称\点击量
+     * */
+    
+    public function getVoteChecksAndTitle() {   	 
+    	return $this->dao->getVoteChecksAndTitle();
+	}	
+}

@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增编辑医生-预约挂号</title>
+</head>
+<body>
+<div class="pd-5">
+	<form method="post" class="form form-horizontal" id="doctorform">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>医生姓名：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" id="doctorname" name="name" datatype="*2-16" errormsg="限2-16个字" nullmsg="姓名不能为空"/>				
+			</div>
+			<div class="col-2"></div>
+			<label class="form-label col-2"><span class="c-red">*</span>出生日期：</label>
+			<div class="formControls col-91"><input type="text" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" id="birthdate" name="birthday" class="input-text Wdate" datatype="*" nullmsg="日期不能为空"/></div>
+			<div class="col-2"></div>				
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">职称：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" placeholder="主任医师/主治医师..." id="position" name="position">
+			</div><div class="col-2"></div>
+			<label class="form-label col-2"><span class="c-red">*</span>性别：</label>
+			<div class="formControls col-91 skin-minimal"><!--add col-91 css-->
+				<div class="radio-box">
+					<input type="radio" id="sex-1" name="gender" value="0" checked="checked"/>
+					<label for="sex-1">男</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="sex-2" value="1" name="gender"/>
+					<label for="sex-2">女</label>
+				</div>
+			</div>		
+		</div>
+		<div class="row cl">						
+			<label class="form-label col-2">毕业院校：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" placeholder="" id="university" name="university">
+			</div><div class="col-2"></div>
+			<label class="form-label col-2">学历：</label>
+			<div class="formControls col-91">
+			<select name="cultural" class="select" id="cultural">
+			<option value="本科">本科</option>
+			<option value="硕士">硕士</option>
+			<option value="博士">博士</option>
+			<option value="博士后">博士后</option>
+			</select>
+				
+			</div>
+			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">医生照片：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius" onClick="editdoctor.uploadImg('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=registerdoc&ipn=thumbnail_doc','720','340')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_doc"  width="150px" height="90px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+			<div class="formControls col-94"><input class="thumbnail_doc" type="hidden" id="thumbnail_doc_value" value="" name="pic" datatype="*" nullmsg="医生照片不能为空！"/></div><div class="col-3"> </div>
+		</div><!--上传图片-->
+		
+		<input type="hidden" id="thumbnail_prove_value" value="" name="certificate">		
+		
+		<div class="row cl" id="docbelogdep">
+			<label class="form-label col-2"><span class="c-red">*</span>所属科室：</label>
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="department_id" class="select" id="department_id" datatype="*" nullmsg="科室不能为空！未添加科室请先添加"/></select>
+				</span> </div><div class="col-4"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">擅长领域：</label>
+			<div class="formControls col-8">
+				<textarea name="specialty" id="specialty" cols="" rows="" class="textarea"  placeholder="请输入该医生擅长的领域..." dragonfly="true" nullmsg="擅长不能为空！" onKeyUp="textarealength(this,400)" datatype="*10-400" errormsg="限10-400个字"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/400</p>
+			</div><div class="col-2"></div>
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">医生简介：</label>
+			<div class="formControls col-8">
+				<textarea name="description" id="description" class="textarea"  placeholder="请输入医生简介..." dragonfly="true" nullmsg="简介不能为空！" onKeyUp="textarealength(this,200)"  errormsg="限10-200字" datatype="*10-200"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			</div><div class="col-2"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">详细介绍：</label>
+			<div class="formControls col-8"> 				
+				<textarea nullmsg="介绍不能为空！" style="width:100%;height:400px;" id="editor" name="content" datatype="*"></textarea> 
+			</div><div class="col-2"></div>
+		</div>
+		<div style="width:100%;height:60px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-2">
+				<button class="btn btn-primary radius" type="button" id="savedoc"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation.js"></script>
+<script type="text/javascript">
+var editor = UE.getEditor('editor',{
+    toolbars: [
+    [
+		'source', //源代码
+		'|',
+        'undo', //撤销
+        'redo', //重做
+		'|',
+        'bold', //加粗               
+        'italic', //斜体
+        'underline', //下划线		
+		'|', 
+		'link', //超链接
+        'unlink', //取消链接
+        '|',
+        'fontsize', //字号 
+		'forecolor', //字体颜色
+        'backcolor', //背景色		
+		'|', 	
+        'simpleupload', //单图上传
+        'insertimage', //多图上传      
+        '|', 
+        'emotion', //表情
+        'spechars', //特殊字符
+		'horizontal', //分隔线        
+		'|', 		
+		'rowspacingtop', //段前距
+        'rowspacingbottom', //段后距 
+		'lineheight', //行间距                
+        'autotypeset', //自动排版
+		'|', 
+		'indent', //首行缩进 
+        'justifyleft', //居左对齐
+        'justifyright', //居右对齐
+        'justifycenter', //居中对齐
+        'justifyjustify', //两端对齐
+        '|', 
+        'insertorderedlist', //有序列表
+        'insertunorderedlist', //无序列表		   
+        '|',       
+        'imagenone', //默认
+        'imageleft', //左浮动
+        'imageright', //右浮动        
+        'imagecenter', //居中
+        '|',
+		'cleardoc', //清空文档         
+		'searchreplace', //查询替换	 		
+        'fullscreen', //全屏     
+
+        
+    ]
+]
+});
+var editdoctor = new Reservation();
+editdoctor.setThisName('editdoctor');
+editdoctor.editorinfo();
+
+</script> 
+
+</body>
+</html>

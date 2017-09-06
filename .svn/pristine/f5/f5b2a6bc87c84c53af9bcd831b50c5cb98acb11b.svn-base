@@ -1,0 +1,111 @@
+<?php
+include './HM.php';
+class Patientmanagers extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+
+	
+	/*
+	 * 取患者管理列表
+	* */
+	protected function __patientcase(){
+		$case_number=$this->getRequest('case_number',null);
+		if(!$case_number){
+			$this->msgPut(false,'病例号有误','2',null);
+		}
+        
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+		$patientserviceser=new PatientService();
+		
+		$result=$patientserviceser->getListPatientCase(array('case_number'=>$case_number,'type'=>1,'page'=>$page,'size'=>$size));
+	
+		if(!empty($result['rows'])){
+			$this->msgPut(true,null,0,$result);
+		}
+		$this->msgPut(false,'没有数据','1',null);
+	}
+	
+	
+	/*
+	 * 取具体就诊事项
+	 * @param case_id
+	 * */
+	protected function __getdetailbycase(){
+		$case_id=(int)($this->getRequest('case_id',null));
+		$patientserviceser=new PatientService();
+		$result=$patientserviceser->getListPatientCase(array('case_id'=>$case_id));
+				if(!empty($result['rows'][0])){
+					$detail=$result['rows'][0];
+					if($detail['pic']){
+						$detail['pic']=UPLOAD.$detail['pic'];
+					}
+					$detail['medical']=$patientserviceser->getPrescriptionsByDetailId($case_id);
+					
+			$this->msgPut(true,null,0,$detail);
+		}
+		$this->msgPut(false,'没有数据','1',null);
+	}
+	
+	/*
+	 * 取复诊列表
+	 * @param case_number
+	 * */
+	protected function __getconsultation(){
+		$case_number=$this->getRequest('case_number',null);
+		$type=$this->getRequest('type',0);
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+
+		if(!$case_number){
+			$this->msgPut(false,'病例号有误','2',null);
+		}
+		
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+		$patientserviceser=new PatientService();
+		
+		$result=$patientserviceser->getListPatientCase(array('case_number'=>$case_number,'type'=>$type,'page'=>$page,'size'=>$size));
+		
+		if(!empty($result['rows'])){
+			$this->msgPut(true,null,0,$result);
+		}
+		$this->msgPut(false,'没有数据','1',null);
+	}
+	
+	
+	/*
+	 * 根据case_number取详情数据
+	* */
+	private function __patientcasenumberdetail(){
+		$case_number=(int)($this->getRequest('case_number'));
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+		$type=$this->getRequest('type');	
+		$patientser=new PatientService();
+		$result=$patientser->getListPatientCase(array('case_number'=>$case_number,'type'=>$type,'page'=>$page,'size'=>$size));
+	
+	
+		if(!empty($result['rows'])){
+			foreach($result['rows'] as $key=>$val){
+				if($result['rows'][$key]['pic']){
+					$result['rows'][$key]['pic']=UPLOAD.$result['rows'][$key]['pic'];
+				}
+					
+				$result['rows'][$key]['medical']=$patientser->getPrescriptionsByDetailId($result['rows'][$key]['case_id']);
+			}
+	
+			//$result['rows'][0]['pic']=UPLOAD.$result['rows'][0]['pic'];
+			//$result['rows'][0]['medical']=$patientser->getPrescriptionsByDetailId($case_id);
+	
+			$this->msgPut(true,null,$result,0);
+		}
+		$this->msgPut(false,'没有数据',null,'1');
+	
+	}
+	
+	
+}
+new Patientmanagers();

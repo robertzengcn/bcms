@@ -1,0 +1,107 @@
+<?php
+
+class ContactService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new ContactDAO();
+    }
+
+    /**
+     * 根据Name获得数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $contacts = $this->dao->query($where);
+        return $this->success($contacts);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function get($contact) {
+        if (! $contact->id) {
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($contact->id, $contact);
+
+        return $this->success($contact);
+    }
+
+    /**
+     * 通过flag返回数据
+     * 获取联系方式
+     */
+    public function getContact($flag) {
+        return $this->success($this->dao->getContact($flag));
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function save($contact) {
+        $contact->validate();
+        // 获取class对象并插入数据
+        $this->dao->save($contact);
+
+        return $this->success();
+    }
+
+    /**
+     * 更改数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function update($contact) {
+        $contact->validate();
+        if (! $contact->id) {
+            throw new ValidatorException(7);
+        }
+        return $this->dao->update($contact);
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        return $this->dao->deleteBatch($ids);
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param Entity $contact
+     * @return Result
+     */
+    public function delete($contact) {
+        if (! $contact->id) {
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($contact->id, $contact);
+        if ($contact->id == 0) {
+            throw new ValidatorException(16);
+        }
+        if ($contact->is_retain == 1) {
+            throw new ValidatorException(18);
+        }
+
+        $this->dao->delete($contact->id);
+
+        return $this->success();
+    }
+}

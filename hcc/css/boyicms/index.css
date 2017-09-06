@@ -1,0 +1,46 @@
+/*Ê×Ò³*/
+.mainbox{padding:0 20px;position:relative; overflow:hidden;}
+.mainleft{ width:50%; float:left; min-width:470px;}
+.mainright{ width:50%; float:left; min-width:470px;}
+.leftinfo{border:#ccc solid 1px; border-left:none;}
+.leftinfos{border-right:#ccc solid 1px;}
+.dflist{border:#ccc solid 1px; border-left:none; border-right:none;}
+.dflist2{ border-top:#ccc solid 1px; border-left:#ccc solid 1px;}
+.listtitle{ height:40px; line-height:40px; text-indent:14px; font-weight:bold; font-size:16px;}
+.more1{ font-weight:normal;color:#2f90d5;}
+.leftinfo ul{ width:90%; overflow:hidden; margin:0 auto; padding:15px 15px 0 15px;}
+.leftinfo ul li{ float:left; background:transparent url(../../images/boyicms/buttonbg/honglan.png) no-repeat scroll 0% 0%; width:108px; text-align:center; line-height:36px; margin-bottom:10px; margin-right:10px;}
+.leftinfo ul .incorrectness{ background-position:0% -36px;}
+.leftinfos embed{ margin:0 auto; display:block; padding-bottom:40px; padding-top:10px;}
+.health{ width:90%; margin:0 auto; overflow:hidden;}
+.health *{ float:left;}
+.health span{ width:108px; height:36px; background-color:#2f90d5; border-radius:3px; color:white; line-height:36px; text-align:center; margin-right:10px;}
+.health span:hover{ background-color:#277acd;}
+.health p{ line-height:36px;}
+
+@media (max-width: 979px) {
+.mainleft{ width:100%; float:left;}
+.mainright{ width:100%; float:left;}
+.leftinfo,.leftinfos{ border-right:none;}
+.dflist2{ border-left:none;}
+	}
+
+/*ÂÖ²¥*/
+.dflist1 .slider{width:80%;margin:10px auto;position: relative;overflow: hidden; height:200px;}
+.dflist1 .slider li{list-style: none;position: absolute;left: 0;top: 0;}
+.dflist1 .slider img{border: none;height:100%;width:100%;}
+.dflist1 .slider .slider_btn{position: absolute;height: 25px;width: 100%;bottom: 0;text-align: right;}
+.slider .slider_btn span{display: inline-block;width: 20px;height: 20px;line-height: 20px;text-align: center;margin-right: 5px;cursor: pointer;background: #999;color: #FFFFEF;border-radius: 15px;font-size: 12px}
+.dflist1 .slider .slider_btn .cur{background: #E4393C;}
+
+
+.dflist2 ul{ width:80%; margin:10px auto; line-height:30px;}
+@media (max-width: 360px) {
+	.mainleft{ min-width:360px;}
+.mainright{ min-width:360px;}
+.leftinfos embed{ width:90%; height:300px;}
+.mainbox{ padding:0;} 
+.dflist1 .slider{ height:80px;}
+.leftinfo ul{ padding:0; width:100%}
+.health{ width:100%}
+}

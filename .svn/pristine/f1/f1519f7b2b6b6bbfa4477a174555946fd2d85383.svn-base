@@ -1,0 +1,801 @@
+<?php
+
+/**
+ *
+ * 静态页面生成&预览父类
+ * @author Administrator
+ *
+ */
+class Html extends Controller {
+
+    public $tag; // tag句柄
+    public $smarty; // smrty句柄
+    public $htmlSuffix = '.html'; // 静态文件后缀
+    public $option = ''; // request参数op
+    public $config; // 配置文件
+    public $htmlDir; // html文件夹所存在的路径
+    public $debug = DEBUG; //  是否为调试模式(调试模式允许未更新的文章重复生成) true = 调试模式，false = 非调试模式 通过DEBUG常量控制
+    public $limit  = 0; // 配置如果大于多少条数据，则需要进入进度条生产
+    public $noMake = array('topic');// 配置不需要生成页面的模块
+
+    /**
+     * 构造方法
+     */
+    public function __construct() {
+        require_once ABSPATH . '/dynapage/Tag.php'; // tag基类
+       // require_once ABSPATH . '/lib/smarty/Smarty.class.php'; // smarty引擎
+        if (isset($_REQUEST['op'])) {
+            $this->option = trim($_REQUEST['op']);
+            $this->tagInit();
+            $this->readConfig($this->option); // 读取配置文件
+        }
+
+    }
+
+    /**
+     * 安全过滤
+     */
+    public function filter() {
+        parent::__construct();
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+        return $filterService->execute();
+    }
+
+    /**
+     * tag标签对象初始化工作
+     */
+    public function tagInit() {
+        // 检测
+        if (! isset($this->option)) {
+            $result = new Result(false, - 1, ErrorMsgs::get(- 1), Null);
+            die($result->toJSON());
+        }
+        // tag引入并执行初始化工作
+        $this->tag = new Tag($this->option);
+        $tagConfig = $this->tag->init();
+        if (! $tagConfig->statu) {
+            die($tagConfig->toJSON());
+        }
+        $this->smarty = Tags::instance('Template');
+        // 注入通用变量
+        $this->tagAssign();
+    }
+
+    /**
+     *
+     *
+     * smarty模版解析fetch内容获取
+     *
+     * @param string $htplName
+     *            模版路径(不带后缀)
+     * @param string $allHtplName
+     *            是否为全路径(意思是模版存在于模版文件夹之外的文件)
+     */
+    public function tagFetch($htplName = '', $allHtplName = false) {
+        // 注入通用页面变量
+        $this->makeOnce(true);
+        // 根据预置到变量定义 在变量转入smarty
+       // $this->tag->prepareSystemVars();
+        // 如果传入的模版路径不为空,则使用传入的 模版
+        if ($htplName != '') {
+            if ($allHtplName) {
+                $htplFile = $htplName;
+            } else {
+                $htplFile = TEMPDIR . $this->tag->templateName . '/' . $htplName . SUBFIX;
+            }
+        } else {
+            $htplFile = TEMPDIR . $this->tag->templateName . '/' . $this->tag->htplFileName . SUBFIX;
+        }
+
+        // 模版文件是否存在
+        if (! file_exists($htplFile)) {
+            //die(json_encode(new Result(false, 35, ErrorMsgs::get(35) . "：" . $htplFile, Null)));
+			die(json_encode(new Result(false, 192, ErrorMsgs::get(192) . "：" . $htplFile, Null)));	
+        }
+
+        $content = $this->smarty->fetch($htplFile);
+        if ($content != '') {
+            return $content;
+        }
+        die(json_encode(new Result(false, 49, ErrorMsgs::get(49), NULL)));
+    }
+	    /**
+		 *smarty模版解析fetch内容获取(不提示错误)
+		*/
+    public function tagFetch2($htplName = '', $allHtplName = false) {
+        $this->makeOnce(true);
+        //$this->tag->prepareSystemVars();
+        if ($htplName != '') {
+            if ($allHtplName) {
+                $htplFile = $htplName;
+            } else {
+                $htplFile = TEMPDIR . $this->tag->templateName . '/' . $htplName . SUBFIX;
+            }
+        } else {
+            $htplFile = TEMPDIR . $this->tag->templateName . '/' . $this->tag->htplFileName . SUBFIX;
+        }
+        // 模版文件是否存在
+        if (! file_exists($htplFile)) {
+			return true;	
+        }
+        $content = $this->smarty->fetch($htplFile);
+        return $content;
+    }
+    /**
+     *
+     *
+     * html生成方法
+     *
+     * @param string $fileName
+     *            html生成路径
+     * @param string $content
+     *            内容
+     */
+    public function tagDisplay($fileName, $content, $flag = true) {
+        $size = file_put_contents($fileName, $content);
+        if ($flag) {
+            if ($size > 0) {
+                die(json_encode(new Result(true, 0, '', NULL)));
+            } else {
+                die(json_encode(new Result(false, 49, ErrorMsgs::get(49), NULL)));
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     * 静态文件存放目录生成
+     * @info flag为指定该静态文件存放的根目录,flagDir为子模块存在的路径
+     *
+     * @param string $flag
+     *            标识符
+     */
+    public function dirMake($flag) {
+        switch ($flag) {
+            case 'error':
+                $htmlDir = ABSPATH . '/';
+                break;
+            case 'sitemap':
+                $htmlDir = ABSPATH . '/';
+                break;
+            case 'search':
+                $htmlDir = ABSPATH . '/';
+               	break;
+            case 'index':
+                $htmlDir = ABSPATH . '/';
+                break;
+            case 'reservation':
+                $htmlDir = ABSPATH . '/reservation/';
+                break;
+            case 'reservationDir':
+                $htmlDir = ABSPATH . '/reservation/';
+                break;
+            case 'introduce':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'contact':
+                $htmlDir = ABSPATH . '/';
+                break;
+            case 'news':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'newsDir':
+                $htmlDir = ABSPATH . '/hospital/news/';
+                break;
+            case 'movie':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'movieDir':
+                $htmlDir = ABSPATH . '/hospital/movie/';
+                break;
+            case 'mediaReport':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'mediaReportDir':
+                $htmlDir = ABSPATH . '/hospital/media/';
+                break;
+            case 'honor':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'honorDir':
+                $htmlDir = ABSPATH . '/hospital/honor/';
+                break;
+            case 'environment':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'environmentDir':
+                $htmlDir = ABSPATH . '/hospital/environment/';
+                break;
+            case 'device':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'deviceDir':
+                $htmlDir = ABSPATH . '/hospital/device/';
+                break;
+            case 'success':
+                $htmlDir = ABSPATH . '/hospital/';
+                break;
+            case 'successDir':
+                $htmlDir = ABSPATH . '/hospital/success/';
+                break;
+            case 'doctor':
+                $htmlDir = ABSPATH . '/doctor/';
+                break;
+            case 'doctorDir':
+                $htmlDir = ABSPATH . '/doctor/';
+                break;
+            case 'technology':
+                $htmlDir = ABSPATH . '/technology/';
+                break;
+            case 'technologyDir':
+                $htmlDir = ABSPATH . '/technology/';
+                break;
+            case 'ask':
+                $htmlDir = ABSPATH . '/ask/';
+                break;
+            case 'askDir':
+                $htmlDir = ABSPATH . '/ask/';
+                break;
+        }
+        if (! is_dir($htmlDir)) {
+            if (! mkdir($htmlDir)) {
+                die(json_encode(new Result(false, 49, ErrorMsgs::get(49), NULL)));
+            }
+        }
+        // .给模版注入文件夹路径,用于面包屑导航
+        //$this->htmlDir = str_replace(ABSPATH, '', $htmlDir);
+        //$this->smarty->assign('HTMLURL', $this->htmlDir); // 模块路径(静态文件存放路径)
+        return $htmlDir;
+    }
+
+    /**
+     *
+     *
+     * 静态分页文件每页数据条数获取
+     *
+     * @param string $handler
+     *            标识符
+     * @return int $pageSize 条数
+     */
+    public function readConfig($handler = '') {
+        // .组合
+        $handler = ucfirst($handler) . 'Tag';
+        // .默认模版路径
+        $currentUsed = file_get_contents(TEMPDIR . '/config.json');
+        $array = json_decode($currentUsed, true);
+        $pulugin_tpl = $array[0]['currentUsed'];
+        // .获取配置文件
+        $pagesizeJson = TEMPDIR . $pulugin_tpl . '/makehtml.json';
+        $pageArrays = json_decode( $this->delBom( file_get_contents($pagesizeJson) ) );
+        // .遍历
+        $config = array();
+        $isconfig = false;
+        if( isset( $pageArrays ) && is_array( $pageArrays ) ){
+	        foreach ($pageArrays as $key => $value) {
+	            if ($value->tag == $handler) {
+	                if (count($value) >= 1) {
+	                    foreach ($value as $k => $v) {
+	                        $config[$k] = $value->$k;
+	                    }
+	                    $this->config = $config;
+	                    $isconfig = true;
+	                }
+	            }
+	        }
+        }
+        if (! $isconfig) {
+            $this->config['pageSize'] = 8;
+        }
+        return $this->config;
+    }
+    
+    /**
+     * 检测是否存在bom头,并自动去除
+     * @param unknown $contents
+     * @return string|unknown
+     */
+    private function delBom($contents){
+    	$charset = array();
+    	$charset[1]=substr($contents,0,1);
+    	$charset[2]=substr($contents,1,1);
+    	$charset[3]=substr($contents,2,1);
+    	if(ord($charset[1])==239 && ord($charset[2])==187 && ord($charset[3])==191){
+    		return substr($contents,3);
+    	}
+    	return $contents;
+    }
+
+    /**
+     *
+     *
+     * 生成带列表页的静态页面方法
+     *
+     * @param object $service
+     *            服务层对象
+     * @param object $tagOb
+     *            tag标签对象
+     * @param string $listHtpl
+     *            列表页模版文件路径
+     * @param string $detailHtpl
+     *            详细页模版文件路径
+     * @param string $htmlDir
+     *            静态文件生成根路径
+     * @param string $makeUnset
+     *            需要被unset掉的数据(如预约就不需要详细)          
+     */
+    public function setListHtml($service, $tagOb, $listHtpl, $detailHtpl, $htmlDir, $flag = true , $makeUnset = false ) {
+        if ($flag) {
+            if ($listHtpl && $detailHtpl) {
+                
+        // 分页信息
+        $count = $service->totalRows(array(
+            '1' => 1
+        ))->data;
+        // 如果总条数小于等于0,则至少需要生成一个默认空的列表页
+      
+        //$_COOKIE['pagesize'] 初始值错乱，没确定出值由哪儿传入
+        //$pageSize = empty($_COOKIE['pagesize']) ? $this->config['pageSize'] : $_COOKIE['pagesize'] ;
+        $pageSize = $this->config['pageSize'];
+        if( $count >= 1 ) {
+	        $pageCount = ceil($count / $pageSize);
+	        $listIds = array();
+	        $listCount = 0;
+	        // 生成列表页
+	        for ($i = 1; $i <= $pageCount; $i ++) {
+	            $listIds[$listCount]['i'] = $i;
+	            $listIds[$listCount]['pageCount'] = $pageCount;
+	            $listIds[$listCount]['pageSize'] = $pageSize;
+	            $listIds[$listCount]['op'] = $this->option;
+	            $listCount ++;
+	        }
+	        // 生成详细页
+	        $Result = $service->getListAll();
+	        $ResultArrays = $Result->data;
+	        // 加入内容判定,如果详细内容要大于$this->limit条，则强行进入进度条生成模式
+	        $detailCount = 0;
+	        $detailIds = array();
+	        foreach ($ResultArrays as $value) {
+	            $detailHtml = $htmlDir . $value->id . $this->htmlSuffix;
+	            $value->updatetime = ! isset($value->updatetime) ? 0 : (int) $value->updatetime; // 可能存在或者不存在时间
+	            if (! file_exists($detailHtml) || $this->debug == true) {
+	                $detailIds[$detailCount]['id'] = $value->id;
+	                $detailIds[$detailCount]['op'] = $this->option;
+	                $detailIds[$detailCount]['html'] = $detailHtml;
+	                $detailCount ++;
+	            } else
+	                if ($value->updatetime >= (int) filemtime($detailHtml)) {
+	                    $detailIds[$detailCount]['id'] = $value->id;
+	                    $detailIds[$detailCount]['op'] = $this->option;
+	                    $detailIds[$detailCount]['html'] = $detailHtml;
+	                    $detailCount ++;
+	                }
+	        }
+	        $arrays = array(
+	            'list' => $listIds,
+	            'detail' => $detailIds
+	        );
+	        if( $makeUnset != false ){
+				$arrays[ $makeUnset ] = array();
+	        }
+	        setcookie('pagesize', '');
+	        die(json_encode(new Result(true, 88, '', $arrays )));
+        }else{
+            $listIds[0]['i'] = 1;
+            $listIds[0]['pageCount'] = 1;
+            $listIds[0]['pageSize'] = $pageSize;
+            $listIds[0]['op'] = $this->option;
+            setcookie('pagesize', '');
+	        die(json_encode(new Result(true, 88, '', array(
+	            'list' => $listIds,
+	            'detail' => array()
+	        ))));
+        }
+        }else{
+            setcookie('pagesize', '');
+            die(json_encode(new Result(false, 49, ErrorMsgs::get(49), NULL)));
+        }
+        }
+        setcookie('pagesize', '');
+    }
+
+    /**
+     * 注入通用变量
+     */
+    public function tagAssign() {
+        $this->assignSeoTableInfo();
+		$this->setContact();
+        $this->smarty->assign("UPLOAD", UPLOAD); // 上传文件根目录
+        $this->smarty->assign('WEBSITE', NETADDRESS); // 网站域名根目录
+        $this->smarty->assign('PUBLIC', NETADDRESS . '/public'); // 本次模版资源路径
+    }
+    /**
+     * 设置site(Contact\PicManager)
+     */	
+	public function setContact(){
+        $contactdao = new ContactDAO();	
+		$con['is_retain'] = 1;
+		$contactlist = $contactdao->query($con);
+
+        foreach ($contactlist as $key => $value) {
+			if($value->val){
+				$this->smarty->assign($value->flag, $value->val);
+			}
+        }
+		$pic['kind'] = 1;
+        $picmanagerdao = new PicManagerDAO();
+		$piclist = $picmanagerdao->query($pic);		
+		
+        foreach ($piclist as $key => $value) {
+			if($value->img){
+				$this->smarty->assign($value->flag, UPLOAD. $value->img);
+			}
+			if($value->link){
+				$this->smarty->assign($value->flag.'_link', $value->link);
+			}
+        }	
+	}
+    /**
+     *
+     *
+     * 注入seo信息(手动)
+     *
+     * @param
+     *            $title
+     * @param
+     *            $keywords
+     * @param
+     *            $description
+     */
+    public function assignSeoInfo($title = '', $keywords = '', $description = '') {
+        $this->smarty->assign("SEO_TITLE", $title);
+        $this->smarty->assign("SEO_KEYWORDS", $keywords);
+        $this->smarty->assign("SEO_DESCRIPTION", $description);
+    }
+
+    /**
+     * 注入seo信息(自动)
+     * @info 注入seo表中存在的seo信息
+     */
+    public function assignSeoTableInfo() {
+        if (isset($this->option) && $this->option != '') {
+            $seoServices = new SeoService();
+            $where = array(
+                "flag" => $this->option
+            );
+            $seoInfo = $seoServices->findOne($where, '*');
+            if (isset($seoInfo->id)) {
+                $this->smarty->assign("SEO_TITLE", $seoInfo->title);
+                $this->smarty->assign("SEO_KEYWORDS", $seoInfo->keywords);
+                $this->smarty->assign("SEO_DESCRIPTION", $seoInfo->description);
+            }
+        }
+    }
+
+    /**
+     * 科室、疾病、文章生成功能数据截取方法
+     */
+    public function publicData() {
+        // 定义预处理数组
+        $this->departmentArray = array();
+        $this->departmentS = array();
+        $this->diseaseArray = array();
+        $this->diseaseS = array();
+        $this->diseaseUrl = array();
+        $this->articleArrays = array();
+        $this->articleS = array();
+        $this->articleD = array();
+        $this->departmentUrl = array();
+        // 获取临时数据,判断临时数据是否存在
+        if(file_exists(COMPILEDIR . 'article_departmentArray.json')){
+        $article_departmentArray = file_get_contents(COMPILEDIR . 'article_departmentArray.json');
+        }else{
+        	$article_departmentArray = '';
+        }
+        if(file_exists(COMPILEDIR . 'article_diseaseArray.json')){
+        	 $article_diseaseArray    = file_get_contents(COMPILEDIR . 'article_diseaseArray.json');
+        }else{
+        	$article_diseaseArray    = '';
+        }
+       if(file_exists(COMPILEDIR . 'article_articleArrays.json')){
+        $article_articleArrays   = file_get_contents(COMPILEDIR . 'article_articleArrays.json');
+       }else{
+       	$article_articleArrays   = '';
+       }
+        // 查询入session缓存[如果session存在,则取session,否则则重新调取]
+        if( $article_departmentArray == '' ||
+            $article_diseaseArray    == '' ||
+            $article_articleArrays   == '' )
+        {
+	        // 实例化
+	        $departmentService = new DepartmentService();
+	        $diseaseService    = new DiseaseService();
+	        $articleService    = new ArticleService();
+	        // 获取所需初始化数据
+	        $this->departmentArray = $departmentService->getListAll()->data;
+	        $this->diseaseArray    = $diseaseService->query(array())->data;
+	        $this->articleArrays   = $articleService->query(array(), 'makehtml')->data;
+        }else{
+        	$this->departmentArray = json_decode( $article_departmentArray );
+        	$this->diseaseArray    = json_decode( $article_diseaseArray );
+        	$this->articleArrays   = json_decode( $article_articleArrays );
+        }
+        // 疾病分组
+        foreach ($this->diseaseArray as $key => $value) {
+            $this->diseaseS[$value->department_id][] = (array) $value;
+        }
+        // 文章分组 -按疾病
+        foreach ($this->articleArrays as $key => $value) {
+            $this->articleS[$value->disease_id][] = $value;
+        }
+        //文章分组 - 按科室
+        foreach ($this->articleArrays as $key => $value) {
+            $this->articleD[$value->department_id][] = $value;
+        }
+        // 目录生成
+        foreach ($this->departmentArray as $key => $value) {
+            // 科室目录路径生成
+            $dirDepartName = GENERATEPATH . $value->url;
+            $this->departmentUrl[$value->id] = $dirDepartName;
+            if (! is_dir($dirDepartName)) {
+               mkdir($dirDepartName);
+            }
+            $this->departmentS[$value->id] = $value;
+            // 科室目录下疾病目录生成
+            if (isset($this->diseaseS[$value->id])) {
+            	//基本目录生成[支持多层目录结构]
+                foreach ($this->diseaseS[$value->id] as $key2 => $value2) {
+                	$dirDiseaseName = $this->getParUrl( $this->diseaseArray , $value2['id'] );
+                	$dirDiseaseName = $dirDepartName . '/' . $dirDiseaseName;
+                	if (! is_dir( $dirDiseaseName )) {
+                		@mkdir( $dirDiseaseName , 0777 , true);
+                	}
+                    // 预处理路径
+                    $this->diseaseUrl[$value2['id']] = $dirDiseaseName; // .疾病根目录
+                    
+                }
+            }
+        }
+    }
+
+    /**
+     * 科室、疾病、文章生成功能数据截取方法
+     */
+    public function publicData2($departmentID, $diseaseID) {
+        // 定义预处理数组
+        $this->departmentArray = array();
+        $this->diseaseArray = array();
+        $this->departmentS = array();
+        $this->diseaseS = array();
+        $this->departmentUrl = array();
+        $this->diseaseUrl = array();
+	        // 实例化
+	        $departmentDAO = new DepartmentDAO();
+	        $diseaseDAO    = new DiseaseDAO();
+	        // 获取所需初始化数据
+	        $this->departmentArray = $departmentDAO->getInfo($departmentID);
+			if($diseaseID){
+				$this->diseaseArray    = $diseaseDAO->getInfo($diseaseID);
+			}else{
+				$this->diseaseArray    = $diseaseDAO->getByDepartment($departmentID);				
+			}
+
+        // 疾病分组
+        foreach ($this->diseaseArray as $key => $value) {
+            $this->diseaseS[$value['department_id']][] = $value;
+        }
+        // 目录生成
+        foreach ($this->departmentArray as $key => $value) {
+            // 科室目录路径生成
+            $dirDepartName = GENERATEPATH . $value['url'];
+            $this->departmentUrl[$value['id']] = $dirDepartName;
+            if (! is_dir($dirDepartName)) {
+               @mkdir($dirDepartName, 0777 , true);
+            }
+            $this->departmentS[$value['id']] = $value;
+            // 科室目录下疾病目录生成
+            if (isset($this->diseaseS[$value['id']]) && $diseaseID) {
+            	//基本目录生成[支持多层目录结构]
+                foreach ($this->diseaseS[$value['id']] as $key2 => $value2) {
+                	$dirDiseaseName = $this->getParUrl2( $this->diseaseArray , $value2['id'] );
+                	$dirDiseaseName = $dirDepartName . '/' . $dirDiseaseName;
+                	if (! is_dir( $dirDiseaseName )) {
+                		@mkdir( $dirDiseaseName , 0777 , true);
+                	}
+                    // 预处理路径
+                    $this->diseaseUrl[$value2['id']] = $dirDiseaseName; // .疾病根目录
+                    
+                }
+            }
+        }
+    }
+	
+    /**
+     * 通过文章ID从预处理数据中取出该文章
+     * Enter description here ...
+     * @param $article_id 文章ID
+     */
+    public function getArticleID( $article_id ){
+    	if( is_file( COMPILEDIR . 'article_articleArrays.json' ) ){
+    		$article_articleArrays   = file_get_contents(COMPILEDIR . 'article_articleArrays.json');
+    		$article_articleArrays   = json_decode( $article_articleArrays );
+    		foreach ( $article_articleArrays as $key => $value ){
+    			if( $value->id == $article_id ){
+    				return $value;
+    			}
+    		}
+    		return false;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    /**
+     * 多层目录结构生成
+     * @param unknown $diseases
+     * @param unknown $id
+     * @param string $data
+     * @return string
+     */
+    public function getParUrl( $diseases , $id  ,$data = '' ){
+    	foreach($diseases as $key => $value){
+    		if($value->id == $id){
+    			$data[] = $value->url;
+    			if( $value->parent_id != 0 ) {
+    				return $this->getParUrl($diseases, $value->parent_id , $data);
+    			}
+    		}
+    	}
+    	return implode( '/' , array_reverse( $data ) );
+    }
+	//
+     public function getParUrl2( $diseases , $id  ,$data = '' ){
+    	foreach($diseases as $key => $value){
+    		if($value['id'] == $id){
+    			$data[] = $value['url'];
+    			if( $value['parent_id'] != 0 ) {
+    				return $this->getParUrl2($diseases, $value['parent_id'] , $data);
+    			}
+    		}
+    	}
+    	return implode( '/' , array_reverse( $data ) );
+    }   
+    /**
+     * 
+     * 公共区域模版修改时间对比
+     * @param int $article_html_modify_time 静态文件最后修改时间
+     * @return boolean
+     */
+    public function timeContrast( $article_html_modify_time = 0 ){
+    	$commonConfigJson = TEMPDIR . $this->tag->templateName . '/common/config.json';
+        if (! file_exists($commonConfigJson)) {
+            return true;
+        }
+        $configContent = json_decode(file_get_contents($commonConfigJson), true);
+        foreach ($configContent as $key => $value) {
+            if ( is_array ( $value ) ) {
+                $htpl_m_time = filemtime( TEMPDIR . $this->tag->templateName . '/' . $value['tpl'] . SUBFIX );
+                if( file_exists( TEMPDIR . $this->tag->templateName . '/' . $value['tpl'] . SUBFIX ) && $article_html_modify_time > $htpl_m_time ){
+                	return false;
+                }else{
+                	return true;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     *
+     *
+     * 生成只需要生成一次的页面,节约生成时间
+     *
+     * @param boolean $assign
+     *            如果为true,则代表只注入变量
+     *            @info 配置文件格式
+     *            {
+     *            "layout_header": { //注入变量名
+     *            "tpl": "common/layout/header", //需要生成的模版路径(不需要加后缀)
+     *            "html": "header.html" //模版生成静态文件存放路径
+     *            }
+     */
+    public function makeOnce($assign = false) {
+        $commonConfigJson = TEMPDIR . $this->tag->templateName . '/common/config.json';
+        if (! file_exists($commonConfigJson)) {
+            return true;
+        }
+        $configContent = json_decode(file_get_contents($commonConfigJson), true);
+        $rootDir = COMPILEDIR . 'commonHtml';
+        if (! is_dir($rootDir)) {
+            mkdir($rootDir);
+        }
+        foreach ($configContent as $key => $value) {
+            if (is_array($value)) {
+				 $tplulr = TEMPDIR . $this->tag->templateName . '/' . $value['tpl'] . SUBFIX ;
+                 $this->smarty->assign($key, $tplulr);
+            }
+        }
+		
+		$this->smarty->assign('TEMPPATH', TEMPDIR . $this->tag->templateName);
+		$this->smarty->assign('MODULEKEY', strtolower($this->config['key']));
+    }
+
+    /**
+     * 自定义频道数据读取...
+     */
+    public function channelData() {
+        $this->channelArticles = array();
+        $this->channelarticleArray = array();
+        $this->channels = array();
+        // 查询出所有的自定义频道
+        $channelS = new ChannelService();
+        $channels = $channelS->query(array())->data;
+        $this->channels = $channels;
+        // 查询出所有的文章
+        $obj = new ChannelArticleService();
+        $channelArticles = $obj->query(array())->data;
+        $this->channelArticles = $channelArticles;
+        foreach ($this->channelArticles as $value) {
+            $this->channelarticleArray[$value->channel_id][] = $value;
+        }
+        foreach ($channels as $value) {
+            if (! is_dir(ABSPATH . '/' . $value->shortname)) {
+                mkdir(ABSPATH . '/' . $value->shortname);
+            }
+        }
+    }
+    
+    
+    
+    /**
+     * 初始化疾病家朴树数据
+     * @method initDiseaseData
+     */
+    public function initDiseaseData(){
+    	$diseaseService = new DiseaseService();
+    	$diseaseArrays  = $diseaseService->query( array() );
+    	$this->initDiseaseData = $diseaseArrays->data;
+    }
+    
+    /**
+     * 根据疾病id查询该疾病的向上家朴树,并返回路径
+     * @method getArticleHtmlPath
+     * @param $diseaseID 疾病id
+     * @param $articleID 文章id
+     */
+    public function getArticleHtmlPath( $departmentURL , $diseaseID , $articleID ){
+		$data = $this->getParListIds( $this->initDiseaseData, $diseaseID );
+		$url = GENERATEPATH . $departmentURL;
+		if(!is_dir( $url )){@mkdir($url);}
+		foreach ( $data as $key => $value ) {
+			if(isset($value['url']) && $value['url'] != ''){
+				$url .= '/'.$value['url'];
+				if(!is_dir( $url )){@mkdir($url);}
+			}
+			
+		}
+		return $url . '/' . $articleID . $this->htmlSuffix;
+    }
+    
+    /**
+     * 
+     * 递归方法(通过索引id,反向递归其族谱树id)
+     * @param array $diseases 数据数组
+     * @param int $id 索引id
+     * @param array $data 用户递归叠加的数据
+     */
+    private function getParListIds($diseases,$id,$data = array()){
+    	foreach($diseases as $key => $value){
+    		if($value->id == $id){
+    			$data[] = array('id'=>$value->id,'url'=>$value->url);
+    			if( $value->parent_id != 0 ) {
+    				return $this->getParListIds($diseases, $value->parent_id,$data);
+    			}
+    		}
+    	}
+    	return $data;
+    }
+}
+?>

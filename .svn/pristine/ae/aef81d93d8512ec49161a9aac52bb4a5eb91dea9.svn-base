@@ -1,0 +1,127 @@
+<?php
+
+/**
+ *
+ * ask在线问答dao层
+ * @author Administrator
+ *
+ */
+class AskDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_ASK;
+    }
+
+    /**
+     * 获取本ip过去一小时内的所有提交次数
+     *
+     * @param string $ip
+     *            ip地址
+     * @return int 提交次数
+     */
+    public function getLimitIp($ip) {
+        DTExpression::ge('plushtime', array(
+            'begin_time' => time() - 60 * 60
+        ), 'begin_time', $this->tableName);
+        DTExpression::eq('ip', array(
+            'ip' => $ip
+        ), $this->tableName);
+        return (int) $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     *
+     *
+     * 根据askid获取联合查询包括ask、askdesc
+     *
+     * @param int $id
+     */
+    public function getRepeat($id) {
+        DTExpression::eq('id', array(
+            'id' => $id
+        ), $this->tableName);
+        $sql = ORMMap::$sqlMap['ask_repeat'] . ' where ' . DTEXPRESSION::$sql . DTExpression::$limit;
+        return $this->getJoin($sql);
+    }
+
+    /**
+     *
+     *
+     * 获取多条数据::debug,需使用ORMMap语句映射获取demarment名称
+     *
+     * @param $params 参数包
+     */
+    public function query($params) {
+        DTExpression::ge('plushtime', $params, 'start_time', $this->tableName);
+        DTExpression::le('plushtime', $params, 'end_time', $this->tableName);
+        DTExpression::eq('department_id', $params, $this->tableName);
+        DTExpression::eq('isdisplay', $params, $this->tableName);
+        DTExpression::like('subject', $params, $this->tableName);
+        DTExpression::page($params);
+        DTOrder::$is_true = false;
+        DTOrder::asc($this->tableName . '.isanswer');
+        DTOrder::desc($this->tableName . '.plushtime');
+        $sql = ORMMap::$sqlMap['ask_list'] . ' where ' . DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+        return $this->getJoin($sql);
+    }
+
+    /**
+     *
+     *
+     * 获取数据总数
+     *
+     * @param $params 参数包
+     */
+    public function totalRows($params) {
+        DTExpression::ge('plushtime', $params, 'start_time');
+        DTExpression::le('plushtime', $params, 'end_time');
+        DTExpression::eq('department', $params);
+        DTExpression::like('subject', $params);
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     *
+     *
+     * 根据科室ID获取问答信息
+     *
+     * @param
+     *            $department_id
+     * @return array
+     *
+     */
+    public function getDepartmentAsk($department_id, $limit) {
+        $result = R::findAll($this->tableName, 'department_id=' . $department_id . ' limit ' . $limit);
+        $department = array();
+        foreach ($result as $key => $value) {
+            $ask = new Ask();
+            $ask->generateFromRedBean($value);
+            $ask->plushtime = date('Y-m-d', $ask->plushtime);
+            $department[] = $ask;
+        }
+
+        return $department;
+    }
+
+    /**
+     *
+     *
+     * 根据疾病ID获取问答信息
+     *
+     * @param
+     *            $disease_id
+     * @return array
+     */
+    public function getDiseaseAsk($disease_id) {
+        $result = R::findAll($this->tableName, 'disease_id=' . $disease_id);
+        $disease = array();
+        foreach ($result as $key => $value) {
+            $ask = new Ask();
+            $ask->generateFromRedBean($value);
+            $disease[] = $ask;
+        }
+
+        return $disease;
+    }
+}

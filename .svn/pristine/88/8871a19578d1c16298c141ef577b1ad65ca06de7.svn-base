@@ -1,0 +1,1138 @@
+function Reservation(){
+	BaseFunc.call(this);
+	var self = this;
+	
+	//预约挂号首页
+	this.resvationlist = function(){
+		$(function(){
+			//加载预约科室列表
+			self.getderpartmentlist('department_id');
+			
+			//加载预约首页预约信息表
+			self.fillDataTable();
+			
+			//批量删除
+			$('body').on('click', '#datadel',function() {					
+				var ids = $("#reservationtable").getSelectedAll();
+				if(ids.length <= 0){
+					layer.msg('请选择需要删除的选项!',{icon:2}); 
+				}else{						
+					layer.confirm('真的要删除么？', {icon: 3, title:'提醒'}, function(index){		
+						layer.close(index);	
+						self.cmd(gHttp,{controller:'ResVation',method:'delete',id:ids},function(ret){
+							if(ret.statu){									
+								layer.msg('删除成功!', {icon:1}); 
+								troad('#reservationtable');								
+							}else{									
+								layer.msg(ret.msg,{icon:2}); 								
+							}
+						});
+					});
+					
+				}
+				return false; 
+			});
+			
+			//搜索
+			$("#qry").click(function(){				
+				self.fillDataTable();
+			});	
+			
+		});  //$(function() over
+		
+	}  //reser_detail over
+	
+	//获取科室列表
+	this.getderpartmentlist=function(pid){		
+		self.cmd(gHttp,{controller:'ResDepartment',method:'getDepartments'},function(ret){			
+			var html = '';
+			if(ret.statu){				
+				departments = ret.data;				
+				html = '<option value="">选择科室</option>';
+				if(departments!=''&&departments!=null){
+					$.each(ret.data,function(i,obj){
+						html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+				}								
+				$('#'+pid).html(html);				
+			}else{
+				layer.msg(ret.msg,{icon:2});
+			}
+			return false;
+		});		
+	}
+	
+	//获取医生表表
+	this.getdoctorlist=function(pid,departID){
+		if($('#departID')!=''){
+			self.cmd(gHttp,{controller:'ResDoctor',method:'getByDepartmentID',department_id:departID},function(ret){
+				var html = '';
+				if(ret.statu){				
+					departments = ret.data;				
+					html = '<option value="">选择医生</option>';
+					if(departments!=''&&departments!=null){
+						$.each(ret.data,function(i,obj){
+							html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+						});
+					}								
+					$('#'+pid).html(html);				
+				}else{
+					layer.msg(ret.msg,{icon:2});
+				}
+				return false;
+			});	
+			
+		}
+		
+		
+	}
+	
+	/**
+	 * 医生名称联想搜索
+	 * */
+	this.findUserInfoByName = function(obj) {
+		var request_val=obj.value;			
+		var reg=new RegExp("^[\u4e00-\u9fa5]{1,}|[a-zA-Z]{1,}$"); 
+		var result=reg.test(request_val);
+		if(!result&&request_val!=''){				
+				layer.msg('请输入正确的名称',{icon:2});
+		}else{				
+				var url='';
+				var str='';				
+				url = {controller:'ResDoctor',method:'getDoctorsByName',doctorname:request_val};
+				self.cmd(gHttp,url,function(data){
+					if(data['ttl']==0){
+						str='没有该医生相关数据！';						
+					}
+					else{						
+						str+='<ul class="doctorlist">';
+						$.each(data['rows'],function(k,v){							
+							str+='<li onclick="gReservation.putintoplace('+v.id+',\''+v.name+'\')">'+v.name+'</li>';
+						});
+						str+='</ul>';
+					}	
+						
+				});
+				layer.tips(str, $(obj), {
+					tips: [1,'#78BA32'],
+					area:['120px','auto'],	
+					time:12000
+				});	
+				}
+	}
+
+	//将选中的医生姓名写入搜索框
+	this.putintoplace=function(id,name){
+		$('#doctorname').val(name);
+		$('#docID').val(id);
+		
+	}
+	
+	
+	//加载预约首页预约信息表
+	this.fillDataTable=function(){
+		$("#reservationtable").grid({
+			para:{controller:'ResVation',method:'query'},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[7]},{sClass:'text-c',aTargets:[8]},{sClass:'text-c',aTargets:[9]},{sClass:'text-c',aTargets:[10]},{sClass:'text-c',aTargets:[11]}
+				],
+			field : [
+			            {data : 'id',render : function (id, type, row) {
+						     return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+						    },
+							name: 'xuanze',
+							orderable:false
+						},
+						{ data: 'id'},
+						{ data: 'doctor'},
+						{ data: 'department'},
+						{ data: 'date'},
+						{ data: 'morningtime',render:function(value){ return value==0?'<span class="label label-default radius">休息</span>':value;},orderable:false},
+						{ data: 'aftertime',render:function(value){ return value==0?'<span class="label label-default radius">休息</span>':value;},orderable:false},
+						{ data: 'nighttime',render:function(value){ return value==0?'<span class="label label-default radius">休息</span>':value;},orderable:false},
+						{ data: 'wholeBookNum'},
+						{ data: 'mark'},
+						{ data: 'state',render:function(id,type,row){
+								  if(id=='0'){
+									  return '<span class="label label-success radius">可预约</span>';
+								  }else if(id=='1'){
+									  return '<span class="label label-warning radius">己停诊</span>';
+								  }else if(id=='2'){
+									  return '<span class="label label-default radius">己过期</span>';
+								  }								  
+							  }
+						},
+						{									  
+						  render : function(data, type, row){
+							  var str = '';
+							  if(row.state==0){
+								  str += '<a title="查看预约详情" href="javascript:;" style="text-decoration:none" onclick="gReservation.openEditWID(\'详细预约记录\',\'reservation-record.html?docID='+row.doctor_id+'&bookdate='+row.date+'\',\'900\',\'450\');"><i class="Hui-iconfont">&#xe695;</i></a> <a class="ml-5" title="申请加号" href="javascript:;"  style="text-decoration:none"  onclick="gReservation.openEditWID(\'申请临时加号\',\'position-add.html?ID='+row.id+'&state=0\',\'460\',\'420\');"><i class="Hui-iconfont">&#xe604;</i></a> <a class="ml-5" onclick="gReservation.stopBooking(0,\''+row.doctor_id+'\',\''+row.date+'\','+row.id+');return false;" title="停诊设置" href="javascript:;" style="text-decoration:none"><i class="Hui-iconfont">&#xe631;</i></a> <a title="修改排班" onclick="gReservation.openEditWID(\'修改排班信息\',\'appointment-add.html?ID='+row.id+'\',\'760\',\'400\');" href="javascript:;" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6df;</i></a> <a title="删除" href="javascript:;" onclick="gReservation.delBookInfo('+row.id+');return false;" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+							  }else if(row.state==1){
+								  str += '<a title="查看预约详情" href="javascript:;" style="text-decoration:none" onclick="gReservation.openEditWID(\'详细预约记录\',\'reservation-record.html?docID='+row.doctor_id+'&bookdate='+row.date+'\',\'900\',\'450\');"><i class="Hui-iconfont">&#xe695;</i></a> <a class="ml-5" title="申请加号" href="javascript:;"  style="text-decoration:none"  onclick="gReservation.openEditWID(\'申请临时加号\',\'position-add.html?ID='+row.id+'&state=1\',\'460\',\'420\');"><i class="Hui-iconfont">&#xe604;</i></a> <a class="ml-5" onclick="gReservation.stopBooking(1,\''+row.doctor_id+'\',\''+row.date+'\','+row.id+');return false;" title="取消停诊" href="javascript:;" style="text-decoration:none"><i class="Hui-iconfont">&#xe615;</i></a>  <a title="删除" href="javascript:;" onclick="" dataid="'+row.id+'" class="ml-5 trush" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+							  }else if(row.state==2){
+								  str += '<a title="查看预约详情" href="javascript:;" style="text-decoration:none" onclick="gReservation.openEditWID(\'详细预约记录\',\'reservation-record.html?docID='+row.doctor_id+'&bookdate='+row.date+'\',\'900\',\'450\');"><i class="Hui-iconfont">&#xe695;</i></a><a title="删除" href="javascript:;" onclick="" dataid="'+row.id+'" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+							  }							  
+							  return str;
+						  },
+						  orderable:false
+						 }
+			        ]
+				
+		});
+	}
+
+	//删除单条预约排班记录
+	this.delBookInfo=function(id){
+		layer.confirm('确定要删除吗?删除该记录也会一并删除该预约该医生的患者信息！',  {icon: 3, title:'提醒'},function(index){			
+			self.cmd(gHttp,{controller:'ResVation',method:'delete',id:id},function(re){
+				if(re.statu){
+					layer.msg('删除成功!',{icon:1});
+					troad('#reservationtable');
+				}else{
+					layer.msg('删除失败!',{icon:2});					
+				}
+				return false;
+			});
+			
+			layer.close(index);
+		});		
+	}	
+	
+	//批量删除预约排班记录
+	this.delBookInfos=function(){
+		var ids = $("#reservationtable").getSelectedAll();
+		if(ids.length <= 0){
+			layer.msg('请选择需要删除的选项!',{icon:2}); 
+		}else{						
+			layer.confirm('真的要删除么？', {icon: 3, title:'提醒'}, function(index){		
+				layer.close(index);	
+				self.cmd(gHttp,{controller:'ResVation',method:'delete',id:ids},function(ret){
+					if(ret.statu){									
+						layer.msg('删除成功!', {icon:1}); 
+						troad('#reservationtable');
+						$('.firstone').attr('checked', false);
+					}else{									
+						layer.msg(ret.msg,{icon:2}); 
+						
+					}
+				});
+			});
+			
+		}
+		return false; 
+		
+	}
+	
+	
+	//科室管理
+	this.department_manager=function(){
+		$(function(){			
+			//数据导入按钮控制
+			self.dep_checkdate();
+			//加载科室数据表			
+			self.getDepartmentstable();
+			//查询
+			$('#qry').click(function(){				
+				if($('#name').val()==''){
+					layer.msg('请输入要搜索的关键词',{icon:2});
+					return false;
+				}else{
+					self.getDepartmentstable();	
+				}
+							
+			});
+			
+			
+			//批量删除
+			$('body').on('click', '#datadel',function() {
+				var ids = $("#departmentlist").getSelectedAll();
+				if(ids.length <= 0){
+					layer.msg('请选择需要删除的选项!',{icon:2}); 
+				}else{				
+					layer.confirm('真的要删除么？', {icon: 3, title:'提醒'}, function(index){				  
+						layer.close(index);	
+						self.cmd(gHttp,{controller:'ResDepartment',method:'del',id:ids},function(ret){
+							if(ret.statu){							
+								layer.msg('删除成功!',{icon:1}); 
+								troad('#departmentlist');					
+
+							}else{							
+								layer.msg(ret.msg, {icon:2}); 
+								
+							}
+						});
+					});
+					
+				}
+				return false;
+			});
+			
+		});
+		
+	}
+	
+	//停诊设置
+	this.stopBooking=function(type,docID,date,id){
+		layer.confirm('是否修改该医生的可预约状态？',{icon: 3, title:'提醒'},function(index){			
+			//如果是可预约状态改为停诊状态
+			if(type==0){
+				var sthml='';									
+				self.cmd(gHttp,{controller:'ResBookingInfo',method:'query',docID:docID,date:date},function(result){
+					if(result.ttl=='0'){
+						layer.confirm('确定要停诊吗?', {icon: 3, title:'提醒'}, function(index){
+							self.cmd(gHttp,{controller:'ResVation',method:'setstop',id:id,type:1},function(reos){
+								if(reos.statu){
+									troad('#reservationtable');	
+									layer.closeAll();
+									parent.layer.msg('操作成功',{icon:1});
+									
+								}else{
+									parent.layer.msg(reos.msg,{icon:2});
+								}
+							});	
+							layer.close(index);
+						}); 
+
+					}else{
+						layer.confirm('该医生该天己有人预约，修改为停诊前是否要通知这些患者？', {icon: 3, title:'提醒',btn: ['查看详情', '直接停诊'] //可以无限个按钮
+						 }, function(index, layero){
+						  //按钮【按钮一】的回调
+							self.cmd(gHttp,{controller:'ResVation',method:'get',id:id,type:1},function(reos){
+								if(reos.statu){
+									self.openEditWID('该医生详细预约记录','reservation-record.html?docID='+docID+'&bookdate='+date,'900','450');									
+								}
+							});
+						  
+						}, function(index){
+						  //按钮【按钮二】的回调
+							self.cmd(gHttp,{controller:'ResVation',method:'setstop',id:id,type:1},function(reos){
+								if(reos.statu){
+									troad('#reservationtable');	
+									layer.closeAll();
+									parent.layer.msg('操作成功');
+									
+								}else{
+									parent.layer.msg(reos.msg,{icon:2});
+								}
+							});	
+						});						
+					}
+				});
+			}else if(type==1){//如果是己停诊状态								
+				layer.confirm('确定要取消该医生的停诊状态吗?', {icon: 3, title:'提醒'}, function(index){
+					self.cmd(gHttp,{controller:'ResVation',method:'setstop',id:id,type:0},function(reos){
+						if(reos.statu){
+							troad('#reservationtable');	
+							layer.closeAll();
+							layer.msg('操作成功',{icon:1});
+							
+						}else{
+							layer.msg(reos.msg,{icon:2});
+						}
+					});	
+					layer.close(index);
+				}); 	
+			}else if(rets.data.state==2){
+				layer.msg('己过期数据不能更改状态！',{icon:2});
+			}						
+			layer.close(index);
+		});
+		
+	}
+	
+	//数据导入按钮控制
+	this.dep_checkdate=function(){
+		self.cmd(gHttp,{controller:'ResDepartment',method:'checkdate'},function(ret){
+			if(ret.stutes){
+				$('#exp').show();				
+			}else{				
+				$('#exp').hide();				
+			}
+		});
+    }
+	
+	//加载科室数据表
+	this.getDepartmentstable=function(){			
+		$("#departmentlist").grid({
+			para:{controller:'ResDepartment',method:'query'},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[7]}
+				],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	},			            	
+			            	orderable:false
+			            },
+			            { data: 'id'},
+			            { data: 'name',render:function(value){return value.substring(0,8)+'...'}},
+						{ data: 'description',render:function(value){return value.substring(0,30)+'...'}},
+						{ data: 'belong',render:function(value){ return value=='顶级科室'?'<span class="label label-success radius">'+value+'</span>':'<span class="label label-secondary radius">'+value+'</span>';}},
+			            { data: 'num'},
+			            { data: 'resernum'},
+
+			            {data: 'id',						  
+						  render : function(value){
+							  var str = '';
+							  str += '<a style="text-decoration:none" href="javascript:;" onclick="departmentManage.openEditWID(\'编辑预约科室信息\',\'edit-department.html?id='+value+'\',\'800\',\'450\')" title="编辑预约科室信息"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5"  onclick="departmentManage.openEditWID(\'编辑该科室医生\',\'doctor-to-department.html?id='+value+'\',\'800\',\'450\')" href="javascript:;" title="编辑该科室医生"><i class="Hui-iconfont">&#xe62b;</i></a> <a style="text-decoration:none" class="ml-5"  title="删除" onclick="departmentManage.delthisDepartment('+value+')"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  },
+						  orderable:false
+						 }
+			        ]
+				
+		});		
+		
+	}//getDepartmentstable over
+	
+	//删除单个科室信息
+	this.delthisDepartment=function(id){
+		layer.confirm('确定要删除吗?', {icon: 3, title:'提醒'}, function(index){
+		  //do something
+		  self.cmd(gHttp,{controller:'ResDepartment',method:'del',id:id},function(result1){
+				if(result1.statu){
+					parent.layer.msg('删除成功!',{icon:1});
+					troad('#departmentlist');	
+					self.dep_checkdate();					
+				}else{
+					parent.layer.msg(result1.msg,{icon:2});							
+				}				
+		  });
+		  layer.close(index);
+		});
+		
+	}
+	
+	//导出数据
+	this.exportdate=function(type){
+		var post='';
+		if(type=='department'){
+			post={controller:'ResDepartment',method:'exportdate'};
+		}else if(type=='doctor'){
+			post={controller:'ResDoctor',method:'exportdate'};			
+		}
+		self.cmd(gHttp,post,function(ret){
+			if(ret.stutes){
+				var html='';
+				html+='<div class="row cl text-c pd-10">数据己准备完毕...</div><div class="row cl"><div class="col-12 text-c"><a href="'+ret.url+'" class="btn btn-success radius"><i class="Hui-iconfont">&#xe641;</i> 开始下载</a></div></div>';
+				layer.open({
+					type:1,							
+					content: html,
+					title:'下载数据',
+					area: ['252px', '120px'],
+				});	
+			}else{					
+				layer.alert('导出数据失败!请重试',{icon:2}); 
+			}
+		});			
+	}
+
+	
+	//编辑科室
+	this.editorDepartment=function(){
+		$(function(){			
+			//获取科室列表
+			self.getderpartmentlist('department_id');			
+			var post = {controller:'ResDepartment',method:'addDepartment'};
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//编辑
+				post = {controller:'ResDepartment',method:'editDepartment',id:para.id};
+				self.cmd(gHttp,{controller:'ResDepartment',method:'get',id:para.id},function(result1){
+					if(result1.statu){						
+						$('#formEdit').frmFill('',result1.data);
+					}else{
+						layer.alert(result1.msg,{icon:2});
+					}
+				});	
+				$('#department_id').change(function(){
+					$('#errormsgs').html();
+					var text=$(this).find('option:selected').text();					
+					if(text==$('#title').val()){
+						$('#errormsgs').html('<span class="Validform_checktip Validform_wrong">不能将自身设为上级</span>');
+						//layer.msg('不能将自身设为上级',{icon:2});
+						$(this).val('');
+						
+					}
+				});
+				
+			}			
+			
+			//保存
+			$('#save').click(function(){				
+				self.saveDepartment(post);
+			});
+			
+			
+			
+		});	
+	}//editorDepartment over
+	
+	//保存科室信息
+	this.saveDepartment=function(post){
+		$('#formEdit').checkAndSubmit('save', post,function(ret){
+			if(ret.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+			}else{
+				parent.layer.alert(ret.msg,{icon:2});
+			}
+			return false;
+		});		
+		$('#formEdit').submit();		
+	}
+	
+	//门诊医生设置 
+	this.departmentDoctor=function(){
+		$(function(){
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");		
+			//切换选择卡时刷新页面信息
+			$(".tabBar span").click(function(){
+				var num=$(this).index();
+				if(num==1){
+					self.onloadOtherDoctor(para.id);
+				}			
+			});			
+			if(para.id!=''){
+				var post = {controller:'ResDoctor',method:'query',department_id:para.id};				
+			}			
+			$("#doctortodepartment").grid({
+				para:post,
+				aoColumnDefs : [
+					{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]},{sClass:'text-l',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+								],
+				field : [
+							{
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	},
+				            	name: 'xuanze',
+				            	orderable:false
+				            },
+                            { data: 'id',name:'id' },
+				            { data: 'name',name:'name' },
+				            { data: 'pic',name:'pic',
+				            	render:function(value){
+				            		if(value!=""){
+				            		var picth='';
+				            		picth +='<img width="90px" height="100px" src="/upload/'+value+'" />';
+				            		return picth;
+				            		}else{
+				            			return null;
+				            		}
+				            	},
+				            	orderable:false
+				            	},
+				            { data: 'description',render:function(value){return value.substring(0,50)+'...';}},
+				            { data : 'id',				            
+							  render : function(value){								
+								  var str = '';
+								  str += '<a title="将该医生从本科室迁出" style="text-decoration:none" onclick="doctortodepart.moveout('+value+');"><i class="Hui-iconfont">&#xe6de;</i></a>';
+						    	  return str;
+							  },
+							  orderable:false
+							 }
+						]
+				
+			});
+			//加载所有非本科室医生信息
+			self.onloadOtherDoctor(para.id);
+			
+			//搜索医生
+			$('#searchbu').on('click',function(){
+				self.onloadOtherDoctor(para.id,$('#keywordin').val());	
+			});
+			
+			//批量迁出医生
+			$('body').on('click','#moveout',function(){
+				var ids = $("#doctortodepartment").getSelectedAll();
+					if(ids.length <= 0){
+						layer.msg('请选择需要从本科室迁出的医生!',{icon:2}); 
+					}else{				
+						layer.confirm('真的要迁出这些医生么？', {icon: 3, title:'提醒'}, function(index){
+						layer.close(index);
+						self.cmd(gHttp,{controller:'ResDoctor',method:'change_relation',id:ids},function(ret){
+							if(ret.statu){							
+								parent.layer.msg('迁出成功!',{icon:1}); 
+								troad('#doctortodepartment');	
+								self.onloadOtherDoctor(para.id);
+								parent.departmentManage.getDepartmentstable();
+							}else{							
+								parent.layer.msg(ret.msg,{icon:2}); 							
+							}
+						});
+					});
+					
+				}
+				return false; 			
+			});
+			
+			//向科室迁入医生
+			$('body').on('click','#chooseitem',function(){
+				var check_val=[];				
+				var tbody=$('#doctor_list');			  
+				var checks=tbody.find('input[type="checkbox"]');
+				for(var i=0; i<checks.length;i++){
+					if(checks[i].checked){
+						check_val.push(checks[i]);
+					}
+				}				
+				ids=[];
+				$.each(check_val,function(i,obj){
+					ids[i] = obj.value;
+				});	
+				
+				self.cmd(gHttp,{controller:'ResDoctor',method:'changedepartment',department_id:para.id,id:ids},function(re){
+					if(re.stute){
+						layer.msg('医生己迁入，请切换至己有医生项查看');						
+						self.onloadOtherDoctor(para.id);
+						troad('#doctortodepartment');
+						parent.departmentManage.getDepartmentstable();
+						
+					}else{
+						layer.msg(ret.msg, function(){					
+						}); 
+					}
+					
+			   });
+				
+			});
+			
+			
+		});
+		
+	}  //departmentDoctor over
+	
+	//单个医生迁出
+	this.moveout=function(id){
+		var post={controller:'ResDoctor',method:'change_relation',id:id};		
+		self.cmd(gHttp,post,function(re){
+			if(re.statu){
+				parent.layer.msg('医生己从本科室迁出，需要再次导入请在迁入医生中操作',{icon:1});
+				troad('#doctortodepartment');	
+				self.onloadOtherDoctor(id);	
+				parent.departmentManage.getDepartmentstable();
+			}else{
+				parent.layer.msg(re.msg,{icon:2}); 
+			}
+			
+		});
+	}
+	
+	
+	//加载所有非本科室医生信息
+	this.onloadOtherDoctor=function(id,name){
+		var post={controller:'ResDoctor',method:'get_otherdoctor',department_id:id};
+		if(name!=''){
+			post={controller:'ResDoctor',method:'get_otherdoctor',department_id:id,name:name};
+		}
+		self.cmd(gHttp,post,function(res){
+			if(res.statu){
+				var strs='';
+				$.each(res.data, function(idx, obj) {
+					strs+='<li class="clinic_item"><input type="checkbox" value="'+obj.id+'" calss="doctorother" >&nbsp;'+obj.name+'</li>'; 
+				});															
+				$('#doctor_list').html(strs);
+				
+			}
+			
+		});
+
+	}
+	
+	
+	//医生管理
+	this.doctor_manager=function(){
+		$(function(){
+			//加载医生数据表
+			self.getReserDotor();
+			
+			//批量删除
+			$('body').on('click', '#datadel',function() {
+				var ids = $("#TotalDoctorlist").getSelectedAll();
+				if(ids.length <= 0){
+					layer.msg('请选择需要删除的选项!',{icon:2}); 
+				}else{				
+					layer.confirm('真的要删除么？', {icon: 3, title:'提醒'}, function(index){				  	
+						layer.close(index);				
+						self.cmd(gHttp,{controller:'ResDoctor',method:'del',id:ids},function(ret){
+							if(ret.statu){
+								layer.msg('删除成功!',{icon:1}); 
+								troad('#TotalDoctorlist');								
+							}else{							
+								layer.msg(ret.msg,{icon:2}); 							
+							}
+						});
+					});
+					
+				}
+				return false; 
+			});
+			//查询
+			$('#qry').click(function(){
+				self.getReserDotor();		
+			});
+			
+		});
+		
+	}
+	
+	
+	
+	//医生数据加载
+	this.getReserDotor=function(){
+		$("#TotalDoctorlist").grid({
+			para:{controller:'ResDoctor',method:'query'},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]},{sClass:'text-c',aTargets:[4]},{sClass:'text-l',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[7]},{sClass:'text-c',aTargets:[8]}
+							],
+			field : [
+						{
+				            	data : 'id',
+				            	render : function (value) {
+				            		return '<input type="checkbox" name="tr_'+value+'" id="tr_'+value+'" value="'+value+'">';
+				            	},
+				            	orderable:false
+				            },
+                            { data: 'id'},
+				            { data: 'name'},
+				            { data: 'pic',render:function(value){
+				            		if(value!=""){				            		
+										return '<img width="90px" height="100px" src="/upload'+value+'" />';
+				            		}else{
+				            			return null;
+				            		}
+				            	},
+				            	orderable:false
+				            	},
+							{ data: 'department_name'},	
+				            { data: 'description',render:function(value){return value.substring(0,60)+'...';}},					
+							{ data: 'resernum'},
+							{ data: 'mark'},
+				            { data : 'id',
+							  render : function(value){								
+								  var str = '';
+								  str += '<a class="ml-5 editdoctor" title="编辑" style="text-decoration:none" onclick="doctormanager.openEditWID(\'编辑医生信息\',\'edit-doctor.html?id='+value+'\',\'900\',\'450\')"><i class="Hui-iconfont">&#xe6df;</i></a><a title="关联形象展示医生" class="ml-5"  onclick="doctormanager.openEditWID(\'关联形象展示医生\',\'doctor-to-doctor.html?id='+value+'\',\'900\',\'450\')" style="text-decoration:none"><i class="Hui-iconfont">&#xe60e;</i></a><a title="删除" class="ml-5"  onclick="doctormanager.delDoctor('+value+')" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  },
+							  orderable:false
+							}
+					]
+			
+		});
+		
+	}//getReserDotor over
+	
+	//新增/编辑医生信息
+	this.editorinfo=function(){
+		$(function(){
+
+			var post = {controller:'ResDoctor',method:'addDoctor'};
+			
+			//加载预约科室列表
+			self.getderpartmentlist('department_id');
+				
+			//获取参数
+			var para = self.parseUrl(window.location.href);			
+			if (para.id != undefined) {
+				//编辑
+				post = {controller:'ResDoctor',method:'ediorDoctor',id:para.id};
+				self.cmd(gHttp,{controller:'ResDoctor',method:'getDoctorsById',id:para.id},function(ret){
+					if(ret.statu){							
+						$('#doctorform').frmFill('',ret.data);
+						if(ret.data.pic!=''){
+							$('#thumbnail_doc').attr('src','../../upload'+ret.data.pic);
+						}						
+					}else{
+						layer.alert(ret.msg,{icon:2});
+					}
+				});			
+			}			
+			self.onloadCss();
+			//保存
+			$('#savedoc').click(function(){
+				$('#doctorform').checkAndSubmit('savedoc',post,function(ret){
+					if(ret.statu){
+						var url=parent.location.href;				
+						parent.layer.msg('操作成功!',{icon: 1});		
+						parent.location.replace(url);						
+						layer_close();
+						
+					}else{
+						layer.alert(ret.msg,{icon: 2});
+					}
+
+				});
+				
+				$('#doctorform').submit();
+				
+			});
+		
+		});
+		
+	}//editorinfo over
+	
+	//删除单个医生信息
+	this.delDoctor=function(id){
+		layer.confirm('真的要删除么？', {icon: 3, title:'提醒'}, function(index){
+			layer.close(index);
+			self.cmd(gHttp,{controller:'ResDoctor',method:'del',id:id},function(ret){
+				if(ret.statu){							
+					layer.msg('删除成功!',{icon:1}); 
+					troad('#TotalDoctorlist');
+					self.checkdate();
+				}else{							
+					layer.msg(ret.msg,{icon:2}); 							
+				}
+				return false;
+			});
+		});
+	}
+	
+	//查看详细预约记录
+	this.bookinginfo=function(){
+		$(function(){			
+			var para = self.parseUrl(window.location.href);				
+			if(para.docID!=''&&para.bookdate!=''){
+				self.getBookingList(para.docID,para.bookdate);	
+			}
+			$('#qry').click(function(){				
+				if($('#name').val()==''&&$('#phone').val()==''){
+					layer.msg('请至少输入患者姓名或电话之一',{icon:2});	
+					return false;	
+				}
+				else{
+					self.getBookingList(para.docID,para.bookdate);	
+				}					
+			});
+		});
+		
+		
+	}
+	
+	//加载某医生预约详情表
+	this.getBookingList=function(docID,bookingDate){
+		$("#BookingList").grid({
+			para:{controller:'ResBookingInfo',method:'query',docID:docID,date:bookingDate},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[3]},{sClass:'text-c',aTargets:[4]},{sClass:'text-l',aTargets:[5]},{sClass:'text-c',aTargets:[6]},{sClass:'text-c',aTargets:[7]},{sClass:'text-c',aTargets:[8]}
+							],
+			field : [
+						{
+							data : 'id',
+							render : function (id, type, row) {
+								return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+							},
+							name: 'xuanze',
+							orderable:false
+						},
+						{ data: 'id',name:'id' },
+						{ data: 'username',name:'username' },
+						{ data: 'telephone',name:'telephone'},
+						{ data: 'departmentname',name:'department' },
+						{ data: 'doctorname',name:'doctor'},
+						{ data: 'date',name:'date' },
+						{ data: 'times',name:'times' },
+						{ data: 'statu',name:'statu'}						
+					]
+				
+			});
+		
+	}
+	
+	//为某医师申请临时加号
+	this.addnewposition=function(){
+		var para = self.parseUrl(window.location.href);			
+		if(para.ID!=undefined&&para.state!=undefined){
+			var state=para.state;
+			if(state==1){
+				parent.layer.alert('己停诊数据不能申请加号，请先修改状态至可预约！',{icon:2});				
+			}else{
+				self.cmd(gHttp,{controller:'ResVation',method:'get',id:para.ID},function(reos){
+					if(reos.statu){
+						$('#departmentName').html(reos.data.department);
+						$('#doctorName').html(reos.data.doctor);						
+						$('#visitDate').html(reos.data.date);
+						$('#dataid').val(para.ID);	
+						$('#morning_source').val(reos.data.morning_source);
+						$('#afternoon_source').val(reos.data.afternoon_source);
+						$('#night_source').val(reos.data.night_source);
+						var str='<option value="">请选择</option>';
+						if(reos.data.morning!=''){
+							str+='<option value="mor_'+reos.data.morning_source+'">'+reos.data.morning+'</option>';
+						}
+						if(reos.data.afternoon!=''){
+							str+='<option value="aft_'+reos.data.afternoon_source+'">'+reos.data.afternoon+'</option>';
+						}
+						if(reos.data.night!=''){
+							str+='<option value="nig_'+reos.data.night_source+'">'+reos.data.night+'</option>';
+						}						
+						$('#visitTime').html(str);
+					}					
+				});	
+				$('#addnum').on('click',function(){										 
+					var msg=$(this).attr('info');
+					layer.tips(msg, $(this), {
+						tips: [3,'#78BA32'],
+						time:9000
+					});
+				});				
+				
+				$('#addnum').change(function(){
+					var type=$('#timeType').val();
+					var num=parseInt($(this).val())+parseInt($('#beforeNum').val());
+					if(type!=''){
+						if(type=='mor'){
+							$('#morning_now').val(num);
+						}else if(type=='aft'){
+							$('#afternoon_now').val(num);
+						}else if(type=='nig'){
+							$('#night_now').val(num);
+						}
+					}
+				});
+				//保存加号信息
+				$('#save').on('click',function(){
+					self.savePosition();
+				});
+			}	
+			
+		}
+	}
+	
+	//时间段号源联动
+	this.setSource=function(value){
+		var arr=value.split('_');
+		$('#beforeNum').val(arr[1]);
+		$('#timeType').val(arr[0]);
+	}
+	
+	//保存新增的号源
+	this.savePosition = function(){
+		var id = $('#dataid').val();
+		var morNum=$('#morning_now').val();
+		var aftNum=$('#afternoon_now').val();
+		var nigNum=$('#night_now').val();
+		var url = {controller:'ResVation',method:'update_num',morning_source:morNum,afternoon_source:aftNum,night_source:nigNum};    	
+		$('#saveNewPosition').checkAndSubmit('save', url,function(result1){
+			if(result1.statu){				
+				//更新select
+				parent.$('#reservationtable').dataTable().api().ajax.reload();
+				parent.gReservation.fillDataTable();
+				var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index);	
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#saveNewPosition').submit();
+	}
+	
+	//编辑/新增预约信息
+	this.editorResVation=function(){
+		$(function(){
+			var para = self.parseUrl(window.location.href);	
+			var url={controller:'ResVation',method:'addResvation'};  
+			//加载预约科室列表
+			self.getderpartmentlist('department_id');					
+			if(para.ID!=undefined){
+				self.cmd(gHttp,{controller:'ResVation',method:'get',id:para.ID},function(reos){
+					if(reos.statu){
+						url = {controller:'ResVation',method:'update_num',id:para.ID};
+						$('#addreserform').frmFill('',reos.data);
+						//加载预约医生列表
+						self.getdoctorlist('doctor_id',reos.data.department_id);
+						if(reos.data.doctor_id!=''){
+							$('#doctor_id').val(reos.data.doctor_id);							
+						}						
+					}					
+				});	
+			}
+			self.onloadCss();
+			//科室与医生联动事件
+			$('#department_id').on('change',function(){				
+				if($(this).val()!=undefined){
+					self.getdoctorlist('doctor_id',$(this).val());
+				}
+			});	
+			
+			
+			
+			//排班时间点更改时改变对应拼接的值
+			$('input.timebox').change(function(){				
+				var type=$(this).attr('id').split('_');
+				$('.'+type[0]+'_msgbox').html('');
+				var value=$('#'+type[0]+'_Start').val()+'-'+$('#'+type[0]+'_End').val();
+				if(value!='-'){
+					$('#'+type[0]).val(value);
+				}else{
+					$('#'+type[0]).val('');
+				}
+				
+			});
+			
+			//号源更改
+			$('.sourceNum').change(function(){
+				var num=0;				
+				$('input.sourceNum').each(function(){
+					if($(this).val()!=''){
+						num+=parseInt($(this).val());
+					}					
+				});
+				$('#wholeNum').val(num);
+			});
+			
+			//保存 
+			$('#save').on('click',function(){
+				var obj=$('#addreserform').checkAndSubmit('save', url,function(result1){					
+					if(result1.statu){
+						parent.layer.msg('数据保存成功！',{icon:1});	
+						//更新select
+						parent.$('#reservationtable').dataTable().api().ajax.reload();
+						parent.gReservation.fillDataTable();
+						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+						parent.layer.close(index);	
+					}else{
+						parent.layer.alert(result1.msg,{icon:2});
+					}
+				});				
+				if($('#morning').val()!=''&&obj.check('false','#morning')){					
+					obj.unignore('#morning_source');
+					
+				}else if($('#morning').val()==''){
+					obj.ignore('#morning_source');
+					$(".morerror").html('');
+				}
+				if($('#afternoon').val()!=''&&obj.check('false','#afternoon')){					
+					obj.unignore('#afternoon_source');
+					
+				}else if($('#afternoon').val()==''){
+					obj.ignore('#afternoon_source');
+					$(".afterror").html('');
+				}
+				if($('#night').val()!=''&&obj.check('false','#night')){					
+					obj.unignore('#night_source');
+					
+				}else if($('#night').val()==''){
+					obj.ignore('#night_source');
+					$(".nigerror").html('');
+				}				
+				if($('#morning_source').val()!=''&&obj.check('false','#morning_source')){
+					obj.unignore('#morning_Start,#morning_End');
+				}else if($('#morning_source').val()==''){
+					obj.ignore('#morning_Start,#morning_End');
+					$(".mortimeerror").html('');
+				}
+				if($('#afternoon_source').val()!=''&&obj.check('false','#afternoon_source')){
+					obj.unignore('#afternoon_Start,#afternoon_End');
+				}else if($('#afternoon_source').val()==''){
+					obj.ignore('#afternoon_Start,#afternoon_End');
+					$(".afttimeerror").html('');
+				}
+				if($('#night_source').val()!=''&&obj.check('false','#night_source')){
+					obj.unignore('#night_Start,#night_End');
+				}else if($('#night_source').val()==''){
+					obj.ignore('#night_Start,#night_End');
+					$(".nigtimeerror").html('');
+				}				
+				$('#addreserform').submit();
+			});	
+		});
+	}
+	
+	this.getsameresvation=function(value){		
+		var para = self.parseUrl(window.location.href);	
+		if(para.ID==undefined){	
+			$('#errormsg').html('');
+			$('div.enablebox').find('input,button').removeAttr('disabled');			
+			var depID=$('#department_id').val();
+			var docID=$('#doctor_id').val();
+			if(value!=''&&depID!=''&&docID!=''){
+				self.cmd(gHttp,{controller:'ResVation',method:'getDataByDocID',docID:docID,depID:depID,date:value},function(reos){
+					if(reos.statu){
+						$('#errormsg').html('<span class="Validform_checktip Validform_wrong">'+reos.msg+'</span>');
+						$('div.enablebox').find('input,button').attr('disabled','disabled');	
+					}					
+				});
+			}				
+		}
+		
+	}
+	
+	//预约医生关联前端展示医生
+	this.setDocRelationship=function(){
+		$(function(){
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");	
+			var para = self.parseUrl(window.location.href);				
+			if(para.relationID!=undefined){
+				
+			}else{
+				$("#department_id").fillDepartment();
+				self.cmd(gHttp,{controller:'Doctor',method:'query'},function(re){
+					var str='';
+					$.each(re.rows, function(idx, obj) {
+						str+='<li class="clinic_item radio-box"><input type="radio" value="'+obj.id+'" name="doctorother" >&nbsp;'+obj.name+'</li>'; 
+					});															
+					$('#doctor_list').html(str);
+				});
+			}
+			
+
+			/**
+			 * 自动搜索
+			 */
+			$('#department_id, #keywords,#searchbu').on( 'keyup click change', function () { 
+				var name=$.trim($('#keywords').val()); 
+				var department_id = $("#department_id").val(); 
+				if(name!=undefined||department_id!=undefined){
+					self.cmd(gHttp,{controller:'Doctor',method:'query',name:name,department_id:department_id},function(re){
+						var str='';
+						$.each(re.rows, function(idx, obj) {
+							str+='<li class="clinic_item radio-box"><input type="radio" value="'+obj.id+'" calss="doctorother" >&nbsp;'+obj.name+'</li>'; 
+						});															
+						$('#doctor_list').html(str);
+						self.onloadCss();
+						
+					});
+					
+				}
+				
+			});	
+			self.onloadCss();
+			/*
+			*保存医生关联
+			*/
+			$('#chooseitem').click(function(){				
+				var value=$(':radio:checked').val();				
+				if(value==''||value==undefined){
+					parent.layer.msg('请选择要关联的展示医生！',{icon:1});
+				}else{
+					if(para.id!=undefined){
+						url={controller:'ResDoctor',method:'updata_relation',relation_id:value,id:para.id};
+						self.cmd(gHttp,url,function(re){
+							if(re.statu){
+								parent.layer.msg(re.msg,{icon:2});
+							}else{
+								parent.layer.msg(re.msg,{icon:1});
+							}
+						});
+					}else{
+						
+					}
+					
+				}
+				
+			});
+		});		
+	}
+	
+	
+}//	ResVation over

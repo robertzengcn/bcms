@@ -1,0 +1,60 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class PatientData extends Entity {
+
+  var $id;
+  
+  var $day_1_sex_1;
+  
+  var $day_2_sex_1;
+  
+  var $day_3_sex_1;
+  
+  var $day_1_sex_2;
+  
+  var $day_2_sex_2;
+  
+  var $day_3_sex_2;
+  
+  var $customer_1_sex_1;
+ 
+  var $customer_1_sex_2;
+  
+  var $customer_2_sex_1;
+  
+  var $customer_2_sex_2;
+  
+  var $pids_1;
+  
+  var $pids_2;
+  
+  var $visit_num;
+    
+  var $total_num;
+  
+  var $total_money;
+  
+  var $reception;
+  
+  var $source;
+  
+  var $department;
+  
+  var $project;
+  
+  var $disease;
+  
+  var $doctor;
+
+  var $age_1;
+  
+  var $age_2;
+  
+  var $week;
+  
+  var $daytime;
+   
+    public function validate() {
+    }
+}

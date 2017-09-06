@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="/hcc/h5/css/show.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>公众号发布</title>
+<style>
+	.mysite{
+		padding-top: 20px;
+		padding-bottom: 20px;
+		border-bottom: 1px solid #eee;
+	}
+
+	.mysite2{
+		color: #666;
+		padding-top: 20px;
+		padding-bottom: 20px;
+	}
+
+	.mysite .site-level{
+		color: #fff;
+		background: #36a8dc;
+		line-height: 24px;
+		display: inline-block;
+		padding-left: 5px;
+		padding-right: 5px;
+		margin-right: 15px;
+		border-radius: 4px;
+	}
+
+	.all-pv {
+	    width: 200px;
+	    height: 200px;
+	    margin: 65px auto;
+	    color: #59c7f9;
+	    padding-top: 40px;
+	    border-radius: 200px;
+    	border: 15px solid #59c7f9;
+	    -webkit-transition: transform .2s;
+	    -webkit-transition: -webkit-transform .2s;
+	    transition: -webkit-transform .2s;
+	    transition: transform .2s;
+	    transition: transform .2s, -webkit-transform .2s;
+	}
+
+	.all-pv span{
+		display: block;
+	}
+
+	.all-pv .summeryNum{
+		font-size: 30px;
+		text-align: center;
+	}
+
+	.all-pv .tip{
+		text-align: center;
+	}
+
+	.all-pv .emphasis {
+	    font-size: 14px;
+	    margin-top: 15px;
+	    color: #fff;
+	    margin-left: auto;
+	    margin-right: auto;
+	    width: 36px;
+	    text-align: center;
+	    border-radius: 25px;
+	    background-color: #59c7f9;
+	}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe6c3;</i> 营销活动策划 <span class="c-gray en">&gt;</span> H5场景秀  <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<nav class="mainnav cl">
+		<ul class="cl ifr_list">
+			<li class="menulist"><a href="javascript:;" _href="/hcc/h5/show.html" id="li_menu">我的场景</a></li>
+			<li class="menulist current"><a href="javascript:;" _href="/hcc/h5/data.html">访问数据</a></li>
+			<li class="menulist"><a href="javascript:;" _href="/hcc/h5/spread.html">公众号发布</a></li>
+		</ul>
+	</nav>
+	<input type="hidden" id="timeline" value="0" />
+	<input type="hidden" id="appmessage" value="0" />
+	<input type="hidden" id="qq" value="0" />
+	<input type="hidden" id="qzone" value="0" />
+	<input type="hidden" id="weibo" value="0" />
+	<input type="hidden" id="other" value="0" />
+				<div class="right">
+					<div class="container wbox">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="mysite">
+								    <table width="100%" cellspacing="0" cellpadding="0" border="0">
+										<tbody>
+										<tr valign="middle">
+											<td width="120">
+												<img height="100" width="100" src="/upload/show/default_thum.jpg">
+											</td>
+											<td align="left">
+												<p class="sitename"></p>
+												<p class="showcount">访问量：0次</p>
+												<p></p>
+												<p class="link">场景链接：<a target="_blank" href=""></a></p>
+												<p></p>
+											</td>
+										</tr>									
+										</tbody>
+									</table>
+								</div>
+								<div class="mysite2">
+									<table class="table table-bordered">
+										<tbody>
+											<tr>
+												<td width="50%">
+													<h4>总访问量</h4>
+													<div class="all-pv">
+														<span class="summeryNum">0</span>
+														<span class="tip">总浏览次数</span>
+														<span class="emphasis">PV</span>
+													</div>
+												</td>
+												<td width="50%">
+													<h4>分享渠道</h4>
+													<div style="width: 100%; height: 300px; position: relative; background: transparent none repeat scroll 0% 0%;" id="main">
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>							
+						</div>
+					</div>
+				</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/h5/js/echarts.min.js"></script>
+<script type="text/javascript" src="../js/boyicms/show.js"></script>
+<script>
+var gH5 = new H5();
+gH5.setThisName('gH5');
+gH5.initDetail();
+
+var timeline = $("#timeline").val();
+var appmessage=$("#appmessage").val();
+var qq = $("#qq").val();
+var qzone=$("#qzone").val();
+var weibo=$("#weibo").val();
+var other=$("#other").val();
+
+var myChart = echarts.init(document.getElementById('main'));
+option = {
+    tooltip: {
+        trigger: 'item',
+        formatter: "{a} <br/>{b}: {c} ({d}%)"
+    },
+    color:['#49d5b2', '#f7c15d','#ff79a2','#5bc6fa','#facd4c','#8d91ff'],
+    legend: {
+        orient: 'vertical',
+        x: 'right',
+        data:['微信朋友圈','微信朋友','QQ好友','QQ空间','微博','其他']
+    },
+    series: [
+        {
+            name:'分享渠道',
+            type:'pie',
+            radius: ['50%', '70%'],
+            avoidLabelOverlap: false,
+            label: {
+                normal: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    show: true,
+                    textStyle: {
+                        fontSize: '30',
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            labelLine: {
+                normal: {
+                    show: false
+                }
+            },
+            data:[
+                {value:timeline, name:'微信朋友圈'},
+                {value:appmessage, name:'微信朋友'},
+                {value:qq, name:'QQ好友'},
+                {value:qzone, name:'QQ空间'},
+                {value:weibo, name:'微博'},
+                {value:other, name:'其他'}
+            ]
+        }
+    ]
+};
+myChart.setOption(option);
+</script>
+</body>
+</html>

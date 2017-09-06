@@ -1,0 +1,358 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/rs-temp.css">
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>排班模板管理</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="">		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择科室：</label>	
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="" class="select">
+					<option value="0">请选择</option>
+				</select>
+				</span> </div>							
+			<label class="form-label col-2"><span class="c-red">*</span>排班模式：</label>
+			<div class="formControls col-4 skin-minimal"><!--add col-91 css-->
+				<div class="radio-box">
+					<input type="radio" id="" name="" datatype="*" checked="checked" nullmsg="">
+					<label>每周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="" name="">
+					<label>两周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="" name="">
+					<label>每月循环</label>
+				</div>
+			</div>		
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">模板名称：</label>
+			<div class="formControls col-4">
+				<input type="text" class="input-text keywords" value="" placeholder="请给该模板一个名称，便于以后使用时识别及管理" id="" name="">
+			</div><button onClick="" class="btn btn-success radius" type="submit"><i class="Hui-iconfont">&#xe623;</i> 生成模板</button>	
+		</div>
+		<div class="row cl">		
+			<table class="viewbox ml-30 table-border table-bordered">
+			  <tbody>
+				<tr>
+				  <td width="120px" height="286px"><div style="width:100%;height:100%">
+					  <table cellspacing="0" cellpadding="0" border="0" class="beginbox">
+						<tbody>
+						  <tr>
+							<td class="viewtitle  h-60"><a class="scroll-bt prew" href="#"><i class="Hui-iconfont" style="font-size:20px;">&#xe69b;</i></a></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60">上午<br>
+							  <input type="text" value="8:00" id="mStart" class="timein">
+							  -
+							  <input type="text" value="12:00" id="mEnd" class="timein"></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60">下午<br>
+							  <input type="text" value="14:00" id="aStart" class="timein">
+							  -
+							  <input type="text" value="18:00" id="aEnd" class="timein"></td>
+						  </tr>
+						  <tr>
+							<td class="datebox bt-none h-60">晚上<br>
+							  <input type="text" value="19:00" id="nStart" class="timein">
+							  -
+							  <input type="text" value="22:00" id="nEnd" class="timein"></td>
+						  </tr>
+						</tbody>
+					  </table>
+					</div></td>
+				  <td valign="top" height="286px">
+				  	<div class="itembox">
+					  <div class="listbox">
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周一</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="1monname"></span><br>
+								<span class="showmore" id="1monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="1mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="1mon_inp">
+								</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="1aftname"></span><br>
+								<span class="showmore" id="1aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="1aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="1aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none  h-61 show-control"><span id="1nigname"></span><br>
+								<span class="showmore" id="1nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="1nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="1nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周一-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周二</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-61 show-control"><span id="2monname"></span><br>
+								<span class="showmore" id="2monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="2mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="2mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="2aftname"></span><br>
+								<span class="showmore" id="2aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="2aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="2aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td  class="datebox bt-none h-61 show-control"><span id="2nigname"></span><br>
+								<span class="showmore" id="2nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="2nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="2nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周二-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td height="61px" class="viewtitle h-61">周三</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-61 show-control"><span id="3monname"></span><br>
+								<span class="showmore" id="3monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="3mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="3mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="3aftname"></span><br>
+								<span class="showmore" id="3aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="3aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="3aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none h-61 show-control"><span id="3nigname"></span><br>
+								<span class="showmore" id="3nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="3nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="3nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周三-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle  h-61">周四</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="4monname"></span><br>
+								<span class="showmore" id="4monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="4mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="4mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-61 show-control"><span id="4aftname"></span><br>
+								<span class="showmore" id="4aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="4aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="4aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none h-61 show-control"><span id="4nigname"></span><br>
+								<span class="showmore" id="4nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="4nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="4nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周四-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周五</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="5monname"></span><br>
+								<span class="showmore" id="5monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="5mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="5mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="5aftname"></span><br>
+								<span class="showmore" id="5aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="5aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="5aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none h-61 show-control"><span id="5nigname"></span><br>
+								<span class="showmore" id="5nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="5nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="5nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周五-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周六</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="6monname"></span><br>
+								<span class="showmore" id="6monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="6mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="6mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="6aftname"></span><br>
+								<span class="showmore" id="6aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="6aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="6aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none  h-61 show-control"><span id="6nigname"></span><br>
+								<span class="showmore" id="6nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="6nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="6nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周六-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周日</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="7monname"></span><br>
+								<span class="showmore" id="7monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="7mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="7mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="7aftname"></span><br>
+								<span class="showmore" id="7aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="7aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="7aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td  class="datebox bt-none  h-61 show-control"><span id="7nigname"></span><br>
+								<span class="showmore" id="7nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="7nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="7nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周日-->
+					  </div>
+					</div></td>
+				  <td width="120px" height="286px"><div style="width:100%;height:100%">
+					  <table  cellspacing="0" cellpadding="0" border="0" class="beginbox">
+						<tbody>
+						  <tr>
+							<td class="viewtitle  h-60"><a class="scroll-bt next" href="#"><i class="Hui-iconfont" style="font-size:20px;">&#xe69a;</i></a></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60"></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60"></td>
+						  </tr>
+						  <tr>
+							<td class="datebox bt-none  h-60"></td>
+						  </tr>
+						</tbody>
+					  </table>
+					</div></td>
+				</tr>
+			  </tbody>			 
+			</table>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-5" style="text-align:left;"><b>使用本模板生成医生排班表：</b></label>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-3">起止日期：<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'logmin\')}',maxDate:'%y-%M-%d'})" id="logmax" class="input-text Wdate" style="width:120px;" name="end_time"></label>
+		<div class="formControls col-2 mt-3"><button onClick="" class="btn btn-success radius" type="submit"><i class="Hui-iconfont">&#xe638;</i> 开始生成</button></div>
+		</div>
+		<div class="row cl mt-5">
+			<div class="col-10 col-offset-1">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+		
+	$('td.show-control').on('mouseenter',function(){
+		layer.tips('己添加医生列表', $(this), {
+			tips: 3
+		});
+	});
+	
+});
+
+</script>
+</body>
+</html>

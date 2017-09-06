@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>H5场景秀</title>
+<style type="text/css">
+	/*导航条*/
+    .mainnav{z-index:1;background-color:#222}/*导航条背景*/
+    .mainnav > ul{ font-size: 0; line-height: 0}
+    .mainnav > ul > li,.mainnav > ul > li > a{height:40px;line-height:40px}/*导航条高度*/
+    .mainnav > ul > li{display:inline-block;color:#fff;font-size:14px;font-weight:bold}/*设置字体*/
+    .mainnav > ul > li > a{display:inline-block;padding:0 20px;color:#fff;text-align:center}/*链接颜色*/
+    .mainnav > ul > li > a:hover,.mainnav > ul > li.current > a{color:#fff;text-decoration:none; background-color:#e74c3c;-webkit-transition: background-color 0.3s ease 0s; -moz-transition: background-color 0.3s ease 0s; -o-transition: background-color 0.3s ease 0s; -ms-transition: background-color 0.3s ease 0s;transition: background-color 0.3s ease 0s}
+.indexBgColor{background:#f4f5f9;}
+button, html input[type="button"], input[type="reset"], input[type="submit"] {
+    cursor: pointer;
+}
+.indexBtn {border: 0 none;border-radius: 4px;display: inline-block;line-height: 32px;text-align: center;text-decoration: none;width: 106px;font-size:14px;}
+.indexBtn-save{color: #fff;	background: #44b549;	border:1px solid #d9dadc;}
+.indexBtn-save:hover{color: #fff;background: #2f9833;}
+.modal.fade.in{top:10%;}
+.modal-content {box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);}
+.modal-content {
+    background-clip: padding-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    outline: 0 none;
+    position: relative;
+}
+.form-control {
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    color: #555;
+    display: block;
+    font-size: 14px;
+    height: auto;
+    line-height: 1.42857;
+    padding: 6px 12px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: 100%;
+}
+.modal-body p {font-size: 14px;}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe6c3;</i> 营销活动策划 <span class="c-gray en">&gt;</span> H5场景秀  <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+
+<div class="pd-20">
+	<nav class="mainnav cl">
+		<ul class="cl ifr_list">
+			<li class="menulist"><a href="javascript:;" _href="/hcc/h5/show.html" id="li_menu">我的场景</a></li>
+			<li class="menulist current"><a href="javascript:;" _href="/hcc/h5/data.html">访问数据</a></li>
+			<li class="menulist"><a href="javascript:;" _href="/hcc/h5/spread.html">公众号发布</a></li>
+		</ul>
+	</nav>
+	<div class="text-c pd-10"> 
+	   <form id="frm_post">
+		场景名称：<input type="text" name="scenename_varchar" id="scenename_varchar" placeholder=" 请输入关键词..." style="width:250px" class="input-text">
+		&nbsp;日期范围：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end_time\')||\'%y-%M-%d\'}'})" id="start_time" class="input-text Wdate" style="width:120px;" name="start_time">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start_time\')}',maxDate:'%y-%M-%d'})" id="end_time" class="input-text Wdate" style="width:120px;" name="end_time">
+		
+		&nbsp;<button name="qry" id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	   </form>
+	</div>
+	<div class="cl pd-5 bg-1 bk-gray mt-10"> <span class="l"><a href="javascript:;" class="btn btn-primary radius" onClick="gH5.openEditWID('新建场景','show-add.html','560','280')"><i class="Hui-iconfont">&#xe600;</i> 立即创建</a></span></div>
+	<div class="mt-20" id="grid">
+		<table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th width="50">ID</th>
+					<th >场景名称</th>
+					<th width="200">展示次数</th>
+					<th width="200">分享次数</th>
+					<th width="150">操作</th>
+				</tr>
+			</thead>
+			<tbody class="text-c"></tbody>
+		</table>
+	</div>
+</div>
+<div aria-labelledby="urlModalLabel" role="dialog" tabindex="-1" id="urlModal" class="modal fade" style="display: none;">
+	<div role="document" class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header indexBgColor">
+				<button aria-label="Close" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+				<h4 id="urlModalLabel" class="modal-title">H5链接</h4>
+			</div>			
+			<div class="modal-body">
+				<div style="padding-right: 5px;">
+					<table width="100%" cellspacing="0" cellpadding="0" border="0">
+						<tbody><tr>
+							<td valign="middle" align="left">
+								<div style="padding: 10px;">
+									<div><center><div id="output"><canvas width="200" height="200"></canvas></div></center></div>
+								</div>
+							</td>
+							<td valign="top" align="left">
+								<div style="padding: 10px;">
+									<p>发布方式：</p>
+									<p>1.微信扫描二维码分享好友参与活动；</p>
+									<p>2.右击保存二维码，打印用于线下活动。</p>
+									<p>活动链接：</p>
+									<textarea style="resize: none;" class="form-control" id="voteurl"></textarea>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer indexBgColor">
+				<center>
+					<button data-dismiss="modal" class="btn indexBtn indexBtn-save" type="button">知道了</button>
+				</center>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="/hcc/h5/js/bootstrap.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/h5/js/jquery.qrcode.min.js"></script>
+<script type="text/javascript" src="../js/boyicms/show.js"></script>
+<script type="text/javascript">
+var gH5 = new H5();
+gH5.setThisName('gH5');
+gH5.initDataList();
+</script>
+</body>
+</html>

@@ -1,0 +1,2948 @@
+var addWin;
+var oldAddWin;
+var addReturnWin;
+var result = $.extend({},{
+	start : function(){
+		var _me = this; 
+		$('#each').getHtml('./plugin/plugins/patient/diagnoseList',function(){
+			$('#listAll').grad({
+				size : 10,
+				para : {controller:'Patient',method:'getListPatientCase',is_first:1},
+				check : true,
+				order : true,
+				page : true,
+				field : [
+					{text:'诊断日期',name:'visit_time',type:'time'},
+					{text:'病历号',name:'case_number'},
+					{text:'余额',name:'balance'},
+					{text:'姓名',name:'username'},
+					{text:'电话',name:'telphone'},
+					{text:'前台接待',name:'receptionist_user'},
+					{text:'主治医生',name:'doctor_name'},
+					{text:'病症',name:'disease_name'},
+					{text:'约定复诊',name:'return_time',type:'time'},
+					{text:'已回访',name:'visit_num'},
+					{text:'操作',name:'case_id',width:240,
+						render : function(value,rowData,rowIndex){
+							var str = '<a title="新增记录" id="'+value+'" pid="'+rowData.patient_id+'" class="btn_old_add_patient" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/addnewinfo.jpg" height="22px" /></a>';
+							str += '<a title="新增复诊" id="'+value+'" code="'+rowData.case_number+'" pid="'+rowData.patient_id+'" class="btn_add_return" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/addbackinfo.jpg" height="22px" /></a>';
+							str += '<a title="查看详细" id="'+value+'" did="'+rowData.detail_id+'" class="btn_detail" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/lookforinfo.jpg" height="22px" /></a>';
+							str += '<a title="复诊记录" id="'+value+'" code="'+rowData.case_number+'" pid="'+rowData.patient_id+'" class="btn_diagnosis" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/backinfo.jpg" height="22px" /></a>';
+							str += '<a title="回访记录" id="'+value+'" data="'+rowData.detail_id+':'+rowData.username+'" code="'+rowData.case_number+'" class="btn_visit" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/massagebg.jpg" height="22px" /></a>';
+							return str;
+						}
+					}
+				]
+			}).on('click','.btn_old_add_patient',function(){
+				//新增记录，其实是老客户新增的记录，病历号是新的
+				var pid = $(this).attr('pid');
+				var url = './plugin/plugins/patient/addPatient.html';
+				url += '?type=2&id=&code=&patient_id=' + pid;
+				var params = 'width=1000,height=600,toolbar=no,scrollbars=yes,resizable=yes';
+				if (!oldAddWin || oldAddWin.closed) {
+					oldAddWin = window.open(url, '_blank', params);
+				} else {
+					oldAddWin.window.focus();
+				}
+				
+			}).on('click','.btn_add_return',function(){ //新增复诊
+				var me = $(this);
+				var id = me.attr('id');
+				var code = me.attr('code');
+				var pid = me.attr('pid');
+				var url = './plugin/plugins/patient/addPatient.html';
+				url += '?type=3&id='+id+'&code='+code+'&patient_id=' + pid;
+				var params = 'width=1000,height=600,toolbar=no,scrollbars=yes,resizable=yes';
+				if (!addReturnWin || addReturnWin.closed) {
+					addReturnWin = window.open(url, '_blank', params);
+				} else {
+					addReturnWin.window.focus();
+				}
+				
+			}).on('click','.btn_visit',function(){ //回访
+				var me = $(this);
+				var data = me.attr('data');
+				var code = me.attr('code');
+				_me.returnVisitList(data, code);
+			}).on('click','.btn_detail',function(){ //详情
+				var me = $(this);
+				var did  = me.attr('did');
+				_me.patientDetail(did);
+			}).on('click','.btn_diagnosis',function(){ //复诊
+				var me = $(this);
+				var id = me.attr('id');
+				var code = me.attr('code');
+				var pid = me.attr('pid');
+				_me.returnDiagnosisList(id, code, pid);
+			});
+			
+			$('#add').click(function(){
+				//新增患者，完全新增
+				var url = './plugin/plugins/patient/addPatient.html';
+				url += '?type=1&id=&code=&patient_id=';
+				var params = 'width=1000,height=600,toolbar=no,scrollbars=yes,resizable=yes';
+				if (!addWin || addWin.closed) {
+					addWin = window.open(url, '_blank', params);
+				} else {
+					addWin.window.focus();
+				}
+			});
+		
+			$('#del').click(function(){
+				var data = $('#listAll').grad('getRows');
+				var ids = [];
+				if(data.length <= 0){
+					alert_message('请选择您要删除的选项!');
+				}else{
+					art.dialog({
+						title: '批量删除诊断信息',
+					    content:'确定要删除这些诊断信息吗？',
+					    fixed:true,
+					    icon: 'question',
+					    width:300,
+					    height:150,
+					    lock:true,
+					    opacity: .1,
+					    padding:0,
+					    okVal:'确定',
+					    ok:function(){
+					    	$.each(data,function(i,obj){
+								if(obj != undefined){
+									ids[i] = obj.case_id;
+								}
+							});
+					    	$('#loading').addClass('loading');
+							getData({controller:'Patient',method:'deletePatient',id:ids},function(ret){
+								$('#loading').removeClass('loading');
+								if(ret.statu){
+									alert_message(ret.msg);
+									_me.start();
+								}else{
+									alert_message(ret.msg);
+								}
+							});
+					    },
+					    cancel:true
+					});
+				}
+			});
+			
+			$('#refresh').click(function(){
+				$('#listAll').grad('reload');
+			});
+			
+			$('#stat').click(function(){
+				_me.stat();
+			});
+			
+			$('#backUp').click(function(){
+				$.getScript('./public/js/plugin.js',function() {
+					result.muchplug();
+			    });
+			});
+			
+			$('#qry').click(function(){
+				var data = {controller:'Patient',method:'getListPatientCase'};
+				var formData = $('#frm_post').serializeArray();
+				$.each(formData,function(index,obj){
+					data[obj.name] = obj.value;
+				});
+				$('#listAll').grad({qry_para:data});
+			});
+			
+			$('#modifyPwd').click(function(){
+				_me.modifyPwd();
+			});
+			
+			_me.fillSelectData();
+		});
+	},
+	
+	getBirthdayFromAge:function(age) {
+		age = (age == '') ? 0 : parseInt(age);
+		var timestamp = new Date();
+		var year = timestamp.getFullYear();
+		var month = timestamp.getMonth() + 1;
+		var day = timestamp.getDate();
+		var birthday = $('#birthday').val();
+		var str = (year-age) + '-' . month + '-' . day;
+		if (birthday == '') {
+			birthday = getToday();
+		}
+		var arr = birthday.split('-');
+		str = (year-age) + '-' + arr[1] + '-' + arr[2];
+		return str;
+	},
+	
+	showAll:function() {
+		$("div[id^='listAll']").show();
+		$("div[id^='statImg']").show();
+	},
+	
+	//统计
+	stat:function() {
+		var _me = this;
+		$('#each').getHtml('./plugin/plugins/patient/stat',function(){
+			var today=new Date(); // 获取今天时间
+       	    today.setTime(today.getTime()-30*24*3600*1000);
+       	    startTime = today.format('yyyy-MM-dd');
+       	    $('#start').val(startTime);
+			$('#end').val(getToday());
+			_me.statByPeople();
+			$('#qry').click(function(){
+				$("div[id^='listAll']").html('');
+				$("div[id^='statImg']").html('');
+				
+				//开始统计
+				var start = $('#start').val();
+				var end = $('#end').val();
+				var type = $('#type').val();
+				if (type == '') {
+					alert_message('请选择统计类型');
+					return;
+				}
+				switch (type) {
+				    case '1': //就诊人数统计
+				    	_me.showAll();
+				    	_me.statByPeople();
+					    break;
+				    case '2': //周及就诊时间段统计
+				    	_me.showAll();
+						$("div[id^='statImg']").show();
+				    	_me.statByWeek();
+					    break;
+				    case '3': //前台接诊统计
+				    	_me.showAll();
+				    	_me.statByReceptionist();
+					    break;
+				    case '4': //来源统计
+				    	_me.showAll();
+				    	_me.statBySource();
+					    break;
+				    case '5': //医生接诊统计
+				    	_me.showAll();
+				    	_me.statByDoctor();
+					    break;
+				    case '6': //科室疾病统计
+				    	_me.showAll();
+				    	_me.statByDepartmentAndDisease();
+				    	break;
+				    case '7': //财务统计
+				    	_me.showAll();
+				    	_me.statByFinancial();
+				    	break;
+				    case '8': //治疗方案
+				    	_me.showAll();
+				    	_me.statByExamineItems();
+				    	break;
+				    default:
+					    break;
+				}
+				
+				$('#backUp').unbind('click');
+				$('#backUp').click(function(){
+					result.start();
+				});
+			});
+			
+			$('#refresh').click(function(){
+				$('#listAll').grad('reload');
+			});
+			
+			$('#backUp').click(function(){
+				result.start();
+			});
+			
+		});
+	},
+	
+	//财务统计
+	statByFinancial:function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		
+		var timeField = start + ' 至  ' + end;
+		var diseaseUrl = {controller:'Patient',method:'getStatData',type:'7',flag:'disease',start:start,end:end};
+		var diseaseField = [
+		   				{text:'病症分类',name:'disease_name'},
+						{text:'金额',name:'money'},
+						{text:'百分比',name:'percent'},
+						{text:'平均消费',name:'average'}
+					];
+		$('#listAll').showStatImage({
+			para : diseaseUrl,
+			stat : {type:showType, statType:'7', flag:'disease',showId:'statImg', des:'收入', title:'按病症统计'},
+			field : diseaseField
+		});
+		
+		$('#listAll').showScrollData({
+			para : diseaseUrl,
+			page : true,
+			title : '来源统计',
+			timeField : timeField,
+			field : diseaseField
+		});
+		
+		var departmentUrl = {controller:'Patient',method:'getStatData',type:'7',flag:'department',start:start,end:end};
+		var departmentField = [
+		    				{text:'科室分类',name:'department_name'},
+		    				{text:'金额',name:'money'},
+		    				{text:'百分比',name:'percent'},
+		    				{text:'平均消费',name:'average'}
+		    			];
+		$('#listAll2').showStatImage({
+			para : departmentUrl,
+			open : false,
+			stat : {type:showType, statType:'7', flag:'department',showId:'statImg2', des:'收入', title:'按科室分类统计'},
+			field : departmentField
+		});
+		
+		$('#listAll2').showScrollData({
+			para : departmentUrl,
+			page : true,
+			title : '科室统计',
+			open : false,
+			timeField : timeField,
+			field : departmentField
+		});
+		
+		var doctorUrl = {controller:'Patient',method:'getStatData',type:'7',flag:'doctor',start:start,end:end};
+		var doctorField = [
+		       				{text:'医生姓名',name:'doctor_name'},
+		    				{text:'金额',name:'money'},
+		    				{text:'百分比',name:'percent'},
+		    				{text:'平均消费',name:'average'}
+		    			];
+		$('#listAll3').showStatImage({
+			para : doctorUrl,
+			open : false,
+			stat : {type:showType, statType:'7', flag:'doctor',showId:'statImg3', des:'收入', title:'按医生统计'},
+			field : doctorField
+		});
+		
+		$('#listAll3').showScrollData({
+			para : doctorUrl,
+			page : true,
+			title : '医生统计',
+			open : false,
+			timeField : timeField,
+			field : doctorField
+		});
+		
+		var startTime = start;
+		if (startTime == '') { //没有选择时间，则显示30天之内的
+			var today=new Date(); // 获取今天时间
+       	    today.setTime(today.getTime()-30*24*3600*1000);
+       	    startTime = today.format('yyyy-MM-dd');
+		}
+		
+		$('#listAll4').showScrollData({
+			title : '详细收入统计',
+			open : false,
+			timeField : timeField
+		});
+		
+		//按天统计
+		getData({controller:'Patient',method:'statByDate',action:'money',start:startTime,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					if (showType == 'pie') {
+						var num = 0;
+						$.each(v, function(i, d){
+							num += d;
+						});
+						statData.push({
+							'name':k,
+							'value':num
+						});
+					} else {
+						$.each(v, function(i, d){
+							statData.push({
+								'group':i,
+								'name':k,
+								'value':d
+							});
+						});
+					}
+				});
+				
+				var title = '每天收入统计 (未选择时间时，统计最近30天的就诊情况)';
+				if (showType == 'pie') {
+					var opt = HighChart.ChartOptionTemplates.Pie(statData,'收入',title);
+				} else if (showType == 'line') {
+					var opt = HighChart.ChartOptionTemplates.Line(statData,'收入',title, 'datetime', startTime);
+				} else if (showType == 'bar') {
+					var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,'收入',title, 'datetime', startTime);
+				}
+				
+				var container = $("#statImg4");
+			    HighChart.RenderChart(opt, container);
+			    container.hide(); //首次收缩
+			}else{
+				$("#statImg").html('');
+			}
+		});
+	},
+	
+	//疾病科室统计
+	statByDepartmentAndDisease:function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var timeField = start + ' 至  ' + end;
+		var showType = $('#showType').val();
+		var departmentUrl = {controller:'Patient',method:'getStatData',type:'6',flag:'department',start:start,end:end};
+		var departmentField = [
+		       				{text:'科室名称',name:'department_name'},
+		    				{text:'新客户',name:'new_num'},
+		    				{text:'老客户',name:'old_num'},
+		    				{text:'复诊',name:'re_visit'},
+		    				{text:'营收',name:'income'}
+		    			];
+		$('#listAll').showStatImage({
+			para : departmentUrl,
+			stat : {type:showType, statType:'6', flag:'department',showId:'statImg', des:'就诊人数', title:'按科室统计'},
+			field : departmentField
+		});
+		
+		$('#listAll').showScrollData({
+			para : departmentUrl,
+			page : true,
+			title : '科室综合统计',
+			timeField : timeField,
+			field : departmentField
+		});
+
+		var diseaseUrl = {controller:'Patient',method:'getStatData',type:'6',flag:'disease',start:start,end:end};
+		var diseaseField = [
+		    				{text:'病症分类',name:'disease_name'},
+		    				{text:'新客户',name:'new_num'},
+		    				{text:'老客户',name:'old_num'},
+		    				{text:'复诊',name:'re_visit'}
+		    			];
+		$('#listAll2').showStatImage({
+			para : departmentUrl,
+			open : false,
+			stat : {type:showType, statType:'6', flag:'disease',showId:'statImg2', des:'就诊人数', title:'按病症分类统计'},
+			field : diseaseField
+		});
+		$('#listAll2').showScrollData({
+			para : diseaseUrl,
+			page : true,
+			open : false,
+			title : '疾病综合统计',
+			timeField : timeField,
+			field : diseaseField
+		});
+		
+		var mothUrl = {controller:'Patient',method:'getStatData',type:'6',flag:'month',start:start,end:end};
+		var monthField = [
+		  				{text:'疾病名称',name:'disease_name'},
+						{text:'1月',name:'January'},
+						{text:'2月',name:'February'},
+						{text:'3月',name:'March'},
+						{text:'4月',name:'April'},
+						{text:'5月',name:'May'},
+						{text:'6月',name:'June'},
+						{text:'7月',name:'July'},
+						{text:'8月',name:'August'},
+						{text:'9月',name:'September'},
+						{text:'10月',name:'October'},
+						{text:'11月',name:'November'},
+						{text:'12月',name:'December'}
+					];
+		
+		$('#listAll3').showStatImage({
+			para : mothUrl,
+			open : false,
+			stat : {type:showType, statType:'6', flag:'month',showId:'statImg3', des:'就诊人数', title:'按月份统计'},
+			field : monthField
+		});
+		$('#listAll3').showScrollData({
+			para : mothUrl,
+			page : true,
+			open : false,
+			title : '按月份和疾病统计',
+			timeField : timeField,
+			field : monthField
+		});
+	},
+	
+	//诊疗项目
+	statByExamineItems:function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		
+		var timeField = start + ' 至  ' + end;
+		var itemUrl = {controller:'Patient',method:'getStatData',type:'8',start:start,end:end};
+		var itemField = [
+		    				{text:'项目名称',name:'item_name'},
+		    				{text:'男性',name:'male'},
+		    				{text:'女性',name:'female'},
+		    				{text:'总计',name:'num'},
+		    				{text:'金额',name:'money'}
+		    			];
+		$('#listAll').showStatImage({
+			para : itemUrl,
+			stat : {type:showType, statType:'8', showId:'statImg', des:'就诊人数', title:'按诊疗项目统计'},
+			field : itemField
+		});
+		
+		$('#listAll').showScrollData({
+			para : itemUrl,
+			page : true,
+			title : '诊疗项目统计',
+			timeField : timeField,
+			field : itemField
+		});
+		
+	},
+	
+	//就诊人数统计
+	statByPeople:function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		var timeField = start + ' 至  ' + end;
+		$('#listAll').grad({
+			para : {controller:'Patient',method:'getStatData',type:'1',start:start,end:end},
+			page : false,
+			showTitle : true,
+			open : true, 
+			title : '就诊人数统计', 
+			timeField : timeField,
+			stat : {type:showType, statType:'1', showId:'statImg', des:'就诊人数', title:'就诊人数统计'},
+			field : [
+				{text:'统计项目',name:'title'},
+				{text:'数量',name:'num'},
+				{text:'男性',name:'male'},
+				{text:'女性',name:'female'},
+				{text:'营收',name:'money'},
+				{text:'操作',name:'type',
+					render : function(value,rowData,rowIndex){
+						var str = '';
+						str += '<a title="查看详细" id="people_'+value+'" data="' + value + '" ids="' + rowData.ids + '" class="btn_detail people" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/lookforinfo.jpg" height="22px" /></a>';
+						str += '<a title="统计" id="stat_'+value+'" data="' + value + '" showTitle="' + rowData.title + '" class="btn_stat stat" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/backinfo.jpg" height="22px" /></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click','.people',function(){ //详情
+			var type_id  = $(this).attr('data');
+			var ids = $(this).attr('ids');
+			var url = {controller:'Patient',method:'getStatDetail',type_id:type_id,type:'1',start:start,end:end, ids:ids};
+			_me.statByPeopleDetail(url, type_id);
+		}).on('click','.stat',function(){ //统计
+			var type_id  = $(this).attr('data');
+			var title = $(this).attr('showTitle');
+			var url = {controller:'Patient',method:'getStatData',type_id:type_id,type:'1',start:start,end:end};
+			_me.statByPeopleType(url, title);
+		});
+		
+		
+		var startTime = start;
+		if (startTime == '') { //没有选择时间，则显示30天之内的
+			var today=new Date(); // 获取今天时间
+       	    today.setTime(today.getTime()-30*24*3600*1000);
+       	    startTime = today.format('yyyy-MM-dd');
+		}
+		
+		$('#listAll2').showScrollData({
+			title : '按天统计人数',
+			open : false,
+			timeField : timeField
+		});
+		//按天统计人数
+		getData({controller:'Patient',method:'statByDate',action:'people',start:startTime,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					if (showType == 'pie') {
+						var num = v['people'] + v['old'] + v['new'] + v['first'] + v['second'] + v['never'];
+						statData.push({
+							'name':k,
+							'value':num
+						});
+					} else {
+						statData.push({
+							'group':'就诊人数',
+							'name':k,
+							'value':v['people']
+						});
+						statData.push({
+							'group':'老客户',
+							'name':k,
+							'value':v['old']
+						});
+						statData.push({
+							'group':'新客户',
+							'name':k,
+							'value':v['new']
+						});
+						statData.push({
+							'group':'初诊人数',
+							'name':k,
+							'value':v['first']
+						});
+						statData.push({
+							'group':'复诊人数',
+							'name':k,
+							'value':v['second']
+						});
+						statData.push({
+							'group':'未如期复诊',
+							'name':k,
+							'value':v['never']
+						});
+					}
+				});
+				
+				var title = '每天就诊人数统计 (未选择时间时，统计最近30天的就诊情况)';
+				if (showType == 'pie') {
+					var opt = HighChart.ChartOptionTemplates.Pie(statData,'就诊人数',title);
+				} else if (showType == 'line') {
+					var opt = HighChart.ChartOptionTemplates.Line(statData,'就诊人数',title, 'datetime', startTime);
+				} else if (showType == 'bar') {
+					var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,'就诊人数',title, 'datetime', startTime);
+				}
+				
+				var container = $("#statImg2");
+			    HighChart.RenderChart(opt, container);
+			    
+			    container.hide();
+			}else{
+				$("#statImg").html('');
+			}
+		});
+	    
+	},
+	
+	statByPeopleType:function(url, title){
+		var showType = $('#showType').val();
+		$('#listAll').grad({
+			para : url,
+			page : false,
+			stat : {type:showType, statType:'1', flag:'detail', showId:'statImg', des:'就诊人数', title:'就诊人数统计-' + title},
+			field : [
+				{text:'病症',name:'disease_name'},
+				{text:'0-10岁',name:'10'},
+				{text:'10-20岁',name:'20'},
+				{text:'20-30岁',name:'30'},
+				{text:'30-40岁',name:'40'},
+				{text:'40-50岁',name:'50'},
+				{text:'50-60岁',name:'60'},
+				{text:'60-70岁',name:'70'},
+				{text:'70-80岁',name:'80'},
+				{text:'80岁以上',name:'90'}
+			]
+		});
+		
+		$('#backUp').unbind('click');
+		$('#backUp').click(function(){
+			$('#qry').click();
+		});
+	},
+	
+	statByPeopleDetail:function(url, type_id){
+		var _me = this;
+		var content = '<div class="pageContent"><div id="peopleDetail_' + type_id + '" style="width:750px;height:260px;"></div></div>';
+		art.dialog({
+			title: '详情',
+		    content:content,
+		    id:'peopleDetail_' + type_id,
+		    fixed:true,
+		    width:800,
+		    height:300,
+		    lock:true
+		});
+		
+		$('#peopleDetail_' + type_id).grad({
+			para : url,
+			page : true,
+			size : 10,
+			order : true,
+			field : [
+				{text:'姓名',name:'username'},
+				{text:'病历号',name:'case_number'},
+				{text:'性别',name:'gender',type:'gender'},
+				{text:'年龄',name:'age'}
+			]
+		});
+		
+		return false;
+	},
+	
+	//周及就诊时间段统计
+	statByWeek:function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		
+		var timeField = start + ' 至  ' + end;
+		$('#listAll').grad({
+			para : {controller:'Patient',async:false,method:'getStatData',type:'2',start:start,end:end},
+			page : false,
+			showTitle : true,
+			open : true, 
+			title : '周及就诊时间统计', 
+			timeField : timeField,
+			stat : {type:showType, statType:'2', showId:'statImg', des:'就诊人数', title:'根据周及就诊时间统计'},
+			field : [
+				{text:'项目',name:'title'},
+				{text:'周一',name:'Monday'},
+				{text:'周二',name:'Tuesday'},
+				{text:'周三',name:'Wednesday'},
+				{text:'周四',name:'Thursday'},
+				{text:'周五',name:'Friday'},
+				{text:'周六',name:'Saturday'},
+				{text:'周天',name:'Sunday'}
+			]
+		});
+	},
+	
+	//前台接诊统计
+	statByReceptionist : function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var timeField = start + ' 至  ' + end;
+		var showType = $('#showType').val();
+		
+		var receptionistUrl = {controller:'Patient',method:'getStatData',type:'3',start:start,end:end};
+		var receptionistField = [
+		         				{text:'姓名',name:'user_name'},
+		        				{text:'成交',name:'deal_num'},
+		        				{text:'未成交',name:'not_deal_num'},
+		        				{text:'操作',name:'receptionist_id', //前台id
+		        					render : function(value,rowData,rowIndex){
+		        						var str = '';
+		        						str += '<a title="查看详细" id="receptionist_'+value+'" data="' + value + '" class="btn_detail receptionist" href="javascript:void(0)" style="margin-left:34px;"><img src="/hcc/plugin/plugins/patient/css/images/lookforinfo.jpg" height="22px" /></a>';
+		        						return str;
+		        					}
+		        				}
+		        			];
+		$('#listAll').showStatImage({
+			para : receptionistUrl,
+			stat : {type:showType, statType:'3', showId:'statImg', des:'人数', title:'根据前台接诊人数统计'},
+			field : receptionistField
+		});
+		
+		$('#listAll').showScrollData({
+			para : receptionistUrl,
+			page : true,
+			size : 5,
+			title : '前台接诊人数统计',
+			timeField : timeField,
+			field : receptionistField
+		}).on('click','.receptionist',function(){ //详情
+			var receptionist_id  = $(this).attr('data');
+			var url = {controller:'Patient',method:'getStatDetail',receptionist_id:receptionist_id,type:'3',start:start,end:end};
+			_me.statByReceptionistDetail(url, receptionist_id);
+		});
+		
+		var startTime = start;
+		if (startTime == '') { //没有选择时间，则显示30天之内的
+			var today=new Date(); // 获取今天时间
+       	    today.setTime(today.getTime()-30*24*3600*1000);
+       	    startTime = today.format('yyyy-MM-dd');
+		}
+		
+		$('#listAll2').showScrollData({
+			open : false,
+			title : '每天就诊人数统计',
+			timeField : timeField
+		});
+		
+		//按天统计
+		getData({controller:'Patient',method:'statByDate',action:'receptionist',start:startTime,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					if (showType == 'pie') {
+						var num = 0;
+						$.each(v, function(i, d){
+							num += d;
+						});
+						statData.push({
+							'name':k,
+							'value':num
+						});
+					} else {
+						$.each(v, function(i, d){
+							statData.push({
+								'group':i,
+								'name':k,
+								'value':d
+							});
+						});
+					}
+				});
+				
+				var title = '每天就诊人数统计 (未选择时间时，统计最近30天的就诊情况)';
+				if (showType == 'pie') {
+					var opt = HighChart.ChartOptionTemplates.Pie(statData,'就诊人数',title);
+				} else if (showType == 'line') {
+					var opt = HighChart.ChartOptionTemplates.Line(statData,'就诊人数',title, 'datetime', startTime);
+				} else if (showType == 'bar') {
+					var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,'就诊人数',title, 'datetime', startTime);
+				}
+				
+				var container = $("#statImg2");
+			    HighChart.RenderChart(opt, container);
+			    container.hide();
+			}else{
+				$("#statImg").html('');
+			}
+		});
+	},
+	
+	//前台接待详情
+	statByReceptionistDetail:function(url, receptionist_id){
+		var _me = this;
+		var content = '<div class="pageContent"><div id="receptionistDetail_' + receptionist_id + '" style="width:750px;height:260px;"></div></div>';
+		art.dialog({
+			title: '详情',
+		    content:content,
+		    id:'receptionistDetail_' + receptionist_id,
+		    fixed:true,
+		    width:800,
+		    height:300,
+		    lock:true
+		});
+		
+		$('#receptionistDetail_' + receptionist_id).grad({
+			para : url,
+			page : true,
+			size : 10,
+			order : true,
+			field : [
+				{text:'姓名',name:'username'},
+				{text:'就诊日期',name:'visit_time'},
+				{text:'成交',name:'is_finished',type:'is_finished'},
+				{text:'原因',name:''},
+				{text:'性别',name:'gender',type:'gender'},
+				{text:'年龄',name:'age'}
+			]
+		});
+		
+		return false;
+	},
+	
+	//来源统计
+	statBySource:function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		
+		var timeField = start + ' 至  ' + end;
+		var sourceUrl = {controller:'Patient',method:'getStatData',type:'4',start:start,end:end};
+		var sourceField = [
+		         				{text:'来源名称',name:'title'},
+		        				{text:'到诊',name:'visit_num'},
+		        				{text:'百分比',name:'percent'},
+		        				{text:'营收',name:'income'}
+		        			];
+		$('#listAll').showStatImage({
+			para : sourceUrl,
+			stat : {type:showType, statType:'4', showId:'statImg', des:'营收比例', title:'根据来源统计营收'},
+			field : sourceField
+		});
+		
+		$('#listAll').showScrollData({
+			para : sourceUrl,
+			size : 5,
+			page : true,
+			title : '来源统计',
+			timeField : timeField,
+			field : sourceField
+		});
+		
+		var startTime = start;
+		if (startTime == '') { //没有选择时间，则显示30天之内的
+			var today=new Date(); // 获取今天时间
+       	    today.setTime(today.getTime()-30*24*3600*1000);
+       	    startTime = today.format('yyyy-MM-dd');
+		}
+		
+		$('#listAll2').showScrollData({
+			title : '每天就诊人数统计',
+			open : false,
+			timeField : timeField
+		});
+		
+		//按天统计
+		getData({controller:'Patient',method:'statByDate',action:'source',start:startTime,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					if (showType == 'pie') {
+						var num = 0;
+						$.each(v, function(i, d){
+							num += d;
+						});
+						statData.push({
+							'name':k,
+							'value':num
+						});
+					} else {
+						$.each(v, function(i, d){
+							statData.push({
+								'group':i,
+								'name':k,
+								'value':d
+							});
+						});
+					}
+				});
+				
+				var title = '每天就诊人数统计 (未选择时间时，统计最近30天的就诊情况)';
+				if (showType == 'pie') {
+					var opt = HighChart.ChartOptionTemplates.Pie(statData,'就诊人数',title);
+				} else if (showType == 'line') {
+					var opt = HighChart.ChartOptionTemplates.Line(statData,'就诊人数',title, 'datetime', startTime);
+				} else if (showType == 'bar') {
+					var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,'就诊人数',title, 'datetime', startTime);
+				}
+				
+				var container = $("#statImg2");
+			    HighChart.RenderChart(opt, container);
+			    container.hide();
+			}else{
+				$("#statImg").html('');
+			}
+		});
+	},
+	
+	//医生接诊统计
+	statByDoctor : function() {
+		var _me = this;
+		var start = $('#start').val();
+		var end = $('#end').val();
+		var showType = $('#showType').val();
+		
+		var timeField = start + ' 至  ' + end;
+		var doctorUrl = {controller:'Patient',method:'getStatData',type:'5',start:start,end:end};
+		var doctorField = [
+		   				{text:'医生名称',name:'doctor_name'},
+						{text:'新客户',name:'new_num'},
+						{text:'老客户',name:'old_num'},
+						{text:'复诊人数',name:'re_visit'},
+						{text:'操作',name:'doctor_id',
+							render : function(value,rowData,rowIndex){
+								var str = '';
+								str += '<a title="查看详细" id="doctor_'+value+'" data="' + value + '" class="btn_detail doctor" href="javascript:void(0)" style="margin-left:4px;"><img src="/hcc/plugin/plugins/patient/css/images/lookforinfo.jpg" height="22px" /></a>';
+								return str;
+							}
+						}
+					];
+		$('#listAll').showStatImage({
+			para : doctorUrl,
+			stat : {type:showType, statType:'5', showId:'statImg', des:'人数', title:'医生接诊统计'},
+			field : doctorField
+		});
+		
+		$('#listAll').showScrollData({
+			para : doctorUrl,
+			page : true,
+			title : '医生接诊统计',
+			timeField : timeField,
+			field : doctorField
+		}).on('click','.doctor',function(){ //详情
+			var doctor_id  = $(this).attr('data');
+			var url = {controller:'Patient',method:'getStatDetail',doctor_id:doctor_id,type:'5',start:start,end:end};
+			_me.statByDoctorDetail(url, doctor_id);
+		});
+		
+		var startTime = start;
+		if (startTime == '') { //没有选择时间，则显示30天之内的
+			var today=new Date(); // 获取今天时间
+       	    today.setTime(today.getTime()-30*24*3600*1000);
+       	    startTime = today.format('yyyy-MM-dd');
+		}
+		
+		$('#listAll2').showScrollData({
+			title : '每天就诊人数统计',
+			open : false,
+			timeField : timeField
+		});
+		//按天统计
+		getData({controller:'Patient',method:'statByDate',action:'doctor',start:startTime,end:end},function(ret){
+			if(ret.statu){
+				var statData = [];
+				var data = ret.data;
+				$.each(data, function(k, v) {
+					if (showType == 'pie') {
+						var num = 0;
+						$.each(v, function(i, d){
+							num += d;
+						});
+						statData.push({
+							'name':k,
+							'value':num
+						});
+					} else {
+						$.each(v, function(i, d){
+							statData.push({
+								'group':i,
+								'name':k,
+								'value':d
+							});
+						});
+					}
+				});
+				
+				var title = '每天就诊人数统计 (未选择时间时，统计最近30天的就诊情况)';
+				if (showType == 'pie') {
+					var opt = HighChart.ChartOptionTemplates.Pie(statData,'就诊人数',title);
+				} else if (showType == 'line') {
+					var opt = HighChart.ChartOptionTemplates.Line(statData,'就诊人数',title, 'datetime', startTime);
+				} else if (showType == 'bar') {
+					var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,'就诊人数',title, 'datetime', startTime);
+				}
+				
+				var container = $("#statImg2");
+			    HighChart.RenderChart(opt, container);
+			    
+			    container.hide();
+			}else{
+				$("#statImg").html('');
+			}
+		});
+	},
+	
+	//医生接待详情
+	statByDoctorDetail:function(url, doctor_id){
+		var _me = this;
+		var content = '<div class="pageContent"><div id="doctorDetail_' + doctor_id + '" style="width:750px;height:260px;"></div></div>';
+		art.dialog({
+			title: '详情',
+		    content:content,
+		    id:'doctorDetail_' + doctor_id,
+		    fixed:true,
+		    width:800,
+		    height:300,
+		    lock:true
+		});
+		
+		$('#doctorDetail_' + doctor_id).grad({
+			para : url,
+			page : true,
+			size : 10,
+			order : true,
+			field : [
+				{text:'姓名',name:'username'},
+				{text:'性别',name:'gender',type:'gender'},
+				{text:'年龄',name:'age'}
+			]
+		});
+		
+		return false;
+	},
+	
+	//复诊记录页面
+	returnDiagnosisList:function(id, code, patient_id) {
+		var _me = this;
+		$('#each').getHtml('./plugin/plugins/patient/rediagnosisList',function(){
+			$('#listAll').grad({
+				size : 10,
+				para : {controller:'Patient',method:'getReturnDiagnosisList',id:id,case_number:code},
+				check : false,
+				order : true,
+				page : true,
+				field : [
+					{text:'就诊日期',name:'visit_time',type:'time',width:150},
+					{text:'诊疗项目',name:'examine_items_name'},
+					{text:'主治医生',name:'doctor_name'},
+					{text:'费用',name:'current_price'},
+					{text:'操作',name:'detail_id',width:150,
+						render : function(value,rowData,rowIndex){
+							var str = '';
+							str += '<a title="查看详细" id="'+value+'" pid="' + rowData.patient_id + '" class="button btn_detail" href="javascript:void(0)" style="margin-left:4px;"><span>查看详细</span></a>';
+							str += '<a title="删除" id="'+value+'" class="button btn_del" href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+							return str;
+						}
+					}
+				]
+			}).on('click','.btn_detail',function(){
+				var me = $(this);
+				var detail_id = me.attr('id');
+				var pid = me.attr('pid');
+				_me.diagnosisDetail(detail_id, id, code, pid);
+			}).on('click','.btn_del',function(){
+				var me = $(this);
+				var detail_id = me.attr('id');
+		    	var url = {controller:'Patient',method:'delReturnDiagnosisDetail',id:detail_id};
+				art.dialog({
+					title: '确定删除吗？',
+				    content:'确定删除此就诊记录吗？',
+				    fixed:true,
+				    icon: 'question',
+				    width:300,
+				    height:150,
+				    lock:true,
+				    opacity: .1,
+				    padding:0,
+				    okVal:'确定',
+				    ok:function(){
+				    	$('#loading').addClass('loading');
+						getData(url,function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								$('#listAll').grad('reload');
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+				    },
+				    cancel:true
+				});
+				
+			});
+			
+			$('#add').click(function(){
+				var url = './plugin/plugins/patient/addPatient.html';
+				url += '?type=3&id='+id+'&code='+code+'&patient_id=' + patient_id;
+				var params = 'width=1000,height=600,toolbar=no,scrollbars=yes,resizable=yes';
+				if (!addWin || addWin.closed) {
+					addWin = window.open(url, '_blank', params);
+				} else {
+					addWin.window.focus();
+				}
+			});
+			
+			$('#refresh').click(function(){
+				$('#listAll').grad('reload');
+			});
+			
+			$('#backUp').click(function(){
+				result.start();
+			});
+		});
+	},
+	
+	//回访记录页面
+	returnVisitList:function(data, case_number) {
+		var _me = this;
+		var arr = data.split(':');
+		var detail_id = arr[0];
+		var username = arr[1];
+		$('#each').getHtml('./plugin/plugins/patient/visitList',function(){
+			$('#listAll').grad({
+				size : 10,
+				para : {controller:'Patient',method:'getReturnVisitList',detail_id:detail_id},
+				check : false,
+				order : true,
+				page : true,
+				field : [
+					{text:'回访日期',name:'return_time',type:'time',width:150},
+					{text:'回访信息',name:'message'},
+					{text:'患者回复',name:'reply'},
+					{text:'操作',name:'id',width:150,
+						render : function(value,rowData,rowIndex){
+							var str = '';
+							str += '<a id="'+value+'" class="button btn_reply" href="javascript:void(0)" style="margin-left:4px;"><span>回复</span></a>';
+							str += '<a id="'+value+'" class="button btn_del" href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+							return str;
+						}
+					}
+				]
+			}).on('click','.btn_reply',function(){
+				var me = $(this);
+				var id = me.attr('id');
+				var formData = [];
+				formData['message'] = '';
+				var labels = [];
+				labels['message'] = '回复内容';
+				var content = _me.getFormHtml(formData, labels);
+				var firstRow = '<div class="pageFormContent">回复时间：' + getToday() + '</div>';
+				content = firstRow + content;
+				_me.visitdialog('mod', content, id); //修改
+			}).on('click','.btn_del',function(){
+				var me = $(this);
+				var id = me.attr('id');
+		    	var url = {controller:'Patient',method:'delReturnVisit',id:id};
+				art.dialog({
+					title: '确定删除吗？',
+				    content:'确定删除此回访记录吗？',
+				    fixed:true,
+				    icon: 'question',
+				    width:300,
+				    height:150,
+				    lock:true,
+				    opacity: .1,
+				    padding:0,
+				    okVal:'确定',
+				    ok:function(){
+				    	$('#loading').addClass('loading');
+						getData(url,function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								$('#listAll').grad('reload');
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+				    },
+				    cancel:true
+				});
+				
+			});
+			
+			$("#dialog").click(function(){
+				var formData = [];
+				formData['message'] = '';
+				var labels = [];
+				labels['message'] = '消息内容';
+				var content = _me.getFormHtml(formData, labels);
+				var firstRow = '<div class="pageFormContent">接收人：'+username+'&nbsp;&nbsp;&nbsp;&nbsp;发送时间：' + getToday() + '</div>';
+				content = firstRow + content;
+				_me.visitdialog('add', content, detail_id); //添加
+            });
+			
+			$('#add').click(function(){
+				var formData = [];
+				formData['message'] = '';
+				var labels = [];
+				labels['message'] = '消息内容';
+				var content = _me.getFormHtml(formData, labels);
+				var firstRow = '<div class="pageFormContent">接收人：'+username+'&nbsp;&nbsp;发送时间：' + getToday() + '</div>';
+				content = firstRow + content;
+				_me.visitdialog('add', content, detail_id); //添加
+			});
+			
+			$('#refresh').click(function(){
+				$('#listAll').grad('reload');
+			});
+			
+			$('#backUp').click(function(){
+				result.start();
+			});
+		});
+	},
+	
+	//回访弹窗设置
+	visitdialog : function(type, content, id) {
+		var title = '添加医院回访记录';
+		if ('mod' == type) {
+			title = '添加患者回复记录';
+		}
+		
+		$("#dialog").hide();
+		
+		art.dialog({
+			title: title,
+		    content:content,
+		    fixed:true,
+		    width:460,
+		    height:180,
+		    lock:true,
+		    opacity: .1,
+		    padding: 30,
+		    left:'70%',
+		    top:'55%',
+		    okVal:'提交',
+		    ok:function(){
+		    	var message = $('#message').val();
+		    	if ( message == '') {
+		    		alert_message('请输入消息内容！');
+		    		return false;
+		    	}
+		    	$('#loading').addClass('loading');
+		    	
+		    	var url = {controller:'Patient',method:'addReturnVisit',message:message,detail_id:id};
+		    	if ('mod' == type) {
+		    		url = {controller:'Patient',method:'modReturnVisit',reply:message,id:id};
+		    	}
+				getData(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						$('#listAll').grad('reload');
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:function() {
+		    	$("#dialog").show();
+		    }
+		});
+		
+	},
+	
+	fillSelectData:function(isFirst) {
+		var _me = this;
+		$('#loading').addClass('loading');
+		getData({controller:'Patient',method:'getFillData'},function(ret){
+			$('#loading').removeClass('loading');
+			if(ret.statu){
+				var data = ret.data;
+				if (isFirst) {
+					$("#number").html(data.case_number);
+					$("#case_number").val(data.case_number);
+				}
+				
+				//填充会员级别
+				_me.fillLevels();
+				
+				//填充来源信息
+				_me.fillSource();
+				
+				//填充前台接待信息
+				_me.fillReceptionist();
+
+				//填充医生信息
+				_me.fillDoctors();
+
+				//填充科室信息
+				_me.fillDepartments();
+
+				//填充疾病信息
+				_me.fillDiseases();
+				
+				//诊疗项目信息
+				_me.fillItems();
+				
+			}else{
+				alert_message(ret.msg);
+			}
+		});
+	},
+	
+	//填充会员级别
+	fillLevels:function(selectedVal){
+		getDataFromDia({controller:'Patient',method:'getVipLevels'},function(res){
+			if(res.statu){
+				var levels = res.data;
+				var levelHtml = '<option value="0" selected>否 </option>';
+				if ( levels!= null) {
+					$.each(levels,function(i,v) {
+						var selected = '';
+						if (v.id==selectedVal) {
+							selected = 'selected';
+						}
+						levelHtml += '<option value="' + v.id + '" '+ selected +'>' + v.level_name + '</option>';
+					});
+				}
+				$("#vip_level").html(levelHtml);
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	//填充前台接待信息
+	fillReceptionist:function(selectedVal) {
+		getDataFromDia({controller:'Patient',method:'getReceptionist'},function(res){
+			if(res.statu){
+				var receptionist = res.data;
+				var recHtml = '<option value="0" selected>请选择 </option>';
+				if ( receptionist!= null) {
+					$.each(receptionist,function(i,v) {
+						var selected = '';
+						if (v.id==selectedVal) {
+							selected = 'selected';
+						}
+						recHtml += '<option value="' + v.id + '" ' + selected + '>' + v.user_name + '</option>';
+					});
+				}
+				$("#receptionist_id").html(recHtml);
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	//填充来源信息
+	fillSource:function(selectedVal){
+		getDataFromDia({controller:'Patient',method:'getDataSource'},function(res){
+			if(res.statu){
+				var sourceList = res.data;
+				var sourceHtml = '<option value="0" selected>请选择 </option>';
+				if ( sourceList!= null) {
+					$.each(sourceList,function(i,v) {
+						var selected = '';
+						if (v.id==selectedVal) {
+							selected = 'selected';
+						}
+						$("#patient_sourceDetail").hide();
+						sourceHtml += '<option value="' + v.id + '" ' + selected + '>' + v.title + '</option>';
+					});
+				}
+				$("#source").html(sourceHtml);
+				if ($("#source").val() == 0) {
+					$("li[id^='source_']").hide();
+				}
+				
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	//填充医生信息
+	fillDoctors:function(selectedVal){
+		getDataFromDia({controller:'Patient',method:'getDoctors'},function(res){
+			if(res.statu){
+				var doctors = res.data;
+				var doctorHtml = '<option value="0" selected>请选择 </option>';
+				if ( doctors!= null) {
+					$.each(doctors,function(i,v) {
+						var selected = '';
+						if (v.id==selectedVal) {
+							selected = 'selected';
+						}
+						doctorHtml += '<option value="' + v.id + '" '+selected+'>' + v.doctor_name + '</option>';
+					});
+				}
+				$("#doctor_id").html(doctorHtml);
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	//填充科室信息
+	fillDepartments:function(selectedVal){
+		getDataFromDia({controller:'Patient',method:'getDepartments'},function(res){
+			if(res.statu){
+				var departments = res.data;
+				var departmentHtml = '<option value="0" selected>请选择 </option>';
+				if ( departments!= null) {
+					$.each(departments,function(i,v) {
+						var selected = '';
+						if (v.id==selectedVal) {
+							selected = 'selected';
+						}
+						departmentHtml += '<option value="' + v.id + '" '+selected+'>' + v.department_name + '</option>';
+					});
+				}
+				$("#departmentSel").html(departmentHtml);
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	//填充疾病信息
+	fillDiseases:function(selectedVal){
+		getDataFromDia({controller:'Patient',method:'getDiseases'},function(res){
+			if(res.statu){
+				var diseases = res.data;
+				var diseaseHtml = '<option value="0" selected>请选择 </option>';
+				if ( diseases!= null) {
+					$.each(diseases,function(i,v) {
+						var selected = '';
+						if (v.id==selectedVal) {
+							selected = 'selected';
+						}
+						diseaseHtml += '<option value="' + v.id + '"'+selected+'>' + v.disease_name + '</option>';
+					});
+				}
+				$("#disease_type").html(diseaseHtml);
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	//诊疗项目信息
+	fillItems:function(selectedVal){
+		//获取选中项目
+		getDataFromDia({controller:'Patient',method:'getExamineItems',is_usual:1},function(res){
+			if(res.statu){
+				var items = res.data;
+				var itemsHtml = '';
+				if ( items != null) {
+					$.each(items,function(i,v) {
+						var checked = '';
+						if (v.id==selectedVal) {
+							checked = 'checked';
+						}
+						itemsHtml += '<li class="li-items"><input style="padding-right:10px;" type="checkbox" id="examine_items_' + v.id + '" name="examine_items[]" value="' + v.id + '" '+checked+'/>' + v.item_name + '</li>';
+					});
+				}
+				$("#span_examine_items").html(itemsHtml);
+				return true;
+			}else{
+				return false;
+			}
+		});
+	},
+	
+	getFormHtml:function(data, labels){
+		var content = '<form id="contentForm" class="pageForm required-validate">';
+		content += '<div class="pageFormContent">';
+		content += '<ul>';
+		for (var k in data) {
+			if (k == 'contains') {
+				continue;
+			}
+			content += '<li><span style="float: left; width:100px; height: 22px; padding-top:9px;">' + labels[k] + '</span>';
+			if (k=='message') {
+				content += '<span><textarea name="' + k + '" id="' + k + '">' + data[k] + '</textarea></span>';
+			} else if(k=='id'){
+				content += '<li><input type="hidden" name="id" id="id" value="' + data[k] + '"><div style="clear:both;"></div></li>';
+			} else {
+				content += '<span><input name="' + k + '" type="text" size="30" id="' + k + '" value="' + data[k] + '"/></span>';
+			}
+			content += '<div style="clear:both;"></div></li>';
+		}
+		
+		content += '</ul>';
+		content += '</div>';
+		content　+= '</form>';
+		return content;
+	},
+	
+	delFromSelectItems:function(objId, controller, method){
+		var id = $('#' + objId).val();
+    	if ('0' == id) {
+    		alert_message('请选择需要删除的项');
+    		return false;
+    	}
+    	
+    	art.dialog({
+			title: '删除',
+		    content:'<p>删除可能导致信息不完整或不可预知的错误</p><p style="padding-top:20px;">确定删除吗？</p>',
+		    fixed:true,
+		    icon: 'question',
+		    width:300,
+		    height:150,
+		    lock:true,
+		    opacity: .1,
+		    padding:0,
+		    okVal:'确定',
+		    ok:function(){
+		    	$('#loading').addClass('loading');
+		    	getData({controller:controller,method:method,id:id},function(ret){
+		    		$('#loading').removeClass('loading');
+					if(ret.statu){
+						alert_message(ret.msg);
+						$("#" + objId).find("option:selected").remove();
+					}else{
+						alert_message(ret.msg);
+					}
+		    	});
+		    },
+		    cancel:true
+		});
+	},
+	
+	//详情
+	patientDetail : function(id){
+		var _me = this;
+		$('#each').getHtml('./plugin/plugins/patient/patientDetail',function(){
+			$('#loading').addClass('loading');
+			getData({controller:'Patient',method:'patientDetail',id:id},function(ret){
+				$('#loading').removeClass('loading');
+				if(ret.statu){
+					var data = ret.data;
+					$('#case_id').val(data.case_id);
+					$('#patient_id').val(data.patient_id);
+					var dataStr = data.detail_id + ':' + data.username;
+					$('#data').val(dataStr);
+					$('#code').val(data.case_number);
+					$('#number').html(data.case_number);
+					
+                    $.each(data,function(i,v) {
+						if (i == 'gender') {
+    						$("input:radio[name='"+i+"']").each(function(){
+    							if($(this).val() == v) {
+    								$(this).attr("checked", true);
+    							}
+    						});
+						} else if ( i == 'source') {
+							_me.fillSource(v);
+							//给默认选择值后就不需要这个了
+							//如果不是推荐，则收起推荐人
+							if (v=='1') {
+								$("li[id^='patient_recommend']").show();
+								$("#patient_sourceDetail").hide();
+							} else {
+								$("li[id^='patient_recommend']").hide();
+								$("#patient_sourceDetail").show();
+							}
+						} else if ( i == 'vip_level') {
+							_me.fillLevels(v);
+						} else if ( i == 'receptionist_id') {
+							_me.fillReceptionist(v);
+						} else if ( i == 'doctor_id') {
+							_me.fillDoctors(v);
+						} else if ( i == 'disease_type') {
+							_me.fillDiseases(v);
+						} else if ( i == 'is_finished') {
+							$("#"+i+" option[value='"+v+"']").attr("selected", true);
+						} else if ( i == 'department') {
+							_me.fillDepartments(v);
+						} else if (i == 'money') {
+							$("#left_money").val(v);
+						} else if (i == 'birthday') {
+							if (v == '') {
+								$('#birthday').val(getToday());
+								$("#age").val(0);
+							}
+						} else if (i == 'age') {
+							$('#'+i).val(v);
+							if (v) {
+								var birthday = _me.getBirthdayFromAge(v);
+								$('#birthday').val(birthday);
+							}
+						} else if (i == 'visit_time') {
+							$('#'+i).val(getTimeStr(v));
+						} else if (i == 'return_time') {
+							if (v != '0' && v!='') {
+								$('#'+i).val(getTimeStr(v));
+							}
+						} else if (i == 'visit_time_field') {
+							$("input:radio[name='visit_time_field'][value='"+v+"']").attr("checked", true);
+						} else if (i == 'examine_items') {
+							var item_html = '';
+							var arr = v.split(',');
+							var arrNames = data['examine_items_name'].split(',');
+							$.each(arr,function(k,vv){
+								item_html += '<li class="li-items"><input style="padding-right:10px;" type="checkbox" id="examine_items_'+k+'" name="examine_items[]" value="'+vv+'" checked>' + arrNames[k] + '</li>';
+							});
+							$("#span_examine_items").html(item_html);
+						} else if (i == 'money') {
+							$("#left_money").val(parseFloat(v));
+						} else if (i == 'real_price' || i == 'current_price' || i == 'balance') {
+							$('#'+i).val(parseInt(v));
+						} else {
+							if (v == '0') {
+								v = '';
+							}
+							
+							if (i=='source_detail' || i=='reception_records' || i=='therapeutic' ||
+								i=='advice' || i=='return_items' || i=='advise' || i=='untoward_effect' || i=='remark') {
+								$('#'+i).html(v);
+							} else {
+								$('#'+i).val(v);
+							}
+						}
+					});
+					
+                    $("#dialog").click(function(){
+                    	var formData = [];
+    					formData['message'] = '';
+    					var labels = [];
+    					labels['message'] = '消息内容';
+    					var content = _me.getFormHtml(formData, labels);
+    					var firstRow = '<div class="pageFormContent">接收人：'+data.username+'&nbsp;&nbsp;&nbsp;&nbsp;发送时间：' + getToday() + '</div>';
+    					content = firstRow + content;
+    					_me.visitdialog('add', content, data.detail_id); //添加
+                    });
+				}else{
+					alert_message(ret.msg);
+				}
+			});
+            
+			//事件注册
+			$('#age').keyup(function(){
+				var age = $('#age').val();
+				var birthday = _me.getBirthdayFromAge(age);
+				$('#birthday').val(birthday);
+			});
+			
+			$('#source').change(function(){
+				var id = $(this).val();
+				if (id == 0) {
+					$("li[id^='source_']").hide();
+				} else if (id == 1) {
+					$("li[id^='patient_recommend']").show();
+					$("#patient_sourceDetail").hide();
+				} else {
+					$("li[id^='patient_recommend']").hide();
+					$("#patient_sourceDetail").show();
+				}
+			});
+			
+			$('#real_price').keyup(function(){
+				var left_money = $('#left_money').val() == '' ? 0 : parseFloat($('#left_money').val());
+				var current_price = $('#current_price').val() == '' ? 0 : parseFloat($('#current_price').val());
+				var real_price = $(this).val() == '' ? 0 : parseFloat($(this).val());
+				var balance = (left_money + real_price) - current_price;
+				$('#balance').val(balance);
+				/*
+				if (balance < 0) {
+					alert_message('余额不足，请输入本次缴费金额');
+					return false;
+				}
+				*/
+			});
+			
+			$('#current_price').keyup(function(){
+				var left_money = $('#left_money').val() == '' ? 0 : parseFloat($('#left_money').val());
+				var current_price = $(this).val() == '' ? 0 : parseFloat($(this).val());
+				var real_price = $('#real_price').val() == '' ? 0 : parseFloat($('#real_price').val());
+				
+				//可以欠费，故不用提示
+				/*
+				if (left_money == 0) {
+					if ($('#real_price').val() == '') {
+						alert_message('请输入本次缴费金额');
+						return false;
+					}
+				}
+				*/
+				var balance = (left_money + real_price) - current_price;
+				$('#balance').val(balance);
+				/*
+				if (balance < 0) {
+					alert_message('余额不足，请输入本次缴费金额');
+					return false;
+				}
+				*/
+			});
+			
+			$('#returnlist').click(function(){
+				_me.returnDiagnosisList($('#case').val(), $('#code').val(), $('#patient_id').val());
+			});
+			
+			$('#visitlist').click(function(){
+				_me.returnVisitList($('#data').val(), $('#code').val());
+			});
+			
+			$('#modify').click(function(){
+				var formData = $('#patientForm').serializeArray();
+				var data = {controller:'Patient',method:'savePatient'};
+				$.each(formData,function(i,obj){
+					data[obj.name] = obj.value;
+				});
+				
+				//多选诊疗项目处理
+				var ids = '';
+				$("input[id^='examine_items']").each(function(){
+					if($(this).attr('checked') != undefined){
+						ids += $(this).val() + ',';
+					}
+				});
+				if (ids != '') {
+					ids = ids.substring(0, ids.length-1);
+				}
+				data['examine_items'] = ids;
+				
+				$('#loading').addClass('loading');
+				getData(data,function(re){
+					$('#loading').removeClass('loading');
+					if(re.statu){
+						alert_message(re.msg);
+						_me.start();
+					}else{
+						alert_message(re.msg);
+					}
+				});
+			});
+			
+			$('#manageVipLevel').click(function(){
+				_me.manageInitHtml('level','会员级别信息管理');
+			});
+			
+			$('#manageExamineItem').click(function(){
+				_me.manageInitHtml('examineItem','诊疗项目信息管理');
+			});
+			
+			$('#manageSource').click(function(){
+				_me.manageInitHtml('source','来源信息管理');
+			});
+			
+			$('#manageReceptionist').click(function(){
+				_me.manageInitHtml('receptionist','前台接待信息管理');
+			});
+	        
+			$('#manageDoctor').click(function(){
+				_me.manageInitHtml('doctor','主治医生信息管理');
+			});
+			
+			$('#manageDepartment').click(function(){
+				_me.manageInitHtml('department','科室信息管理');
+			});
+			
+			$('#manageDisease').click(function(){
+				_me.manageInitHtml('disease','疾病信息管理');
+			});
+			
+			$('#findByName').click(function(){
+	        	_me.manageInitHtml('patientByName','患者信息');
+	        });
+	        
+	        $('#findByTel').click(function(){
+	        	_me.manageInitHtml('patientByTel','患者信息');
+	        });
+	        
+			$('#back').click(function(){
+				_me.start();
+			});
+			
+			$('#back2').click(function(){
+				_me.start();
+			});
+		});
+	},
+	
+	//复诊详情
+	diagnosisDetail : function(id, back_id, back_code, back_patient_id){
+		var _me = this;
+		$('#each').getHtml('./plugin/plugins/patient/diagnosisDetail',function(){
+			$('#loading').addClass('loading');
+			getData({controller:'Patient',method:'diagnosisDetail',id:id},function(ret){
+				$('#loading').removeClass('loading');
+				if(ret.statu){
+					var data = ret.data;
+                    $("li .span_two").each(function(){
+                    	var field = $(this).attr("field");
+                    	if (field) {
+                    		if ('return_time' == field) {
+                    			if (data[field] != '0') {
+                        			$(this).html(getTimeStr(data[field]));
+                        		}
+                    		} else {
+                    			if (data[field] == '0') {
+                    				data[field] = '';
+                        		}
+                    			$(this).html(data[field]);
+                    		}
+                    	}
+                    });
+                    
+                    if (data['is_finished'] != '1') {
+                    	$("li[id^='is_finished']").hide();
+                    }
+                    
+                    var html = '';
+                    $.each(data,function(k,v) {
+						if ('advice' == k) {
+							$('#span_advice').html('<textarea class="textTexteare" id="advice" name="advice">' + v + '</textarea>');
+						} else if ('visit_time' == k) {
+							$('#span_visit_time').html('<input class="textInput Wdate" onfocus="WdatePicker({skin:\'whyGreen\',dateFmt:\'yyyy-MM-dd\',vel:\'visit_time\'})" id="visit_time" name="visit_time" value="' + getTimeStr(v) + '" />');
+						}else if ('therapeutic' == k) {
+							$('#span_therapeutic').html('<textarea class="textTexteare" id="therapeutic" name="therapeutic">' + v + '</textarea>');
+						} else if ('remark' == k) {
+							$('#span_remark').html('<textarea class="textTexteare" id="remark" name="remark">' + v + '</textarea>');
+						} else if ('return_items' == k) {
+							$('#span_return_items').html('<textarea class="textTexteare" id="return_items" name="return_items">' + v + '</textarea>');
+						} else if ('advise' == k) {
+							$('#span_advise').html('<textarea class="textTexteare" id="advise" name="advise">' + v + '</textarea>');
+						} else if ('untoward_effect' == k) {
+							$('#span_untoward_effect').html('<textarea class="textTexteare" id="untoward_effect" name="untoward_effect">' + v + '</textarea>');
+						} else {
+							html += '<input type="hidden" name="'+k+'" value="'+v+'">';
+						}
+					});
+					html += '<input type="hidden" name="action" value="modify">';
+					$('#formFields').html(html);
+					
+                    $("#dialog").click(function(){
+                    	var formData = [];
+    					formData['message'] = '';
+    					var labels = [];
+    					labels['message'] = '消息内容';
+    					var content = _me.getFormHtml(formData, labels);
+    					var firstRow = '<div class="pageFormContent">接收人：'+data.username+'&nbsp;&nbsp;发送时间：' + getToday() + '</div>';
+    					content = firstRow + content;
+    					_me.visitdialog('add', content, data.detail_id); //添加
+                    });
+				}else{
+					alert_message(ret.msg);
+				}
+			});
+			
+			$('#modify').click(function(){
+				var formData = $('#patientForm').serializeArray();
+				var data = {controller:'Patient',method:'savePatient'};
+				$.each(formData,function(i,obj){
+					data[obj.name] = obj.value;
+				});
+				
+				$('#loading').addClass('loading');
+				getData(data,function(re){
+					$('#loading').removeClass('loading');
+					if(re.statu){
+						alert_message(re.msg);
+						_me.returnDiagnosisList(back_id, back_code, back_patient_id);
+					}else{
+						alert_message(re.msg);
+					}
+				});
+			});
+			
+			$('#back').click(function(){
+				_me.returnDiagnosisList(back_id, back_code, back_patient_id);
+			});
+			
+			$('#back2').click(function(){
+				_me.returnDiagnosisList(back_id, back_code, back_patient_id);
+			});
+		});
+	},
+
+	//管理初始化
+	manageInitHtml:function(type, title) {
+		var _me = this;
+		if (type == 'patientByName') {
+			var recommend_name = $('#recommend_name').val();
+			if (recommend_name == '') {
+				alert("请输入推荐者姓名");
+				return;
+			}
+		}
+		
+		if (type == 'patientByTel') {
+			var recommend_tel = $('#recommend_tel').val();
+			if (recommend_tel == '') {
+				alert("请输入推荐者电话");
+				return;
+			}
+		}
+		
+		var search_html = '';
+		if (type == 'examineItem') 
+			search_html = '<div style="height:30px;width:500px;"><a id="query" style="float:right;margin-right:20px;top:1px;" class="button search" href="javascript:void(0);"><span>搜索</span></a><input type="text" style="float:right;margin-right:5px;top:1px;" class="textInput search_input" name="keyword" id="keyword"/><span style="float:right;margin-right:5px;padding-top:6px;top:1px;">关键字：</span></div>';
+		
+		var content = '<div style="padding-top:0px;min-height:100px;max-height:350px;overflow-y:scroll;"><a id="add" style="float:right;top:1px;margin-right:1px;" class="button add" href="javascript:void(0);"><span>新增</span></a>' + search_html +'<div class="clear:both;"></div><div id="table_div"></div></div>';
+		
+		var diaObj = art.dialog({
+			title: title,
+		    content:content,
+		    id:type,
+		    fixed:true,
+		    follow:false,
+		    width:550,
+		    padding:1,
+		    lock:true
+		});
+		
+		//去掉图标icon
+		$(".aui_icon").remove();
+		
+		//$(".aui_title").remove();
+		
+		//去掉弹出框跟随鼠标拖动
+		$(document).unbind('mousedown');
+		
+		switch(type) {
+			case 'level':
+				_me.getManageLevelTable(diaObj);
+				break;
+			case 'examineItem':
+				_me.getManageExamineTable(diaObj);
+				break;
+			case 'source':
+				_me.getManageSourceTable(diaObj);
+				break;
+			case 'receptionist':
+				_me.getManageReceptionistTable(diaObj);
+				break;
+			case 'doctor':
+				_me.getManageDoctorTable(diaObj);
+				break;
+			case 'department':
+				_me.getManageDepartmentTable(diaObj);
+				break;
+			case 'disease':
+				_me.getManageDiseaseTable(diaObj);
+				break;
+			case 'patientByName':
+				var recommend_name = $('#recommend_name').val();
+				if (recommend_name == '') {
+					alert("请输入推荐者姓名");
+					return;
+				}
+				$('#add').remove();
+				_me.getPatientTable(diaObj, true);
+				break;
+			case 'patientByTel':
+				var recommend_tel = $('#recommend_tel').val();
+				if (recommend_tel == '') {
+					alert("请输入推荐者电话");
+					return;
+				}
+				$('#add').remove();
+				_me.getPatientTable(diaObj, false);
+				break;
+		}
+		
+		return false;
+	},
+	
+	getPatientTable:function(diaObj, isByName){
+		var _me = this;
+		var recommend_name = $('#recommend_name').val();
+		var recommend_tel = $('#recommend_tel').val();
+		if (isByName) {
+			if (recommend_name == '') {
+				alert("请输入推荐者姓名");
+				return;
+			}
+			var url = {controller:'Patient',method:'getAllPatients',recommend_name:recommend_name};
+		} else {
+			if (recommend_tel == '') {
+				alert("请输入推荐者电话");
+				return;
+			}
+			var url = {controller:'Patient',method:'getAllPatients',recommend_tel:recommend_tel};
+		}
+		
+		$('#table_div').grad2({
+			size : 10,
+			para : url,
+			page : true,
+			field : [
+				{text:'姓名',name:'username'},
+				{text:'电话',name:'telphone'},
+				{text:'操作',name:'id',width:75,
+					render : function(value,rowData,rowIndex){
+						var str = '<a id="'+value+'" data="' + rowData.username + ':' + rowData.telphone+ '" class="button choose" href="javascript:void(0)" style="margin-left:4px;"><span>关联推荐</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(":");
+			$('#recommend_name').val(arr[0]);
+			$('#recommend_tel').val(arr[1]);
+			
+			diaObj.close();
+		});
+	},
+	
+	getManageLevelTable:function(diaObj){
+		var _me = this;
+		$('#table_div').grad2({
+			size : 10,
+			para : {controller:'Patient',method:'getVipLevels',isPage:1},
+			page : true,
+			field : [
+				{text:'会员名称',name:'level_name'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.level_name + ':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			$("#vip_level option[value='" + id + "']").attr('selected', true);
+			diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['level_name'] = '会员级别';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['level_name'] = arr[1];
+			formData['remark'] = arr[2];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subVipLevel(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delVipLevel',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					result.fillLevels();
+					//刷新当前列表
+					result.getManageLevelTable();
+				}else{
+				}
+	    	});
+		});
+		
+
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['level_name'] = '会员级别';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['level_name'] = '';
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subVipLevel(content);
+		});
+	},
+	
+	subVipLevel:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加会员级别信息',
+		    content:content,
+		    id:'sub_viplevel',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var level_name = $('#level_name').val();
+		    	var remark = $('#remark').val();
+		    	var id = $('#id').val();
+		    	if ( level_name == '') {
+		    		alert_message('请输入级别名称！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addVipLevel',level_name:level_name,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modVipLevel',level_name:level_name,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						//更新select
+						result.fillLevels();
+						//刷新当前列表
+						result.getManageLevelTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+	},
+	
+	getManageExamineTable:function(diaObj){
+		var _me = this;
+		var keyword = $("#keyword").val();
+		$('#table_div').grad2({
+			size : 10,
+			para : {controller:'Patient',method:'getExamineItems',isPage:1,keyword:keyword},
+			page : true,
+			field : [
+				{text:'项目名称',name:'item_name'},
+				{text:'是否常用',name:'is_usual'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.item_name + ':' + rowData.is_usual +':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' data="' + rowData.item_name + '" href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			if ($("#examine_items_" + id ).length<1) {
+				var data = $(this).attr('data');
+				$("#span_examine_items").append('<li class="li-items"><input style="padding-right:10px;" type="checkbox" id="examine_items_' + id +'" name="examine_items[]" value="' + id + '">' + data + '</li>');
+			}
+			
+			$("#examine_items_" + id ).attr('checked', true);
+			//diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['item_name'] = '项目名称';
+			labels['is_usual'] = '是否常用';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['item_name'] = arr[1];
+			formData['is_usual'] = arr[2];
+			formData['remark'] = arr[3];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subExamineItems(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delExamineItem',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					if ($("#examine_items_" +id).length>0) {
+						//存在则移移除
+						$("#examine_items_" +id).parent().remove();
+					}
+					//刷新当前列表
+					result.getManageExamineTable();
+				}else{
+				}
+	    	});
+		});
+		
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['item_name'] = '项目名称';
+			labels['is_usual'] = '是否常用';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['item_name'] = '';
+			formData['is_usual'] = 0;
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subExamineItems(content);
+		});
+		
+		$('#keyword').click(function(){
+			result.getManageExamineTable();
+		});
+		
+		$('#query').click(function(){
+			result.getManageExamineTable();
+		});
+			
+		//});
+	},
+	
+	subExamineItems:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加诊疗项目信息',
+		    content:content,
+		    id:'sub_items',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var item_name = $('#item_name').val();
+		    	var remark = $('#remark').val();
+		    	var is_usual = $('#is_usual').val();
+		    	var id = $('#id').val();
+		    	if ( item_name == '') {
+		    		alert_message('请输入项目名称！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addExamineItem',item_name:item_name,is_usual:is_usual,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modExamineItem',item_name:item_name,is_usual:is_usual,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						var data = ret.data;
+						//添加时更新select
+						if (id == '' && data.is_usual == '1') {
+							$("#span_examine_items").append('<li class="li-items"><input style="padding-right:10px;" type="checkbox" id="examine_items_' + data.id + '" name="examine_items[]" value="' + data.id + '"/>' + data.item_name + '</li>');
+						}
+						
+						//刷新当前列表
+						result.getManageExamineTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+	},
+	
+	getManageSourceTable:function(diaObj){
+		var _me = this;
+		
+		$('#table_div').grad2({
+			para : {controller:'Patient',method:'getDataSource',list:true},
+			page : false,
+			field : [
+				{text:'来源名称',name:'title'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.title + ':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' data="' + rowData.item_name + '" href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			$("#source option[value='" + id + "']").attr('selected', true);
+			if (id==1) {
+				$("li[id^='source_recommend_']").show();
+			}
+			if (id>1) {
+				$("#source_detail").show();
+			}
+			diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['title'] = '来源名称';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['title'] = arr[1];
+			formData['remark'] = arr[2];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subSource(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delSource',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					result.fillSource();
+					//刷新当前列表
+					result.getManageSourceTable();
+				}else{
+				}
+	    	});
+		});
+			
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['title'] = '来源名称';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['title'] = '';
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subSource(content);
+		});
+			
+	},
+	
+	subSource:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加来源信息',
+		    content:content,
+		    id:'sub_source',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var title = $('#title').val();
+		    	var remark = $('#remark').val();
+		    	var id = $('#id').val();
+		    	if ( title == '') {
+		    		alert_message('请输入来源名称！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addSource',title:title,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modSource',title:title,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						//更新select
+						result.fillSource();
+						//刷新当前列表
+						result.getManageSourceTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+	},
+	
+	getManageReceptionistTable:function(diaObj){
+		var _me = this;
+		$('#table_div').grad2({
+			size : 10,
+			para : {controller:'Patient',method:'getReceptionist',isPage:1},
+			page : true,
+			field : [
+				{text:'接待员姓名',name:'user_name'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.user_name + ':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			$("#receptionist_id option[value='" + id + "']").attr('selected', true);
+			diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['user_name'] = '接待员姓名';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['user_name'] = arr[1];
+			formData['remark'] = arr[2];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subReceptionist(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delReceptionist',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					result.fillReceptionist();
+					//刷新当前列表
+					result.getManageReceptionistTable();
+				}else{
+				}
+	    	});
+		});
+		
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['user_name'] = '接待员姓名';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['user_name'] = '';
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subReceptionist(content);
+		});
+			
+	},
+	
+	subReceptionist:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加会员级别信息',
+		    content:content,
+		    id:'sub_receptionist',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var user_name = $('#user_name').val();
+		    	var remark = $('#remark').val();
+		    	var id = $('#id').val();
+		    	if ( user_name == '') {
+		    		alert_message('请输入姓名！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addReceptionist',user_name:user_name,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modReceptionist',user_name:user_name,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						//更新select
+						result.fillReceptionist();
+						//刷新当前列表
+						result.getManageReceptionistTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+		
+	},
+	
+	getManageDoctorTable:function(diaObj){
+		var _me = this;
+		$('#table_div').grad2({
+			size : 10,
+			para : {controller:'Patient',method:'getDoctors',isPage:1},
+			page : true,
+			field : [
+				{text:'医生姓名',name:'doctor_name'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.doctor_name + ':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			$("#doctor_id option[value='" + id + "']").attr('selected', true);
+			diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['doctor_name'] = '医生姓名';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['doctor_name'] = arr[1];
+			formData['remark'] = arr[2];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subDoctor(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delDoctor',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					result.fillDoctors();
+					//刷新当前列表
+					result.getManageDoctorTable();
+				}else{
+				}
+	    	});
+		});
+		
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['doctor_name'] = '医生姓名';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['doctor_name'] = '';
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subDoctor(content);
+		});
+			
+	},
+	
+	subDoctor:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加医生信息',
+		    content:content,
+		    id:'sub_doctor',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var doctor_name = $('#doctor_name').val();
+		    	var remark = $('#remark').val();
+		    	var id = $('#id').val();
+		    	if ( doctor_name == '') {
+		    		alert_message('请输入医生姓名！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addDoctor',doctor_name:doctor_name,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modDoctor',doctor_name:doctor_name,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						//更新select
+						result.fillDoctors();
+						//刷新当前列表
+						result.getManageDoctorTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+		
+	},
+	
+	getManageDepartmentTable:function(diaObj){
+		var _me = this;
+		$('#table_div').grad2({
+			size : 10,
+			para : {controller:'Patient',method:'getDepartments',isPage:1},
+			page : true,
+			field : [
+				{text:'科室名称',name:'department_name'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.department_name + ':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			$("#departmentSel option[value='" + id + "']").attr('selected', true);
+			diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['department_name'] = '科室名称';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['department_name'] = arr[1];
+			formData['remark'] = arr[2];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subDepartment(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delDepartment',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					result.fillDepartments();
+					//刷新当前列表
+					result.getManageDepartmentTable();
+				}else{
+				}
+	    	});
+		});
+		
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['department_name'] = '科室名称';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['department_name'] = '';
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subDepartment(content);
+		});
+			
+	},
+	
+	subDepartment:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加科室信息',
+		    content:content,
+		    id:'sub_department',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var department_name = $('#department_name').val();
+		    	var remark = $('#remark').val();
+		    	var id = $('#id').val();
+		    	if ( department_name == '') {
+		    		alert_message('请输入科室名称！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addDepartment',department_name:department_name,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modDepartment',department_name:department_name,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						//更新select
+						result.fillDepartments();
+						//刷新当前列表
+						result.getManageDepartmentTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+		
+	},
+	
+	getManageDiseaseTable:function(diaObj){
+		var _me = this;
+		$('#table_div').grad2({
+			size : 10,
+			para : {controller:'Patient',method:'getDiseases',isPage:1},
+			page : true,
+			field : [
+				{text:'疾病名称',name:'disease_name'},
+				{text:'备注',name:'remark'},
+				{text:'操作',name:'id',width:146,
+					render : function(value,rowData,rowIndex){
+						var str = '<a class="button modify" data="' + value + ':' + rowData.disease_name + ':' + rowData.remark + '" href="javascript:void(0)" style="margin-left:4px;"><span>修改</span></a>';
+						str += '<a class="button delete" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>删除</span></a>';
+						str += '<a class="button choose" id=' + value + ' href="javascript:void(0)" style="margin-left:4px;"><span>选择</span></a>';
+						return str;
+					}
+				}
+			]
+		}).on('click', '.choose', function(){
+			var id = $(this).attr('id');
+			$("#disease_type option[value='" + id + "']").attr('selected', true);
+			diaObj.close();
+		}).on('click', '.modify', function(){
+			var data = $(this).attr('data');
+			var arr = data.split(':');
+			var formData = [];
+			var labels = [];
+			labels['disease_name'] = '疾病名称';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['disease_name'] = arr[1];
+			formData['remark'] = arr[2];
+			formData['id'] = arr[0];
+			var content = _me.getFormHtml(formData, labels);
+			_me.subDisease(content);
+		}).on('click', '.delete', function(){
+			var id = $(this).attr('id');
+			getDataFromDia({controller:'Patient',method:'delDisease',id:id},function(ret){
+				if(ret.statu){
+					//更新select
+					result.fillDiseases();
+					//刷新当前列表
+					result.getManageDiseaseTable();
+				}else{
+				}
+	    	});
+		});
+		
+		$('#add').click(function(){
+			var formData = [];
+			var labels = [];
+			labels['disease_name'] = '疾病名称';
+			labels['remark'] = '备注';
+			labels['id'] = '';
+			formData['disease_name'] = '';
+			formData['remark'] = '';
+			formData['id'] = '';
+			var content = _me.getFormHtml(formData, labels);
+			_me.subDisease(content);
+		});
+			
+	},
+	
+	subDisease:function(content){
+		var _me = this;
+		art.dialog({
+			title: '添加疾病信息',
+		    content:content,
+		    id:'sub_disease',
+		    fixed:true,
+		    width:460,
+		    height:130,
+		    lock:true,
+		    opacity: .1,
+		    padding: 0,
+		    okVal:'提交',
+		    ok:function(){
+		    	var disease_name = $('#disease_name').val();
+		    	var remark = $('#remark').val();
+		    	var id = $('#id').val();
+		    	if ( disease_name == '') {
+		    		alert_message('请输入疾病名称！');
+		    		return false;
+		    	}
+		    	
+		    	var url = {controller:'Patient',method:'addDisease',disease_name:disease_name,remark:remark};
+		    	if (id != '') {
+					var url = {controller:'Patient',method:'modDisease',disease_name:disease_name,remark:remark,id:id};
+				}
+		    	
+		    	$('#loading').addClass('loading');
+				getDataFromDia(url,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						var _me = this;
+						//更新select
+						result.fillDiseases();
+						//刷新当前列表
+						result.getManageDiseaseTable();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+		    },
+		    cancel:true
+		});
+		
+	},
+	
+	getFormHtml:function(data, labels){
+		var content = '<form id="contentForm" class="pageForm required-validate">';
+		content += '<div class="pageFormContent">';
+		content += '<ul>';
+		for (var k in data) {
+			if (k == 'contains') {
+				continue;
+			}
+			content += '<li><span style="float: left; width:100px; height: 22px; padding-top:9px;">' + labels[k] + '</span>';
+			if (k=='message') {
+				content += '<span><textarea name="' + k + '" id="' + k + '">' + data[k] + '</textarea></span>';
+			} else if(k=='id'){
+				content += '<li><input type="hidden" name="id" id="id" value="' + data[k] + '"><div style="clear:both;"></div></li>';
+			} else if (k=='is_usual') {
+				if (data[k] == '1') {
+					content += '<span><select class="textSelect search_input" name="' + k + '" id="' + k + '"><option value="0">否<option value="1" selected>是</select></span>';
+				} else {
+					content += '<span><select class="textSelect search_input" name="' + k + '" id="' + k + '"><option value="0" selected>否<option value="1">是</select></span>';
+				}
+			} else if (k=='remark') {
+				content += '<span><textarea style="width:207px;" name="' + k + '" id="' + k + '">' + data[k] + '</textarea></span>';
+			} else {
+				content += '<span><input class="textInput search_input" name="' + k + '" type="text" size="30" id="' + k + '" value="' + data[k] + '"/></span>';
+			}
+			content += '<div style="clear:both;"></div></li>';
+		};
+		
+		content += '</ul>';
+		content += '</div>';
+		content　+= '</form>';
+		return content;
+	},
+	
+	delFromSelectItems:function(objId, controller, method){
+		var id = $('#' + objId).val();
+    	if ('0' == id) {
+    		alert_message('请选择需要删除的项');
+    		return false;
+    	}
+    	
+    	art.dialog({
+			title: '删除',
+		    content:'<p>删除可能导致信息不完整或不可预知的错误</p><p style="padding-top:20px;">确定删除吗？</p>',
+		    fixed:true,
+		    icon: 'question',
+		    width:300,
+		    height:150,
+		    lock:true,
+		    opacity: .1,
+		    padding:0,
+		    okVal:'确定',
+		    ok:function(){
+		    	$('#loading').addClass('loading');
+		    	getDataFromDia({controller:controller,method:method,id:id},function(ret){
+		    		$('#loading').removeClass('loading');
+					if(ret.statu){
+						alert_message(ret.msg);
+						$("#" + objId).find("option:selected").remove();
+					}else{
+						alert_message(ret.msg);
+					}
+		    	});
+		    },
+		    cancel:true
+		});
+	},
+	
+	goback : function(){
+		var _me = this;
+		_me.start();
+	},
+	
+	//修改管理密码
+	modifyPwd : function(){
+		var flag = false;
+		var content = '<form id="contentForm" class="pageForm required-validate">';
+		content += '<div class="pageFormContent">';
+		content += '<ul>';
+		content += '<li>';
+		content += '<span>原密码：<input type="password" class="textInput" name="old_password" id="old_password"></span>';
+		content += '<span id="error" style="color:red;"></span>';
+		content += '</li>';
+		content += '<li>';
+		content += '<span>新密码：<input type="password" class="textInput" name="password" id="password"></span>';
+		content += '<span id="error" style="color:red;"></span>';
+		content += '</li>';
+		content += '</ul>';
+		content += '</div>';
+		content　+= '</form>';
+		
+		var dia = art.dialog({
+			title: '修改管理密码',
+		    content:content,
+		    fixed:true,
+		    width:380,
+		    height:70,
+		    lock:true,
+		    async:false,
+		    opacity: .1,
+		    padding:0,
+		    okVal:'确定',
+		    close:false,
+		    ok:function(){
+		    	var old_password = $("#old_password").val();
+		    	var password = $("#password").val();
+		    	$('#loading').addClass('loading');
+				getData({controller:'Patient',method:'modifyPatientLoginPwd',old_password:old_password,password:password},function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						flag = true;
+						$('#message').message('修改成功');
+					}else{
+						$("#error").html(ret.msg);
+						flag = false;
+					}
+				});
+				
+				if (!flag) {
+					return false;
+				}
+		    },
+		    cancel:true
+		});
+		$('#old_password').focus();
+	}
+});

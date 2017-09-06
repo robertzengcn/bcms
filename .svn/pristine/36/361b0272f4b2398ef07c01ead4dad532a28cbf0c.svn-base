@@ -1,0 +1,24 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class MemberLog extends Entity {
+
+	var $id;
+	
+	var $uid;
+	
+	var $last_log;
+	
+	var $type;
+	
+	var $score;
+	
+
+
+
+
+
+	public function validate() {
+
+	}
+}

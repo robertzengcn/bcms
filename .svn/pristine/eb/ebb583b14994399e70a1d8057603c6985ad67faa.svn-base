@@ -1,0 +1,1088 @@
+/**
+ * 手机营销管理-手机网页
+ * */
+var uploader = null;
+
+function Mobile() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function init()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.init = function() {
+		$(function(){
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			
+			//默认本地模板
+			self.getLocalTemplateList();
+			
+			$(".tabBar span").click(function(){
+				var index = $(this).index();
+				switch(index) {
+					case 0:
+						//本地模板
+						self.getLocalTemplateList();
+						break;
+					case 1:
+						//在线模板
+						self.getRemoteTemplateList();
+						break;
+					case 2:
+						//上传模板
+						self.readPostMaxValue();
+						self.initUploader();
+						break;
+				}
+			});
+			
+		});
+	}
+
+	// }}}
+	// {{{ function initUploader()
+	
+	/**
+	 * 初始化上传插件
+	 * */
+	this.initUploader = function() {
+		uploader = null;
+		
+		$(".btns").html('<div id="picker">上传模版</div>');
+		
+		uploader = WebUploader.create({
+			auto:true,
+			swf:'lib/webuploader/0.1.5/Uploader.swf',
+			server:'/controller/?controller=Template&method=templateLocalUpload',
+			pick:'#picker',
+			fileVal: 'Filedata',
+			resize:false
+		});
+		
+		$("#picker").unbind('click').bind('click',function(){
+			$("#uploaderDiv").show();
+	        $("#progressDiv").hide();
+			self.uploadTemp();
+		});
+	}
+	
+	// }}}
+	// {{{ function templateSwitch
+	
+	/**
+	 * 模版切换操作
+	 */
+	this.templateSwitch = function ( used , acls ){
+		if( $('#template_div_'+used+' a').eq(0).html() == '当前使用' ){
+			layer.alert('当前正在使用该模版');return true;
+		}
+		
+		layer.confirm('确定要使用该模版吗?', function(index) {
+			self.cmd(gHttp,{controller:'Mobile',method:'templateSwitch',func:gFunc,used:used},function(result){
+				switch(result.statu){
+					case true:
+						$("li[id^='template_div_']").each(function(){
+							$(this).find("a").eq(0).html('使用');
+							$(this).find("a").eq(0).css('color','#333');
+						});
+						
+						$('#template_div_'+used+' a').eq(0).css('color','red');
+						$('#template_div_'+used+' a').eq(0).html('当前使用');
+						break;
+					case false:
+						layer.alert(result.msg);return true;
+						break;
+					default:
+						break;
+				}
+				layer.close(index);
+			});
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function templateDelete
+	
+	/**
+	 * 模版删除操作
+	 */
+	this.templateDelete = function ( used ) {
+		layer.confirm('确定删除该模板吗？', {icon: 3, title:'提示'}, function(index) {
+			self.cmd(gHttp,{controller:'Mobile',method:'templateDelete',func:gFunc,used:used},function(result){
+				switch(result.statu){
+					case true:
+						$('#template_div_'+used).hide(1000,function(){
+							$('#template_div_'+used).remove();
+						});
+						break;
+					case false:
+						layer.alert('删除失败：' + result.msg);
+						break;
+					default:
+						break;
+				}
+				layer.close(index);
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function bindItemEvent()
+	
+	this.bindItemEvent = function() {
+		$('li.item').on('mouseenter',function(){
+			$(this).find('div.temp-title').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.temp-title').stop().animate({height:"0px"});
+		});
+	}
+	
+	// }}}
+	// {{{ function getLocalTemplateList()
+	
+	/**
+	 * 获取本地模版
+	 */
+	this.getLocalTemplateList = function (){
+		var index = layer.msg('正在加载本地模版,请稍后...');
+		self.cmd(gHttp,{controller:'Mobile',method:'getLocalTemplateList',func:gFunc},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';var cls = '';var acls = '';var atxt = '';
+				for(var i = 0 ; i < len ; i++){
+					switch(result.data[i].currentUsed){
+						case 0:
+							cls  = '';
+							acls = '';
+							atxt = '使用';
+							break;
+						case 1:
+							cls  = 'style="color:red;"';
+							acls = 'used';
+							atxt = '当前使用';
+							break;
+					}
+					
+					html += '<li class="item" id="template_div_'+result.data[i].config.shorthand+'">';
+					html += '<div class="Tdetial">';
+					html += '<div class="temp-title text-l">'+ result.data[i].config.name +'</div>';							
+					html += '<div class="picbox">';									
+					html += '<img src="'+ result.data[i].face +'"/>';								
+					html += '</div>';
+					html += '<div class="bt-area">';
+					html += '<a href="javascript:;" ' + cls + ' onclick="gMobile.templateSwitch(\''+result.data[i].config.shorthand+'\',\''+acls+'\');">' + atxt + '</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gMobile.templateDelete(\''+result.data[i].config.shorthand+'\');">删除</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gMobile.viewImg(\'图片预览\',\''+ result.data[i].face+'\');">预览</a>';
+					html += '</div>';							
+					html += '</div>';
+					html += '</li>';
+				}
+				$('#template_unitBox').empty().append( html );
+				self.bindItemEvent();
+				layer.close(index);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function getRemoteTemplateList()
+	
+	/**
+	 * 获取在线模版
+	 */
+	this.getRemoteTemplateList = function (){
+		var index = layer.msg('正在加载在线模版,请稍后...');
+		self.cmd(gHttp,{controller:'Mobile',method:'getRemoteTemplateList',func:gFunc},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';var cls = '';var acls = '';var atxt = '';
+				for(var i = 0 ; i < len ; i++){
+					html += '<li class="item">';
+					html += '<div class="Tdetial">';
+					html += '<div class="temp-title text-l">'+result.data[i].pro_name+'</div>';								
+					html += '<div class="picbox">';									
+					html += '<img src="'+ result.data[i].cover +'"/>';								
+					html += '</div>';
+					html += '<div class="bt-area">';
+					html += '<a href="javascript:;" onclick="gMobile.viewImg(\'图片预览\',\''+result.data[i].view+'\');">预览</a>&nbsp;|&nbsp;';
+					//html += '<a href="javascript:;" onclick="gMobile.getRemoteProductAuth('+result.data[i].id+',\'在线安装\',4);">安装</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gMobile.getRemoteProductAuth('+result.data[i].id+',\'下载\',2);">下载</a>';
+					html += '</div>';
+					html += '</div>';
+					html += '</li>';
+					
+				}
+				$('#remote_unitBox').empty().append( html );
+				self.bindItemEvent();
+				layer.close(index);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function templateLocalUpload()
+	
+	/**
+	 * 模版安装包上传之后
+	 * @param boolean
+	 * @param zip
+	 */
+	this.templateLocalUpload = function (boolean,zip,msg){
+		if(boolean){
+			$('#template_upload_url').val( zip );
+			$('#progressDiv').show(1500);
+		}else{
+			layer.alert(msg);
+		}
+	}
+	
+	// }}}
+	// {{{ function templateZipInstall()
+	
+	/**
+	 * 安装模版包
+	 */
+	this.templateZipInstall = function (){
+		var url = $('#template_upload_url').val();
+		if(url != ''){
+			self.cmd(gHttp,{controller:'Mobile',method:'templateInstall',func:gFunc,zipFile:url},function(result){
+				switch(result.statu){
+					case true:
+						$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+						//默认本地模板
+						self.getLocalTemplateList();
+						break;
+					case false:
+						layer.alert('安装失败：' + result.msg);
+						break;
+					default:
+						break;
+				}
+				$('#progressDiv').hide(1500);
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function templateZipDelete()
+	
+	/**
+	 * 上传了但不需要进行安装，所以进行删除临时存放包
+	 */
+	this.templateZipDelete = function (){
+		var url = $('#template_upload_url').val();
+		if(url != ''){
+			self.cmd(gHttp,{controller:'Mobile',method:'templateZipDelete',func:gFunc,zipFile:url},function(result){
+				switch(result.statu){
+					case true:
+						layer.alert('删除成功');
+						$('#template_upload_url').val('');
+						break;
+					case false:
+						layer.alert(result.msg);
+						break;
+					default:
+						break;
+				}
+				$('#progressDiv').hide(1500);
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function readPostMaxValue()
+	
+	/**
+	 * 读取最大post上传限制
+	 */
+	this.readPostMaxValue = function () {
+		self.cmd(gHttp,{controller:'Template',method:'readPostMaxValue'},function(result){
+			if(result.statu){
+				$('#post_max_value').html(result.data);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function uploadTemp()
+	
+	/**
+	 * 上传模版
+	 * */
+	this.uploadTemp = function() {
+		// 文件上传过程中创建进度条实时显示。
+		uploader.on( 'uploadProgress', function( file, percentage ) {
+		    var $li = $( '#'+file.id ),
+		        $percent = $li.find('.progress .progress-bar');
+		    
+		    // 避免重复创建
+		    if ( !$percent.length ) {
+		        $percent = $('<div class="progress progress-striped active">' +
+		          '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+		          '</div>' +
+		        '</div>').appendTo( $li ).find('.progress-bar');
+		    }
+
+		    $li.find('p.state').text('上传中');
+
+		    $percent.css( 'width', percentage * 100 + '%' );
+		    
+		    uploader.on( 'uploadSuccess', function( file, response ) {
+		        $( '#'+file.id ).find('p.state').text('已上传');
+				if(response.statu){
+					self.templateLocalUpload(true,response.data.zip);
+				}else{
+					self.templateLocalUpload(false,'',response.msg);
+				}
+		    });
+
+		    uploader.on( 'uploadError', function( file ) {
+		        $( '#'+file.id ).find('p.state').text('上传出错');
+		    });
+
+		    uploader.on( 'uploadComplete', function( file ) {
+		        $( '#'+file.id ).find('.progress').fadeOut();
+		    });
+		});
+
+		
+	}
+	
+	// }}}
+	
+	/*************************以下是单图管理***************************/
+    // {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function initEdit()
+	/**
+	 * 初始化单张图片编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);
+				
+				self.cmd(gHttp,{controller:'MobilePicManager',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						$('#hurl').val(result1.data.link);
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							picflag = result1.data.flag;
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			//初始化科室链接数据
+			$("#htmlUrl").bindDepartment();
+			
+			$('#htmlUrl').change(function(){
+				var sel = $(this).val();
+				$('#childDiseaseDiv').empty();				
+				$('#hurl_link').val(window.location.origin+'/'+sel);
+				$('#link_box').val(window.location.origin+'/'+sel);
+				if(sel=='departments'||sel=='disease'){					
+					$('#hurl_link').val('');
+					$('#link_box').val(sel);
+					var params = {sel:sel};
+					$('#childUrlDiv').bindDisease(params,'hurl_link');					
+				}else if(sel == "channel"){
+					$('#hurl_link').val('');
+					$('#link_box').val(sel);
+					$('#childUrlDiv').bindChannel('hurl_link');					
+				}else{
+					$('#childUrlDiv').hide();
+					$('#childUrlDiv').html('');
+				}
+				
+			});
+			
+			//链接方式切换
+			$('input[name="radio_link"]').click(function(){
+				$(this).attr('checked',true);
+				var value=$("#hurl_link").val();
+				if($(this).val()==1){
+					$("#hurl").val(value);						
+				}
+				else{
+					$("#link_box").val(value);
+				}											
+				$("#childUrlDiv").hide();
+				$("#childUrlDiv").html('');
+				$("#childDiseaseDiv").html('');
+				$('#htmlUrl').val('');
+				
+				var id = $(this).attr('id');
+				$("div[id^='div_link']").hide();
+				$("#div_" + id).show();
+			});
+			
+			//childUrlDiv改变时赋值给link_box
+			$("#childUrlDiv").change(function(){
+				var value=window.location.origin+'/'+$(this).find('option:selected').attr('flag');
+				$('#link_box').val(value);
+				$('#hurl_link').val(value);
+				
+			});
+			
+			//childDiseaseDiv改变时赋值给link_box
+			$("#childDiseaseDiv").change(function(){
+				var value=window.location.origin+'/'+$(this).find('option:selected').attr('flag');
+				$('#link_box').val(value);
+				$('#hurl_link').val(value);
+			});
+			
+			//hurl 改变时把值写入hurl_link
+			$('input#hurl').change(function(){
+				$('input#hurl_link').val($(this).val());								
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+	// }}}
+    // {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		if (gKind == 1) {
+			//单张图片管理 kind=1
+			var columns = [
+					            {
+					            	data : 'id',
+					            	render : function (id, type, row) {
+					            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+					            	}
+					            },
+	                            { data: 'id' },
+					            { data: 'name' },
+					            { data: 'flag',},
+					            { data: 'img',render : function(value, type, row){
+									  return '<img src="/upload/' + value + '" width="300px" height="80px"/>';
+								  }	},
+					            { data: 'link' },
+					            {
+								  data : 'id',
+								  render : function(id, type, row){
+									  var str = '';
+						              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.wdedit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+						              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+							    	  return str;
+								  }
+								 }
+					        ];
+			$("#dataTable").grid({
+				para:{controller:'MobilePicManager',method:'query',kind:gKind,cate:gCate},
+				
+				aoColumnDefs : [
+					{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[6]}
+								],
+				field : columns
+			});
+		} else {
+			//轮播图管理 kind=2
+			var columns = [
+					            {
+					            	data : 'id',
+					            	render : function (id, type, row) {
+					            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+					            	}
+					            },
+	                            { data: 'id' },
+					            { data: 'name' },
+					            { data: 'flag',},
+					            {
+								  data : 'id',
+								  render : function(id, type, row){
+									  var str = '';
+						              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.wdscedit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+						              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.detail('+id+');" href="javascript:;" title="查看详细"><i class="Hui-iconfont">&#xe613;</i></a>';
+						              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+							    	  return str;
+								  }
+								 }
+					        ];
+			$("#dataTable").grid({
+				para:{controller:'MobilePicManager',method:'query',kind:gKind,cate:gCate},
+				aoColumnDefs : [
+					{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]}
+					],
+				field : columns
+			});
+		}
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'MobilePicManager',method:'del',id:id,kind:gKind});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		ids = ids.split(',');
+		self.openDel(obj,{controller:'MobilePicManager',method:'del',id:ids,kind:gKind});
+	}
+
+	//编辑单张图
+	this.wdedit = function(id){
+		self.openEditWID('编辑单张图片', 'pic-edit.html?id=' + id,'740','500');
+	}
+	
+	//编辑轮播图
+	this.wdscedit = function(id){
+		self.openEditWID('编辑轮播组', 'pic-scroll-edit.html?id=' + id,'540','224');
+	}
+	//查看轮播详细
+	this.detail = function(id) {
+		self.openAdd('本轮播组图片列表','scroll-pic.html?pid=' + id);
+	}
+	
+	//保存单张图片
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'MobilePicManager',method:'add'};
+		} else {
+			post = {controller:'MobilePicManager',method:'edit',id:id};
+		}
+		var obj=$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+				
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#formEdit').Validform().unignore('#link_box');
+		$('#formEdit').Validform().unignore('#hurl');
+		$('#formEdit').Validform().unignore('#pic');
+		var linkType = $("input[name='radio_link']:checked").val();
+		if (linkType == '1') {
+			obj.ignore('#link_box');
+		} else {
+			obj.ignore('#hurl');
+		}
+		$('#formEdit').submit();
+	}
+	
+	/**********************轮播组图片管理**************************/
+    // {{{ function initScollList()
+	
+	/**
+	 * 初始化轮播组列表
+	 * */
+	this.initScollList = function() {
+		$(function(){
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			//table加载数据
+			self.fillScollDataTable(para);
+		});
+	}
+	
+	// }}}
+    // {{{ function fillScollDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillScollDataTable = function(para) {
+		if (para.pid == undefined) {
+			var data = {controller:'Pic',method:'query'};
+		} else {
+			var data = {controller:'Pic',method:'query',pid:para.pid};
+		}
+		var columns = [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+	                        { data: 'id' },
+				            { data: 'pic' , render : function(value, type, row){return '<img src="'+value+'" width="300px" height="80px"/>';}},
+				            { data: 'url' },
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.editScroll('+id+', '+row.pid+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.delScroll(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ];
+		
+		$("#dataTable").grid({
+			para:data,
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[2]},{sClass:'text-c',aTargets:[4]}
+							],
+			initSort:[[0, "desc"]],
+			field : columns
+		});
+		
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.delScroll = function(obj, id) {
+		self.openDel(obj,{controller:'Pic',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delScrollBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Pic',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.editScroll = function(id,pid){
+		self.openEditWID('编辑轮播组图片信息', 'scroll-pic-edit.html?pid='+pid+'&id=' + id,'740','500');
+	}
+	
+	/**为轮播组新增图片**/
+	this.Addnewpic=function(url){
+		var para = self.parseUrl(window.location.href);
+		self.openEditWID('新增图片', url+'?pid='+para.pid,'740','460');
+		};
+	
+	// {{{ function initScollEdit()
+	/**
+	 * 初始化轮播编辑
+	 * */
+	this.initScollEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.pid != undefined)$("#pid").val(para.pid);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				self.cmd(gHttp,{controller:'Pic',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							picflag = result1.data.flag;
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			//链接方式切换
+			$('input[name="radio_link"]').click(function(){
+				$(this).attr('checked',true);
+				var value=$("#hurl_link").val();
+				if($(this).val()==1){
+					$("#hurl").val("");	
+					if(value.indexOf('http')!=-1){
+						$("#hurl").val(value);	
+					}
+				}
+				else{
+					$("#link_box").val(value);
+				}
+											
+				$("#childUrlDiv").hide();
+				$("#childUrlDiv").html('');
+				$("#childDiseaseDiv").html('');
+				$('#htmlUrl').val('');
+				
+				var id = $(this).attr('id');
+				$("div[id^='div_link']").hide();
+				$("#div_" + id).show();
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.saveScroll();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			//初始化科室链接数据
+			$("#htmlUrl").bindDepartment();
+			$('#htmlUrl').change(function(){
+				var sel = $(this).val();
+				$('#childDiseaseDiv').empty();				
+				$('#hurl_link').val(window.location.origin+'/'+sel);
+				$('#link_box').val(window.location.origin+'/'+sel);
+				if(sel=='departments'||sel=='disease'){					
+					$('#hurl_link').val('');
+					$('#link_box').val(sel);
+					var params = {sel:sel};
+					$('#childUrlDiv').bindDisease(params,'hurl_link');					
+				}else if(sel == "channel"){
+					$('#hurl_link').val('');
+					$('#link_box').val(sel);
+					$('#childUrlDiv').bindChannel('hurl_link');					
+				}else{
+					$('#childUrlDiv').hide();
+					$('#childUrlDiv').html('');
+				}
+				
+			});
+			//childUrlDiv改变时赋值给link_box
+			$("#childUrlDiv").change(function(){
+				var value=window.location.origin+'/'+$(this).find('option:selected').attr('flag');
+				$('#link_box').val(value);
+				$('#hurl_link').val(value);
+				
+			});
+			
+			//childDiseaseDiv改变时赋值给link_box
+			$("#childDiseaseDiv").change(function(){
+				var value=window.location.origin+'/'+$(this).find('option:selected').attr('flag');
+				$('#link_box').val(value);
+				$('#hurl_link').val(value);
+				
+			});
+			
+			//hurl 改变时把值写入hurl_link
+			$('input#hurl').change(function(){
+				$('input#hurl_link').val($(this).val());								
+			});
+		});
+		
+	}
+	
+	// }}}
+	// {{{ function saveScroll()
+	
+	/**
+	 * 保存轮播图
+	 * */
+	this.saveScroll = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Pic',method:'add'};
+		} else {
+			post = {controller:'Pic',method:'edit',id:id};
+		}
+		var obj=$('#formEdit').checkAndSubmit('save', post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon: 2});
+			}
+		});
+		$('#formEdit').Validform().unignore('#link_box');
+		$('#formEdit').Validform().unignore('#hurl');
+		$('#formEdit').Validform().unignore('#pic');
+		var linkType = $("input[name='radio_link']:checked").val();
+		if (linkType == '1') {
+			obj.ignore('#link_box');
+		} else {
+			obj.ignore('#hurl');
+		}
+		$('#formEdit').submit();
+	}
+	
+	// }}}
+	
+	/***************************导航管理****************************/
+// {{{ function initNavList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initNavList = function() {
+		$(function(){
+			//table加载数据
+			self.fillNavDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillNavDataTable();
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function initNavEdit()
+	/**
+	 * 初始化编辑
+	 * */
+	this.initNavEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.cate != undefined) {$("#cate").val(para.cate)}
+			if (para.group_id != undefined) {$("#group_id").val(para.group_id)}
+			if (para.id != undefined) {
+				//有id，则是编辑
+				self.cmd(gHttp,{controller:'MobileNavigation',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							picflag = result1.data.flag;
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			
+			//初始化导航父级
+			$("#apid").bindApid(para.cate);
+			
+			//初始化科室链接数据
+			$("#htmlUrl").bindDepartment();
+			
+			$('#htmlUrl').change(function(){
+				var sel = $(this).val();
+				$('#childDiseaseDiv').empty();
+				$('#hurl').val(sel);
+				if(sel=='departments'||sel=='disease'){
+					$('#hurl').val('');
+					var params = {sel:sel};
+					$('#childUrlDiv').bindDisease(params, 'hurl');
+				}else if(sel == "channel"){
+					$('#childUrlDiv').bindChannel('hurl');
+				}else{
+					$('#childUrlDiv').hide();
+					$('#childUrlDiv').html('');
+				}
+				
+			});
+			
+			//链接方式切换
+			$('input[name="radio_link"]').click(function(){
+				$(this).attr('checked',true);
+				$("#link").val("");
+				$("#childUrlDiv").hide();
+				$("#childUrlDiv").html('');
+				$("#childDiseaseDiv").html('');
+				$('#htmlUrl').val('');
+				var id = $(this).attr('id');
+				$("div[id^='div_link']").hide();
+				$("#div_" + id).show();
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.saveNav();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+	// }}}
+	// {{{ function fillNavDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillNavDataTable = function() {
+		//获取参数
+		var para = self.parseUrl(window.location.href);
+		if (para.group_id == undefined) {
+			var data = {controller:'MobileNavigation',method:'queryGroup',is_group:1,cate:gCate};
+			var columns = [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+                            { data: 'id' },
+				            { data: 'subject' },
+				            { data: 'flag'},
+				            { data: 'is_display',render:function(value,type,row){return value=='1'?'<span class="label label-success radius">显示</span>':'<span class="label label-default radius">不显示</span>';}},
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+					              str += '<a style="text-decoration:none"  onClick="gMobile.navEdit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.navDetail('+id+');" href="javascript:;" title="查看详细"><i class="Hui-iconfont">&#xe681;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.delNavGroup(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ];
+			$("#dataTable").grid({
+				para:data,
+				aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+							],
+				initSort : [[0, "asc"]],
+				field : columns
+			});
+		} else {
+			gGroupId = para.group_id;
+			var data = {controller:'MobileNavigation',method:'getGroup',is_group:0,group_id:para.group_id,cate:gCate};
+			var columns = [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+                            { data: 'id' },
+				            { data: 'subject' },
+				            { data: 'url'},
+				            { data: 'pid'},
+				            { data: 'sort'},
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.navInfoEdit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gMobile.delNav(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ];
+			$("#dataTable").grid({
+				para:data,
+				aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]}
+							],
+				initSort : [[0, "asc"]],
+				field : columns
+			});
+		}		
+	}
+	
+	// }}}
+	
+	//去新增导航
+	this.toAddNav = function() {
+		self.openAdd('新增导航信息','mobilenav-detail.html?group_id=' + gGroupId,'740','560')
+	}
+	
+	//单个删除普通导航
+	this.delNav = function(obj, id) {
+		self.openDel(obj,{controller:'MobileNavigation',method:'delete',id:id});
+	}
+	
+	//批量删除普通导航
+	this.delNavBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		ids = ids.split(',');
+		self.openDel(obj,{controller:'MobileNavigation',method:'delete',id:ids});
+	}
+	
+	//单个删除导航组
+	this.delNavGroup = function(obj, id) {
+		self.openDel(obj,{controller:'MobileNavigation',method:'delGroup',id:id});
+	}
+	
+	//批量删除导航组
+	this.delNavGroupBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		ids = ids.split(',');
+		self.openDel(obj,{controller:'MobileNavigation',method:'delGroup',id:ids});
+	}
+
+	//动态编辑
+	this.navEdit = function(id){		
+		self.openEditWID('编辑自定义导航组信息', 'mobile-nav.html?id=' + id,'480','302');
+	}
+	this.navInfoEdit = function(id){		
+		self.openEditWID('编辑导航信息', 'mobilenav-detail.html?id=' + id,'740','500');
+	}
+	//查看详细
+	this.navDetail = function(id){
+		self.openAdd('本导航组详细列表','mobilenav-list.html?group_id='+id);
+	}
+	
+	// {{{ function saveNav()
+	
+	/**
+	 * 保存
+	 * */
+	this.saveNav = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'MobileNavigation',method:'save'};
+		} else {
+			post = {controller:'MobileNavigation',method:'edit',id:id};
+		}
+		$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.alert('操作成功!',{icon: 1});	
+				layer_close();
+				
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#formEdit').submit();
+	}
+	
+	// }}}
+	
+}

@@ -1,0 +1,32 @@
+{{extends file="../common/layout/layout.htpl"}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/doctor.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您的位置：<a href="{{$WEBSITE}}">{{$ContactTag->get('name')}}</a>><a href="{{$WEBSITE}}/doctor/">医生列表</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+    <div class="par-main">
+      <h2><span>医生列表</span></h2>
+      {{doctors page="$cur"}}
+      {{foreach from=$doctors item=v}}
+      <div class="doctor_list">
+        <div class="doctor_img"><a href="{{$v->id}}.html"><img width="100" height="125" src="{{$UPLOAD}}{{$v->pic}}" alt="{{$v->name}}"/></a></div>
+        <div class="doctor_content">
+          <h4><a href="{{$v->id}}.html"><strong>{{$v->name}}</strong>&nbsp;{{$v->position}}</a></h4>
+          <p>{{$v->description|truncate:"100"}}....<a href="{{$v->id}}.html">[详细]</a></p>
+          <div><a href="{{$WEBSITE}}/reservation.html"><img src="{{$RESOURCE}}/images/zx.gif" alt="" /></a><a target='_blank' href="{{$ContactTag->get('swt')}}"><img src="{{$RESOURCE}}/images/yy.gif" alt="#" /></a></div>
+        </div>
+      </div>
+      {{/foreach}}
+        <div class="fenye" style="padding-bottom:10px;">{{$DoctorTag->getPageHtml($cur)}}</div>
+    </div>
+    <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

@@ -1,0 +1,31 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<ol class="breadcrumb container list_nav">您现在的位置：
+        <li><a href="{{$WEBSITE}}"><i class="icon icon-home"></i> {{$ContactTag->get(name)}}</a></li>
+        <li class="active">医院视频</li>
+      </ol>
+
+
+<div class="list main_cont1 main_cont2 container">
+	
+	<div class="list_l col-xs-12 col-sm-9">
+    	<div class="list_ltit"><h2>医院视频</h2></div>
+        <ul>
+            {{foreach from=$tagOb->getList($cur,6) item=v}}
+        	<li>
+            <h1><a href="./{{$v->id}}.html">{{$v->subject|truncate:20}}</a><span>发布时间：{{date('Y-m-d',$v->plushtime)}}</span></h1>
+            <div class="list_lcont">
+            	<div class="listl_contimg col-xs-12 col-sm-3"><img src="{{$UPLOAD}}{{$v->pic}}"></div>
+                <div class="listl_conttxt col-xs-12 col-sm-9">{{$v->description|truncate:85}}<a href="./{{$v->id}}.html" target="_blank">「查看详情」</a></div>
+            </div>
+            </li>
+            {{/foreach}}
+        </ul>
+        <footer style="text-align:center;">
+            {{$tagOb->getPageHtml($cur)}}
+        </footer>
+    </div> 
+     {{include file=$layout_right}}
+</div>
+{{/block}}
+

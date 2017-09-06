@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+
+{{include file="Common/common.html"}}
+</head>
+
+<body>   
+    <section id="body">
+			<article class="banner">
+				{{$adlogo=$PicManagerTag->getMobilePic("mobile_ad","app")}}
+				
+            <span><img src="{{$adlogo->src}}"><p>福州华南中正口腔医院<a style="font-size:12px; color:white;">（福州市西二环南路37号）</a></p></span>
+            </article>
+    </section>
+    
+    <section id="content">
+    	<article class="menu">
+        	<h1>医院交通</h1><h2>公交线路：   <a>乘{{$contact.route}}</a>路到东南眼科站下车即到。</h2>
+        </article>
+        
+        <article class="menu">
+        	<h1>联系电话</h1><h2>  <a href="tel:">{{$contact.tel}}</a></h2>
+        </article>
+         {{$date=$IntroduceTag->getContent()}}
+        <article class="menu">
+        	<h1>医院介绍</h1>
+			<h2> 
+			{{$date}}
+			</h2>
+        </article>
+        
+    </section>
+    
+</body>
+</html>

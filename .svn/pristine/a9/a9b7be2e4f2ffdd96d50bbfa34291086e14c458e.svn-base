@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../lib/Hui-iconfont/1.0.1/iconfont.css"/>
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title> 新建场景 </title>
+<style type="text/css">
+ input,select{border: 1px solid #999 !important;border-radius: 0;color: #999;display: block !important;float: left;font-size: 14px;height: 35px !important;line-height: 14px;position: relative;text-indent: 0.5em;width: 280px;}
+</style>
+</head>
+<body>
+<div class="pd-20">
+	<div class="addweixin-btbox">
+				<form class="form form-horizontal">
+				<div class="row cl">
+					<label class="form-label col-2">场景名称：</label>
+					<div class="formControls col-9">
+						<input type="text" name="name" id="name" class="input-text" placeholder="请填写场景名称">
+					</div>
+					<label id="error" style="color:red;padding-left:14px;"></label>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">场景类型：</label>
+					<div class="formControls col-9">
+						<select class="select" id="type" name="type">
+						</select>
+					</div>
+
+				</div>
+<!-- 				<div class="row cl">
+					<label class="form-label col-2">翻页类型：</label>
+					<div class="formControls col-9">
+						<select class="select" id="pageMode" name="pageMode">
+							<option value="0" selected="selected">上下翻页</option>
+							<option value="1">左右翻页</option>
+						</select>
+					</div>
+				</div> -->
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+					<div class="col-10 col-offset-1" id="btnbox">
+						<button onClick="gH5.saveScene();return false;" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 创建</button>
+						<button onClick="gH5.layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+					</div>
+				</div>
+			</form>
+	</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/show.js"></script>
+<script type="text/javascript">
+var gH5 = new H5();
+gH5.setThisName('gH5');
+gH5.newCreate();
+</script>
+
+</body>
+</html>

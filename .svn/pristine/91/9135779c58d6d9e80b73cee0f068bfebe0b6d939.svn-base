@@ -1,0 +1,104 @@
+<?php
+/**
+ * 
+ * cms预约接口
+ * @author Administrator
+ * @version v1.0
+ * @example 该接口在进行预约后,由总控中心发起预约接口
+ */
+include './common.class.php';
+class ReservationHwibsc extends common {
+	
+	public $posts = array();
+	
+	private $params = array(
+		'domain'      	   => array('check'=>true,'info'=>'通信域名'),
+		'reservation_id'   => array('check'=>true,'info'=>'总控预约ID'),
+		'sign'        	   => array('check'=>true,'info'=>'通信加密字符串'),
+		'time'        	   => array('check'=>true,'info'=>'通信加密时间戳'),
+		'time_id' 	       => array('check'=>true,'info'=>'预约时间点ID'),
+	    'time_field' 	       => array('check'=>true,'info'=>'预约具体时间'),
+		'username'     	   => array('check'=>true,'info'=>'预约人姓名'),
+		'age' 	           => array('check'=>true,'info'=>'年龄'),
+		'sex' 		  	   => array('check'=>true,'info'=>'性别'),
+		'telephone' 	   => array('check'=>true,'info'=>'联系电话'),
+	
+		'email'			   => array('check'=>false,'info'=>'电子邮箱'),
+		'address'   	   => array('check'=>false,'info'=>'联系地址'),
+		'ill' 	  		   => array('check'=>false,'info'=>'预约留言'),
+	);
+	
+	//构造函数
+	public function __construct() {
+		parent::__construct();
+		$this->voluation();
+		parent::signCheck();
+		$this->queryRes();
+		parent::msgPut(true, '预约成功!' , null );
+	}
+	
+	//查询time_id值是否正确
+	private function queryRes() {
+		new ReservationService();
+		$find = R::findOne('reservation','id = '.$this->posts['time_id'].' and state=0');
+		
+		if( is_object( $find ) ) {
+			if( ($find->along-$find->mark) < 1 ) {
+				parent::msgPut(4, '该预约时间段已经无号了', null);
+			}else{
+				$this->runRes( $find );
+			}
+		}else{
+			parent::msgPut(3, 'time_id对应的预约信息不存在', null);
+		}
+	}
+	
+	//实际预约功能
+	private function runRes( $resInfo ) {
+
+		
+		$reservationDetail->doctor_id=$ress->data->doctor_id;
+		$reservationDetail->department_id=$ress->data->department_id;
+		$reservationDetail->date=strtotime($ress->data->date);
+			
+		$reservationDetail->times=strtotime($ress->data->date.' '.$arr[0]);
+		$reservationDetail->username=$_REQUEST['name'];
+		$reservationDetail->telephone=$_REQUEST['hometel'];
+		$reservationDetail->card=$_REQUEST['card'];
+		$reservationDetail->statu='待约';
+		
+      
+		
+		#.更新预约表信息(reservationdetail)
+		//$sql = "UPDATE `reservationdetail` SET `statu`='已约',username='{$this->posts['username']}',telephone='{$this->posts['telephone']}' WHERE `id`={$this->posts['time_id']};";
+		//R::exec($sql);
+		#.增加预约用户信息
+		//$date = date('Y',$resInfo->date);
+		$time = strtotime($resInfo->date.''.$this->posts['time_field']);
+		
+       $ressql="INSERT INTO `reservationdetail`(`department_id`,`doctor_id`,`date`,`times`,`statu`,`username`,`telephone `,`card`) VALUES ($resInfo->department_id,$resInfo->doctor_id,$resInfo->date,$time,'待约','{$this->posts['username']}','{$this->posts['telephone']}')";
+       R::exec($ressql);
+		$sql = "INSERT INTO `reseruser` (`name`,`sex`,`age`,`date`,`time`,`address`,`hometel`,`email`,`ill`,`reservation_id`,`reservation_fid`) VALUES (
+			'{$this->posts['username']}','{$this->posts['sex']}','{$this->posts['age']}',
+			'{$date}','{$time}','{$this->posts['address']}','{$this->posts['telephone']}','{$this->posts['email']}',
+			'{$this->posts['ill']}','{$this->posts['reservation_id']}','{$this->posts['time_id']}'
+		)";
+		R::exec($sql);
+	}
+	
+	private function voluation() {
+		foreach ( $this->params as $key => $value ) {
+			if( isset( $_REQUEST[$key] ) && $_REQUEST[$key] != '' ) {
+				$this->posts[$key] = trim( $_REQUEST[$key] );
+			}else{
+				if( $value['check'] === true ) {
+					parent::msgPut(0, '参数缺失：'.$value['info'].':'.$key, null);
+				}else{
+					$this->posts[$key] = '';
+				}
+			}
+		}
+	}
+	
+}
+new ReservationHwibsc();

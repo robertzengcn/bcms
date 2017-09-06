@@ -1,0 +1,21 @@
+@charset "utf-8";
+/* CSS Document */
+.about,.road{padding:2px 12px 10px 12px;line-height:28px;font-size:14px;}
+.about p{text-indent:2em;margin-bottom:10px;}
+.about .about-img{float:left;margin-right:10px;}
+.about .about-img img{float:left;border:1px solid #ddd;}
+
+.road{clear:both;line-height:24px;padding:8px 0px;}
+.road p{padding:10px 10px 10px 24px;}
+.road .road-img{text-align:center;}
+.road .road-img img{border:3px solid #efeee2;}
+
+/* map */
+.map{padding:0px 20px;}
+.linkbox,.linkbox h3{clear:both;}
+.linkbox h3{line-height:32px;border-bottom:1px dashed #ddd;}
+.linkbox h3,.linkbox h3 a{color:#ff41ab;}
+.linkbox ul li{float:left;line-height:30px;border-bottom:1px dashed #ddd;padding:0px 10px;white-space:nowrap;overflow: hidden;}
+
+.iw_poi_title {color:#CC5522;font-size:14px;font-weight:bold;overflow:hidden;padding-right:13px;white-space:nowrap;}
+.iw_poi_content {font:12px arial,sans-serif;overflow:visible;padding-top:4px;white-space:-moz-pre-wrap;word-wrap:break-word;}

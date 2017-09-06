@@ -1,0 +1,25 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}我的提问{{/block}}
+{{block name=body}}
+<div class="answer">
+  <div class="answer_tit"><nav class="nav_tit"><a class="active" href="#">我的问题</a></nav></div>
+  <ul class="question am-container">
+      <li><p><b class="am-fl">问题：</b><span class="pl-2 text-bold">{{$subject}}</span></p><span class="am-fl">{{$pulshtime}}</span><br>
+      	<p>{{$description}}</p>
+      </li>
+      
+      <li><p><b class="am-fl">回答：</b><span class="pl-2 f14">坚持“客户满意度是衡量一切工作的标准”服务理念，全程为您提供细致入微的服务，您的满意是我们不懈的追求！</span></p></li>
+      <h3>电话咨询：{{$contact.tel}}</h3>
+  </ul>
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.questionlist();
+
+</script>
+{{/block}}

@@ -1,0 +1,146 @@
+<?php
+
+class DepartmentManagerService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new DepartmentManagerDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $departments = $this->dao->getBatch($ids);
+
+        $files = array();
+        foreach ($departments as $department) {
+            $filename = GENERATEPATH . 'department/' . $department->url . '/' . $department->id . '.html';
+            if ($department->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $files[] = $filename;
+        }
+
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        return $this->dao->deleteBeans($departments);
+    }
+
+    /**
+     * 获取科室信息
+     *
+     * @return Result
+     */
+    public function getDepartments() {
+        $departments = $this->dao->getDepartments();
+
+        return $this->success($departments);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $news
+     * @return Result
+     */
+    public function get($department) {
+    	
+        if (! $department->id) {
+        	
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($department->id, $department);
+        
+        if ($department->pic) {
+            $department->src = UPLOAD . $department->pic;
+        }
+        return $this->success($department);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $departments = $this->dao->query($where);
+       
+
+        return $this->success($departments);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $news
+     * @return Result
+     */
+    public function save($department) {
+    
+
+    	
+       $department->validate();
+        // 获取class对象并插入数据
+        
+       
+        
+        $this->dao->save($department);
+
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $news
+     * @return Result
+     */
+    public function update($department) {
+        $department->validate();
+        if (! $department->id) {
+            throw new ValidatorException(7);
+        }
+        return $this->dao->update($department);
+    }
+    /**
+     * 检查科室表里是否有数据存在
+     *
+     * 
+     * @return Result
+     */
+    public function checkdate(){
+    	return $this->dao->getDepartments();
+    	
+    }
+    /**
+     * 从原可是表导入数据到科室表
+     *
+     *
+     * @return Result
+     */
+    public function importdate(){
+    	
+    	return $this->dao->importdate();
+    	 
+    }
+    
+
+
+    
+    
+    
+}

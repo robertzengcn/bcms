@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * 视频DAO
+ *
+ * @author Administrator
+ *
+ */
+class PicDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_PIC;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::eq('pid', $where);
+        DTExpression::page($where);
+        DTOrder::asc('sort');
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::eq('pid', $where);
+        DTExpression::eq('isdisplay', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 根据外键获得数据
+     */
+    public function getByPid($para) {
+        $str = '';
+        foreach ($para as $key) {
+            $str .= ' pid =' . $key . ' or ';
+        }
+        $str = rtrim($str, 'or ');
+
+        return R::findAll($this->tableName, $str);
+    }
+}

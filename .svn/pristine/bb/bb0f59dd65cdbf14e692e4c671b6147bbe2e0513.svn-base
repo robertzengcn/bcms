@@ -1,0 +1,80 @@
+@charset "utf-8";
+.youh{ margin:10px 0; font-family:微软雅黑; font-size:14px; line-height:30px; overflow:hidden;}
+.youh span{ float:left; width:320px; text-align:center; color:#000; overflow:hidden;}
+.youh a{ float:right;  color:#7f579d;}
+
+.zx{ width:304px; margin:0 auto; overflow:hidden;}
+.zx img{ float:left; margin:0 4px;}
+.iBox1{}
+.iBox1 ul{ background:url(../images/bg.gif) repeat-x 0 0; width:100%; height:86px; margin-top:20px; overflow:hidden;}
+.iBox1 li{ float:left; display:inline; background:url(../images/bg.gif) no-repeat 0 -86px; width:53px; height:65px; margin:11px 0 0 9px; padding-top:10px; text-align:center; line-height:18px; color:#FFF; cursor:pointer;}
+.iBox1 li.active1{ background:url(../images/bg.gif) no-repeat -53px -86px;}
+.iBox1 dl{ display:none; width:300px; margin:8px auto; overflow:hidden;}
+.iBox1 dd{ float:left; display:inline; width:100px; margin:8px 0; text-align:center;}
+
+
+.iBox3{ padding-bottom:15px; font-family:微软雅黑; text-align:center;}
+.iBox3 .t01{ background:url(../images/bg.gif) repeat-x 0 -161px; font-size:18px; line-height:35px; color:#FFF; overflow:hidden;}
+.iBox3 p{ float:left; display:inline-block; height:28px; margin:15px 0 0 9px; font-size:16px; line-height:28px;}
+.iBox3 p.p01{ background:#f3af66; width:94px;}
+.iBox3 p.p02{ background:#bc60c2; width:93px;}
+.iBox3 p.p03{ background:#9564ba; width:93px;}
+.iBox3 p.p04{ background:#4a9758; width:123px;}
+.iBox3 p.p05{ background:#109dc0; width:167px;}
+.iBox3 p.p06{ background:#21beeb; width:150px;}
+.iBox3 p.p07{ background:#c2ac60; width:140px;}
+.iBox3 p a{ display:block; color:#FFF;}
+.iBox3 p a:hover{  color:#000;}
+
+
+h2{ background:url(../images/bg.gif) no-repeat 0 -196px; height:34px; font-family:微软雅黑; overflow:hidden;}
+h2 span{ float:left; display:inline-block; width:88px; height:29px; margin:5px 0 0 10px; text-align:center; font-size:16px; font-weight:400; line-height:32px; color:#680576;}
+h2 a{ float:right; margin-right:10px; line-height:34px; color:#FFF;}
+
+.iBox4{}
+.iBox4 dl{ width:305px; margin:0 auto; padding:20px 0; border-bottom:1px dashed #bdaacb; overflow:hidden;}
+.iBox4 dt{ float:left; display:inline-block; width:120px;}
+.iBox4 dd{ float:left; display:inline-block; width:185px; font-size:13px;}
+.iBox4 dd span{ font-size:14px; font-weight:bold;}
+.iBox4 dd p{ margin:0 0 10px; text-indent:2em; line-height:22px;}
+.iBox4 .a01 , .iBox4 .a02{ float:left; display:block; width:80px; height:22px; margin-right:8px; text-align:center; line-height:22px; color:#FFF;}
+.iBox4 .a01{ background:#9d70bf;}
+.iBox4 .a02{ background:#ffa200;}
+.iBox4 .a01:hover{ color:#B42948;}
+.iBox4 .a02:hover{ color:#000000;}
+
+.iBox5 img{ margin:8px 0;}
+
+
+.dp h3{ background:url(../images/bg.gif) no-repeat 0 -230px; height:35px; margin-top:10px; padding:3px 0; text-indent:2em; font-size:15px; font-weight:400; color:#FFF;}
+.dp .con{ padding:0 10px;}
+
+/** 首页问答列表*/
+.ask_index{
+	border-bottom: 1px dashed #cacaca;
+}
+.ask_list{
+	display: inline;
+    float: left;
+    margin-bottom: 10px;
+    overflow: hidden;
+    width: 100%;
+    
+}
+.ask_list p.p01 {
+    display: inline;
+    float: left;
+    overflow: hidden;
+}
+.ask_list p.p01 span{
+	color: #ff4342;
+}
+
+.ask_list p.p03 {
+	float: right;
+    overflow: hidden;
+}
+
+/** 首页导航样式 */
+.navbg{position:relative;width:85px; height:85px;}
+.navsujuct{position:absolute; margin:auto;top:70%; right:25%; z-index:999;}

@@ -1,0 +1,140 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>敏感词汇管理</title>
+<style type="text/css">
+	.groupList{list-style:none;margin:0px;padding:0px;}
+	.groupList li{list-style:none;float:left;padding:0px 4px;line-height:30px;}
+	.groupList li span{padding:4px 8px; cursor:pointer;}
+	.groupList li span:hover{background:#5a98de;}
+	.listbox,.icobox,.checkbox{height:300px;scroll:auto;}	
+	.listbox,.checkbox{border:1px solid #d5d5d5;}	
+	
+	.personList li,.selectList li{font-size:14px;height:30px;line-height:30px;text-indent:8px;}
+	.selectList li{width:96%;margin:2px auto;}
+	.selectList li span{display:none;}
+	.personList li:hover{background:#f5fafe;}
+	.selectList li:hover{border:1px solid #d5d5d5;padding:2px;background:#f5fafe;}
+	
+	#groupBox .formControls{position:relative;}
+	.cancel{position:absolute;right:16px;top:2px;}
+	
+</style>
+</head>
+<body>
+<div class="pd-20">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>新增词汇</span><span>词组分类</span><span>新增分类</span></div>
+			<div class="tabCon">	
+				<form action="" method="post" class="form form-horizontal" id="formEdit">			
+				<div class="mt-5 row cl">
+					<div class="col-78">
+						<label class="form-label col-85">词汇分类：</label>
+						<div class="formControls col-10">
+							<ul class="groupList" id="groupList"></ul>
+						</div>					
+						<input type="hidden" value="all" id="groupchoise"/>
+					</div>
+					<div class="col-77 fl text-c"></div>
+					<div class="col-78">
+						&nbsp;敏感词搜索：<input type="text" name="keywords" id="keywords" placeholder=" 请输入关键词" style="width:250px" class="input-text">
+						<button id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+					</div>
+				</div>				
+				<div style="width:100%;height:1px;clear:both;"></div>
+				<div class="mt-5 row cl">
+					<div class="col-78 fl listbox formControls" style="height:380px;overflow: hidden;" id="textarea"></div>
+					<div class="col-77 fl icobox text-c"><i class="Hui-iconfont" style="font-size:24px;margin:131px auto;display:block;">&#xe67a;</i></div>
+					<div class="col-78 fl checkbox" style="height:380px;overflow-y:scroll;"><ul class="selectList" id="selectList"></ul></div>
+				</div>
+				<div style="width:100%;height:50px;clear:both;"></div>				
+					<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+							<button id="save" class="btn btn-primary radius  bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存新项</button>	
+					</div>
+				</form>
+			</div>
+			<!--词组列表-->
+		<div class="tabCon">				
+			<div class="mt-5">
+				<table id="levelList" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th width="25"><input type="checkbox" id="selectAll" name="" value=""></th>
+							<th width="55">序号</th>
+							<th width="250">名称</th>								
+							<th>备注</th>
+							<th width="180">更新时间</th>
+							<th width="80">数量</th>							
+							<th width="60">操作</th>							
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div style="width:100%;height:50px;clear:both;"></div>
+			<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">					
+				<button onClick="gWords.delGroups();" class="btn btn-danger radius bt-normal" type="button"><i class="Hui-iconfont">&#xe6e2;</i> 删除词组</button>	
+			</div>
+		</div>
+						<!--新增词组-->
+			<div class="tabCon">
+				<div class="pd-5">
+				  <form class="form form-horizontal" id="formAdd">
+					<div class="row cl">
+					  <label class="form-label col-2"><span class="c-red">*</span>词组名称：</label>
+					  <div class="formControls col-7">
+						<input type="hidden" id="id" name="id"  value="" />
+						<input type="hidden" id="oldgname" name="old_gname"  value="" />
+						<input type="text" class="input-text" value="" placeholder="请输入要新增词组的名称，如：组一..." id="group_name" name="new_name" datatype="*2-30" nullmsg="词组名称不能为空" errormsg="限2-10个字" />
+					  </div>
+					  <div class="col-3"> </div>
+					</div>					   
+					<div class="row cl">
+					  <label class="form-label col-2">备注：</label>
+					  <div class="formControls col-7">
+						<textarea name="remark" id="remark" cols="" rows="" class="textarea"  placeholder="请输入备注内容..." dragonfly="true"  onKeyUp="textarealength(this,200)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+					  </div>					 
+					</div>
+					<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+							<button id="savegroup" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存词组</button>	
+					</div>
+				  </form>
+				</div>
+			</div>
+	</div>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/sensitivewords.js"></script>
+<script type="text/javascript">
+var gWords = new Words();
+gWords.setThisName('gWords');
+gWords.initEdit();
+</script>
+</body>
+</html>

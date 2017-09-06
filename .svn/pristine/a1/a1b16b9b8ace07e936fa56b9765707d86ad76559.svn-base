@@ -1,0 +1,39 @@
+// JavaScript Document
+
+$(document).ready(function(){
+		$(".titlebox a").click(function(){
+			if($(this).hasClass("opencss")){$(this).parent().next("div.menuinfo").hide(1500);$(this).removeClass("opencss").addClass("closecss");}
+			else{
+				$(this).parent().next("div.menuinfo").show(1500);$(this).removeClass("closecss").addClass("opencss");
+				}
+		});
+	
+		$(".left_menu li").click(function(){
+			if($(this).hasClass("allmenu_li")){
+				$(".left_menu li.choisecss").removeClass("choisecss").addClass("allmenu_li");
+				$(this).removeClass("allmenu_li").addClass("choisecss");
+				if($("li.firstli").hasClass("allmenu_li")){$("li.firstli").css("border-top","1px solid #c6c6c6");}
+				else{$("li.firstli").css("border-top","1px solid #666666");}
+				var num=$(this).index();
+				$("div.info_group").hide().eq(num).show();
+				}							  
+		});
+		
+		//自动回复菜单切换
+		/*$(".reply_botton li").click(function(){
+			if($(this).hasClass("button_li")){
+				$("li.choosecss").addClass("button_li").removeClass("choosecss");									
+				$(this).addClass("choosecss").removeClass("button_li");
+				$("div.contains").hide();
+				$(this).find("div.contains").show();
+				}							   
+		});
+		$(document).on('click','.reply_ul li',function(){
+				alert('ok');
+													   
+													   
+		});
+		*/
+});
+
+

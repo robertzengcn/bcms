@@ -1,0 +1,156 @@
+<?php
+
+class DuanxinService extends BaseService {
+
+	/**
+	 * 发送短信的接口地址
+	 * */
+	private $__url = null;
+	
+	/**
+	 * 接口账号
+	 * */
+	private $__cid = null;
+	
+	/**
+	 * 接口密码
+	 * */
+	private $__pwd = null;
+	
+	/**
+	 * 短信号码后缀
+	 * */
+	private $__cell = null;
+
+    /**
+     * 构造函数
+     */
+    public function __construct($url, $cid, $pwd, $cell) {
+        parent::__construct();
+        $this->__url = $url;
+        $this->__cid = $cid;
+        $this->__pwd = $pwd;
+        $this->__cell = $cell;
+
+    }
+    
+    /**
+     * 发送验证码
+     *
+     * @param string $mobile 手机号
+     * */
+    public function sendAuthCode($mobile) {
+    	if (empty($mobile)) {
+    		throw new ValidatorException(56);
+    		return false;
+    	}
+    
+    	$code = rand(100000, 999999);
+    	$content = '您的验证码【' . $code . '】，请尽快完成验证';
+    	$params = $this->formatParams($mobile, $content);
+    	$result = file_get_contents($this->__url . '?' . $params);
+    	if($result>0){
+    		 
+    		$this->intoSession($code);
+    
+    		return $code;
+    	}
+    	return false;
+    }
+    
+    // }}}
+    // {{{ public function sendNormalMessage()
+    
+    /**
+     * 发送普通消息
+     *
+     * @param string $mobile 手机号
+     * @param string $content 发送内容
+     * */
+    public function sendNormalMessage($mobile, $content) {
+    	if (empty($mobile)) {
+    		throw new ValidatorException(56);
+    		return false;
+    	}
+    	 
+    	if (empty($content)) {
+    		throw new ValidatorException(112);
+    		return false;
+    	}
+    	$params = $this->formatParams($mobile, $content);
+    	return $this->send($params);
+    }
+    
+    // }}}
+    // {{{ public function send()
+    
+    /**
+     * @param string $params  发送的参数
+     * */
+    public function send($params) {
+    	$ch = curl_init();
+    	curl_setopt($ch, CURLOPT_URL, $this->__url);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($ch, CURLOPT_POST, 1);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    	$return = curl_exec($ch);
+    	curl_close($ch);
+    	if ($return === false) {
+    		return false;
+    	}
+    	return $return ? true : false;
+    }
+    
+    // }}}
+    // {{{ protected function intoCookie()
+    
+    /**
+     * 将验证码写入cookie
+     * */
+    protected function intoCookie($code) {
+    	if (isset($_COOKIE['MOBILE_AUTH_CODE'])) {
+    		unset($_COOKIE['MOBILE_AUTH_CODE']);
+    	}
+    	 
+    	//$_COOKIE['MOBILE_AUTH_CODE'] = $code;
+    	//有效期为1分钟
+    	setcookie('MOBILE_AUTH_CODE', md5($code), time()+60*5, '/');
+    }
+    
+    /**
+     * 将验证码写入session
+     * */
+    protected function intoSession($code) {
+    	session_start();
+    	if (isset($_SESSION['MOBILE_AUTH_CODE'])) {
+    		unset($_SESSION['MOBILE_AUTH_CODE']);
+    	}
+    $_SESSION['MOBILE_AUTH_CODE']=md5($code);
+    	//$_COOKIE['MOBILE_AUTH_CODE'] = $code;
+    	//有效期为1分钟
+    	//setcookie('MOBILE_AUTH_CODE', md5($code), time()+60*5, '/');
+    }
+    
+    // }}}
+    // {{{ protected function formatParams()
+    
+    /**
+     * 格式化提交参数
+     * */
+    protected function formatParams($mobile, $content) {
+    	$params = 'CorpID=' . $this->__cid;
+    	$params .= '&Pwd=' . $this->__pwd;
+    	$params .= '&Mobile=' . $mobile;
+    	$params .= '&Content=' . $content;
+    	$params .= '&cell=' . $this->__cell;
+    
+    	return $params;
+    }
+    // }}}
+    // }}}
+    
+    
+    
+    
+ 
+}

@@ -1,0 +1,244 @@
+<?php
+
+/**
+ * 邮件模块流程控制器
+ * @author Administrator
+ *
+ */
+class EmailController extends Controller {
+	
+	/**
+	 * 构造方法
+	 * 实例化基类并实例化service层,并将其赋值给service属性
+	 */
+	public function __construct() {
+		parent::__construct ();
+	}
+	/**
+	 * 数据安全验证、登录检测
+	 *
+	 * @see controller/Controller::filter()
+	 */
+	public function filter() {
+		$filterService = new FilterService ();
+		$filterService->addFunc ( $filterService::$SQLINJECTION );
+		$filterService->addFunc ( $filterService::$FILERPLUSHTIME );
+		$filterService->addFunc ( $filterService::$WORKERISLOGIN );
+		$filterService->addFunc ( $filterService::$WORKERLOGHISTORY );
+		return $filterService->execute ();
+	}
+	
+	/**
+	 * 发送邮件
+	 * 
+	 * $param $name 发件人
+	 * $param $conten 发件内容
+	 */
+	public function sendemail() {
+		
+		if (isset ( $_REQUEST ['name'] ) && strlen ( $_REQUEST ['name'] ) > 0) {
+			$name = $_REQUEST ['name'];
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '发件人为空',
+					'code' => 20,
+					'data' => null 
+			) );
+			exit ();
+		}
+		if (isset ( $_REQUEST ['content'] ) && strlen ( $_REQUEST ['content'] ) > 0) {
+			$content = $_REQUEST ['content'];
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '邮件内容为空',
+					'code' => 21,
+					'data' => null 
+			) );
+			exit ();
+		}
+		
+		if (isset ( $_REQUEST ['receiver'] ) && strlen ( $_REQUEST ['receiver'] ) > 0) {
+			$receiver = $_REQUEST ['receiver'];
+			if (! filter_var ( $receiver, FILTER_VALIDATE_EMAIL )) {
+				echo json_encode ( array (
+						'stute' => false,
+						'msg' => '接收人不是有效的邮件地址',
+						'code' => 22,
+						'data' => null
+				) );
+				exit ();
+			}
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '缺少接收人参数',
+					'code' => 23,
+					'data' => null
+			) );
+			exit ();
+		}
+		
+		if (isset ( $_REQUEST ['subject'] ) && strlen ( $_REQUEST ['subject'] ) > 0) {
+			$subject = $_REQUEST ['subject'];
+		}else{
+			$subject="";
+		}
+		try{
+		$contectser = new ContactService ();
+		$smtpusername = $contectser->getContact('smtpusername')->data->val;	
+		$pass = $contectser->getContact('smtppass')->data->val;		
+		$port = $contectser->getContact('smtpport')->data->val;
+		$smtp = $contectser->getContact('smtphost')->data->val;
+		}catch(Exception $e){
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => $e->getMessage(),
+					'code' => 24,
+					'data' => null
+			) );
+			exit ();
+		}
+		
+		if(!$smtpusername||!$pass||!$port||!$smtp){
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '接口参数配置错误，请检查',
+					'code' => 24,
+					'data' => null
+			) );
+			exit ();
+		}
+		
+		$emailser = new EmailService ( $smtpusername, $pass, $port, $smtp );
+		$emailser->sendmail($receiver,$content,$name,$subject);
+		
+		echo json_encode ( array (
+				'stute' => true,
+				'msg' => '成功发送',
+				'code' => 0,
+				'data' => null 
+		) );
+		exit ();
+	}
+	
+	/**
+	 * 更新短信接口信息
+	 * @param $_Request['username']
+	 * @param $_Request['pass']
+	 * @param $_Request['port']
+	 * @param $_Request['smtp']
+	 */
+	public function updateemail() {
+		if (isset ( $_REQUEST ['username'] ) && strlen ( $_REQUEST ['username'] ) > 0) {
+			$username = $_REQUEST ['username'];
+			if (! filter_var ( $username, FILTER_VALIDATE_EMAIL )) {
+				echo json_encode ( array (
+						'stute' => false,
+						'msg' => '接口用户名不是有效的邮件地址',
+						'code' => 11,
+						'data' => null 
+				) );
+				exit ();
+			}
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '缺少用户名参数',
+					'code' => 12,
+					'data' => null 
+			) );
+			exit ();
+		}
+		if (isset ( $_REQUEST ['pass'] ) && strlen ( $_REQUEST ['pass'] ) > 0) {
+			$password = $_REQUEST ['pass'];
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '缺少密码参数',
+					'code' => 13,
+					'data' => null 
+			) );
+			exit ();
+		}
+		
+		if (isset ( $_REQUEST ['port'] ) && strlen ( $_REQUEST ['port'] ) > 0) {
+			$port = $_REQUEST ['port'];
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '缺少port参数',
+					'code' => 14,
+					'data' => null 
+			) );
+			exit ();
+		}
+		
+		if (isset ( $_REQUEST ['smtp'] ) && strlen ( $_REQUEST ['smtp'] ) > 0) {
+			$smtp = $_REQUEST ['smtp'];
+		} else {
+			echo json_encode ( array (
+					'stute' => false,
+					'msg' => '缺少smtp参数',
+					'code' => 15,
+					'data' => null 
+			) );
+			exit ();
+		}		
+		$contectser = new ContactService ();
+		$contectser->updateflag('smtpusername',$username);
+		$contectser->updateflag('smtppass',$password);
+		$contectser->updateflag('smtpport',$port);
+		$contectser->updateflag('smtphost',$smtp);
+		echo json_encode ( array('stute' => true,'msg' => null,'code' => 0,'data' => null));
+		exit ();
+	}
+	
+	/**
+	 * 检查是否含有某个字符串的方法
+	 */
+	public function isInString1($haystack, $needle) {
+		// 防止$needle 位于开始的位置
+		$haystack = '-_-!' . $haystack;
+		return ( bool ) strpos ( $haystack, $needle );
+	}
+	
+	/**
+	 * 获取短信接口配置
+	 */
+	public function getconfig() {
+		$contectser = new ContactService ();
+		$url = $contectser->getmsgurl ()->val;
+		$cid = $contectser->getmsgcid ()->val;
+		$pwd = $contectser->getmsgpwd ()->val;
+		$cell = $contectser->getmsgcell ()->val;
+		
+		echo json_encode ( array (
+				'stute' => true,
+				'msg' => null,
+				'code' => 0,
+				'data' => array('url'=>$url,'cid'=>$cid,'pwd'=>$pwd,'cell'=>$cell)
+		) );
+		exit ();
+		
+	}
+	
+	/**
+	 * 获取邮件接口配置
+	 */
+	public function getemailconfig() {
+		$contectser = new ContactService ();
+		$url = $contectser->getsmtpusername ()->val;
+		$cid = $contectser->getsmtppass ()->val;
+		$pwd = $contectser->getsmtpport ()->val;
+		$cell = $contectser->getsmtphost ()->val;	
+		echo json_encode ( array ('stute' => true,
+				'msg' => null,
+				'code' => 0,
+				'data' => array('smtpusername'=>$url,'smtppass'=>$cid,'smtpport'=>$pwd,'smtphost'=>$cell)
+		) );
+		exit ();
+	
+	}
+}

@@ -1,0 +1,179 @@
+/**
+ * 个性频道
+ * */
+function Channel() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				var data=$("#frm_post").frmVal({});
+				//console.log(data);
+				//$("#grid").grid({qry_para:data});
+			});
+		});
+	}
+	
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){
+			self.onloadCss();
+			
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);
+				
+				self.cmd(gHttp,{controller:'Channel',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+						var tplurl = $.trim(result1.data.tplurl);
+						var detailtplurl = $.trim(result1.data.detailtplurl);
+						if(result1.data.is_use_tpl == 1){
+							$('#uploadTpl').hide();
+							$('#uploadDetailTpl').hide();
+						}
+						if(tplurl != ''){
+							$('#span_list').html('已上传模版文件,模版路径：'+tplurl);
+						}
+						if(detailtplurl != ''){
+							$('#span_detail').html('已上传模版文件,模版路径：'+detailtplurl);
+						}
+					}else{
+						$('#message').message(result1.msg);
+					}
+				});
+			}
+			
+			$('[name=name]').change(function(){
+				var me = $(this);
+				var val = me.val();
+				self.cmd(gHttp,{controller:'Pingyin',method:'conversion',data:val}, function(ret){
+					$('[name=shortname]').val(ret.data);
+				});
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+    // {{{ function onloadCss()
+	
+	/**
+	 * 加载css
+	 * */
+	this.onloadCss = function() {
+		$('.skin-minimal input').iCheck({
+			checkboxClass: 'icheckbox-blue',
+			radioClass: 'iradio-blue',
+			increaseArea: '20%'
+		});
+		
+		$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0")
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		self.cmd(gHttp,{controller:'Channel',method:'query'},function(ret) {
+			var data = ret.rows;
+			var total = ret.ttl;
+			$("#total").html(total);
+			$("#dataTable").DataTable({
+				bStateSave:true,
+				data:data,
+				columns: [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	}
+				            },
+                            { data: 'id' },
+				            { data: 'name' },
+				            { data: 'shortname',},
+				            { data: 'is_use_tpl',
+				              render : function(value, type, row) {return (value==1)?'默认模板':'自定义模板';}	
+				            },
+				            {
+							  data : 'id',
+							  render : function(id, type, row){
+								  var str = '';
+								  str += '<a style="text-decoration:none" class="ml-5" onclick="gChannel.openAdd(\'资讯列表\',\'channelArticles.html?id='+id+'\');" href="javascript:;"  title="资讯列表"><i class="Hui-iconfont">&#xe681;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gChannel.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+					              str += '<a style="text-decoration:none" class="ml-5" onClick="gChannel.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+						    	  return str;
+							  }
+							 }
+				        ]
+			});
+		});
+		
+		
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'Channel',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Channel',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		self.openEdit('编辑个性频道','channel.html?id=' + id);
+	}
+	
+	//保存
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Channel',method:'add'};
+		} else {
+			post = {controller:'Channel',method:'edit',id:id};
+		}
+		$('#formEdit').frmPost(post,function(result1){
+			if(result1.statu){
+				layer.alert('操作成功!');	
+				layer_close();
+				
+			}else{
+				layer.alert(result1.msg);
+			}
+			return false;
+		});
+	}
+	
+}

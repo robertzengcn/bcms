@@ -1,0 +1,390 @@
+<?php
+/**
+ * 
+ * 插件安装以及列表控制器
+ * @className  TemplateController
+ * @author HWIBS-TEAM
+ * @version v1.0.0
+ *
+ */
+class PluginController extends Controller {
+	
+	//xml配置文件中必须存在的配置项
+	private $pluginXmlMust         = array( 'Name' , 'ByName' );
+	//PclPHP句柄
+	private $pclzipHandler         = null;
+	//是否允许覆盖安装
+	private $installCover          = true;
+	//插件列表(本地)
+	private $pluginList            = array();
+	//获取在线插件列表
+	private $remotePluginListUrl   = 'http://www.boyicms.com/interface/hwibs/product/index.php?product=plugin&method=getList';
+	//获取某产品的权限地址
+	private $remotePluginAuthUrl   = 'http://www.boyicms.com/interface/hwibs/product/index.php?product=plugin&method=productAuth';
+	//插件安装位置配置项
+	private $installPath           = array();
+	
+	/**
+	 * 
+	 * 构造方法
+	 */
+	public function __construct() {
+		require_once GENERATEPATH.'lib/plugin/pclzip-2-8-2/pclzip.lib.php';#.引入PclPHP插件
+		require_once GENERATEPATH.'lib/io.php';
+		$this->service = new PluginService();
+		$this->installPath = array(
+			'upload'    => GENERATEPATH . 'upload/plugin',//插件包上传位置
+			'plugin'    => ABSPATH . '/plugin/',//插件配置文件安装目录
+			'hcc'       => ABSPATH . '/hcc/plugin/plugins',//插件视图文件安装目录
+			'temp'      => COMPILEDIR . 'pluginZip',//插件安装临时目录
+			'configXml' => 'config.xml',//配置文件名称
+		);
+	}
+	
+	/**
+	 * 过滤(non-PHPdoc)
+	 * @see Controller::filter()
+	 */
+	public function filter() {
+		$filterService = new FilterService ();
+		$filterService->addFunc ( $filterService::$SQLINJECTION );
+		$filterService->addFunc ( $filterService::$WORKERISLOGIN );
+		$filterService->addFunc ( $filterService::$FILERPLUSHTIME );
+		$filterService->addFunc ( $filterService::$WORKERLOGHISTORY );
+		return $filterService->execute ();
+	}
+	
+	/**
+	 * (远程)获取在线插件列表 
+	 * @method getRemotePluginList
+	 * @info 通过总控中心接口获取总控平台提供的插件列表信息
+	 */
+	public function getRemotePluginList() {
+		$content = @Io::urlPost( $this->remotePluginListUrl);	
+		$list    = json_decode($content,true);
+		if(count($list) <= 0){
+			$list['data'] = array();
+		}else{
+			if(isset($_REQUEST['keywords']) && $_REQUEST['keywords'] != ''){
+				foreach($list['data'] as $key => $value){
+					if( !strstr( $value['pro_name'], trim($_REQUEST['keywords']) ) ){
+						unset($list['data'][$key]);
+					}
+				}
+				if(count($list) <= 0){
+					$list['data'] = array();
+				}
+			}
+			//进行本地插件比对工作
+			if(count($list) >= 1){
+				$plugin = $this->getLocalInstall();
+				if(count($plugin) >= 1) {
+					foreach($plugin as $key => $value){
+						if(isset($value->information) && $value->information != ''){
+							$tempJson = json_decode($value->information);
+							foreach($list['data'] as $key2 => $value2){
+								//如果插件目录下的插件信息id与远程id一致，则证明是同一产品
+								if($tempJson->id == $value2['id']){
+									$list['data'][$key2]['product_statu'] = 1;
+									//md5校验,如果不md5不一致,则状态为更新
+									if($tempJson->file_md5 != $value2['file_md5']){
+										$list['data'][$key2]['product_statu'] = 2;
+									}
+									//更新时间校验,如果远程更新时间大于本地时间,则状态为升级
+									$localTime  = (int)$tempJson->update_time;
+									$remoteTime = (int)$value2['update_time'];
+									if($remoteTime != $localTime){
+										$list['data'][$key2]['product_statu'] = 3;
+									}
+								}
+							}
+						}
+					}
+				}
+				//循环递补数据
+				foreach($list['data'] as $key => $value){
+					$list['data'][$key]['update_time'] = date('Y-m-d',$list['data'][$key]['update_time']);
+				}
+			}
+		}
+		echo json_encode ( array ('rows' => array_values($list['data']),'ttl' => count( $list['data'] )) );
+	}
+	
+	/**
+	 * (远程)获取某在线插件是否有权限进行下载行为
+	 * @method getRemoteProductAuth
+	 * @info 获取某产品(插件)信息,或是否有权限下载
+	 */
+	public function getRemoteProductAuth() {
+		$id      = (int)$_REQUEST['id'];
+		$content = @Io::urlPost( $this->remotePluginAuthUrl . '&product_id='.$id.'&domain='.$_SERVER['SERVER_NAME'] );
+		$product = json_decode($content);
+		die( json_encode( new Result( $product->statu , $product->code , $product->msg , $product->data ) ) );
+	}
+	
+	/**
+	 * 
+	 * (远程)前端管理人员手动输入url进行下载时候的权限验证
+	 * @method getRemoteProductAuthByUrl
+	 * @info 同上,但产品链接为管理人员手动输入
+	 */
+	public function getRemoteProductAuthByUrl() {
+		$url      = (string)$_REQUEST['url'];
+		if(!strstr(strtolower($url),strtolower($this->remotePluginAuthUrl))){
+			die( json_encode( new Result( false, -1 , '非法插件下载地址.', null ) ) );
+		}
+		$content = @Io::urlPost( $url.'&domain='.$_SERVER['SERVER_NAME'] );
+		$product = json_decode($content);
+		if(!isset($product->statu)){
+			die( json_encode( new Result( false, -1 , '不正确的下载地址.', null ) ) );
+		}
+		die( json_encode( new Result( $product->statu , $product->code , $product->msg , $product->data ) ) );
+	}
+	
+	/**
+	 * 
+	 * (本地)根据id获取对应的插件信息
+	 * @method getLocalPluginById
+	 * @info 根据插件id获取某个对应的插件
+	 */
+	public function getLocalPluginById(){
+		$plugin = $this->getLocalInstall();
+		echo json_encode ( new Result( true, 0 , '' , $plugin[ $_REQUEST['id'] ] ) );
+	}
+	
+	/**
+	 * (本地)返回所有已安装的插件
+	 * @method getLocalInstall
+	 * @info 获取本地所有已安装的插件,插件安装位置：/plugin/
+	 */
+	private function getLocalInstall(){
+		$plugin = array();
+		if( is_dir( $this->installPath['plugin'] ) ) {
+			$this->pluginList = Io::getDirList( $this->installPath['plugin'] );
+			$plugin = array();
+			$i = 1;
+			if( count( $this->pluginList ) >= 1 ){
+				foreach( $this->pluginList as $key => $value ){
+					$plugin[ $i ] = Io::configXmlAnalytical( $value['xml'] );
+					$plugin[ $i ]->information = Io::informationAnalytical( $value['information'] );
+					$plugin[ $i ]->id = $i;
+					$i++;
+				}
+			}
+		}
+		return $plugin;
+	}
+	
+	/**
+	 * 
+	 * (本地)输出本地已安装插件
+	 * @method getLocalPluginList
+	 * @info 输出本地所有已安装的插件
+	 */
+	public function getLocalPluginList() {
+		$plugin = $this->getLocalInstall();
+		echo json_encode ( array ('rows' => array_values($plugin),'ttl' => count( $plugin )) );
+	}
+	
+	/**
+	 * (本地)插件在线下载后进行安装操作
+	 * @method pluginInstall
+	 * @info 插件安装url入口方法,提供zipFile(产品包路径)的超全局变量即可
+	 */
+	public function pluginInstall() {
+		if( isset( $_REQUEST['zipFile'] ) && $_REQUEST['zipFile'] != '' ){
+			$zipFile = trim( $_REQUEST['zipFile'] );
+			$install = $this->pluginInstallInfo( $zipFile );
+			if( $install === true ){
+				die( json_encode( new Result( true , 0 , '' , null ) ) );
+			}else{
+				die( json_encode( new Result( false , 0 , $install , null ) ) );
+			}	
+		}
+	}
+	
+	/**
+	 * 
+	 * (本地)插件详情安装流程
+	 * @method pluginInstallInfo
+	 * @info 插件安装详细流程
+	 * @param string $p_zipname 需要安装的产品包路径
+	 */
+	public function pluginInstallInfo( $p_zipname ) {
+		if( file_exists( $p_zipname ) ) {
+			$this->pclzipHandler = new PclZip( $p_zipname );
+			//创建临时解压目录并清空该目录
+			$tempZipDir = $this->installPath['temp'];
+			if(!is_dir( $tempZipDir )){
+				if(!Io::ioMkDir( $tempZipDir )){
+					$this->dirMkError( $tempZipDir );
+				}
+			}else{
+				Io::DirDelete( $tempZipDir );
+			}
+			//进行解压操作
+			if( $this->pclzipHandler->extract(PCLZIP_OPT_PATH, $tempZipDir , PCLZIP_OPT_REMOVE_PATH,'') != 0 ){
+				//是否存在配置文件
+				$xmlConfig = $tempZipDir . '/' .$this->installPath['configXml'];
+				if( file_exists( $xmlConfig ) ){
+					$config = Io::configXmlAnalytical( $xmlConfig );
+					//检查必须存在配置项目
+					foreach( $this->pluginXmlMust as $key => $value ) {
+						if( ! isset( $config->$value ) || $config->$value == '' ){
+							return '配置文件中缺少必要的配置项：'.$value;
+						}
+					}
+					//生成插件文件夹
+					$pluginDir = $this->installPath['plugin'] . $config->ByName;
+					//是否已存在相同名称的模版文件夹
+					if( is_dir( $pluginDir ) ) {
+						if( ! $this->installCover ){
+							return '已存在相同的插件,请勿重复安装';
+						}
+						//如果允许覆盖安装,则需要清空原有
+						Io::DirDelete( $pluginDir );
+					}else{
+						if(!Io::ioMkDir( $pluginDir )){
+							$this->dirMkError($pluginDir);
+						}
+					}
+					//模版文件复制
+					if( Io::DirCopy( $tempZipDir, $pluginDir ) ){
+						//进行kernel文件复制操作
+						$kernel = (array)$config->Kernel;
+						foreach( $kernel as $key => $value ) {
+							$temp = explode(':', $value);
+							if( file_exists( $pluginDir . '/kernel/' . $temp[0] ) ){
+								@copy( $pluginDir . '/kernel/' . $temp[0] , GENERATEPATH . $temp[1] );
+							}
+						}
+						//进行kernel文件夹中[plugin]文件夹复制
+						if( is_dir( $pluginDir . '/kernel/plugin' ) ){
+							Io::DirCopy( $pluginDir . '/kernel/plugin' , GENERATEPATH.'plugin' );
+						}
+						//生成hcc插件文件夹
+						$hcc_pluginDir = $this->installPath['hcc'];
+						if(!Io::ioMkDir( $hcc_pluginDir )){
+							$this->dirMkError($hcc_pluginDir);
+						}
+						//生成hcc插件详情文件夹
+						$hcc_plugininfoDir = $this->installPath['hcc']. '/' . $config->ByName;
+						if(!Io::ioMkDir( $hcc_plugininfoDir )){
+							$this->dirMkError($hcc_plugininfoDir);
+						}
+						//进行hcc文件复制操作
+						Io::DirCopy( $pluginDir . '/hcc' , $hcc_plugininfoDir );
+						//进行sql文件执行操作
+						$sqlFile = $pluginDir . '/' . $config->SqlFile;
+						if( $config->SqlFile != '' && file_exists( $sqlFile ) ) {
+							if( !$this->sqlInstall( $sqlFile ) ){
+								return 'sql文件安装失败';
+							}
+						}
+						//写入插件目录对应插件插件信息
+						$product_id = (int)$_REQUEST['product_id'];
+						if($product_id>=1){
+							$content = @Io::urlPost( $this->remotePluginAuthUrl . '&product_id='.$product_id.'&domain='.$_SERVER['SERVER_NAME'] );
+							$product = json_decode($content);
+							if($product->statu == 1){
+								$data    = json_encode($product->data);
+								$fopen   = @fopen( $pluginDir . '/information.json' , 'w+' );
+								if(!fwrite($fopen, $data)){
+									return '模版安装失败,模版信息文件写入失败.';
+								}
+								fclose($fopen);
+							}
+						}
+						//删除临时
+						Io::DirDelete( $tempZipDir );
+						//删除源包
+						@unlink( $p_zipname );
+						//删除插件目录中的hcc与kernel
+						Io::DirDelete( $pluginDir.'/hcc' );
+						Io::DirDelete( $pluginDir.'/kernel' );
+						return true;
+					}else{
+						return '模版安装失败,请重试';
+					}
+				}else{
+					return '插件包缺少配置文件,请重试';
+				}
+			}else{
+				return '插件压缩包解压失败,请重试';
+			}
+		}else{
+			return '插件压缩包不存在,请重试';
+		}
+	}
+	
+	/**
+	 * 
+	 * (本地)插件卸载
+	 * @method pluginUninstall
+	 * @info 插件卸载功能,需要删除hcc、插件目录、以及对应的包路径文件
+	 */
+	public function pluginUninstall() {
+		$plugin     = $this->getLocalInstall();
+		$id         = (int)$_REQUEST['id'];
+		if(!isset($plugin[$id]->ByName) || $plugin[$id]->ByName == ''){
+			die( json_encode( new Result( false , 0 , '插件信息不存在,请刷新页面重试!' , null ) ) );
+		}
+		//读取插件信息
+		if( isset( $plugin[$id]->UnInstall ) && $plugin[$id]->UnInstall != '' ) {
+			$uninstallInfo = $plugin[$id]->UnInstall;
+			$uninstall = explode( ":" , $uninstallInfo );
+			//服务是否存在
+			if( $uninstall[0] != ''  && $uninstall[1] != '' ) {
+				$serviceName = $uninstall[0];
+				$serviceObj  = new $serviceName();
+				if( is_object( $serviceObj ) ){
+					$methodName = $uninstall[1];
+					if( method_exists($serviceObj, $methodName ) ) {
+						$serviceObj->$methodName();
+					}
+				}
+			}
+		}
+		
+		//卸载插件目录
+		$pluginFile = $this->installPath['plugin'] . $plugin[$id]->ByName;
+		if( is_dir( $pluginFile ) ) {
+			Io::DirDelete( $pluginFile );
+		}
+		//卸载kernel
+		$kernel = (array)$plugin[$id]->Kernel;
+		foreach( $kernel as $key => $value ) {
+			$temp = explode(':', $value);
+			if( file_exists( GENERATEPATH . $temp[1] ) ){
+				@unlink( GENERATEPATH . $temp[1] );
+			}
+		}
+		//卸载hcc
+		Io::DirDelete( $this->installPath['hcc']. '/' . $plugin[$id]->ByName );
+		die( json_encode( new Result( true , 0 , '' , null ) ) );
+	}
+	
+	/**
+	 * 
+	 * (本地)sql文件安装操作
+	 * @method sqlInstall
+	 * @info 产品包sql文件安装操作,可能需要对sql文件内容进行安全扫描操作
+	 * @param string $sqlFile sql文件路径
+	 */
+	private function sqlInstall( $sqlFile ) {
+		$sqlContent = file_get_contents( $sqlFile );
+		@unlink($sqlFile);
+		return $this->service->installSql( $sqlContent );
+	}
+	
+	/**
+	 * 
+	 * 文件夹无法生成输出
+	 * @methdo dirMkError
+	 * @info 用于文件夹无法生成的时候,统一向前端提供报错信息
+	 * @param string $dirPath 文件夹地址
+	 */
+	private function dirMkError($dirPath){
+		die( json_encode( new Result( false , 0 , '操作失败,请检查' . $dirPath . ',失败原因：' . Io::$dirMakeError , null ) ) );
+	}
+}

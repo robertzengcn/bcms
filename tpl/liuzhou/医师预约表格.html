@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<meta name="description" content="">
+<meta name="keywords" content="">
+<!--取消百度转码-->
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--清浏览器缓存-->
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!--国产浏览器高速模式-->
+<meta name="renderer" content="webkit">
+<title>联医cms建站系统_医师预约表格</title>
+<link rel="icon" type="image/png" href="images/i/favicon.png">
+<!-- Bootstrap -->
+<link href="framework/css/bootstrap.min.css" rel="stylesheet">
+<!--新增样式-->
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--新增医疗图标-->
+<!--<link href="iconfont/iconfont.css" rel="stylesheet" type="text/css" />-->
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="framework/lib/ieonly/html5shiv.min.js"></script>
+      <script src="framework/lib/ieonly/respond.min.js"></script>
+      <script src="framework/lib/ieonly/excanvas.js"></script>
+    <![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="framework/lib/jquery/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="framework/js/bootstrap.min.js"></script>
+
+<!--滑动js-->
+<script type="text/javascript" src="framework/lib/SuperSlide/jquery.SuperSlide.2.1.1.js"></script>
+<!--新增js-->
+<script type="text/javascript" src="js/index.js"></script>
+</head>
+<body>
+<!--提示IE7及更早版本的用户--> 
+<!--[if lt IE 8]>
+      <div class="alert alert-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  <![endif]--> 
+
+<!--顶部banner 开始-->
+<div class="header"> <img src="images/banner/banner4.jpg">
+  <div class="top_bg"></div>
+  <div class="top_txt container"> <span class="pull-left">欢迎访问MM医院</span> <span class="pull-right"><a href="#">加入收藏</a> | <a href="#">设为首页</a></span> </div>
+</div>
+<div class="clearfix"></div>
+<!--顶部banner 结束--> 
+
+<!--导航 开始-->
+<div class="header_nav">
+  <div class="container">
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse" aria-expanded="false"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar_collapse">
+        <ul id="wydh" class="nav navbar-nav nav-justified">
+          <li class="mainlevel"><a href="#" target="_self">首页</a> </li>
+          <li class="mainlevel "><a href="#" target="_self">医院概况</a>
+            <ul style="display: none;">
+              <li><a href="#" target="_self">医院简介</a></li>
+              <li><a href="#" target="_blank">组织架构</a></li>
+              <li><a href="#" target="_blank">医院文化</a></li>
+              <li><a href="#" target="_blank">医院分布</a></li>
+              <li><a href="#" target="_blank">医院荣誉</a></li>
+              <li><a href="#" target="_blank">依法执业</a></li>
+            </ul>
+          </li>
+          <li class="mainlevel"><a href="#" target="_self">医院新闻</a>
+            <ul style="display: none;">
+              <li><a href="#" target="_self">频道首页</a></li>
+              <li><a href="#" target="_self">三院新闻</a></li>
+              <li><a href="#" target="_self">医院公告</a></li>
+              <li><a href="#" target="_self">频道报道</a></li>
+              <li><a href="#" target="_blank">学术会议</a></li>
+            </ul>
+          </li>
+          <li class="mainlevel nav_sel"><a href="#" target="_self">科室专家</a></li>
+          <li class="mainlevel"><a href="#" target="_self">优质护理</a></li>
+          <li class="mainlevel"><a href="#" target="_self">就诊指南</a></li>
+          <li class="mainlevel"><a href="#" target="_self">科研教学</a></li>
+          <li class="mainlevel"><a href="#" target="_self">院务公开</a></li>
+          <li class="mainlevel"><a href="#" target="_self">预约挂号</a>
+            <ul style="display: none;">
+              <li><a href="#" target="_self">医院简介</a></li>
+              <li><a href="#" target="_blank">组织架构</a></li>
+              <li><a href="#" target="_blank">医院文化</a></li>
+              <li><a href="#" target="_blank">医院分布</a></li>
+              <li><a href="#" target="_blank">医院荣誉</a></li>
+              <li><a href="#" target="_blank">依法执业</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+<!--导航 结束--> 
+
+<!--面包屑 开始-->
+<div class="crumbs container">
+	<ol class="breadcrumb">
+      <span class="glyphicon glyphicon-map-marker"></span>您当前的位置：
+      <li><a href="#">首页</a></li>
+      <li><a href="#">科室设置</a></li>
+      <li><a href="#">医生介绍</a></li>
+      <li class="active">预约填写</li>
+    </ol>
+</div>
+<!--面包屑 结束--> 
+
+<!--预约填写 开始--> 
+<div class="main_yytx container">
+	<div class="yytx_top">
+    	<div class="pic">
+        	<img src="images/content/doc3.jpg">
+        </div>
+        <div class="txt">
+        	<h3>医师一</h3>
+            <p><strong>科室：</strong><span>科室一</span><strong>职称：</strong><span>主任医师</span></p>
+            <p class="red">就诊时间：2016-12-5 (星期二) 上午</p>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="yytx_tit">
+        <div class="pull-left">
+            <h3>请填写预约信息<small>（输入的预约信息我们将为您保密）</small></h3>
+        </div>
+        <div class="pull-right"><span class="red">*</span>为必填项</div>
+    </div>
+    <form class="form-horizontal" role="form" method="post">
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">时间：</label>
+            <div class="col-xs-7 col-sm-5 col-md-4">
+            	<select name="appointment" datatype="*" errormsg="请选择就诊时间" nullmsg="请选择就诊时间" class="form-control" onchange=""></select>
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">就诊人：</label>
+            <div class="col-xs-7 col-sm-5 col-md-4">
+            	<input name="" id="" value="" placeholder="填写就诊人" class="form-control" type="text">
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">性别：</label>
+            <div class="col-xs-7 col-sm-5 col-md-4">
+            	<select name="sex" id="sex" class="form-control" datatype="*" errormsg="请选择就诊人性别">
+                  <option value="">--请选择性别--</option>
+                  <option value="1">男</option>
+                  <option value="0">女</option>
+                </select>
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">年龄：</label>
+            <div class="col-xs-7 col-sm-5 col-md-4">
+            	<input name="age" id="age" placeholder="年龄" class="form-control" datatype="n" errormsg="年龄填写不符合规范" type="text">
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">身份证：</label>
+            <div class="col-xs-7 col-sm-5 col-md-4">
+            	<input name="" id="" value="" placeholder="填写身份证信息" class="form-control" type="text">
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">手机号：</label>
+            <div class="col-xs-7 col-sm-5 col-md-4">
+            	<input name="" id="" value="" placeholder="填写手机号" class="form-control" type="text">
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          	<label class="col-xs-3 col-sm-3 col-md-2 col-lg-1">病情：</label>
+            <div class="col-xs-7 col-sm-7 col-md-8 col-lg-10">
+            	<textarea name="summary" id="summary" rows="3" placeholder="病情详细" class="form-control"></textarea>
+            </div>
+          	<div class="red">*</div>
+          </div>
+          <div class="form-group">
+          <div class="col-xs-offset-0 col-sm-offset-3 col-md-offset-2 col-lg-offset-1 col-xs-12 col-sm-3 col-md-2">
+             <input id="submit" class="btn" value="确定挂号" data-loading="稍候..." type="submit"> <input name="type" id="type" value="article" type="hidden">
+          </div>
+        </div>
+        </form>
+        <div class="red col-xs-offset-0 col-sm-offset-3 col-md-offset-2 col-lg-offset-1">提醒：预约成功后会以短信形式发送到预留手机号通知的预约成功</div>
+</div>
+<!--预约填写 结束--> 
+
+<!-- 页尾 开始-->
+<div class="footer">
+  <div class=" container text-center">
+    <p><a href="#">医院介绍</a>|<a href="#">医院文化</a>|<a href="#">招聘信息</a>|<a href="#">联系我们</a>|<a href="#">设为首页</a>|<a href="#">加入收藏</a></p>
+    <p>XXXXXXX医院 版权所有 XXXX备000000000000</p>
+    <p>本站信息仅供参考，不能作为诊断和医疗的依据</p>
+    <p>地址：XXXXXXXXXXXXX 邮政编码：XXXXXXX 预约挂号：XXXXX-XXXXXXXXXX</p>
+  </div>
+</div>
+<!-- 页尾 结束-->
+
+<!--回到顶部-->
+<p id="back-to-top"><a href="#top"><span></span>返回<br>顶部</a></p>
+
+
+
+</body>
+</html>

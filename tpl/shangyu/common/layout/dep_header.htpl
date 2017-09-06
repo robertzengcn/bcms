@@ -1,0 +1,70 @@
+<div class="header">
+  <div class="head_top">
+    <div class="container">
+      <div class="pull-left"><a href="/index.html">网站首页</a>
+        <p class="text-muted">|&nbsp;&nbsp;&nbsp;欢迎访问{{contactlist  flag='name' }}[field:val/]{{/contactlist}}官方网站</p>
+        <a href="#">请登录</a> | <a href="#">新用户注册</a></div>
+      <div class="pull-right"><a href="/mobile">手机版</a>|<a href="/app">APP版</a></div>
+    </div>
+  </div>
+  <div class="head_logo">
+    <div class="container">
+      <div class="col-xs-12 col-sm-8 pull-left">
+      {{logopic}}<img class="pull-left" src="[field:src/]">{{/logopic}}<h1 class="pull-left">{{deptinfo name_or_id=$id}}[field:name/]{{/deptinfo}}</h1></div>
+      <div class="col-xs-12 col-sm-4 pull-right wd_keshi">
+        <a class="wd_btn" href="javascript:void(0);" data-toggle="dropdown"><i class="icon icon-list-ul"></i>科室导航<i class="icon icon-angle-down"></i></a>
+        <ul class="dropdown-menu" role="menu">
+          {{deptlist page='1' pagesize='30'}}
+          <li><a href="[field:url/]">[field:name/]</a></li>
+          {{/deptlist}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="nav">
+  <div class="container">
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse" aria-expanded="false"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar_collapse" style=" width:100%;">
+        <ul id="jsddm" class="nav navbar-nav nav-justified">
+          <li class="mainlevel"><a href="/index.html" target="_self">网站首页</a></li>
+          <li class="mainlevel"><a href="/{{deptinfo}}[field:url/]{{/deptinfo}}" target="_self">科室首页</a></li>
+          <li class="mainlevel"><a href="/ksjs/index.html?id={{$id}}" target="_self">科室介绍</a></li>
+          <li class="mainlevel"><a href="/ysjs/index.html?department_id={{$id}}" target="_self">医师介绍</a></li>
+          <li class="mainlevel"><a href="/jcjlc/index.html?department_id={{$id}}" target="_self">检查及流程</a></li>
+          <li class="mainlevel"><a href="/tpjj/index.html?department_id={{$id}}" target="_self">图片锦集</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<script type="text/javascript"> 
+    var has_slide = '0';
+    
+    $(document).ready(function(){
+        $('#jsddm li.mainlevel').mouseenter(function(){
+            if(has_slide == 1){
+                $(this).find('ul').slideDown("fast");
+            }else{
+                $(this).find('ul').show();
+            }
+        });
+        $('#jsddm li.mainlevel').mouseleave(function(){
+            if(has_slide == 1){
+                $(this).find('ul').slideUp("fast");
+            }else{
+                $(this).find('ul').hide();
+            }
+        });
+    });
+    
+</script>
+<div class="banner">
+{{$depname = $DepartmentTag->get($id)}}
+{{deptinfo}}
+<img class="hidden-xs" src="/upload[field:pic/]">
+<!-- <img class="visible-xs" src="images/banner/banner2_2.jpg"> -->{{/deptinfo}}
+</div>

@@ -1,0 +1,245 @@
+<!doctype html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商品页面</title>
+
+<!-- Set render engine for 360 browser -->
+<meta name="renderer" content="webkit">
+
+<!-- No Baidu Siteapp-->
+<meta http-equiv="Cache-Control" content="no-siteapp"/>
+<link rel="icon" type="image/png" href="{{$LOGO[2]}}">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="192x192" href="{{$LOGO[1]}}">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="UI"/>
+<meta name="apple-mobile-web-app-title" content="UI"/>
+<link rel="apple-touch-icon-precomposed" href="{{$LOGO[1]}}">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="{{$LOGO[1]}}">
+<meta name="msapplication-TileColor" content="#0e90d2">
+
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/amazeui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Commodity/public/css/admin.css">
+
+<!--新增基础样式-->
+<link href="{{$COMMON}}Commodity/public/css/demo.css" rel="stylesheet" type="text/css" />
+<!--单页样式-->
+<link href="{{$COMMON}}Commodity/public/css/introduction-style.css" rel="stylesheet" type="text/css" />
+<!--新增-->
+<link href="{{$COMMON}}Commodity/public/css/style.css" rel="stylesheet" type="text/css" />
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<!--<![endif]-->
+<script src="{{$COMMON}}Commodity/public/js/amazeui.min.js"></script>
+<!--新增-->
+<script  src="{{$COMMON}}Commodity/public/js/jquery-1.7.min.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/script.js"></script>
+<!--<script type="text/javascript" src="{{$COMMON}}Commodity/public/js/jquery.flexslider.js"></script>-->
+</head>
+<body>
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器 UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>  以获得更好的体验！</p>
+<![endif]--> 
+
+<!--[if lt IE 9]>
+<script src="{{$COMMON}}Commodity/public/js/jquery.min.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/modernizr.js"></script>
+<script src="{{$COMMON}}Commodity/public/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+<div class="hmtop"> 
+  <!--悬浮搜索框-->
+  <div class="nav white">
+    <div class="logo"><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></div>
+    <div class="logoBig">
+      <li><a href="{{$INDEX}}"><img src="{{$LOGO[0]}}"></a></li>
+    </div>
+    <div class="search-bar pr"><a name="index_none_header_sysc" href="#"></a>
+      <form action="{{$COMMODITY}}" method="get">
+        <input  name="method" type="hidden" value="goodslist">
+        <input id="searchInput" name="keyword" placeholder="搜索" autocomplete="off" type="text">
+        <input id="ai-topsearch" class="submit am-btn" value="搜索" index="1" type="submit">
+      </form>
+    </div>
+  </div>
+</div>
+<div data-am-widget="slider" class="am-slider am-slider-a1 mt-55" data-am-slider='{"directionNav":false}' >
+  <ul class="am-slides">
+    {{foreach from=$piclist key=k item=vo}}
+    <li> <img src="{{$vo}}"> </li>
+	{{/foreach}}
+  </ul>
+</div>
+<div class="item-inform">
+  <div class="clearfixRight"> 
+    
+    <!--规格属性--> 
+    <!--名称-->
+    <div class="tb-detail-hd">
+      <h1>{{$info->data->subject}}</h1>
+    </div>
+    <div class="tb-detail-list"> 
+      <!--价格-->
+      <div class="tb-detail-price">
+        <li class="price iteminfo_price">
+		 {{if $info->data->exchange eq 1}}
+          <dt>纯积分</dt>
+		  <dd><b class="sys_item_price">{{$info->data->score}}分</b> </dd>
+		 {{else}}
+          <dt>现金加积分</dt>
+          <dd><em>¥</em><b class="sys_item_price">{{$info->data->real_price}}+{{$info->data->score}}分</b> </dd>
+		  {{/if}}
+        </li>
+        <li class="price iteminfo_mktprice">
+          <dt>原价</dt>
+          <dd><em>¥</em><b class="sys_item_mktprice">{{$info->data->price}}</b></dd>
+        </li>
+        <div class="clear"></div>
+      </div>
+      <div class="am-alert am-alert-danger"> 重要提示：兑换后请凭二维码到院领取物品 </div>
+      <!--销量-->
+      <ul class="tm-ind-panel">
+        <li class="tm-ind-item tm-ind-sellCount canClick">
+          <div class="tm-indcon"><span class="tm-label">每户限购</span><span class="tm-count J_count">{{if $info->data->limit eq 0}}无{{else}}{{$info->data->limit}}{{/if}}</span></div>
+		  <input type="hidden" name="" value="">
+        </li>
+        <li class="tm-ind-item tm-ind-sumCount canClick">
+          <div class="tm-indcon"><span class="tm-label">累计兑换</span><span class="tm-count">{{$info->data->salenum}}</span></div>
+        </li>
+      </ul>
+      <div class="clear"></div>
+      
+      <!--各种规格-->
+      
+      <dl class="iteminfo_parameter sys_item_specpara">
+        <dt class="theme-login">
+          <div class="cart-title">可选规格<span class="am-icon-angle-right"></span></div>
+        </dt>
+        <dd>
+        <!--操作页面-->
+        
+        <div class="theme-popover-mask"></div>
+        <div class="theme-popover">
+          <div class="theme-span"></div>
+          <div class="theme-poptit"> <a href="javascript:;" title="关闭" class="close">×</a> </div>
+          <div class="theme-popbod dform">
+            <form class="theme-signin" name="loginform" action="" method="post">
+              <div class="theme-signin-left">
+                <div class="theme-options">
+                  <!--<div class="cart-title">规格</div>
+                  <ul>
+                    <li class="sku-line selected">3a<i></i></li>
+                    <li class="sku-line">+2<i></i></li>
+                    <li class="sku-line">+3<i></i></li>
+                  </ul>
+                </div>
+                <div class="theme-options">
+                  <div class="cart-title">样式</div>
+                  <ul>
+                    <li class="sku-line selected">1.5寸显示屏<i></i></li>
+                    <li class="sku-line">1.77显示屏<i></i></li>
+                  </ul>
+                </div>-->
+                <div class="theme-options">
+                  <div class="cart-title number">数量</div>
+                  <dd>
+                  <input id="min" class="am-btn am-btn-default" name="" type="button" value="-" />
+                  <input id="text_box" name="" type="text" value="1" style="width:30px;" />
+                  <input id="add" class="am-btn am-btn-default" name="" type="button" value="+" />
+                  <input id="score"  name="" type="hidden" value="{{$info->data->score}}" />
+                  <input id="limitnum"  name="" type="hidden" value="{{$info->data->limit}}" />
+                  <input id="gid"  name="" type="hidden" value="{{$info->data->id}}" />
+                  <span id="Stock" class="tb-hidden">库存<span class="stock">{{$info->data->quantity}}</span>件(限购{{$info->data->limit}}件)</span>
+                  </dd>
+                </div>
+                <div class="clear"></div>
+                <div class="btn-op">
+                  <div class="btn am-btn am-btn-warning" id="true">确认</div>
+                  <div class="btn close am-btn am-btn-warning">取消</div>
+                </div>
+              </div>
+              <div class="theme-signin-right">
+                <div class="img-info"> <img src="{{$info->data->pic}}" /> </div>
+                <div class="text-info"> <span class="J_Price price-now">{{if $info->data->exchange eq 1}}{{$info->data->score}}分{{else}}¥{{$info->data->real_price}}+{{$info->data->score}}分{{/if}}</span> <span id="Stock" class="tb-hidden">库存<span class="stock">{{$info->data->quantity}}</span>件</span> </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        </dd>
+      </dl>
+      <div class="clear"></div>
+    </div>
+    <div class="pay">
+      <div class="pay-opt"> <a href="{{$INDEX}}"><span class="am-icon-home am-icon-fw">首页</span></a> </div>
+      <li>
+        <div class="clearfix tb-btn tb-btn-buy theme-login"> <a id="LikBuy" title="点此按钮到下一步确认兑换信息" href="#">立即兑换</a> </div>
+      </li>
+      <li>
+        <div class="clearfix tb-btn tb-btn-basket theme-login"> <a id="LikBasket" title="加入购物车" href="#"><i></i>加入购物车</a> </div>
+      </li>
+    </div>
+  </div>
+  <div class="clear"></div>
+</div>
+
+<!-- introduce-->
+
+<div class="introduce">
+  <div class="introduceMain">
+    <div class="am-tabs" data-am-tabs>
+      <ul class="am-avg-sm-3 am-tabs-nav am-nav am-nav-tabs">
+        <li class="am-active"> <a href="#"> <span class="index-needs-dt-txt">宝贝详情</span></a> </li>
+        <!--<li> <a href="#"> <span class="index-needs-dt-txt">猜你喜欢</span></a> </li>-->
+      </ul>
+      <div class="am-tabs-bd">
+        <div class="am-tab-panel am-fade am-in am-active">
+          <div class="J_Brand">
+            <div class="attr-list-hd tm-clear">
+              <h4>产品概述:</h4>
+            </div>
+            <div class="clear"></div>
+            <ul id="J_AttrUL">
+              <li title="">&nbsp;{{$info->data->description}}</li>
+            </ul>
+            <div class="clear"></div>
+          </div>
+          <div class="details">
+            <div class="attr-list-hd after-market-hd">
+              <h4>商品细节</h4>
+            </div>
+            <div class="twlistNews">{{$info->data->descript}}</div>
+          </div>
+          <div class="clear"></div>
+        </div>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+    <div class="clear"></div>
+<!-- <div class="footer mb-10  mt-10">
+  <div class="footer-hd ">
+    <p> <a href="{{$INDEX}}">商城首页</a> <b>|</b> <a href="tel:{{$contact.tel}}">联系我们</a> <b>|</b> <a href="#">帮助信息</a> <b>|</b> <a href="#">{{$contact.name}}版权所有</a> </p>
+  </div>
+</div> -->
+  </div>
+</div>
+
+
+
+<div data-am-widget="gotop" class="am-gotop am-gotop-fixed" > <a href="#top" title="回到顶部"> <span class="am-gotop-title">回到顶部</span> <i class="am-gotop-icon am-icon-chevron-up"></i> </a> </div>
+<div class="theme-popover-mask"></div>
+ <div id="pageDialogBG" class="pageDialogBG"><div class="Prompt"></div> </div>
+</body>
+</html>

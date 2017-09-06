@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增回访信息</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="formEdit">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>回访人：</label>
+			<div class="formControls col-2"> <span class="select-box">
+				<select class="select" id="reply_id" name="reply_id" size="1" datatype="*"  nullmsg="不能为空，不明请选择“不明“"></select>
+				</span> </div><div class="col-2"></div><a class="btn btn-success radius" onClick="gAddPatient.openAdd('回访人员管理','manage/receptionist.html','760','450')" href="javascript:;"><i class="Hui-iconfont">&#xe6d0;</i> 人员管理</a>
+		</div>
+		
+		<div class="row cl" id="emailsubject">
+			<label class="form-label col-2"><span class="c-red">*</span>主题：</label> 	
+			<div class="formControls col-97" id="info_box">
+				<input type="text" class="input-text" id="subject" name="subject" />
+			</div>
+		</div>
+		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>消息内容：</label>
+			<div class="formControls col-10">
+				<textarea id="message" name="message" class="textarea"  placeholder="请输入发送给用户的内容..." style="height:200px;" datatype="*2-500" dragonfly="true" nullmsg="请输入回访的内容" errormsg="请输入2-500字的内容" onKeyUp="textarealength(this,500)"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/500</p>
+			</div><div class="col-3 ml-118"></div>
+		</div>	
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>回访渠道：</label>	
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="visit_method" class="select" id="visit_method">
+					<option value="0">请选择</option>
+					<option value="1">电话</option>
+					<option value="2">短信</option>
+					<option value="3">邮件</option>
+					<option value="4">微信</option>
+					<option value="5">QQ</option>
+					<option value="6">应用消息</option>
+				</select>
+				</span> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>渠道信息：</label> 	
+			<div class="formControls col-97" id="info_box">
+				<input type="text" class="input-text" id="channel_info" />
+			</div><div class="col-83" id="msg_box"></div>
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">患者反馈：</label>
+			<div class="formControls col-10">
+				<textarea name="" cols="" rows="" class="textarea" style="height:200px;" placeholder="请输入通过电话、短信或邮件等方式回访的患者反馈给院方的内容..." dragonfly="true" onKeyUp="textarealength(this,500)"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/500</p>
+			</div>
+		</div>
+		<div style="width:100%;height:60px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+				<button id="save" class="btn btn-primary radius" type="button" info="保存记录不是发送信息给回访对象，而是将该回访记录进行存档，发送回访信息给对方的操作请选择回访方式后按操作完成"><i class="Hui-iconfont">&#xe632;</i> 保存记录</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/js/addPatient.js"></script>
+<script type="text/javascript">
+var gAddPatient = new AddPatient();
+gAddPatient.setThisName('gAddPatient');
+gAddPatient.initVisit();
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+{{extends file='./common/layout/layout.htpl'}}
+{{block name=body}}
+
+<!--面包屑 开始-->
+<div class="crumbs container">
+	<ol class="breadcrumb">
+      <span class="glyphicon glyphicon-map-marker"></span>您当前的位置：
+      <li><a href="#">{{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a href="/">医院概况</a></li>
+      <li class="active">医院简介</li>
+    </ol>
+</div>
+<!--面包屑 结束--> 
+
+<!--医院概况 开始--> 
+<div class="main_yygk container mb-20">
+	<div class="row">
+    	<div class="col-md-9 yygk_r">
+        	<div class="box">
+            	<div class="title">
+                	<span class="">医院简介</span>
+                </div>
+                <div class="pd-15">
+                	<!--内容 开始--> 
+                	<ul class="cont_list">
+                          <li>{{introducecontent}}</li>
+                    {{channelarcsbyname name="医院概况"}}
+                          <li>[field:content /]</li>
+                    {{/channelarcsbyname}}
+
+                  </ul>
+                    <!--内容 结束--> 
+                </div>
+            </div>
+        </div>
+    	<div class="col-md-3 yygk_l">
+        	<div class="box l_one mb-20">
+            	<h2>医院概况</h2>
+            	<ul>
+                <li class="active"><a>医院简介</a></li>
+                 {{channelarcsbyname name="医院概况" assign="topnav" }}{{/channelarcsbyname}}
+                 {{foreach from=$topnav item=v name=k}}
+                	  <li><a flag="{{$v->url}}">{{$v->subject}}</a></li>
+                 {{/foreach}}
+                </ul>
+            </div>
+            <div class="box l_two mb-20">
+            	<a href="#" target="_blank"><img src="images/i/wsyy.png"></a>
+            </div>
+            <div class="box l_three">
+            	<div class="tit">
+                	<span class="pull-left">联系我们</span>
+                    <a class="pull-right" href="#">more+</a>
+                </div>
+                <div class="txt">
+                	<div class="map">
+                    	<a href="#"><img src="images/content/map.png"></a>
+                    </div>
+                    <p>地址：医院地址</p>
+                    <p>乘车指南：到院路线车辆线路</p>
+                    <p>预约电话：电话号码</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+<!--医院概况 结束--> 
+<script type="text/javascript">
+$(".yygk_r .cont_list li").hide().eq(0).show()
+// $(".yygk_l .l_one li").eq(1).hide()
+$('.yygk_l .l_one li:not(.disabled)').click(function() {
+      $(this).closest('.l_one').find('li.active').removeClass('active');
+      $(this).addClass('active');
+      var name = $(this).text();
+      console.log(11111);
+      $(".crumbs .breadcrumb .active").text(name);
+      $(".yygk_r .title span").text(name);
+      $(".yygk_r .cont_list > li").hide()//将main下所有的div都隐藏
+      $(".yygk_r .cont_list > li:eq(" + $(this).index() + ")").show(); //链接对应的div显示
+  });
+</script>
+{{/block}}
+

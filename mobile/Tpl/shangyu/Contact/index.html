@@ -1,0 +1,179 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}医院导航{{/block}}
+{{block name=js}}
+    <!--新增百度地图js-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=PUrbtFZ3af8G7zCqGtHajTVtGUUQjdFb"></script>  
+  <style type="text/css">
+	.anchorBL a{  display:none;} 
+ #dituContent img{max-width: none;}
+</style>
+{{/block}}
+{{block name=body}}
+
+<div class="am-container main_hnav" style="padding-top:10px;">
+	<div style="width:100%;height:360px;border:#ccc solid 1px; margin:auto;" id="dituContent"></div>
+	<div id="log"></div>
+    <p><strong>医院地址：</strong>{{$contact.address}}</p>
+    <p><strong>电&nbsp;&nbsp;话：</strong>{{$contact.tel}}</p>
+    {{if isset($contact.QQ)}}<p><strong>QQ咨询：</strong>{{$contact.QQ}}</p>{{/if}}
+    {{if isset($weixinsrc)}}<p><strong>关注微信：</strong><a class="jiathis_button_weixin jiathis_btn" href="javascript:void(0)" datasrc="{{$weixinsrc}}" datatitle="微信"><i class="am-icon-wechat"></i></a></p>{{/if}}
+    {{if isset($weibosrc)}}<p><strong>关注微博：</strong><a class="jiathis_button_tsina jiathis_btn" href="javascript:void(0)" datasrc="{{$weibosrc}}" datatitle="微博"><i class="am-icon-weibo"></i></a></p>{{/if}}
+   {{if isset($contact.route)}} <p><strong>交通路线：</strong><br>
+       {{$contact.route}}
+    </p>{{/if}}
+    
+</div>
+
+<div class="am-modal am-modal-no-btn" tabindex="-1" id="doc-modal-1">
+  <div class="am-modal-dialog">
+    <div class="am-modal-hd">
+      <div id="sharemodtitle"></div><a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+    </div>
+    <div class="am-modal-bd" id="sharemodcontent">
+    <img src="" id="sharesrc">
+    </div>
+  </div>
+</div>
+
+
+<!--百度地图js-->
+<script type="text/javascript">
+    //创建和初始化地图函数：
+    function initMap(){
+        createMap();//创建地图
+        setMapEvent();//设置地图事件
+        addMapControl();//向地图添加控件
+        addMarker();//向地图中添加marker
+    }
+    
+    //创建地图函数：
+    function createMap(){
+        var map = new BMap.Map("dituContent");//在百度地图容器中创建一个地图
+        var point = new BMap.Point({{$contact.map}});//定义一个中心点坐标
+        map.centerAndZoom(point,15);//设定地图的中心点和坐标并将地图显示在地图容器中
+        window.map = map;//将map变量存储在全局
+    }
+    
+    //地图事件设置函数：
+    function setMapEvent(){
+        map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+        map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard();//启用键盘上下左右键移动地图
+    }
+    
+    //地图控件添加函数：
+    function addMapControl(){
+        //向地图中添加缩放控件
+	var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+	map.addControl(ctrl_nav);
+        //向地图中添加缩略图控件
+	var ctrl_ove = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:0});
+	map.addControl(ctrl_ove);
+        //向地图中添加比例尺控件
+	var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+	map.addControl(ctrl_sca);
+    }
+    
+
+/*     var licontent="<span><strong>地址：</strong>{{$contact.address}}</span><br>";  
+    licontent+="<span><strong>电话：</strong>{{$contact.tel}}</span><br>";  
+    licontent+="<span class=\"input\"><strong></strong><input class=\"outset\" type=\"text\" name=\"origin\" value=\"北京站\"/><input class=\"outset-but\" type=\"button\" value=\"公交\" onclick=\"gotobaidu(1)\" /><input class=\"outset-but\" type=\"button\" value=\"驾车\"  onclick=\"gotobaidu(2)\"/><a class=\"gotob\" href=\"></a></span>";
+    //标注点数组
+    var markerArr = [{title:"<b>{{$contact.name}}</b><br>",content:"<input >",point:"120.845766|30.02069",isOpen:0,icon:{w:23,h:25,l:46,t:21,x:9,lb:12}}
+		 ]; */
+    //创建marker
+    function addMarker(){
+    	 var marker=new BMap.Marker(new BMap.Point({{$contact.map}})); 
+    	 map.addOverlay(marker); 
+         var licontent="<b>{{$contact.name}}</b><br>";  
+         licontent+="<span><strong>地址：</strong>{{$contact.address}}</span><br>";  
+         licontent+="<span><strong>电话：</strong>{{$contact.tel}}</span><br>";  
+         licontent+="<span><strong>公交路线：</strong>{{$routedata}}</span><br>";  
+         licontent+="<span class=\"input\"><strong></strong><input class=\"outset\" type=\"text\" name=\"origin\" placeholder=\"输入起点\" value=\"\"/><input class=\"outset-but\" type=\"button\" value=\"公交\" onclick=\"gotobaidu(1)\" /><input class=\"outset-but\" type=\"button\" value=\"驾车\"  onclick=\"gotobaidu(2)\"/><a class=\"gotob\" href=\"url=\"http://api.map.baidu.com/direction?destination=latlng:"+marker.getPosition().lat+","+marker.getPosition().lng+"|name:天安门"+"?ion=北京"+"&output=html\" target=\"_blank\"></a></br></span>";
+  
+     var hiddeninput="<input type=\"hidden\" value=\""+'绍兴市'+"\" name=\"region\" /><input type=\"hidden\" value=\"html\" name=\"output\" /><input type=\"hidden\" value=\"driving\" name=\"mode\" /><input type=\"hidden\" value=\"latlng:"+marker.getPosition().lat+","+marker.getPosition().lng+"|name:{{$contact.name}}"+"\" name=\"destination\" />";
+  
+     var content1 ="<form id=\"gotobaiduform\" action=\"http://api.map.baidu.com/direction\" target=\"_blank\" method=\"get\">" + licontent +hiddeninput+"</form>";
+    
+     var opts1 = { width: 350 };  
+        
+     var  infoWindow = new BMap.InfoWindow(content1, opts1);  
+     marker.openInfoWindow(infoWindow);  
+     marker.addEventListener('click',function(){
+         marker.openInfoWindow(infoWindow);
+     });  
+  
+    }
+    //创建InfoWindow
+    function createInfoWindow(i){
+        var json = markerArr[i];
+        var iw = new BMap.InfoWindow("<b class='iw_poi_title' title='" + json.title + "'>" + json.title + "</b><div class='iw_poi_content'>"+json.content+"</div>");
+        return iw;
+    }
+    //创建一个Icon
+    function createIcon(json){
+        var icon = new BMap.Icon("http://app.baidu.com/map/images/us_mk_icon.png", new BMap.Size(json.w,json.h),{imageOffset: new BMap.Size(-json.l,-json.t),infoWindowOffset:new BMap.Size(json.lb+5,1),offset:new BMap.Size(json.x,json.h)})
+        return icon;
+    }
+    function searchbybus(origin){
+    	var map = new BMap.Map("dituContent");    
+    	map.centerAndZoom(new BMap.Point({{$contact.map}}), 14); 
+    	var transit = new BMap.TransitRoute("绍兴市");    
+    	transit.setSearchCompleteCallback(function(results){    
+    	 if (transit.getStatus() == BMAP_STATUS_SUCCESS){    
+    	   var firstPlan = results.getPlan(0);    
+    	   // 绘制步行线路    
+    	   for (var i = 0; i < firstPlan.getNumRoutes(); i ++){    
+    	     var walk = firstPlan.getRoute(i);    
+    	     if (walk.getDistance(false) > 0){    
+    	       // 步行线路有可能为0  
+    	       map.addOverlay(new BMap.Polyline(walk.getPoints(), {lineColor: "green"}));    
+    	     }    
+    	   }    
+    	  // 绘制公交线路   
+    	   for (i = 0; i < firstPlan.getNumLines(); i ++){    
+    	     var line = firstPlan.getLine(i);    
+    	     map.addOverlay(new BMap.Polyline(line.getPoints()));    
+    	   }    
+    	   // 输出方案信息  
+    	   var s = [];    
+    	   for (i = 0; i < results.getNumPlans(); i ++){    
+    	     s.push((i + 1) + ". " + results.getPlan(i).getDescription());    
+    	   }    
+    	   document.getElementById("log").innerHTML = s.join("<br>");    
+    	 }    
+    	})    
+    	transit.search(origin, "上虞外国语学校");
+    }
+    function gotobaidu(type)  
+    {  
+        if($.trim($("input[name=origin]").val())=="")  
+        {  
+        	alert("请输入起点");
+            return;  
+        }else{
+        var originplace=$.trim($("input[name=origin]").val());	
+            if(type==1)  
+            {  
+                $("input[name=mode]").val("transit");  
+                $("#gotobaiduform")[0].submit();  
+            }else if(type==2)  
+            {      
+                $("input[name=mode]").val("driving");          
+                $("#gotobaiduform")[0].submit();  
+            }  
+        }  
+    }   
+    
+    initMap();//创建和初始化地图
+</script>
+<!-- 微信微博分享 -->
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.contact();
+</script>
+
+{{/block}}

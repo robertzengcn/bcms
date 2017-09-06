@@ -1,0 +1,116 @@
+<?php
+
+/*
+ * 登陆页面模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+ini_set("display_errors", true);
+include_once ABSPATH.'/mod/Mod.php';
+
+class Reservations extends Mod{
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 *
+	 *登录类方法
+	 */
+	public function index() {//预约挂号页面可以写在这里
+		
+	
+		
+	}
+	
+	public function getreservation(){//预约挂号方法可以写在这里
+		$_REQUEST['normaldate']=$_REQUEST['date'];
+		$_REQUEST['date'] = strtotime($_REQUEST['date']);
+		$reser=new ReservationService();
+		$result = $reser->getDetail($_REQUEST);
+		
+		echo json_encode($result);
+		exit();		
+	}
+	
+	public function getdepartments(){
+		$departmentser=new DepartmentManagerService();
+		$department = $departmentser->getDepartments();
+		
+		echo json_encode($department);
+	}
+	
+	public function getbydepartmentID(){
+		$dorser = new DoctorManagerService();
+		$res = $dorser->getByDepartmentID($_REQUEST['department_id']);
+		
+		echo json_encode($res);
+	}
+	
+	public function reseruser(){
+
+		$reservation = new Reservation();
+		$reservation->id=$_REQUEST['time'];
+		 
+		
+		$reserservice = new ReservationService();//here
+		$ress=$reserservice->get($reservation);
+		$num=$ress->data->along-$ress->data->mark;
+		if($_REQUEST['restime']==null){
+			throw new ValidatorException(144);
+		}
+		$arr = explode('-',$_REQUEST['restime']);
+		if (! $reservation->isHours($arr[0])) {
+			throw new ValidatorException(132);
+		}
+		
+		
+		if($num>0){
+		
+			$reservationdetailservice=new ReservationDetailService();
+			$reservationDetail = new ReservationDetail();
+			$reservationDetail->doctor_id=$ress->data->doctor_id;
+			$reservationDetail->department_id=$ress->data->department_id;
+			$reservationDetail->date=strtotime($ress->data->date);
+				
+			$reservationDetail->times=strtotime($ress->data->date.' '.$arr[0]);
+			$reservationDetail->username=$_REQUEST['name'];
+			$reservationDetail->telephone=$_REQUEST['hometel'];
+			$reservationDetail->card=$_REQUEST['card'];
+			$reservationDetail->statu='已约';
+		
+			$resv=$reservationdetailservice->save($reservationDetail);
+		
+			 
+			if($resv->statu){
+				$reserservice->addresnum($reservation);
+				$reserservice->insertuser($_REQUEST['name'],$_REQUEST['sex'],$_REQUEST['age'],$_REQUEST['date'],$reservationDetail->times,$_REQUEST['address'],$_REQUEST['hometel'],$_REQUEST['email'],$_REQUEST['ill'],0,$resv->data->id);
+			}
+			$result=array('statu'=>true,
+					'code'=>0,
+					'msg'=>null,
+					'data'=>null
+			);
+		
+		
+		}else{
+			$result=array('statu'=>false,
+					'code'=>170,
+					'msg'=>'\u5df2\u6ca1\u6709\u5269\u4f59\u53f7\u6570\u53ef\u9884\u7ea6',
+					'data'=>null
+			);
+		}
+		
+		
+		
+		echo json_encode($result);
+	}
+	
+
+	
+	
+}
+new Reservations();

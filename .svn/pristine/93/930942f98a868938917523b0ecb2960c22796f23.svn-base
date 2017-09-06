@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>设置</title>
+</head>
+<body>
+<div class="pd-20">
+	<form method="post" class="form form-horizontal" id="formEdit">
+		<input type="hidden" id="sceneid" name="sceneid" value=""/>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>设置标题：</label>
+			<div class="formControls col-93">
+				<input type="text" class="input-text" value="" placeholder="请输入场景名称" id="name" name="name" nullmsg="场景名称不能为空"/>
+			</div>
+			<div class="col-3"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">设置封面：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius"  title="点击图片更换，尺寸 200*200px，1M以内" onClick="gH5.layer_show('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=show','720','370')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail" width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+			<input type="hidden" id="pic" name="pic"/>
+			<div class="col-3"> </div>
+		</div><!--上传图片-->
+		<div class="row cl">
+			<label class="form-label col-2">翻页方式：</label>
+			<div class="formControls col-3"> 
+				<span class="select-box">
+				<select name="movietype" class="select" id="movietype">
+					<option selected="selected" value="0">上下翻页</option>
+					<option value="1">上下惯性翻页</option>
+					<option value="2">上下惯性翻页</option>
+					<option value="4">左右翻页</option>
+					<option value="3">左右惯性翻页</option>
+					<option value="5">左右连续翻页</option>						
+				</select>
+				</span> 
+			</div>
+		</div>				
+		<div class="row cl">
+			<label class="form-label col-2">分享描述：</label>
+			<div class="formControls col-8">
+				<textarea name="scenedesc" id="scenedesc" cols="" rows="" class="textarea"  placeholder="请不要输入空格、换行（Enter键）等特殊字符，限制50个字符" datatype="*10-50" dragonfly="true" nullmsg="描述不能为空！" onKeyUp="gH5.textarealength(this,50)" onkeydown="checkEnter(event)" errormsg="限10-50字" ></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/50</p>
+			</div><div class="col-2"></div>
+		</div>	
+		<div class="row ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-1">
+				<button class="btn btn-primary radius bt-normal" type="button" onClick="gH5.saveSet();return false;"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="gH5.layer_close();" class="btn btn-default radius bt-normal" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script>
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/show.js"></script>
+<script type="text/javascript">
+var gH5 = new H5();
+gH5.setThisName('gH5');
+gH5.initEdit();
+  function checkEnter(e){
+    var et=e||window.event;
+    var keycode=et.charCode||et.keyCode;
+    if(keycode==13){
+      if(window.event)
+      window.event.returnValue = false;
+      else
+      e.preventDefault();//for firefox
+    }
+  }
+
+</script>
+</body>
+</html>

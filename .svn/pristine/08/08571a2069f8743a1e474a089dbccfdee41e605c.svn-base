@@ -1,0 +1,38 @@
+﻿function getCmd() {
+	BaseFunc.call(this);
+	var __this = this;
+	__this.async = true;
+	__this.timeout = 80000; //10秒
+	__this.http = '../../controller/';
+	__this.remLoading = true;
+	
+	__this.cmd = function(para,fun){
+		$.ajax({
+			url : __this.http,
+			data : para,
+			async : __this.async,
+			cache : false,
+			type : 'post',
+			dataType : 'json',
+			timeout : __this.timeout,
+			error : function(obj,error){
+				if(error == 'timeout'){
+					$('#message').message('请求超时.');
+					$('#loading').removeClass('loading');
+				}
+			},
+			success : function(result){
+				if(result.code != undefined && result.code==25){
+					location.href = 'login.html';
+					return false;
+				}
+				fun(result);
+				if( __this.remLoading == true ){
+					$('#loading').removeClass('loading');
+				}
+			}
+		});
+	};
+};
+
+var dd = new getCmd();

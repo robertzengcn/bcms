@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>饮食宜忌_食谱详情</title>
+<meta name="keywords" content="饮食宜忌_食谱详情" />
+<meta name="description" content="饮食宜忌_食谱详情" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0;" name="viewport" />
+<link rel="stylesheet" href="../public/css/base.css?v=20160701">
+<link rel="stylesheet" href="../public/css/jk.css?v=20160701">
+<script type="text/javascript" src="../public/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript">
+$(function(){
+   ysyj.foodinfo();
+});	
+</script>
+</head>
+<body>
+<header class="clearfix header">
+  <a href="javascript:history.go(-1)" class="icons head_back"></a>
+  <h2></h2>
+</header>
+<section class="clearfix foodarr pd3">
+  <div class="suitablebox"><h4>宜用食物</h4></div>
+  <div class="unsuitablebox"><h4>忌用食物</h4></div>
+  <a href="#" class="tjbtn">食谱推荐</a>
+</section>
+<section class="advisevtbox">
+	<p><span>提醒：</span>网上健康资料仅供参考，具体病症治疗请到正规医院检查就诊。</p>
+</section>
+</body>
+</html>

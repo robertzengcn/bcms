@@ -1,0 +1,100 @@
+[
+	{
+		"key": "topPic",
+		"description": "单张图片规格",
+		"width": "980",
+		"height": "320"
+	},
+    {
+        "key": "index",
+        "description": "首页轮播图片规格",
+        "width": "630",
+        "height": "250"
+    },
+    {
+        "key": "listPic",
+        "description": "列表轮播图片规格",
+        "width": "270",
+        "height": "200"
+    },{
+		"key": "successsize",
+		"description": "案例缩略图",
+		"width": "200",
+		"height": "200"
+	}, {
+		"key": "technologysize",
+		"description": "特色技术缩略图",
+		"width": "236",
+		"height": "62"
+	}, {
+		"key": "articlesize",
+		"description": "疾病资讯缩略图",
+		"width": "118",
+		"height": "92"
+	}, {
+		"key": "doctorsize",
+		"description": "医生照片缩略图",
+		"width": "200",
+		"height": "120"
+	}, {
+		"key": "diseasesize",
+		"description": "疾病首页缩略图",
+		"width": "200",
+		"height": "200"
+	}, {
+		"key": "topicsize",
+		"description": "专题缩略图",
+		"width": "200",
+		"height": "200"
+	}, {
+		"key": "mediasize",
+		"description": "媒体报道缩略图",
+		"width": "200",
+		"height": "200"
+	}, {
+		"key": "newssize",
+		"description": "医院新闻缩略图",
+		"width": "210",
+		"height": "210"
+	}, {
+		"key": "hospitalsize",
+		"description": "医院缩略图",
+		"width": "217",
+		"height": "193"
+	}, {
+		"key": "honorsize",
+		"description": "荣誉缩略图",
+		"width": "142",
+		"height": "112"
+	}, {
+		"key": "environmentsize",
+		"description": "环境缩略图",
+		"width": "142",
+		"height": "112"
+	}, {
+		"key": "devicesize",
+		"description": "设备缩略图",
+		"width": "142",
+		"height": "112"
+	}, {
+		"key": "articlesize",
+		"description": "个性频道文章缩略图",
+		"width": "200",
+		"height": "200"
+	}, {
+        "key": "introducesize",
+        "description": "医院简介缩略图",
+        "width": "217",
+        "height": "193"
+    },{
+        "key": "moviesize",
+        "description" : "视频缩略图",
+        "width": "200",
+        "height": "200"
+    },{
+		"key": "listPicsize",
+        "description" : "视频缩略图",
+        "width": "310",
+        "height": "303"
+	}
+]

@@ -1,0 +1,135 @@
+<?php
+	    ini_set("display_errors", "On");
+	    error_reporting(E_ALL | E_STRICT);
+include_once 'init.php';
+/**
+ * 
+ * 积分商城
+ * @author Administrator
+ *
+ */
+
+class CommodityMobile extends Mobile {
+
+	public $depr  = '/';	    // 各参数之间的分割符号;
+	public $action  = 'mobile';	//模块名称
+	public $suffix  = false;   //后缀
+	
+	public function __construct() {
+	    parent::__construct();
+		//$this->getuser();
+		$this->excute();	
+	}
+	 
+	//积分商城首页
+	public function index(){
+		/** 注入公共数据 **/
+		$this->_InjectPublicData();	
+		
+		/** 注入轮播图片 **/
+		$picManager  = $this->getServiceMethod('MobilePicManager','getByFlag','commodity_index');
+		$id = $picManager->data[0];
+		$pic  =  $this->getServiceMethod('pic','query',array('pid'=>$id->id));
+		$this->smarty->assign('pic',$pic->data);
+		/** 注入nav **/
+		
+		/** 获取数据 **/		
+		$model['categories_status'] = 1;
+		$goods_model=$this->getServiceMethod('CommodityCategories','query',$model);
+		$goods_list = array();
+		foreach($goods_model->data as $key =>$val){
+			$list['categories_id'] = $val->id;
+			$list['status'] = 1;
+			$list['query_type'] = 'shop';
+			$list['end_time'] = time();
+			$list['num'] = 6;               //查询条数
+			$goods_arr=$this->getServiceMethod('Commodity','query',$list);
+			$goods_list[$key] = $goods_arr;
+			$goods_list[$key]->name = $val->name;
+			$goods_list[$key]->info_url = $this->_Url("commodity/details&id=");
+			$goods_list[$key]->list_url = $this->_Url("commodity/goodslist",array('id'=>$val->id));
+		}
+		$this->smarty->assign('goods_list', $goods_list);		
+		$this->smarty->display( 'Commodity/home/home' . TPLSUFFIX );		
+	}
+	//商品列表
+	public function goodslist($id){
+		$this->_InjectPublicData();		
+		$this->smarty->display( 'Commodity/home/list' . TPLSUFFIX );
+	}
+	//商品详情
+	public function details(){
+		$this->_InjectPublicData();
+		$this->blindParams($commodity = new Commodity());
+		$goods_info=$this->getServiceMethod('Commodity','get',$commodity);
+		$piclist = explode('|',$goods_info->data->piclist);
+		$this->smarty->assign('piclist', $piclist);	
+		$this->smarty->assign('info', $goods_info);		
+		$this->smarty->display( 'Commodity/home/introduction' . TPLSUFFIX );
+	}
+	//搜索
+	public function search(){
+		$this->_InjectPublicData();	
+		$keyword = $_POST['keyword'];
+		$this->smarty->display( 'Commodity/home/search' . TPLSUFFIX );
+	}
+	/**
+	 * 
+	 * 注入公共数据
+	 */
+	public function _InjectPublicData() {
+		/** 注入contact信息  **/
+		/** 注入logo icon**/
+		$logo = array('shop_logo','shop_icon_72','shop_icon_32');
+		$goods_logo=$this->getServiceMethod('PicManager','getLogo',$logo);
+		$goods_url = array();
+		foreach($goods_logo->data as $key=>$value){
+			$goods_url[$key] = UPLOAD . $value->img;
+		}
+		/** 注入nav **/
+		/** 注入轮播图片 **/		
+		
+		/** 注入url **/
+	    $commodity = NETADDRESS . '/mobile/commodity.php';
+		$index = $commodity . "?method=index";
+		$method_url= $commodity . "?method=" . $_REQUEST['method'];
+		$this->smarty->assign('LOGO',$goods_url);
+		$this->smarty->assign('INDEX',$index);
+		$this->smarty->assign('COMMODITY',$commodity);
+		$this->smarty->assign('METHOD',$method_url);		
+	}
+/**
+ * URL组装 不支持不同URL模式  只支持pathinfo模式 
+ * @param string $url URL表达式，格式：'[模块/操作]?参数1=值1&参数2=值2...'  commodity.php?method=details&id=1
+ * @param string|array $vars 传入的参数，支持数组和字符串  不支持描点#
+ * @param string $suffix 后缀，默认为false 表示不获取配置值
+ * @param boolean $domain 是否显示域名
+ * @return string
+ */
+	public function _Url($url='',$vars='',$suffix=false,$domain=true){
+	    $info   =  parse_url($url);
+		$url    =  !empty($info['path'])?$info['path']:$_REQUEST['method'];
+		// 解析参数
+		if(is_string($vars)) { // aaa=1&bbb=2 转换成数组
+			parse_str($vars,$vars);
+		}elseif(!is_array($vars)){
+			$vars = array();
+		}
+		$path  =   explode($this->depr,$url);		
+		if($domain){
+			$domain = NETADDRESS . $this->depr. $this->action . $this->depr . $path[0] . ".php?method=" . $path[1];			
+		}else{
+			$domain = $this->action . $this->depr . $path[0] . ".php?method=" . $path[1];			
+		}		
+        if(!empty($vars)) { // 添加参数
+				$con = '';
+            foreach ($vars as $var => $val){
+                if('' !== trim($val))   
+				$con .= '&'. $var . '='. urlencode($val);
+            }                
+        }	
+		return $domain . $con;
+	}
+}
+new CommodityMobile();
+?>

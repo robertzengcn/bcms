@@ -1,0 +1,121 @@
+<?php
+
+class CommodityCategoriesService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new CommodityCategoriesDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $commodityArray = $this->dao->getBatch($ids);
+      
+/*无此功能页面 
+        $files = array();
+        $recommendListDAO = new RecommendListDAO();
+        foreach ($commodityArray as $commodity) {
+          $filename = GENERATEPATH . 'commodity/' . $commodity->id . '.html';
+            if ($commodity->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $files[] = $filename;
+            $recommendListDAO->deleteById('$commodity_id', $$commodity->id);
+        } 
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+*/
+        return $this->dao->deleteBeans($commodityArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($commodity) {
+        $this->dao->get($commodity->id, $commodity);
+        if ($commodity->categories_image) {
+            $commodity->src = UPLOAD . $commodity->categories_image;
+        }
+        $tagsService = new TagService();
+ //       $commodity->tags = $tagsService->getTags($commodity->plushtime);
+        $recommend = new RecommendListService();
+        $result = $recommend->getById('commodity_id', $commodity->id);
+        $commodity->recommend = $result; 
+        return $this->success($commodity);
+    }
+
+
+    /**
+     * 
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $commodity = $this->dao->query($where);
+//         foreach ($commodityArray as $key => $value) {
+//             $value->plushtime = date('Y-m-d', $value->plushtime);
+//         }
+
+        return $this->success($commodity);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($commodity) {
+    	
+         $commodity->validate();
+        //$tagsService = new TagService();
+        // 获取class对象并插入数据
+       
+        $this->dao->save($commodity);
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($commodity) {
+    //    $commodity->updatetime = time();
+    	
+        $commodity->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($commodity);
+    }
+    /*
+     * 获取开启的目录
+     * */
+    
+    public function getcat(){
+    	return $this->dao->getopencat();
+    }
+     /*
+     * 获取一条数据
+     * */   
+    public function getName($arr){	
+    	return $this->dao->getName($arr);		
+	}
+}
+

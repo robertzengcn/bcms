@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>404页面设置</title>
+</head>
+<body>
+<div class="pd-20">
+	<form method="post" class="form form-horizontal" id="formEdit">
+			
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>错误文件名称：</label>
+			<div class="formControls col-3">
+			    <input type="hidden" id="id" name="id" value="">
+			    <input type="hidden" value="404.html" name="defaultpage">
+			    <input type="hidden" value="404.html" name="page">
+				<input type="text" class="input-text" value="" placeholder="请输入服务器配置指定的错误文件名称，如：404，error..." id="code" name="code" errormsg="只能是数字或字母"  nullmsg="文件名不能为空" datatype="NumLetter" info="文件的名称取决于您网站所在服务器许可配置给您的名称，名称要一致才生效。LINUX服务器不生效时请查看.htaccess是否己配置，未配置请添加并重启服务"/>
+			</div><div class="col-2"></div><div class="formControls col-3">(前台404页面文件名为：<span id="textname" class="c-red"></span>)</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">页面内容：</label>
+			<div class="formControls col-7"> 
+			<textarea style="width:100%;height:400px;" id="editor" name="content" nullmsg="返回内容不能为空" datatype="*"></textarea>
+			</div><div class="col-3"></div>
+		</div>
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button id="back" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<div id="righticon" class="pos-f pof-floating">
+    <ul>
+      <i class="Hui-iconfont" id="closeright">&#xe6a6;</i>
+   		<a href="javascript:;" onClick="gErrorPage.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>      
+	    <a href="javascript:;" onClick="gErrorPage.openAdd('素材库','../shortcuts/source-material.html','900','560')"><li class="floating2"></li></a>  
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/errorPage.js"></script>
+<script type="text/javascript">
+var editor = UE.getEditor('editor');
+var gErrorPage = new ErrorPage();
+gErrorPage.setThisName('gErrorPage');
+gErrorPage.initEdit();
+
+</script>
+</body>
+</html>

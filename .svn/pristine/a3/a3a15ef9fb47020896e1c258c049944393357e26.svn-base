@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../../css/H-ui.admin.css">
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>患者管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 患者管理 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form id="frm_post">
+	<div class="text-c"> 
+		姓名：<input type="text" name="username" id="username" placeholder=" 姓名" style="width:100px" class="input-text">&nbsp;
+		病历号：<input type="text" name="case_number" id="case_number" placeholder=" 病历号" style="width:100px" class="input-text">&nbsp;
+		电话：<input type="text" name="telphone" id="telphone" placeholder=" 电话" style="width:140px" class="input-text">&nbsp;
+		<span class="select-box inline">
+			<select name="is_pay_for" id="is_pay_for" class="select">
+			    <option value="">是否欠费</option>
+				<option value="1">欠费</option>
+				<option value="2">未欠费</option>				
+			</select>
+		</span>&nbsp;
+		<span class="select-box inline">
+			<select id="disease_type"  name="disease_type" class="select">
+			</select>
+		</span>&nbsp;		
+		<span class="select-box inline">
+			<select id="receptionist_id" name="receptionist_id" class="select">
+			</select>
+		</span>&nbsp;
+		<span class="select-box inline">
+			<select id="return_time" name="return_time" class="select">
+				<option value="">约定复诊</option>
+				<option value="1">一天以内</option>
+				<option value="3">三天以内</option>
+				<option value="7">一周以内</option>
+				<option value="30">一月以内</option>
+			</select>
+		</span>&nbsp;
+		<span class="select-box inline">
+			<select id="doctor_id" name="doctor_id" class="select">
+			</select>
+		</span>&nbsp;
+		
+		就诊日期：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end\')||\'%y-%M-%d\'}'})" id="start" class="input-text Wdate" style="width:120px;" name="start">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start\')}',maxDate:'%y-%M-%d'})" id="end" class="input-text Wdate" style="width:120px;" name="end">
+		&nbsp;<button id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	</div>
+	</form>
+	<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a class="btn btn-success radius" onClick="gPatient.addPatient();" href="javascript:;"><i class="Hui-iconfont">&#xe607;</i> 新增患者</a> <a class="btn btn-primary radius" onClick="gPatient.openEdit('统计报表','visit-stat.html')" href="javascript:;"><i class="Hui-iconfont">&#xe61e;</i> 统计报表</a> <a href="javascript:;" onClick="gPatient.deleteBatch();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a>  <a class="btn btn-warning radius" onClick="gPatient.openAdd('修改密码','change-password.html','600','270')" href="javascript:;"> <i class="Hui-iconfont">&#xe63f;</i> 修改密码</a> <a class="btn btn-success radius" onClick="gPatient.updateStatData();" href="javascript:;"> <i class="Hui-iconfont">&#xe63f;</i> 统计更新</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+	<div class="mt-20" id="grids">
+		<table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>					
+					<th width="130">就诊日期</th>
+					<th width="80">姓名</th>
+					<th width="110">电话</th>
+					<th width="160">电子码</th>
+					<th width="75">余额（元）</th>
+					<th width="80">前台接诊</th>
+					<th width="80">主治医生</th>
+					<th width="120">病症分类</th>
+					<th width="130">约定复诊</th>
+					<th>回访（最新回访日期/总回访次数）</th>
+					<th width="60">操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/js/patient.js"></script>
+<script type="text/javascript">
+var gPatient = new Patient();
+gPatient.setThisName('gPatient');
+gPatient.init();
+</script>
+</body>
+</html>

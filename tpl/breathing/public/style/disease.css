@@ -1,0 +1,51 @@
+@charset "gb2312";
+.w700{float:left;width:743px;}
+.w700 h2{margin-bottom:0px;margin-right:8px;border:none;}
+.w260{width:271px;}
+.w260 .par-doctor{height:170px;}
+.w260 .par-doctor h4{margin-bottom:15px;}
+.w260 .par-doctor .img{margin-left:16px;}
+.w260 .par-doctor div{width:150px;}
+.w225 .par-technology.h190{height:190px;}
+.w225 .par-reserve,.w225 .par-sense{height:272px;}
+/* CSS Document */
+.top-left{float:left;width:271px;height:378px;}
+.top-left .flash{height:201px;}
+.top-left .flash img{width:265px;height:195px;display:block;border:3px solid #b25400;}
+/* news */
+.top-news{float:left;width:453px;margin:0px 8px;height:380px;display:inline;}
+.top-news .top-news-tab{height:36px;line-height:32px;background:url(../images/index/topnews-bg.gif) repeat-x;border-bottom:none;}
+.top-news .top-news-tab span{float:right;background:url(../images/index/topnews-hot.gif) no-repeat;width:46px;height:30px;padding-right:6px;}
+.top-news .top-news-tab h3{float:left;width:107px;height:36px;background:url(../images/index/topnews-current.gif) no-repeat;text-align:center;}
+.top-news .top-news-tab h3 a{color:#fff;font-size:16px;}
+.top-news h4{font-family:"Î¢ÈíÑÅºÚ","ºÚÌå";font-weight:noraml;font-size:16px;text-align:center;padding-top:10px;height:32px;}
+.top-news h4 a{color:#862202;}
+.top-news p a{color:#862202;}
+.top-news p{height:54px;line-height:24px;text-indent:2em;border-bottom:1px dashed #ddd;font-size:14px;color:#999;margin:0px 8px;}
+.top-news p.nonebottom{border-bottom:none;}
+.top-news ul{padding:12px 6px 0px 10px;overflow:hidden;zoom:1;}
+.top-news ul li{float:left;width:50%;font-size:14px;height:26px;line-height:26px;}
+/* aricle */
+.article{float:left;width:361px;height:272px;margin-top:8px;margin-right:8px;display:inline;}
+.article .article-tab{height:33px;background:url(../images/disease/article-tab.gif) repeat-x;border:1px solid #fff;}
+.article .article-tab h3{float:left;margin:4px 10px 0px 10px;height:28px;line-height:29px;font-weight:normal;}
+.article .article-tab h3 a{color:#862202;}
+.article .article-tab h3.current{background:url(../images/disease/article-nav.gif) repeat-x;}
+.article .article-tab h3.current strong{line-height:30px;display:inline-block;background:url(../images/disease/article-nav.gif) left -30px no-repeat;padding-left:15px;}
+.article .article-tab h3.current a{background:url(../images/disease/article-nav.gif) right -60px no-repeat;padding-right:15px;line-height:28px;display:inline-block;color:#fff;}
+.article .article-list{float:left;width:340px;padding:12px 10px 0px 10px;overflow:hidden;zoom:1;}
+.article .article-list img{float:left;width:80px;height:65px;margin:0px 10px 14px 0px;}
+.article .article-list h6 a{color:#862202;}
+.article .article-list p{text-indent:2em;line-height:22px;padding-top:8px;}
+.article .article-list p a{color:#862202;}
+.article .article-list ul{clear:both;border-top:1px dashed #ddd;font-size:14px;padding-top:8px;overflow:hidden;zoom:1;}
+.article .article-list ul li{line-height:26px;}
+
+.article .article-list ul.disease-list li{float:left;width:50%;}
+
+/* disease */
+.about{height:252px;margin-right:8px;overflow:hidden;zoom:1;}
+.about img{float:left;margin:12px 14px 0px 10px;width:245px;height:230px;}
+.about h1{text-align:center;padding:20px 0px 10px 0px;font-size:18px;}
+.about p{line-height:26px;font-size:14px;padding-right:8px;color:#666;}
+.about p a{color:#8b4300;}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+{{include file="Common/common.html"}}
+</head>
+
+<body style="zoom: 1;">
+{{include file="Common/header.html"}}
+
+<!--banner-->
+{{$btlogo=$PicManagerTag->getMobilePic(mobileLogo)}}
+<h1 style="margin-top:40px;"><a href="" target="_blank" name="top"><img src="/upload/{{$btlogo->img}}"></a></h1>
+
+
+
+<!--导航-->
+{{include file="Common/nav.html"}}
+<div class="crumb">当前位置：
+<a href="{{$MOBILE}}">主页</a> &gt; <a href="{{$MOBILE}}/doctor.php">专家</a> </div>
+
+<!--内容-->
+<div class="arc">
+  <h1>{{$data->name}}</h1>
+  
+  
+  <div style="text-align: center; ">
+		<a href=""><img style="width: 240px; height: 250px; " src="/upload/{{$data->pic}}" alt=""></a>					    </div>
+ 
+  <div class="arc_txt"> 
+	
+	{{$data->content}}
+          
+</div>         
+</div>                
+
+       
+{{include file="Common/footer.html"}}
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>云健康账户登陆</title>
+</head>
+<body>
+<div class="pd-20">	
+	<div id="tab-category" class="HuiTab">
+		<div class="tabBar cl"><span id="loginpage">登陆</span><span id="registerpage">注册</span></div>
+		<div class="tabCon">
+			<form id="loginform" method="post" class="form form-horizontal">
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>手机号：</label>
+					<div class="formControls col-6">							
+						<input type="text" class="input-text" value="" placeholder="请输入手机号码登陆" id="regmobile" name="mobile" datatype="*2-20" nullmsg="账号不能为空" errormsg="限2-20个字"/>
+					</div>
+					<div class="col-2"> </div>
+				</div>
+
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>密码：</label>
+					<div class="formControls col-6">							
+						<input type="password" class="input-text" value="" placeholder="密码" id="regpassword" name="password" datatype="*" nullmsg="密码不能为空" errormsg=""/>
+					</div>
+					<div class="col-2"> </div>
+				</div>
+				<div style="width:100%;height:10px;clear:both;"></div>
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+					<div class="col-20 col-offset-1">
+						<button class="btn btn-primary radius bt-normal" type="button" id="loginbtn"><i class="Hui-iconfont">&#xe632;</i> 登陆</button>	
+					</div>
+				</div>
+			</form>
+		</div>
+		<!--基本设置-->
+		<div class="tabCon">
+			<form action="/controller/" method="post" class="form form-horizontal" id="registerform">
+				<div class="pd-5">
+					<div class="row cl firststep">
+						<label class="form-label col-2"><span class="c-red">*</span>手机号：</label>
+						<div class="formControls col-7">											  								
+							<input type="text" class="input-text" value="" placeholder="登陆院方管控APK和部分合作资源站点的授权登陆" id="phone" name="mobile" datatype="m" nullmsg="手机号不能为空" errormsg="请输入正确的手机号"/>
+						</div><div class="col-2"></div>
+					</div>
+					<div class="row cl firststep">
+						<label class="form-label col-2"><span class="c-red">*</span>验证码：</label>
+						<div class="formControls col-4">				
+							<input type="text" placeholder="请输入收到的验证码" name="code" value="" class="input-text"/>
+						</div><a class="btn btn-success radius bt-normal" id="getcode" style="position:relative;left:-96px;" href="javascript:;" onclick="cloudysync.getcode();"><i class="Hui-iconfont">&#xe63f;</i> 获取验证码</a><div class="col-2"><span class="Validform_checktip"></span></div>
+					</div>
+					<div class="row cl secondstep">
+						<label class="form-label col-2"><span class="c-red">*</span>用户名：</label>
+						<div class="formControls col-7">				
+							<input type="text" placeholder="请输入用户名"  value="" class="input-text" datatype="*2-16" nullmsg="昵称不能为空" id="username" name="username" errormsg="请输入2-16个字" ajaxurl="../../controller/?controller=BoyiManager&method=checkusername" />
+						</div><div class="col-2"></div>
+					</div>
+					<div class="row cl secondstep">
+						<label class="form-label col-2"><span class="c-red">*</span>密码：</label>
+						<div class="formControls col-7">				
+							<input type="password" placeholder="密码" autocomplete="off" value="" class="input-text" datatype="*6-16" nullmsg="密码不能为空" id="pwd" name="password" errormsg="请输入6-12个数字或字母"/>
+						</div><div class="col-2"></div>
+					</div>
+					<div class="row cl secondstep">
+						<label class="form-label col-2"><span class="c-red">*</span>重复密码：</label>
+						<div class="formControls col-7">				
+							<input type="password" placeholder="确认新密码" autocomplete="off" class="input-text" errormsg="两次输入的密码不一致！" datatype="*" nullmsg="请再输入一次新密码！" recheck="password" id="pass" name="pass"/>
+						</div><div class="col-2"></div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-2">
+<span class="c-red">*</span>
+验证码：
+</label>
+	<div class="formControls col-7">
+	  <input type="text" style="width: 150px;" value=""  placeholder="验证码" class="input-text size-L" name="verify" title="验证码" id="verify" autocomplete="off" datatype="*4-4" nullmsg="请填写验证码" errormsg="请填写4位验证码" ajaxurl="../../controller/?controller=BoyiManager&method=checkverify" />
+	  <input type="hidden" value="1443062104" id="token" name="token">
+	  <img src="../public/img/verify.php" id="verifyimg" onclick="cloudysync.verify()"> 	  
+	  <a onclick="cloudysync.verify()" href="javascript:;" id="kanbuq">换一张</a></div>
+  </div>
+				</div>	
+				<div style="width:100%;height:50px;clear:both;"></div>
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray secondstep">
+					<div class="col-20 col-offset-1">
+						<button class="btn btn-primary radius bt-normal" type="button" id="save">&nbsp;&nbsp;确定&nbsp;&nbsp;</button>					
+					</div>
+				</div>
+			</form>
+		</div>
+		<!--模版设置-->			
+	</div><!--HuiTab over-->
+</div>
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script>  
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/jquery.md5.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/cloudysync.js"></script>
+<script type="text/javascript">
+var cloudysync = new Cloudysync();
+cloudysync.setThisName('gDepartment');
+cloudysync.init();
+
+</script>
+</body>
+</html>

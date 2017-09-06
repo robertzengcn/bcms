@@ -1,0 +1,201 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<style type="text/css">
+.button{margin-left:20px;}
+.list{width:100%;}
+.list td{height:62px;}
+#makehtml_loading{
+	width:0px;height:25px;line-height:25px;color:#369;font-weight:bold;border:1px solid #fff;background:#369;
+}
+#make_right,#time{
+	text-align:center;height:25px;line-height:25px;color:#369;font-weight:bold;
+}
+</style>
+<title>网站生成</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe634;</i> 网站生成管理 <span class="c-gray en">&gt;</span> 生成页面 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<div id="tab-category" class="HuiTab">
+	<div class="tabBar cl"><span>手动更新(静态)</span><span>自动更新(静态)</span><span>伪静态(动态)</span></div>
+	<div class="tabCon">
+		<div class="tabBar cl boyicms-br"><span>单页生成</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_index" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 网站首页</a>
+				<a id="generate_error" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 404页面</a>
+				<a id="generate_reservation" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 在线预约</a>
+				<a id="generate_search" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 站内搜索</a>
+				<a id="generate_sitemap" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 站点导航</a>					
+		</div>
+		<div class="tabBar cl boyicms-br"><span>医院信息</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_introduce" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院简介</a>
+				<a id="generate_news" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院新闻</a>
+				<a id="generate_mediaport" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 媒体报道</a>
+				<a id="generate_movie" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院视频</a>
+				<a id="generate_contacts" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 联系方式</a>
+				<a id="generate_honor" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院荣誉</a>
+				<a id="generate_enviorment" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医院环境</a>
+				<a id="generate_devices" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医疗设备</a>						
+		</div>
+		<div class="tabBar cl boyicms-br"><span>医疗资讯</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_departments" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 科室首页</a>
+				<a id="generate_disease" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 疾病列表</a>
+				<a id="generate_doctors" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 医生信息</a>
+				<a id="generate_asks" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 在线问答</a>	
+				<a id="generate_topic" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 精彩专题</a>
+				<a id="generate_technology" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 特色技术</a>
+				<a id="generate_success" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 案例信息</a>		
+		</div>
+		<div class="tabBar cl boyicms-br"><span>疾病资讯</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_article" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 全部生成</a>
+				<a id="generate_article_new" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 生成最新</a>
+				<a id="generate_article_part" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 按科室生成</a>		
+		</div>
+		<div class="tabBar cl boyicms-br"><span>个性频道</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_channel" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 频道首页</a>
+				<a id="generate_channelArticle" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> 频道文章</a>	
+		</div>
+		<div class="tabBar cl boyicms-br"><span>百度地图</span></div>		
+		<div class="cl pd-5  mv-30"> 
+				<a id="generate_xml" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> XML格式</a>
+				<a id="generate_html" href="javascript:void(0);" class="btn btn-primary radius mgl-18"><i class="Hui-iconfont">&#xe603;</i> HTML格式</a>	
+		</div>
+		
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<a href="javascript:;" onClick="gStatic.openHtmlType('manualupdate');" class="btn btn-danger radius" type="button"><i class="Hui-iconfont">&#xe605;</i> 开启功能</a>	
+		</div>
+	</div>
+	<div class="tabCon">
+			<div class="row cl pd-5">
+				<label class="form-label col-2  text-r"><span class="c-red">*</span><b>自动更新说明：</b></label>
+				<div class="formControls col-10 ml-5"></div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">1</span></label>
+				<div class="formControls col-10 ml-5">全站静态刷新，无需手动去更新页面，修改数据后同步更新(假如您发布新的或修改信息，直接发布或修改，不用再去生成页面)</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">2</span></label>
+				<div class="formControls col-10 ml-5">切换模板后会自动进行整站更新，不会影响数据同步(如果是手动模式，在切换模板后还需要手动生成页面)</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">3</span></label>
+				<div class="formControls col-10 ml-5">开启前提：
+				<br/>
+				如果您的服务器是apache:
+				<br/>
+				<span class="badge badge-secondary  radius">A</span>&nbsp;&nbsp;打开httpd.conf，将AllowOverride None 改为 AllowOverride All（让apache支持.htaccess）
+				<br/>
+				<span class="badge badge-secondary  radius">B</span>&nbsp;&nbsp;去掉下面的注释 LoadModule rewrite_module modules/mod_rewrite.so（开启路由重写功能）
+				<br/>
+				<span class="badge badge-secondary  radius">C</span>&nbsp;&nbsp;重启apache服务
+				<br/>
+				如果您的服务器是nginx:
+				<br/>				
+				<span class="badge badge-secondary  radius">A</span>&nbsp;&nbsp;在 nginx/nginx.conf的对应站点server{}中引入 n_rewrite.conf 文件： include /站点目录/n_rewrite.conf; (文件名不能修改)
+				<br/>
+				<span class="badge badge-secondary  radius">B</span>&nbsp;&nbsp;保存、退出、点击开启功能、重启nginx(/etc/rc.d/init.d/nginx reload)(注：切换后得重新启动nginx reload,apache不需要);
+				<br/>
+				</div>
+			</div>
+			<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+				<a href="javascript:;" onClick="gStatic.openHtmlType('autoupdate');" class="btn btn-danger radius" type="button"><i class="Hui-iconfont">&#xe605;</i> 开启功能</a>	
+			</div>
+	</div>
+	<div class="tabCon">
+			<div class="row cl pd-5">
+				<label class="form-label col-2  text-r"><span class="c-red">*</span><b>伪静态说明：</b></label>
+				<div class="formControls col-10 ml-5"></div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">1</span></label>
+				<div class="formControls col-10 ml-5">伪静态和静态页面是一样的，实际上就是动态页面,在SEO方面，伪静态和静态页面的功能是相同</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">2</span></label>
+				<div class="formControls col-10 ml-5">静态页面可以节省服务器资源，而伪静态严格说是增加服务器资源消耗</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">3</span></label>
+				<div class="formControls col-10 ml-5">如何选择：
+				<br/>
+				<span class="badge badge-secondary  radius">A</span>&nbsp;&nbsp;网站承受力（假如您只有1台主机（1天访问量在3000人左右），为了更新速度，可以选择伪静态）
+				<br/>
+				<span class="badge badge-secondary  radius">B</span>&nbsp;&nbsp;真静态的访问速度明显比伪静态的访问速度要高很多，可以同时支持在线人数2倍以上
+				<br/>
+				<span class="badge badge-secondary  radius">C</span>&nbsp;&nbsp;伪静态大量使用会造成CPU超负荷，建议选择静态（自动更新）
+				</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">4</span></label>
+				<div class="formControls col-10 ml-5">开启前提：
+				<br/>
+				如果您的服务器是apache:
+				<br/>
+				<span class="badge badge-secondary  radius">A</span>&nbsp;&nbsp;打开httpd.conf，将AllowOverride None 改为 AllowOverride All（让apache支持.htaccess）
+				<br/>
+				<span class="badge badge-secondary  radius">B</span>&nbsp;&nbsp;去掉下面的注释 LoadModule rewrite_module modules/mod_rewrite.so（开启路由重写功能）
+				<br/>
+				<span class="badge badge-secondary  radius">C</span>&nbsp;&nbsp;重启apache服务
+				<br/>
+				如果您的服务器是nginx:
+				<br/>				
+				<span class="badge badge-secondary  radius">A</span>&nbsp;&nbsp;在 nginx/nginx.conf的对应站点server{}中引入 n_rewrite.conf 文件： include /站点目录/n_rewrite.conf; (文件名不能修改)
+				<br/>
+				<span class="badge badge-secondary  radius">B</span>&nbsp;&nbsp;保存、退出、点击开启功能、重启nginx(/etc/rc.d/init.d/nginx reload)(注：切换后得重新启动nginx reload,apache不需要);
+				<br/>
+				</div>
+			</div>
+			<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+				<a href="javascript:;" onClick="gStatic.openHtmlType('dynamic');" class="btn btn-danger radius" type="button"><i class="Hui-iconfont">&#xe605;</i> 开启功能</a>	
+			</div>
+	</div>		
+	</div>
+</div>
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gStatic.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>       
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/static.js"></script>
+<script type="text/javascript">
+var gStatic = new Static();
+gStatic.setThisName('gStatic');
+gStatic.initList();
+
+</script>
+</body>
+</html>

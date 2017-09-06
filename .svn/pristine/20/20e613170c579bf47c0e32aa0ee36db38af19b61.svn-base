@@ -1,0 +1,29 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Worker extends Entity {
+
+    var $id;
+
+    var $name;
+
+    var $password;
+
+    var $group;
+
+    var $plushtime;
+
+    var $purview;
+    
+    var $acls;
+
+    public function validate() {
+        if ($this->plushtime == '') {
+            $this->plushtime = time();
+        }
+        
+        if ($this->acls != '') {
+            $this->acls = stripslashes($this->acls);
+        }
+    }
+}

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<!-- 文件数组,在File中添加source与对应的whither即可. source代表资源目录下的文件路径,whither代表需要被复制到的路径-->
+		<File>
+		    <item><source>/upload/mlogo.png</source><whither>/upload/picmanager/mlogo.png</whither></item>	
+		    <item><source>/upload/icon1.png</source><whither>/upload/picmanager/icon1.png</whither></item>
+		    <item><source>/upload/icon2.png</source><whither>/upload/picmanager/icon2.png</whither></item>	
+		    <item><source>/upload/icon3.png</source><whither>/upload/picmanager/icon3.png</whither></item>
+		    <item><source>/upload/icon4.png</source><whither>/upload/picmanager/icon4.png</whither></item>
+		     <item><source>/upload/icon5.png</source><whither>/upload/picmanager/icon5.png</whither></item>
+		     <item><source>/upload/icon6.png</source><whither>/upload/picmanager/icon6.png</whither></item>
+		     <item><source>/upload/icon7.png</source><whither>/upload/picmanager/icon7.png</whither></item>
+		     <item><source>/upload/icon8.png</source><whither>/upload/picmanager/icon8.png</whither></item>
+		     <item><source>/upload/icon9.png</source><whither>/upload/picmanager/icon9.png</whither></item>
+		     <item><source>/upload/icon10.png</source><whither>/upload/picmanager/icon10.png</whither></item>
+		     <item><source>/upload/icon11.png</source><whither>/upload/picmanager/icon11.png</whither></item>
+		     <item><source>/upload/icon12.png</source><whither>/upload/picmanager/icon12.png</whither></item>
+		      <item><source>/upload/icon13.png</source><whither>/upload/picmanager/icon13.png</whither></item>
+		      <item><source>/upload/icon14.png</source><whither>/upload/picmanager/icon14.png</whither></item>
+		      <item><source>/upload/icon15.png</source><whither>/upload/picmanager/icon15.png</whither></item>
+		      <item><source>/upload/icon16.png</source><whither>/upload/picmanager/icon16.png</whither></item>
+		      <item><source>/upload/icon17.png</source><whither>/upload/picmanager/icon17.png</whither></item>
+		      <item><source>/upload/icon18.png</source><whither>/upload/picmanager/icon18.png</whither></item>
+		      <item><source>/upload/icon19.png</source><whither>/upload/picmanager/icon19.png</whither></item>
+		      <item><source>/upload/icon20.png</source><whither>/upload/picmanager/icon20.png</whither></item>
+		      <item><source>/upload/icon21.png</source><whither>/upload/picmanager/icon21.png</whither></item>
+		      <item><source>/upload/icon22.png</source><whither>/upload/picmanager/icon22.png</whither></item>
+		     <item><source>/upload/slide1.jpg</source><whither>/upload/picmanager/slide1.jpg</whither></item>
+		     <item><source>/upload/img_18.png</source><whither>/upload/picmanager/img_18.png</whither></item>
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	<Insert>
+		<item>INSERT INTO `mobilepicmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`,`cate`) VALUES('手机端LOGO', 'mobileLogo', 'picmanager/mlogo.png', '', 1, 1, NULL,1),('手机轮播图片', 'mobile_index', '1', '', 0, 2, NULL,1),('健康百科页面图片', 'jiankanpic', 'picmanager/slide1.jpg', '', 1, 1, NULL,1),('三院护理图片', 'sanyuanhuli', 'picmanager/img_18.png', '', 1, 1, NULL,1);</item>
+		<item>INSERT INTO `pic` (`sort`, `url`, `pic`, `text`) VALUES(1, '', 'picmanager/slide1.jpg', 'mobile_index01'),( 2, '', 'picmanager/slide1.jpg', 'mobile_index02'),(3, '', 'picmanager/slide1.jpg', 'mobile_index03');</item>
+		<item>INSERT INTO `mobilenavigation` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '首页导航', 'mobile_nav', NULL, NULL, NULL, NULL, 1, 1, NULL, NULL),
+		(0, 1, '门诊时间', 'mobile_nav01', '/mobile/reservation.php?method=showtable', 0, 0, 1, 1, 1, 'mobile_nav01', 'picmanager/icon1.png'),
+		(0, 1, '就诊须知', 'mobile_nav02', '', 0, 0, 2, 1, 1, 'mobile_nav01', 'picmanager/icon2.png'),
+		(0, 1, '康复医疗', 'mobile_nav03', '/mobile/kanfu.php', 0, 0, 3, 1, 1, 'mobile_nav01', 'picmanager/icon3.png'),	
+		(0, 1, '医院导航', 'mobile_nav04', '/mobile/contact.php', 0, 0, 4, 1, 1, 'mobile_nav01', 'picmanager/icon4.png'),
+		(0, 1, '预约挂号', 'mobile_nav05', '/mobile/reservation.php', 0, 0, 5, 1, 1, 'mobile_nav01', 'picmanager/icon5.png'),
+		(0, 1, '健康体检', 'mobile_nav06', '', 0, 0, 6, 1, 1, 'mobile_nav01', 'picmanager/icon6.png'),
+		(0, 1, '检查单查询', 'mobile_nav07', '', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon7.png'),
+		(0, 1, '医患交流', 'mobile_nav08', '/mobile/ask.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon8.png'),
+		(0, 1, '意见建议', 'mobile_nav09', '/mobile/feedback.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon9.png'),
+		(0, 1, '医院概况', 'mobile_nav10', '/mobile/introduce.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon10.png'),
+		(0, 1, '三院护理', 'mobile_nav11', '', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon11.png'),
+		(0, 1, '院务公开', 'mobile_nav12', '', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon12.png'),
+		(0, 1, '科室导航', 'mobile_nav13', '/mobile/department.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon13.png'),
+		(0, 1, '医师介绍', 'mobile_nav14', '/mobile/doctor.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon14.png'),
+		(0, 1, '医疗联合体', 'mobile_nav15', '/mobile/union.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon15.png'),
+		(0, 1, '招聘信息', 'mobile_nav16', '', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon16.png'),
+		(0, 1, '健康百科', 'mobile_nav17', '/mobile/article.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon17.png'),
+		(0, 1, '联系我们', 'mobile_nav18', '/mobile/contact.php', 0, 0, 7, 1, 1, 'mobile_nav01', 'picmanager/icon18.png');
+		</item>		
+	</Insert>
+	<Parent>
+		<item>
+			<get>{t:mobilepicmanager,f:flag,g:id,v:mobile_index}</get>
+			<set>{t:pic,f:text,s:pid,v:{"mobile_index01"|"mobile_index02"|"mobile_index03"}}</set>			
+		</item>
+		<item>
+			<get>{t:mobilenavigation,f:flag,g:id,v:mobile_nav}</get>
+			<set>{t:mobilenavigation,f:name,s:group_id,v:{"mobile_nav01"}}</set>
+		</item>
+	</Parent>
+	
+	<Delete>
+	<item>{t:mobilepicmanager,f:flag,v:{"mobileLogo"|"mobile_index"}}</item>
+	<item>{t:pic,f:text,v:{"mobile_index01"|"mobile_index02"|"mobile_index03"}}</item>
+	<item>{t:mobilenavigation,f:flag,v:{"mobile_nav"|"mobile_nav01"|"mobile_nav02"|"mobile_nav03"|"mobile_nav04"|"mobile_nav05"|"mobile_nav06"|"mobile_nav07"|"mobile_nav08"|"mobile_nav09"|"mobile_nav10"|"mobile_nav11"|"mobile_nav12"|"mobile_nav13"|"mobile_nav14"|"mobile_nav15"|"mobile_nav16"|"mobile_nav17"|"mobile_nav18"}}</item>	
+	</Delete>
+</body>

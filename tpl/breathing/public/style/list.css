@@ -1,0 +1,6 @@
+@charset "gb2312";
+/* CSS Document */
+.par-main div{padding-bottom:10px;}
+.par-main div h4{height:28px;line-height:28px;background:#F4F4F4;padding-left:12px;}
+.par-main div p{text-indent:2em;height:48px;line-height:24px;color:#666;padding:8px 10px 0px 10px;}
+.par-main div p a{color:#862202;}

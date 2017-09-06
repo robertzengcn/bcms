@@ -1,0 +1,30 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/list.css">
+{{/block}}
+{{block name=body}}
+<div class="clear"></div>
+<div id="breadcrumb"><span>您当前位置:&nbsp;</span><a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> >
+    <a href='{{$WEBSITE}}{{$HTMLURL}}'>特色技术</a></div>
+
+<div class="main">
+    <div class="par-main">
+        <h2><span>特色技术列表</span></h2>
+        {{foreach $TechnologyTag->getList($cur,10) as $v}}
+        <div class="article-list"><h4><a href="{{$v->id}}.html">{{$v->subject}}</a></h4>
+            <p>{{$v->description|truncate:"60"}}...<a href="{{$v->id}}.html">[详细]</a></p>
+        </div>
+        {{/foreach}}
+        <div class="fenye">{{$TechnologyTag->getPageHtml($cur)}}</div>
+    </div>
+    <!--right-->
+        {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+</div>
+<div class="main-bottom"></div>
+<!--footer-->
+<div class="clear h8"></div>
+{{/block}}
+
+
+

@@ -1,0 +1,2850 @@
+var result = $.extend({},{
+	start : function(){
+		var _me = this; 
+				$('#each').getHtml('./plugin/plugins/weixin/weixinList',function(){
+					getData({controller:'Weixin',method:'getListWeixin'},function(ret){
+						var $html = '';
+						var url = location.hostname;
+						if(ret.ttl>0){
+							$.each(ret.rows,function(i,v){
+								$html += '<tr class="infotr"><td class="numtd" align="center"><input type="checkbox" name="check_one" value="'+v.id+'" /></td>'
+									+'<td align="center">'+v.id+'</td><td align="left">'
+									+v.weixinname+'</td><td align="center"><img src="'+v.pic+'" width="70px" /></td><td align="center">'+url+'/weixindb/weixin.php?tag='
+									+v.tag+'</td><td align="center">boyicms</td><td align="center"><a href="javascript:void(0)" onclick="return false;" id="'+v.id+'" class="btn_edit" >管理</a><a href="javascript:void(0)" id="'+v.id+'"  onclick="return false;" class="btn_del">删除</a></td></tr>';
+							});
+						}	
+						
+						$("#tableAll").append($html);
+					});	
+					//全选 反选
+					$(document).on('click','#check_all',function(){
+			            if($(this).attr('checked') != undefined){
+			                $("input[name='check_one']").attr('checked','checked');
+			            }else{
+			                $("input[name='check_one']").removeAttr('checked');
+			            }						
+					});
+					$(document).unbind('click').on('click','.btn_edit',function(){
+						var me = $(this);
+						var id = me.attr('id');
+						$('#loading').addClass('loading');
+						getData({controller:'Weixin',method:'choose',id:id},function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								$('#each').getHtml('./plugin/plugins/weixin/weixin',function(){
+									_me.clickCount();
+								});
+							}else{
+								alert_message(ret.msg);
+							}
+						});						
+						
+					});
+					
+					$(document).on('click','.btn_del',function(){
+						var me = $(this);
+						var id= me.attr('id');
+						art.dialog({
+							title: '删除微信号',
+							id:'delWeixin',
+						    content:'确定要删除这个微信吗？',
+						    fixed:true,
+						    icon: 'question',
+						    width:200,
+						    height:70,
+						    lock:true,
+						    opacity: .1,
+						    padding:0,
+						    okVal:'确定',
+						    ok:function(){
+						    	$('#loading').addClass('loading');
+								getData({controller:'Weixin',method:'deleteWeixin',id:id},function(ret){
+									$('#loading').removeClass('loading');
+									if(ret.statu){
+										_me.start();
+									}else{
+										alert_message(ret.msg);
+									}
+								});
+						    },
+						    cancel:true
+						});					
+					});					
+					
+					$('#add').click(function(){
+						_me.addWeixin();
+					});
+					$('#del').click(function(){
+						var ids = [];
+						$("input[name='check_one']:checkbox").each(function(){
+							if($(this).attr("checked")){
+								ids.push($(this).val());
+							}
+						});
+						if(ids.length <= 0){
+							alert_message('请选择您要删除的选项!');
+						}else{
+							art.dialog({
+								title: '批量删除微信号',
+							    content:'确定要删除这些微信吗？',
+							    fixed:true,
+							    id:'delAllWeixin',
+							    icon: 'question',
+							    width:200,
+							    height:100,
+							    lock:true,
+							    opacity: .1,
+							    padding:0,
+							    okVal:'提交',
+							    ok:function(){
+							    	$('#loading').addClass('loading');
+									getData({controller:'Weixin',method:'deleteWeixin',id:ids},function(ret){
+										$('#loading').removeClass('loading');
+										if(ret.statu){
+											alert_message(ret.msg);
+											_me.start();
+										}else{
+											alert_message(ret.msg);
+										}
+									});
+							    },
+							    cancel:true
+							});
+						}
+					});
+					$('#refresh').click(function(){
+						_me.start();
+					});
+					$('#backUp').click(function(){
+						$.getScript('./public/js/plugin.js',function() {result.muchplug(); });
+					});
+
+				});
+	},
+	
+	addWeixin : function(){
+		var _me = this;
+		var c1 ='<div class="choisebox">'
+			+'	<div class="leftbotton">'
+			+'		<a id="leftbotton" href="javascript::void(0)" onclick="return false;">授权</a>'
+			+'	</div>'
+			+'	<div class="rightbotton">'
+			+'		<a id="rightbotton" href="javascript::void(0)" onclick="return false;">人工</a>'
+			+'	</div>';			
+			art.dialog({
+				title: '新增微信公众号',
+			    content:c1,
+			    id:'addWeixin1',
+			    fixed:true,
+			    width:400,
+			    height:190,
+			    lock:true,
+			    opacity: .3,
+			    padding: 0,
+			    drag:false
+			});		
+			
+	
+		$(document).on('click','#leftbotton',function(){
+			var domain = location.hostname;
+		    window.open('http://www.boyicms.com/wechat/?q=base&action=auth&domain=' + domain, 'authWin');
+			art.dialog({ id: 'addWeixin1' }).close();
+		});
+		
+
+			
+		$(document).on('click','#rightbotton',function(){
+			art.dialog({ id: 'addWeixin1' }).close();
+			var self_url = "";
+			var url = location.hostname;
+			getData({controller:'Weixin',method:'getTag'},function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						 self_url += "http://"+url+"/weixindb/weixin.php?tag="+ret.data;
+					}else{
+						alert_message(ret.msg);
+					}
+					var content='';
+					content+='<div class="artificial_info"><div class="firststep">';
+					content+='<h1>第一步：添加代码至腾讯公众号后台</h1>';
+					content+='<p id="mainbox2URL"><span>URL：</span>'+self_url+'</p>';
+					content+='<p><span>Token：</span>boyicms</p>';
+					content+='<p><span>说明：</span>请登陆微信公众平台将上面生成的URL和Token写入开发者中心对应的项中，不明白如何操作？请查看<a href="#" target="_blank">《微信插件使用教程》</a></p>';
+					content+='</div><div class="secondstep">';
+					content+='<h1>第二步：填写微信公众号信息</h1>';
+					content+='<form id="information">';
+					content+='<p><span>微信名称：</span><input class="wechatinput"  type="text" name="weixinname" id="weixinname" /></p>';
+					content+='<p><span class="title_input">微信头像：</span><span class="uploadspan"><input type="file" id="upload" />';
+					content+='<img src="" id="showImg" width="100px" style="display:none;"/>';
+					content+='<input type="hidden" name="pic" id="pic" />';
+					content+='<input  type="hidden" name="tag" id="tag" value="'+ret.data+'"/></span></p>';
+					content+='<div style="width:100%;height:1px;clear:both;"></div>';
+					content+='<p><span>微信AppID：</span><input class="wechatinput" size="30" type="text" name="appid" id="appid" /></p>';
+					content+='<p><span>微信AppSecret：</span><input class="wechatinput" size="30" type="text" name="appsecret" id="appsecret" /></p>';
+					content+='</form></div></div></div>';
+					var diaObj=art.dialog({
+						title: '人工绑定微信公众号',
+					    content:content,
+					    id:'addWeixin2',
+					    fixed:true,
+					    width:600,
+					    lock:true,
+					    opacity: .3,
+					    padding: 0,
+					    drag:false,
+						okVal:'提交',
+						ok:function(){
+							//$('#tag').val(ret.data);
+							if($('#weixinname').val() == ''){
+								alert_message('请输入微信名称');
+								return false;
+							}
+							if($('#appid').val() == ''){
+								alert_message('请输入AppID');
+								return false;
+							}
+							if($('#appsecret').val() == ''){
+								alert_message('请输入AppSecret');
+								return false;
+							}
+							var formData = $('#information').serializeArray();
+							var data = {controller:'Weixin',method:'saveWeixin'};
+							$.each(formData,function(i,obj){
+								data[obj.name] = obj.value;
+							});
+							$('#loading').addClass('loading');
+							getData(data,function(re){
+								$('#loading').removeClass('loading');
+								if(re){
+									alert_message(re.msg);
+									_me.start();
+								}else{
+									alert_message(re.msg);
+								}
+							});
+							
+						}
+						});
+					
+					$('#upload').uploadify({
+						uploader : '../../controller/index.php?controller=Weixin&method=uploadFile&dir=weixin',
+						swf : './public/js/uploadify.swf',
+						fileTypeExts : '*.jpg;*.gif;*.png;*.jpeg;',
+						fileSizeLimit : '3MB',
+						buttonText : '',
+						width : 116,
+						height : 30,
+						onUploadSuccess : function(file,data,response){
+							var obj = eval('['+data+']');
+							if(obj[0].statu != undefined && !obj[0].statu){
+								alert_message(obj[0].msg);
+								return false;
+							}
+							$('#pic').val(obj[0].filename);
+							$('#showImg').attr('src',obj[0].showname).show();
+						},
+						overrideEvents : ['onSelectError','onDialogClose'],
+						onSelectError : function(file,errorCode,errorMsg){
+							switch(errorCode){
+								case -110 :
+									alert_message('文件'+file.name+'大小超过3M,请上传小于3M的图片');
+									break;
+								case -120 :
+									alert_message('文件'+file.name+'大小异常');
+									break;
+							}
+							return false;
+						}
+					});
+		
+			});					
+		});
+	},
+	
+	sendAll:function(){
+		var _me = this;
+		$('#center').getHtml('./plugin/plugins/weixin/sendAll',function(){
+			//获取所有的分组
+			$('#loading').addClass('loading');
+			getData({'controller':'Weixin','method':'groupAll'},function(ret){
+				$('#loading').removeClass('loading');
+				if(ret.statu){
+					var html = '<option value="">请选择...</option>';
+					$.each(ret.data,function(index,obj){
+						html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#group').html(html);
+				}else{
+					alert_message(ret.msg);
+					$('#each').getHtml('./plugin/plugins/weixin/weixin',function(){
+						_me.clickCount();
+					});
+					return false;
+				}
+			});
+			$('#msgtype').change(function(){
+				$('#show').hide();
+				$('#showImg').html('');
+				var me = $(this);
+				var type = me.val();
+				if(type != 'text' && type != ''){
+					$('#loading').addClass('loading');
+					getData({'controller':'Weixin','method':'getByType','type':type},function(ret){
+						$('#loading').removeClass('loading');
+						if(ret.statu){
+							var img = '';
+							html = '<option value="">请选择...</option>';
+							$.each(ret.data,function(index,obj){
+								if(obj.type == 'news'){
+									html += '<option value="'+obj.media_id+'">'+obj.title+'</option>';
+									img = '';
+								}else if(obj.type == 'image'){
+									html += '<option value="'+obj.media_id+'">'+obj.filename+'</option>';
+									img += '<img src="'+obj.filename+'" width="100" height="100" id="'+obj.media_id+'" style="display:none" />';
+								}else if(obj.type == 'video'){
+									html += '<option value="'+obj.media_id+'">'+obj.filename+'</option>';
+									img += '<video width="200" height="200" src="'+obj.filename+'" controls="controls" id="'+obj.media_id+'" style="display:none"></video>';
+								}else{
+									html += '<option value="'+obj.media_id+'">'+obj.filename+'</option>';
+									img += '<a class="button" href="javascript:void(0);" style="display:none;margin-bottom:10px;" amr="'+obj.filename+'" id="'+obj.media_id+'" style="display:none"><span>点击收听</span></a>';
+								}
+							});
+							$('[tag='+type+']').html(html);
+							$('#showImg').html(img);
+							$('[tag=image]').change(function(){
+								var me = $(this);
+								var val = me.val();
+								if(val != ''){
+									$('#show').show();
+									$('#'+val).show();
+									$('#'+val).siblings().hide();
+								}else{
+									$('#show').hide();
+								}
+							});
+							$('[tag=video]').change(function(){
+								var me = $(this);
+								var val = me.val();
+								if(val != ''){
+									$('#show').show();
+									$('#'+val).show();
+									$('#'+val).siblings().hide();
+								}else{
+									$('#show').hide();
+								}
+							});
+							$('[tag=voice]').change(function(){
+								var me = $(this);
+								var val = me.val();
+								if(val != ''){
+									$('#show').show();
+									$('#'+val).show();
+									var filename = $('#'+val).attr('amr');
+									$('#'+val).click(function(){
+										art.dialog({
+											title: '收听语音消息',
+										    content:'<object width="200" height="200" classid="clsid:F08DF954-8592-11D1-B16A-00C0F0283628" codebase="http://www.apple.com/qtactivex/qtplugin.cab"><param name="src" value="'+filename+'"><param name="controller" value="true"><param name="type" value="video/quicktime"><param name="autoplay" value="false"><param name="target" value="myself"><param name="bgcolor" value="black"><param name="pluginspage" value="http://www.apple.com/quicktime/download/index.html"><embed src="'+filename+'" width="250" height="200" controller="true" align="middle" bgcolor="black" target="myself" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/index.html"></embed></object>',
+										    fixed:true,
+										    id:"listen",
+										    width:300,
+										    height:150,
+										    lock:true,
+										    opacity: .1,
+										    padding:0,
+										    cancel:true
+										});
+									});
+									$('#'+val).siblings().hide();
+								}else{
+									$('#show').hide();
+								}
+							});
+						}else{
+							alert_message('还没有添加相关素材，<a style="color:red" id="addMsg" href="javascript:void(0)">点此前往添加</a>');
+							$('#addMsg').click(function(){
+								_me.uploadMessage();
+								var list = art.dialog.list;
+								for(var i in list){
+									list[i].close();
+								}
+							});
+							return false;
+						}
+					});
+				}else if(type == 'text'){
+					$('#editor').ckeditor({width:800,height:370},function(){
+						
+					});
+				}
+			});
+			$('#send').click(function(){
+				var val = $('[name=msgtype]').val();
+				switch(val){
+					case '':
+						alert_message('请选择要发送的素材类型');
+						return false;
+						break;
+					case 'news':
+						if($('#imageA').val() == ''){
+							alert_message('请选择要发送的图文');
+							return false;
+						}
+						break;
+					case 'text':
+						if($('[name=content]').val() == ''){
+							alert_message('发送的内容不能为空');
+							return false;
+						}
+						break;
+					case 'voice':
+						if($('[tag=voice]').val() == ''){
+							alert_message('请选择要发送的语音');
+							return false;
+						}
+						break;
+					case 'image':
+						if($('[tag=image]').val() == ''){
+							alert_message('请选择要发送的图片');
+							return false;
+						}
+						break;
+					case 'video':
+						if($('[tag=video]').val() == ''){
+							alert_message('请选择要发送的视频');
+							return false;
+						}
+						break;
+						
+				}
+				if($('#group').val() == '' && $('[name=users]').val() == ''){
+					alert_message('发送的分组与要发送的用户任意选一个');
+					return false;
+				}
+				if($('#group').val() != '' && $('[name=users]').val() != ''){
+					alert_message('发送的分组与要发送的用户只能选一个');
+					return false;
+				}
+				var data = {'controller':'Weixin','method':'sendAll'};
+				var formData = $('#form1').serializeArray();
+				$.each(formData,function(index,obj){
+					data[obj.name] = obj.value;
+				});
+				$('#loading').addClass('loading');
+				getData(data,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						alert_message(ret.msg);
+						_me.sendAll();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+			});
+		});
+	},
+	
+	autoReply:function(){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/autoReply',function(){
+			//关键词回复		
+			getData({controller:'Weixin',method:'issetKeysword'},function(ret){
+				var h = '';
+				if(ret){				
+					$.each(ret.data,function(i,v){
+					if(v.msgtype == 'text'){
+						v.content = self.replace_em(v.content);
+						h +=' <tr class="infotr">'
+						  +'<td class="numtd" align="center"><input type="checkbox" name="check_one" value="'+i+'"/></td>'
+						  +'<td align="center">'+v.keyword+'</td>'
+						  +'<td align="left" name="content">'+v.content+'</td>'
+						  +'<td align="center">'+v.msgtype+'</td>'
+						  +'<td align="center"><a href="javascript::void(0)" onclick="return false" msgtype="'+v.msgtype+'" class="editKeyWords" name="'+i+'">编辑</a><a href="javascript::void(0)" onclick="return false" name="'+i+'" class="delKeywords">删除</a></td></tr>';					
+					}else{			
+						h +=' <tr class="infotr">'
+						  +'<td class="numtd" align="center"><input type="checkbox" name="check_one" value="'+i+'"/></td>'
+						  +'<td align="center">'+v.keyword+'</td>'
+						  +'<td align="left" name="content">'+v.Atitle['1']+'</td>'
+						  +'<td align="center">'+v.msgtype+'</td>'
+						  +'<td align="center"><a href="javascript::void(0)" onclick="return false" msgtype="'+v.msgtype+'" aurl="'+v.Aurl['1']+'" apicurl="'+v.Apicurl['1']+'" class="editKeyWords" name="'+i+'">编辑</a><a href="javascript::void(0)" onclick="return false" name="'+i+'" class="delKeywords">删除</a></td></tr>';
+					}
+							
+					
+					});
+					
+				}
+				$(".tablebox table tbody").append(h);
+			});
+
+			//全选 反选
+			$(document).on('click','#check_all',function(){
+	            if($(this).attr('checked') != undefined){
+	                $("input[name='check_one']").attr('checked','checked');
+	            }else{
+	                $("input[name='check_one']").removeAttr('checked');
+	            }						
+			});
+			
+			//关键词搜索
+			$("#search").click(function(){
+				var keywordname = $("#keywordname").val();
+				getData({controller:'Weixin',method:'getKeyByName',keyname:keywordname},function(ret){
+					var h = '';				
+					if(ret){
+						if(ret.data.msgtype == 'text'){
+							  h +=' <tr class="infotr">'
+								+'<td class="numtd" align="center"><input type="checkbox" name="check_one" value="0"/></td>'
+								+'<td align="center">'+ret.data.keyword+'</td>'
+								+'<td align="left" name="content">'+ret.data.content+'</td>'
+								+'<td align="center">'+ret.data.msgtype+'</td>'
+								+'<td align="center"><a href="javascript::void(0)" onclick="return false" msgtype="'+ret.data.msgtype+'" class="editKeyWords" name="0">编辑</a><a href="javascript::void(0)" onclick="return false" name="0" class="delKeywords">删除</a></td></tr>';					
+						}else{
+							 h +=' <tr class="infotr">'
+							   +'<td class="numtd" align="center"><input type="checkbox" name="check_one" value="0"/></td>'
+							   +'<td align="center">'+ret.data.keyword+'</td>'
+							   +'<td align="left" name="content">'+ret.data.Atitle['1']+'</td>'
+							   +'<td align="center">'+ret.data.msgtype+'</td>'
+							   +'<td align="center"><a href="javascript::void(0)" onclick="return false" msgtype="'+ret.data.msgtype+'"  aurl="'+ret.data.Aurl['1']+'" apicurl="'+ret.data.Apicurl['1']+'" class="editKeyWords" name="0">编辑</a><a href="javascript::void(0)" onclick="return false" name="0" class="delKeywords">删除</a></td></tr>';					
+						}
+					var temp = ' <tr class="titletr"><td width="30px;"><input type="checkbox" id="check_all" /></td>'
+						 +'<td width="100px;">关键词</td>'
+						 +'	<td>回复内容</td>'
+						 +'<td width="80px;">回复格式</td>'
+						 +'	<td width="90px;">操作</td></tr>';						
+					$(".tablebox table tbody ").html(temp+h);
+					
+					}else{
+						alert_message('没有找到搜索的关键词');
+						return false;
+					}
+					
+				
+				})
+			
+			});
+			
+			
+			//编辑关键词 单个
+			$(document).on('click','.editKeyWords',function(){
+				var val = $(this).attr('name');
+				var type = $(this).attr('msgtype');
+				if(val == ''){
+					alert_message('请选择要编辑的关键词');
+					return false;
+				}else{
+				if(type == 'text'){
+					var key = $(this).parent().prev().prev().prev().html();
+					var reply = $(this).parent().prev().prev("td[name=content]").html();
+					if(key!=''&&key!=null&&reply!=''&&reply!=null){
+						self.autoReply_add(key,reply,type);
+					}
+				}else{
+					var key = $(this).parent().prev().prev().prev().html();
+					var reply = $(this).parent().prev().prev().html();
+					var type = $(this).parent().prev().html();
+					var aurl = $(this).attr('aurl');
+					var apicurl = $(this).attr('apicurl');
+					self.autoReply_add(key,reply,type,aurl,apicurl);
+				}
+
+				}
+			});
+			
+			
+			//删除关键词 单个
+			$(document).on('click','.delKeywords',function(){
+				var val = $(this).attr('name');			
+				if(val == ''){
+					alert_message('请选择要删除的关键词');
+					return false;
+				}else{
+					getData({'controller':'Weixin','method':'deleteKeyById','keyid':val},function(ret){
+						$('#loading').removeClass('loading');
+						if(ret.statu){
+							alert_message(ret.msg);
+						}else{
+							alert_message(ret.msg);
+						}
+					});			
+				}
+				self.autoReply();
+			});
+			//删除多个
+			$("#keywords_del").click(function(){
+				var ids = [];
+				$("input[name='check_one']:checkbox").each(function(){
+					if($(this).attr("checked")){
+						ids.push($(this).val());
+					}
+				});
+				$.each(ids,function(i,v){
+					getData({'controller':'Weixin','method':'deleteKeyById','keyid':v},function(ret){
+					});	
+					self.autoReply();
+				});
+
+			});			
+					
+			//刷新
+			$("#keywords_refresh").click(function(){
+				self.autoReply();
+			});
+
+			 //新增 关键词回复
+			$("#keywords_add").click(function(){
+				self.autoReply_add();
+			});
+			
+			//关注时回复
+			$(document).on('click',"#reply_focus",function(){
+				
+				getData({controller:'Weixin',method:'isSetSub'},function(ret){
+					if(ret.statu){
+						//alert_message("当前已设置关注时自动回复，可修改");
+						if(ret.data.msgtype == "text"){
+							$('input[name="focusType"]').eq(0).attr("checked",true);
+							$("#viewEmo").html(ret.data.content);
+							$("#reply_contain").val(ret.data.content);
+						}else if(ret.data.msgtype == "news"){
+							$.each(ret.data.Atitle,function(i,v){
+								$("#chooseMsg").html('<div class="info_box" id="msgSend"><a href="javascript::void(0)" class="close_a" onclick="return false;"></a>'+v+'</div>');
+							});
+							$('input[name="focusType"]').eq(1).attr("checked",true);
+						}
+					}
+				});
+			});
+
+			$(document).on('click',"#text_button_a",function(){
+				$('input[name="focusType"]').eq(1).attr("checked",true);
+				self.choose_msg();
+			});
+			
+			$(document).on('click',".close_a",function(){
+				self.choose_msg();
+			});
+			
+			$(document).on('click',"#saveFocus",function(){	
+					var focusType = $('input[name="focusType"]:checked').val();
+					if(focusType == 0){
+						if($('#reply_contain').val() == ''){
+							alert_message('请输入自动回复文本内容');
+							return false;
+						}
+						var data = {'controller':'Weixin','method':'setSub'};
+						var reply_contain = $("#viewEmo").html();
+						var formData = [{name:'keyword',value:''},{name:'msgtype',value:'text'},{name:'content',value:reply_contain}];
+						$.each(formData,function(index,obj){
+							data[obj.name] = obj.value;
+						});
+						$('#loading').addClass('loading');
+						getData(data,function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								self.autoReply();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+						
+					}else{
+						if($('#msgSend').text() == ''){
+							alert_message('请选则自动回复图文内容');
+							return false;
+						}
+						var data = {'controller':'Weixin','method':'setSub'};
+						var description = $("#chooseMsg div").attr('description');
+						var title = $("#chooseMsg div").attr('title');
+						var thumb_media_id = $("#chooseMsg div").attr('thumb_media_id');
+						var url = $("#chooseMsg div").attr('url');
+						
+						var formData = [{name:'keyword',value:''},{name:'msgtype',value:'news'},{name:'ArticleCount',value:'1'},{name:'Atitle[1]',value:title},{name:'Adescription[1]',value:description},{name:'Apicurl[1]',value:''},{name:'Aurl[1]',value:url}];
+						$.each(formData,function(index,obj){
+							data[obj.name] = obj.value;
+						});
+						$('#loading').addClass('loading');
+						getData(data,function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								self.autoReply();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+						
+					}
+			});
+
+		});
+	},
+	
+	choose_msg:function(){
+		var self = this;		
+		getData({controller:'Weixin',method:'getMaterialList'},function(ret){
+			var msgList = '';
+			if(ret.total_count>0){
+				$.each(ret.item,function(i,v){
+					msgList +='<li><span>'+v.content.news_item[0]['title']+'</span><input type="radio" name="msgRadio" url="'+v.content.news_item[0]['url']+'" title="'+v.content.news_item[0]['title']+'" thumb_media_id="'+v.content.news_item[0]['thumb_media_id']+'" description="'+v.content.news_item[0]['digest']+'" value="'+v.media_id+'" style="position: relative; top:2px;"/></li>';
+				});
+			}
+			var content ='<link href="./plugin/plugins/weixin/css/choosetext.css" rel="stylesheet" type="text/css" />'			
+			+'<div class="maintextlist"><div class="sosobox">'
+			+'	<form id="sosoform">'
+			+'		<span>图文标题：</span><input type="text" id=""/><a href="javascript:" onclick="">查&nbsp;询</a>'
+			+'	</form>'
+			+'</div>'
+			+'<div class="textlist">'
+			+'<div><ul>'+msgList+'</ul></div>'
+			+'</div></div>';
+			art.dialog({
+				title: '选择图文信息',
+			    content:content,
+			    id:'message_choose1',
+			    fixed:true,
+			    width:700,
+			    height:300,
+			    lock:true,
+			    opacity: .4,
+			    padding: 0,
+			    okVal:'选中',
+			    ok:function(){
+			    	var mid = $('input[name="msgRadio"]:checked').val();
+			    	if(mid == null){
+			    		alert_message("请选择选中图文");
+			    		return false;
+			    	}else{
+			    		alert_message("已选中图文");
+			    		var description = $('input[name="msgRadio"]:checked').attr('description');
+			    		var title = $('input[name="msgRadio"]:checked').attr('title');
+			    		var url = $('input[name="msgRadio"]:checked').attr('url');
+			    		var thumb_media_id = $('input[name="msgRadio"]:checked').attr('thumb_media_id');
+				    	var ch = $("[name=msgRadio]:checked").parent().text();
+				    	$("#chooseMsg").html('<div class="info_box" id="msgSend" thumb_media_id="'+thumb_media_id+'"   url="'+url+'" title="'+title+'" description="'+description+'"  value="'+mid+'"><a href="javascript::void(0)" class="close_a" onclick="return false;"></a>'+ch+'</div>');
+			    	}
+			    },
+			    cancel:true
+			});
+		});
+		
+	},
+	
+	autoReply_add:function(key,reply,type,aurl,apicurl){
+		var self = this;
+		var content = '<div class="windows_box"><form id="addnewkeywords">'	
+			+'<div class="item_div"> '
+			+'		<span class="span_title"><font style="color:#FF0000">*</font>&nbsp;关键词：</span>'
+			+'		<span class="span_info"><input type="text" value="" id="keywords"  class="keyinput" /></span>'
+			+'</div>'				
+            +'<div class="item_div"><span class="span_title"><input type="radio" value="0" name="msgType1" style="position: relative; top:2px;" checked/>自动回复文本内容：</span><div class="clearbox"></div>'
+            +'<span class="span_info">'
+            +'<div class="reply_text">'
+            +'	<div class="reply_top"><span><a href="javascript::void(0)" id="emotion1" onclick="return false;" ></a></sapn></div>'
+            +'	<div class="reply_main">'							
+            +'	<textarea  id="reply_contain1"></textarea>'
+            +'	<div contenteditable="true" id="viewEmo1"></div>'
+            +'	</div>'
+            +'</div>'
+            +'</span> '               
+            +'</div><div class="clearbox"></div>'
+            +'<div class="item_div"><span class="span_title"><input type="radio" value="1" name="msgType1" style="position: relative; top:2px;" />自动回复图文内容：</span><span class="span_info" id="chooseMsg"><a href="javascript:" onclick="" id="text_button_a">图文信息</a></span></div>'
+			+'</form></div>';
+			art.dialog({
+				title: '新增关键词回复',
+			    content:content,
+			    id:'keyWord_add',
+			    fixed:true,
+			    width:750,
+			    height:300,
+			    lock:true,
+			    opacity: .4,
+			    padding: 0,
+			    okVal:'提交',
+			    ok:function(){
+			    	var keywords = $('#keywords').val();
+					if(keywords == ''){
+						alert_message('请输入关键词');
+						return false;
+					}
+					var content = $("#reply_contain1").val();
+					var msgType = $('input[name="msgType1"]:checked').val();
+					//判断是否是编辑状态
+					if(key != ""){
+						var keystatu = "edit";
+					}else{
+						var keystatu = "";
+					}
+					if(msgType == 0){
+						var data = {'controller':'Weixin','method':'saveKeys'};
+						var formData = [{name:'keyword',value:keywords},{name:'msgtype',value:'text'},{name:'content',value:content},{name:'keystatu',value:keystatu}];
+						$.each(formData,function(index,obj){
+							data[obj.name] = obj.value;
+						});
+						getData(data,function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								self.autoReply();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+						
+					}else{
+						var data = {'controller':'Weixin','method':'saveKeys'};
+						var description = $("#chooseMsg div").attr('description');
+						var title = $("#chooseMsg div").attr('title');
+						var thumb_media_id = $("#chooseMsg div").attr('thumb_media_id');
+						var url = $("#chooseMsg div").attr('url');
+						
+						var apicurl = $("#chooseMsg div").attr('apicurl');
+						if (thumb_media_id != undefined) {
+							//有id则重新获取url
+							getData({'controller':'Weixin','method':'getShowPic','thumb_media_id':thumb_media_id},function(ret){
+								$('#loading').removeClass('loading');
+								apicurl = ret;
+							});
+						}
+						
+						var formData = [{name:'keyword',value:keywords},{name:'msgtype',value:'news'},{name:'ArticleCount',value:'1'},{name:'Atitle[1]',value:title},{name:'Adescription[1]',value:description},{name:'Apicurl[1]',value:apicurl},{name:'Aurl[1]',value:url}];
+						$.each(formData,function(index,obj){
+							data[obj.name] = obj.value;
+						});
+						getData(data,function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								self.autoReply();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+						
+					}
+
+			    },
+			    cancel:true
+			});
+			
+			$("#emotion1").click(function(){
+				$('#emotion1').qqFace({
+					id : 'facebox1', //表情盒子的ID
+					assign:'reply_contain1', //给那个控件赋值
+					path:'/hcc/plugin/plugins/weixin/css/face/' //表情存放的路径
+				});
+			});
+		 	$('#reply_contain1').blur(function(){
+				var str = $("#reply_contain1").val();
+				$("#reply_contain1").html(self.replace_em(str));
+				$("#viewEmo1").html(self.replace_em(str));
+				$("#viewEmo1").toggle();
+				$("#reply_contain1").toggle();
+			});
+			$("#viewEmo1").click(function(){
+				$("#reply_contain1").show();
+				$("#viewEmo1").hide();
+			});
+			$("#emotion1").click(function(){
+				$("#reply_contain1").show();
+				$("#viewEmo1").hide();
+			}); 
+			if(key!=''&& key!=undefined){
+				if(type == "text"){
+					$("#keywords").val(key);
+					$("#reply_contain1").val(reply);
+					$("#viewEmo1").html(reply);
+				}else{
+					$('input:radio[name="msgType1"]').eq(1).attr('checked',true);
+					$("#keywords").val(key);
+					var ch = reply;
+					$("#chooseMsg").html('<div class="info_box" id="msgSend" url="'+aurl+'" title="'+ch+'" apicurl="'+apicurl+'"><a href="javascript::void(0)" class="close_a" onclick="return false;"></a>'+ch+'</div>');				
+				}
+			}	
+	},
+	
+	//表情集
+	emotionList : function (flag) {
+		var data = {"[微笑]":"1", "[撇嘴]":"2",  "[色]":"3",   "[发呆]":"4",  "[流泪]":"5",  "[害羞]":"6",  "[闭嘴]":"7",  "[睡]":"8",   "[大哭]":"9",  "[尴尬]":"10",
+				    "[发怒]":"11","[调皮]":"12", "[呲牙]":"13", "[惊讶]":"14", "[难过]":"15", "[冷汗]":"16", "[抓狂]":"17", "[吐]":"18",  "[偷笑]":"19", "[愉快]":"20",
+				    "[白眼]":"21","[傲慢]":"22", "[饥饿]":"23", "[困]":"24",  "[惊恐]":"25", "[流汗]":"26", "[憨笑]":"27", "[悠闲]":"28", "[奋斗]":"29", "[咒骂]":"30",
+				    "[疑问]":"31","[嘘]" :"32", "[晕]":"33",   "[疯了]":"34", "[衰]":"35",  "[敲打]":"36", "[再见]":"37", "[擦汗]":"38", "[抠鼻]":"39", "[糗大了]":"40",
+				    "[坏笑]":"41","[左哼哼]":"42","[右哼哼]":"43","[哈欠]":"44","[鄙视]":"45", "[委屈]":"46", "[快哭了]":"47","[阴险]":"48", "[亲亲]":"49", "[吓]":"50",
+				    "[可怜]":"51","[拥抱]":"52", "[月亮]":"53",  "[太阳]":"54","[炸弹]":"55", "[骷髅]":"56", "[菜刀]":"57", "[猪头]":"58", "[西瓜]":"59", "[咖啡]":"60",
+				    "[饭]" :"61","[爱心]":"62", "[强]":"63",    "[弱]":"64", "[握手]":"65", "[胜利]":"66", "[抱拳]":"67", "[勾引]":"68", "[OK]":"69",  "[NO]":"70",
+				    "[玫瑰]":"71","[凋谢]":"72", "[嘴唇]":"73",  "[爱情]":"74","[爱你]":"75"
+		};
+		if (flag == undefined) return 1;
+		return parseInt(data[flag]);
+	},
+	replace_em : function(str){
+		var self = this;
+		str = str.replace(/\</g,'&lt;');
+		str = str.replace(/\>/g,'&gt;');
+		str = str.replace(/\n/g,'<br/>');
+		
+		var r = /\[(.+?)\]/g;
+		var list = str.match(r);
+		for (var i in list) {
+			var index = self.emotionList(list[i]);
+			if (list[i] != undefined) {
+				str = str.replace(list[i],'<img src="/hcc/plugin/plugins/weixin/css/face/'+index+'.gif" border="1" />');
+			}
+		}
+		
+		//var i = emotionList(str);
+		//str = '<img src="/hcc/plugin/plugins/weixin/css/face/'+i+'.gif" border="1" />'
+		//str = str.replace(/\[em_([0-9]*)\]/g,"<img src='/hcc/plugin/plugins/weixin/css/face/$1.gif' border='1' />");
+		return str;
+	},
+	WechatJumpUrls:function(protocol, hostname){
+		var self = this;
+		//{{{ 便于正确显示view的默认选项
+        var urls = [];
+        urls['weiService'] = [
+            protocol+'//'+hostname+'/plugin/weixin/jbzz/index.html',
+            protocol+'//'+hostname+'/plugin/weixin/slys/index.html',
+            protocol+'//'+hostname+'/plugin/weixin/ysyj/index.html',
+            protocol+'//'+hostname+'/plugin/weixin/bztz/index.html',
+            protocol+'//'+hostname+'/plugin/weixin/bgdjd/index.html'
+        ];
+        urls['wechat'] = [
+			protocol+'//'+hostname+'/wechat/index.php',
+			protocol+'//'+hostname+'/wechat/introduce.php?method=getInfo',
+        ];
+        //}}}
+        
+        var data = self.getLocalLink();
+        var k = 0;
+        $.each(data['single'],function(i,v){
+        	k = i+2;
+        	urls['wechat'][k] = protocol+'//'+hostname+'/'+v.url;
+        });
+        
+        //商务通
+        var swt_link = self.getSwtUrl();
+        if (swt_link != '') {
+        	k++;
+        	urls['wechat'][k] = swt_link;
+        }
+        
+        var multi = data['multi'];
+        for(var i in multi) {
+        	$.each(multi[i],function(n,m){
+        		k++;
+        		urls['wechat'][k] = protocol+'//'+hostname+'/'+m.url;
+			});
+        }
+        return urls;
+	},
+	
+	menu_choose_msg:function(obj,selected){
+		var self = this;		
+		getData({controller:'Weixin',method:'getMaterialList'},function(ret){
+			var msgList = '';
+			if(ret.total_count>0){
+				$.each(ret.item,function(i,v){
+					var checked = '';
+					if (selected != undefined && selected == v.content.news_item[0]['title']) {
+						checked = 'checked';
+					}
+					msgList +='<li><span>'+v.content.news_item[0]['title']+'</span><input type="radio" name="msgRadio" url="'+v.content.news_item[0]['url']+'" title="'+v.content.news_item[0]['title']+'" thumb_media_id="'+v.content.news_item[0]['thumb_media_id']+'" description="'+v.content.news_item[0]['digest']+'" value="'+v.media_id+'" style="position: relative; top:2px;" '+checked+'/></li>';
+				});
+			}
+			var content ='<link href="./plugin/plugins/weixin/css/choosetext.css" rel="stylesheet" type="text/css" />'			
+			+'<div class="maintextlist"><div class="sosobox">'
+			+'	<form id="sosoform">'
+			+'		<span>图文标题：</span><input type="text" id=""/><a href="javascript:" onclick="">查&nbsp;询</a>'
+			+'	</form>'
+			+'</div>'
+			+'<div class="textlist">'
+			+'<div><ul>'+msgList+'</ul></div>'
+			+'</div></div>';
+			art.dialog({
+				title: '选择图文信息',
+			    content:content,
+			    id:'menu_message_choose1',
+			    fixed:true,
+			    width:700,
+			    height:300,
+			    lock:true,
+			    opacity: .4,
+			    padding: 0,
+			    okVal:'选中',
+			    ok:function(){
+			    	var mid = $('input[name="msgRadio"]:checked').val();
+			    	if(mid == null){
+			    		alert_message("请选择选中图文");
+			    		return false;
+			    	}else{
+			    		alert_message("已选中图文");
+			    		var description = $('input[name="msgRadio"]:checked').attr('description');
+			    		var title = $('input[name="msgRadio"]:checked').attr('title');
+			    		var url = $('input[name="msgRadio"]:checked').attr('url');
+			    		var thumb_media_id = $('input[name="msgRadio"]:checked').attr('thumb_media_id');
+				    	var ch = $("[name=msgRadio]:checked").parent().text();
+				    	obj.html('<div class="info_box" id="div_'+thumb_media_id+'" thumb_media_id="'+thumb_media_id+'"   url="'+url+'" title="'+title+'" description="'+description+'"  value="'+mid+'"><a href="javascript::void(0)" class="close_a thumb" onclick="return false;"></a>'+ch+'</div>');
+				    	obj.parent().find('input.url_input').val(mid);
+			    	}
+			    },
+			    cancel:true
+			});
+		});
+		
+	},
+	
+	menu_choose_url:function(type, urls, items, obj, selected){
+		var self = this;	
+		var title = (type == 'wechat') ? '微站' : '微服务';
+		var itemList = '';
+		
+		var multiList = '';
+		if (type == 'wechat') {
+			//微站特殊处理，将有子级的部分分开展示
+			itemList += '<h2 class="wechat_h2">医院基础信息</h2>';
+			var protocol = location.protocol;
+			var hostname = location.hostname;
+			
+			var checked = '';
+			var url = protocol+'//'+hostname+'/wechat/index.php';
+			if (selected != undefined && selected == url) {
+				checked = 'checked';
+			}
+			itemList +='<li><span>微站首页</span><input type="radio" name="msgRadio" title="微站首页" value="'+url+'" style="position: relative; top:2px;" '+checked+'/></li>';
+			
+			checked = '';
+			url = protocol+'//'+hostname+'/wechat/introduce.php?method=getInfo';
+			if (selected != undefined && selected == url) {
+				checked = 'checked';
+			}
+			itemList +='<li><span>微站简介</span><input type="radio" name="msgRadio" title="微站简介" value="'+url+'" style="position: relative; top:2px;" '+checked+'/></li>';
+			
+			checked = '';
+			//商务通
+	        var url = self.getSwtUrl();
+	        if (url != '') {
+	        	itemList +='<li><span>网站商务通</span><input type="radio" name="msgRadio" title="网站商务通" value="'+url+'" style="position: relative; top:2px;" '+checked+'/></li>';
+	        }
+	        
+	        checked = '';
+			//以下是获取的真实链接          
+            var data = self.getLocalLink();
+            $.each(data['single'],function(i,v){
+            	//单链接
+            	v.url = protocol+'//'+hostname+'/'+v.url;
+            	if (selected != undefined && selected == v.url) {
+            		checked = 'checked';
+            	}
+            	itemList +='<li><span>'+items[v.url]+'</span><input type="radio" name="msgRadio" title="'+items[v.url]+'" value="'+v.url+'" style="position: relative; top:2px;" '+checked+'/></li>';
+            });
+          
+            //子级链接
+            var multi = data['multi'];
+            for(var i in multi) {
+            	multiList += '<h2  class="wechat_h2">'+i+'链接</h2><ul style="clear:both;">';
+            	$.each(multi[i],function(n,m){
+            		m.url = protocol+'//'+hostname+'/'+m.url;
+                	multiList +='<li><span>'+items[m.url]+'</span><input type="radio" name="msgRadio" title="'+items[m.url]+'" value="'+m.url+'" style="position: relative; top:2px;" '+checked+'/></li>';
+    			});
+            	multiList += '</ul>';
+            }
+			
+		} else {
+			if(urls.length>0){
+				$.each(urls,function(i,v){
+					var checked = '';
+					if (selected != undefined && selected == items[v]) {
+						checked = 'checked';
+					}
+					itemList +='<li><span>'+items[v]+'</span><input type="radio" name="msgRadio" title="'+items[v]+'" value="'+v+'" style="position: relative; top:2px;" '+checked+'/></li>';
+				});
+			}
+		}
+		
+		var content ='<link href="./plugin/plugins/weixin/css/choosetext.css" rel="stylesheet" type="text/css" />'			
+		+'<div class="maintextlist"><div class="sosobox">'
+		+'	<form id="sosoform">'
+		+'		<span>'+title+'：</span><input type="text" id=""/><a href="javascript:" onclick="">查&nbsp;询</a>'
+		+'	</form>'
+		+'</div>'
+		+'<div class="textlist">'
+		+'<div>';
+		if (itemList != '') {
+			content += '<ul>'+itemList+'</ul>';
+		}
+		
+		if (multiList != '') {
+			content += multiList;
+		}
+		
+		content += '</div>'+'</div></div>';
+		art.dialog({
+			title: '选择微站页面',
+		    content:content,
+		    id:'menu_item_choose1',
+		    fixed:true,
+		    width:700,
+		    height:300,
+		    lock:true,
+		    opacity: .4,
+		    padding: 0,
+		    okVal:'选中',
+		    ok:function(){
+		    	var link = $('input[name="msgRadio"]:checked').val();
+		    	if(link == null){
+		    		alert_message("请选择选中跳转地址");
+		    		return false;
+		    	}else{
+		    		alert_message("已选中跳转地址");
+		    		var title = $('input[name="msgRadio"]:checked').attr('title');
+			    	var ch = $("[name=msgRadio]:checked").parent().text();
+			    	obj.html('<div class="info_box" id="item_'+title+'" title="'+title+'" value="'+link+'"><a href="javascript::void(0)" class="close_a '+type+'" onclick="return false;"></a>'+ch+'</div>');
+			    	obj.parent().find("input[name$='[url]']").val(link);
+		    	}
+		    },
+		    cancel:true
+		});
+	},
+	
+	wechatJumpItems:function(protocol, hostname){
+		var self = this;
+		var items = [];
+		items[protocol+'//'+hostname+'/plugin/weixin/jbzz/index.html'] = '疾病自诊';
+		items[protocol+'//'+hostname+'/plugin/weixin/slys/index.html'] = '食疗养生';
+		items[protocol+'//'+hostname+'/plugin/weixin/ysyj/index.html'] = '饮食宜忌';
+		items[protocol+'//'+hostname+'/plugin/weixin/bztz/index.html'] = '标准体重';
+		items[protocol+'//'+hostname+'/plugin/weixin/bgdjd/index.html'] = '检查报告单解读';
+		items[protocol+'//'+hostname+'/wechat/index.php'] = '微站首页';
+		items[protocol+'//'+hostname+'/wechat/introduce.php?method=getInfo'] = '微站简介';
+		
+		var data = self.getLocalLink();
+		$.each(data['single'],function(i,v){
+			var k = protocol+'//'+hostname+'/'+v.url;
+        	items[k] = v.name;
+        });
+        
+		//商务通
+        var swt_link = self.getSwtUrl();
+        if (swt_link != '') {
+        	items[swt_link] = '商务通';
+        }
+        
+		var multi = data['multi'];
+        for(var i in multi) {
+        	$.each(multi[i],function(n,m){
+        		var k = protocol+'//'+hostname+'/'+m.url;
+	        	items[k] = m.name;
+	        	
+			});
+        }
+        
+		return items;
+	},
+	
+	getSelectOptionsHtml:function(urls, items, selVal){
+		var html = '';
+		for (var i in urls) {
+			var key = urls[i];
+			if (selVal != undefined && key==selVal) {
+				html += '<option value="'+key+'" selected>'+items[key]+'</option>';
+			} else {
+				html += '<option value="'+key+'">'+items[key]+'</option>';
+			}
+		}
+		return html;
+	},
+	
+	getLocalLink:function(){
+		var array = [];
+		array['single'] = [];
+		array['multi'] = [];
+		getData({controller:'MobileNavigation',method:'getHtmlUrl',func:'wechat'},function(ret){
+			if(ret.statu){
+				data = ret.data;
+				var k = 0;
+				$.each(data,function(i,v){
+					var op = v.url;
+					if (op.split('.').length>1) {
+						//原子级链接
+						array['single'][k] = v;
+						k++;
+					} else {
+						//有子级
+						var title = v.name;
+						var url = {controller:'MobileNavigation',method:'getHtmlUrlByPara',func:'wechat',op:op};
+						getData(url,function(dataRet){
+							if (ret.statu) {
+								var dd = dataRet.data;
+								if (dd.length>0) {
+									array['multi'][title] = dd;
+								}
+							}
+						});
+					}
+				})
+			}else{
+				alert_message(ret.msg);
+			}
+			
+		});
+		return array;
+	},
+	
+	getSwtUrl:function(){
+		var swtUrl = '';
+		var data = {controller:'Contact',method:'getContacts',flag:'swt_link'};
+		getData(data,function(dataRet){
+			if (dataRet.statu) {
+				var swt = dataRet.data;
+				if (swt.length>0 && swt.val != '') {
+					swtUrl = swt.val;
+				}
+			}
+		});
+		return swtUrl;
+	},
+	
+	menu:function(){
+		var self = this;
+		var view_limitedHtml = '';
+		var bindKeyWordHtml ='';
+		var protocol = location.protocol;
+		var hostname = location.hostname;
+
+        //view的默认选项
+		var view_urls = self.WechatJumpUrls(protocol, hostname);
+		//view显示值
+		var view_items = self.wechatJumpItems(protocol, hostname);
+		
+        var weiSerOptions = self.getSelectOptionsHtml(view_urls['weiService'], view_items);
+        var wechatOptions = self.getSelectOptionsHtml(view_urls['wechat'], view_items);
+        
+		var weiSerHtml = '<span id="chooseMsg"><div><a  href="javascript::void(0)" onclick="return false;" class="text_a weiService">请选择微服务</a></div></span>';
+		var wechatHtml = '<span id="chooseMsg"><div><a  href="javascript::void(0)" onclick="return false;" class="text_a wechat">请选择微站</a></div></span>';
+		
+		$('#center').getHtml('./plugin/plugins/weixin/menu',function(){
+			//跳转至图文,获取永久素材列表
+			getData({controller:'Weixin',method:'getMaterialList'},function(ret){
+				var op = '';
+				if(ret.total_count>0){
+					$.each(ret.item,function(i,v){
+						op+= '<option value="'+v.media_id+'">---'+v.content.news_item[0]['title']+'---</option>';
+					});
+					view_limitedHtml = '<span id="chooseMsg"><div><a  href="javascript::void(0)" onclick="return false;" class="text_a thumb">选择图文信息</a></div></span>';
+				}else{
+					view_limitedHtml = '<span id="chooseMsg"><div><a  href="javascript::void(0)" onclick="return false;" class="text_a material">添加图文信息</a></div></span>';
+				}
+				
+			});		
+			//绑定关键词
+			getData({'controller':'Weixin','method':'getAllKeys'},function(result){
+				var op = '';
+				if(result.statu){
+					$.each(result.data,function(i,v){
+						op+= '<option value="'+v.id+'">---'+v.keyword+'---</option>';
+					});
+				}
+				bindKeyWordHtml ='<select class="event_set" name="td_optval" ><option value="">---请选择绑定关键词---</option>'+op+'</select>';
+				
+			});		
+			//响应事件
+			$(document).unbind('click').on('change','[name$="[type]"]',function(){
+				var type = $(this).find("option:selected").attr('flag');
+				var name = $(this).attr('name');
+				var optname = name.replace("[type]","[url]");
+				var optkey = name.replace("[type]","[key]");
+				
+				//tr中有默认数据
+				var flag = $(this).parent().parent().attr('flag');
+				var tmp = $(this).parent().parent().attr('data');
+				var tmpObj = '';
+				if (tmp != undefined) {
+					tmpObj = JSON.parse(tmp);
+				}
+				
+				switch(name){
+					case 'parentOne[type]':
+					case 'parentTwo[type]':
+					case 'parentThree[type]':
+						if(name == 'parentOne[type]'){
+							var tr = "first";
+						}else if(name == 'parentTwo[type]'){
+							var tr = "second";
+						}else{
+							var tr = "third";
+						}
+						if(type != ''){
+							var hiddenKeys = "#"+tr+"SonOneTr," + "#"+tr+"SonTwoTr," + "#"+tr+"SonThreeTr," + "#"+tr+"SonFourTr," + "#"+tr+"SonFiveTr";
+							$(hiddenKeys).hide();
+							
+							if(type == 'view_limited'){
+								//先判断是否有数据，如果没有数据，则直接显示按钮
+								var tmpVal = '';
+								if (tmpObj == '' ) {
+									opthtml = view_limitedHtml;
+								} else {
+									if (tmpObj.media_id != undefined) {
+										tmpVal = tmpObj.media_id;
+										getData({'controller':'Weixin','method':'getMaterialByMid', 'id':tmpObj.media_id},function(ret){
+											if (ret.errcode == undefined) {
+												var midObj = ret.news_item[0];
+												opthtml = '<span id="chooseMsg"><div class="info_box" id="div_'+tmpObj.media_id+'" title="'+midObj.title+'" description="'+midObj.digest+'"  value="'+tmpObj.media_id+'"><a href="javascript::void(0)" class="close_a thumb" onclick="return false;"></a>'+midObj.title+'</div></span>';
+											} else {
+												opthtml = view_limitedHtml;
+											}
+										});
+									} else {
+										opthtml = view_limitedHtml;
+									}
+									
+								}
+								
+								var temp = '<input type="hidden" class="url_input" name="'+optname+'"/><input type="hidden" class="url_input" name="'+optkey+'" value="'+tmpVal+'"/>';
+							}else if(type == 'view'){
+								opthtml = '<input name="td_optval" class="url_input" type="text" >';
+								var temp = '<input type="hidden" class="url_input" name="'+optname+'" />';
+							}else if(type == 'bindKeyWord'){
+								opthtml = bindKeyWordHtml;
+								var temp = '<input type="hidden" class="url_input" name="'+optkey+'" value=""/>';
+							}else if(type == 'wechat'){
+								console.log(flag);
+								var value = '';
+								if (tmpObj != '' &&  flag == 'wechat') {
+									opthtml = '<span id="chooseMsg"><div class="info_box" id="item_'+view_items[tmpObj.url]+'" title="'+view_items[tmpObj.url]+'" value="'+tmpObj.url+'"><a href="javascript::void(0)" class="close_a wechat" onclick="return false;"></a>'+view_items[tmpObj.url]+'</div></span>';
+									value = tmpObj.url;
+								} else {
+									opthtml = wechatHtml;
+								}
+								var temp = '<input type="hidden" class="url_input" value="'+value+'" name="'+optname+'" />';
+							}else if(type == 'weiService'){
+								var value = '';
+								if (tmpObj != '' &&  flag == 'weiService') {
+									opthtml = '<span id="chooseMsg"><div class="info_box" id="item_'+view_items[tmpObj.url]+'" title="'+view_items[tmpObj.url]+'" value="'+tmpObj.url+'"><a href="javascript::void(0)" class="close_a wechat" onclick="return false;"></a>'+view_items[tmpObj.url]+'</div></span>';
+									value = tmpObj.url;
+								} else {
+									opthtml = weiSerHtml;
+								}
+								var temp = '<input type="hidden" class="url_input" value="'+value+'" name="'+optname+'" />';
+							}else{
+								opthtml="";
+								var temp = "";
+							}
+							$('#'+tr+'Opt').html(opthtml+temp);
+						}else{
+							var showTr = "#"+tr+"SonOneTr,"+"#"+tr+"SonTwoTr,"+"#"+tr+"SonThreeTr,"+"#"+tr+"SonFourTr,"+"#"+tr+"SonFiveTr";
+							$(showTr).show();
+							$('#'+tr+'Opt').html("");
+						}
+						break;
+					default:
+						var opt = name.replace("[type]","[opt]");
+						if(type != ''){
+							if(type == 'view_limited'){
+								//先判断是否有数据，如果没有数据，则直接显示按钮
+								var tmpVal = '';
+								if (tmpObj == '' ) {
+									opthtml = view_limitedHtml;
+								} else {
+									if (tmpObj.media_id != undefined) {
+										tmpVal = tmpObj.media_id;
+										getData({'controller':'Weixin','method':'getMaterialByMid', 'id':tmpObj.media_id},function(ret){
+											if (ret.errcode == undefined) {
+												var midObj = ret.news_item[0];
+												opthtml = '<span id="chooseMsg"><div class="info_box" id="div_'+tmpObj.media_id+'" title="'+midObj.title+'" description="'+midObj.digest+'"  value="'+tmpObj.media_id+'"><a href="javascript::void(0)" class="close_a thumb" onclick="return false;"></a>'+midObj.title+'</div></span>';
+											} else {
+												opthtml = view_limitedHtml;
+											}
+										});
+									} else {
+										opthtml = view_limitedHtml;
+									}
+									
+								}
+								var temp = '<input type="hidden" class="url_input" value="'+tmpVal+'" name="'+optname+'" /><input type="hidden" class="url_input" name="'+optkey+'" value="'+tmpVal+'" />';
+							}else if(type == 'view'){
+								opthtml = '<input name="td_optval" class="url_input" type="text" >';
+								var temp = '<input type="hidden" class="url_input" name="'+optname+'" />';
+							}else if(type == 'bindKeyWord'){
+								opthtml = bindKeyWordHtml;
+								var temp = '<input type="hidden" class="url_input" name="'+optkey+'" value=""/>';
+							}else if(type == 'wechat'){
+								var value = '';
+								if (tmpObj != '' &&  flag == 'wechat') {
+									opthtml = '<span id="chooseMsg"><div class="info_box" id="item_'+view_items[tmpObj.url]+'" title="'+view_items[tmpObj.url]+'" value="'+tmpObj.url+'"><a href="javascript::void(0)" class="close_a wechat" onclick="return false;"></a>'+view_items[tmpObj.url]+'</div></span>';
+									value = tmpObj.url;
+								} else {
+									opthtml = wechatHtml;
+								}
+								var temp = '<input type="hidden" class="url_input" value="'+value+'" name="'+optname+'" />';
+							}else if(type == 'weiService'){
+								var value = '';
+								if (tmpObj != '' &&  flag == 'weiService') {
+									opthtml = '<span id="chooseMsg"><div class="info_box" id="item_'+view_items[tmpObj.url]+'" title="'+view_items[tmpObj.url]+'" value="'+tmpObj.url+'"><a href="javascript::void(0)" class="close_a wechat" onclick="return false;"></a>'+view_items[tmpObj.url]+'</div></span>';
+									value = tmpObj.url;
+								} else {
+									opthtml = weiSerHtml;
+								}
+								var temp = '<input type="hidden" class="url_input" value="'+value+'" name="'+optname+'" />';
+							}
+							$('[name="'+opt+'"]').html(temp+opthtml);
+						}else{
+							$('[name="'+opt+'"]').html("");
+						}
+						break;
+				}
+				
+				//图文点击
+				$(document).on('click',".thumb",function(){
+					var selected = $(this).parent().attr('title');
+					var obj = $(this).parent().parent();
+					self.menu_choose_msg(obj, selected);
+				});
+				
+				//微站点击
+				$(document).on('click',".wechat",function(){
+					var selected = $(this).parent().attr('title');
+					var obj = $(this).parent().parent();
+					self.menu_choose_url('wechat',view_urls['wechat'], view_items, obj,selected);
+				});
+				
+				//微服务点击
+				$(document).on('click',".weiService",function(){
+					var selected = $(this).parent().attr('title');
+					var obj = $(this).parent().parent();
+					self.menu_choose_url('weiService',view_urls['weiService'], view_items, obj, selected);
+				});
+				
+				//添加素材
+				$(document).on('click','.material',function(){
+					self.weixineditor(1);
+				});
+				
+			});	
+			
+			$(document).on('change','[name="td_optval"]',function(){
+				$(this).prev('input').val($(this).val());
+			});
+			
+			/*
+			$(document).unbind('click').on('click','.thumb',function(){
+				self.choose_msg();
+			});
+			*/
+			
+			
+			//判断是否有菜单
+			getData({'controller':'Weixin','method':'menuAll'},function(ret1){
+				console.log(ret1);
+				if(ret1.statu){
+					$.each(ret1.data,function(index,obj){
+						var tags = ['first', 'first', 'second', 'third'];
+						var tag = tags[index+1];
+						
+						$('#'+tag+'Name').val(obj.name);
+						var list = $('#'+tag+'Type').find('option');
+						if(obj.sub_button.length == 0){
+							var hiddenKeys = "#"+tag+"SonOneTr," + "#"+tag+"SonTwoTr," + "#"+tag+"SonThreeTr," + "#"+tag+"SonFourTr," + "#"+tag+"SonFiveTr";
+							$(hiddenKeys).hide();
+						}
+						//判断是否为链接
+						if(obj.type == 'view'){
+							$('#'+tag+'Type').find('option[flag=view]').attr('selected',true);
+						}else{
+							$.each(list,function(n,o){
+								if(o.value == obj.type){
+									o.selected = 'selected';
+								}
+							});
+						}
+						var opt = $('#'+tag+'Opt');
+						var optkey = opt.attr('name').replace("[opt]","[key]");
+						var opthtml = "";
+						if(obj.type != undefined && obj.type != ''){
+							//默认数据保存在tr
+							var defData = JSON.stringify(obj);
+							opt.parent().attr('data', defData);
+							
+							if(obj.type == 'view_limited'){
+								//查找图文信息
+								getData({'controller':'Weixin','method':'getMaterialByMid', 'id':obj.media_id},function(ret){
+									if (ret.errcode == undefined) {
+									    var midObj = ret.news_item[0];
+										opthtml = '<span id="chooseMsg"><div class="info_box" id="div_'+obj.media_id+'" title="'+midObj.title+'" description="'+midObj.digest+'"  value="'+obj.media_id+'"><a href="javascript::void(0)" class="close_a thumb" onclick="return false;"></a>'+midObj.title+'</div></span>';
+									} else {
+										opthtml = view_limitedHtml;
+									}
+								});
+								var temp = '<input type="hidden" class="url_input" name="'+optkey+'" value="'+obj.media_id+'"/>';								
+								opt.html(opthtml+temp);
+							}else if(obj.type == 'click'){
+								 '<select name="td_optval" class="event_set" ><option value="">---请绑定关键词--</option></select>';
+								 opt.html(opthtml);
+							}else{
+                                if (obj.type == 'view') {
+                                    var input_url = opt.attr('name').replace("[opt]","[url]");
+                                    //微站或微服务
+                                    for(var i in view_urls) {
+                                        var options = view_urls[i];
+                                        for(var k in options) {
+                                            if (obj.url == options[k]) {
+                                            	$('#'+tag+'Type').find('option[flag='+i+']').attr('selected',true);
+                                            	opthtml = '<span id="chooseMsg"><div class="info_box" id="item_'+view_items[obj.url]+'" title="'+view_items[obj.url]+'" value="'+obj.url+'"><a href="javascript::void(0)" class="close_a '+i+'" onclick="return false;"></a>'+view_items[obj.url]+'</div></span>';
+                                                opthtml += '<input name="'+input_url+'" class="url_input" type="hidden" value="'+obj.url+'">';
+                                                opt.html(opthtml);
+                                                opt.parent().attr('flag', i);
+                                                break;
+                                            }
+                                        }
+                                     }
+                                     
+                                     if (opthtml) {
+                                         //微站或微服务
+                                         opt.html(opthtml);
+                                         $('#'+tag+'Opt').find("select").val(obj.url);
+                                     } else {
+                                         //链接
+                                         opthtml = '<input name="'+input_url+'" class="url_input" type="hidden" value="'+obj.url+'">';
+                                                                                                                                                opthtml += '<input name="td_optval" class="url_input" type="text" value="'+obj.url+'">'; 
+                                         opt.html(opthtml);
+                                         opt.find("input[type=hidden]").val(obj.url);
+                                     }
+                                     $(document).on('change','[name="td_optval"]',function(){
+                                     $(this).prev('input').val($(this).val());
+                                     });
+
+                                } else {
+                                    opthtml = '<input name="td_optval" class="url_input" type="text" value="'+obj.url+'">';
+                                    opt.html(opthtml);
+                                    opt.find("input[type=hidden]").val(obj.url);
+                                }
+							}
+
+						}
+						//判断是否有子菜单
+						if(obj.sub_button.length>0){
+							$.each(obj.sub_button,function(i,v){
+								var tags = [tag+'SonOne', tag+'SonOne', tag+'SonTwo', tag+'SonThree', tag+'SonFour', tag+'SonFive'];
+								var son = tags[i+1];
+								$('#'+son+'Name').val(v.name);
+								var list = $('#'+son+'Type').find('option');
+								//判断 响应事件类型
+								if(v.type == 'view'){
+									$('#'+son+'Type').find('option[flag=view]').attr('selected',true);
+								}else if(v.type == 'view_limited'){
+									$('#'+son+'Type').find('option[flag=view_limited]').attr('selected',true);
+								}else{
+									$('#'+son+'Type').find('option[flag=click]').attr('selected',true);
+								}
+																														
+								var sonopthtml = "";
+								var sonopt = $('#'+son+'Opt');
+								var sonoptkey = sonopt.attr('name').replace("[opt]","[key]");
+								if(v.type != undefined && v.type != ''){
+									//默认数据保存在tr
+									var defData = JSON.stringify(v);
+									sonopt.parent().attr('data', defData);
+									
+									if(v.type == 'view_limited'){
+										//查找图文信息
+										getData({'controller':'Weixin','method':'getMaterialByMid', 'id':v.media_id},function(ret){
+											if (ret.errcode == undefined) {
+											    var midObj = ret.news_item[0];
+											    sonopthtml = '<span id="chooseMsg"><div class="info_box" id="div_'+obj.media_id+'" title="'+midObj.title+'" description="'+midObj.digest+'"  value="'+obj.media_id+'"><a href="javascript::void(0)" class="close_a thumb" onclick="return false;"></a>'+midObj.title+'</div></span>';
+											} else {
+												sonopthtml = view_limitedHtml;
+											}
+										});
+										
+										sonopthtml = '<a name="'+son+'Optval'+'" href="javascript::void(0)" onclick="return false;" class="text_a">已选择图文信息</a>';
+										var temp = '<input type="hidden" class="url_input" name="'+sonoptkey+'" value="'+v.media_id+'"/>';								
+										sonopt.append(sonopthtml+temp);
+									}else if(v.type == 'view'){
+										if (v.type == 'view') {
+		                                    var input_url = sonopt.attr('name').replace("[opt]","[url]");
+		                                    var input_type = sonopt.attr('name').replace("[opt]","[type]");
+		                                    //weiSerHtml   wechatHtml
+		                                    for(var i in view_urls) {
+		                                        var options = view_urls[i];
+		                                        for(var k in options) {
+		                                            if (v.url == options[k]) {
+		                                            	sonopthtml = '<span id="chooseMsg"><div class="info_box" id="item_'+view_items[v.url]+'" title="'+view_items[v.url]+'" value="'+v.url+'"><a href="javascript::void(0)" class="close_a '+i+'" onclick="return false;"></a>'+view_items[v.url]+'</div></span>';
+		                                            	sonopthtml += '<input name="'+input_url+'" class="url_input" type="hidden" value="'+v.url+'">';
+		                                                $("#"+son+"Type option[flag='"+i+"']").attr('selected', true);
+		                                                sonopt.parent().attr('flag', i);
+		                                                break;
+		                                            }
+		                                        }
+		                                     }
+		                                     
+		                                     if (sonopthtml) {
+		                                         //下拉而不是链接
+		                                    	 sonopt.html(sonopthtml);
+		                                         $('#'+son+'Opt').find("select").val(v.url);
+		                                     } else {
+		                                         //链接
+		                                    	 sonopthtml += '<input name="td_optval" class="url_input" type="text" value="'+v.url+'">';
+		                                         sonopt.append(sonopthtml);
+		                                         sonopt.find("input[type=hidden]").val(v.url);
+		                                     }
+		                                     
+		                                     $(document).on('change','[name="'+son+'Optval'+'"]',function(){
+		                                         $(this).prev('input').val($(this).val());
+		                                     });
+
+		                                } else {
+		                                    sonopthtml = '<input name="'+son+'Optval'+'" class="url_input" type="text" value="'+v.url+'">';
+											sonopt.append(sonopthtml);
+											sonopt.find("input[type=hidden]").val(v.url);
+		                                }
+									}else if(v.type == 'bindKeyWord'){
+										sonopthtml = '<select name="'+son+'Optval'+'" class="event_set"><option value="">---请选择绑定关键词---</option></select>';
+										sonopt.append(sonopthtml);
+										sonopt.find("input[type=hidden]").val(v.url);
+									}else if(v.type == 'wechat'){
+										sonopthtml = '<select name="'+son+'Optval'+'" class="event_set"><option value="">---请选择微站---</option></select>';
+										sonopt.append(sonopthtml);
+										sonopt.find("input[type=hidden]").val(v.url);
+									}else if(v.type == 'weiService'){
+										sonopthtml = '<select name="'+son+'Optval'+'" class="event_set"><option value="">---请选择微服务---</option></select>';
+										sonopt.append(sonopthtml);
+										sonopt.find("input[type=hidden]").val(v.url);
+									}
+								}								
+							});
+						}
+					});
+				}else{
+					alert_message(ret1.msg);
+					$('#loading').removeClass('loading');
+					return false;
+				}
+				
+				//图文点击
+				$(document).on('click',".thumb",function(){
+					var selected = $(this).parent().attr('title');
+					var obj = $(this).parent().parent();
+					self.menu_choose_msg(obj, selected);
+				});
+				
+				//微站点击
+				$(document).on('click',".wechat",function(){
+					var selected = $(this).parent().attr('title');
+					var obj = $(this).parent().parent();
+					self.menu_choose_url('wechat',view_urls['wechat'], view_items, obj,selected);
+				});
+				
+				//微服务点击
+				$(document).on('click',".weiService",function(){
+					var selected = $(this).parent().attr('title');
+					var obj = $(this).parent().parent();
+					self.menu_choose_url('weiService',view_urls['weiService'], view_items, obj, selected);
+				});
+				
+				//添加素材
+				$(document).on('click','.material',function(){
+					self.weixineditor(1);
+				});
+				
+			});
+			//保存菜单
+			$('#savemenu').click(function(){
+				var RegUrl = new RegExp(); 
+				RegUrl.compile("^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/.=]+$");
+				if($('#firstName').val() != ''){
+					if($('#firstName').val().length > 4){
+						alert_message('主菜单一名称为《'+$('#firstName').val()+'》多于4个字，请酌减');
+						return false;
+					}
+					var type = $('#firstType').val();
+					if(type !== ''){
+						if($('#firstSonOneName').val() != ''){
+							if($('#firstSonOneName').val().length>7){
+								alert_message('子菜单的名称为《'+$('#firstSonOneName').val()+'》多于7个字，请酌减');
+								return false;
+							}
+							var type = $('#firstSonOneType').val();
+							if(type == ''){
+								alert_message('子菜单的名称为《'+$('#firstSonOneName').val()+'》的事件类型不能为空！');
+								return false;
+							}
+						}						
+					}
+				}				
+				var dataArray = {};
+				var data = $('#form1').serializeArray();
+				$.each(data,function(i,obj){
+					dataArray[obj.name] = obj.value;
+				});
+				
+				dataArray.controller = 'Weixin';
+				dataArray.method = 'setMenu';
+				$('#loading').addClass('loading');
+				getData(dataArray,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						alert_message(ret.msg);
+						self.menu();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+			});
+			//删除菜单
+			$('#clearMenu').click(function(){
+				art.dialog({
+					title: '删除菜单',
+				    content:'确定要删除吗？',
+				    fixed:true,
+				    id:'clearMenu',
+				    width:200,
+					height:100,
+				    icon: 'question',
+				    lock:true,
+				    opacity: .8,
+				    padding:0,
+				    okVal:'确定',
+				    ok:function(){
+				    	$('#loading').addClass('loading');
+				    	getData({'controller':'Weixin','method':'deleteMenu'},function(ret){
+				    		$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+							}else{
+								alert_message(ret.msg);
+							}
+							self.menu();
+						});
+				    },
+				    cancel:true
+				});
+			});
+			
+			
+		});
+	},
+	
+	messages:function(){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/messages',function(){
+			$('#loading').addClass('loading');
+			getData({controller:'Weixin',method:'groupAll'},function(ret){
+				$('#loading').removeClass('loading');
+				if(!ret.statu){
+					alert_message(ret.msg);
+					$('#each').getHtml('./plugin/plugins/weixin/weixin',function(){
+						self.clickCount();
+					});
+					return false;
+				}else{
+					$('#listAll').grad({
+						size : 10,
+						para : {controller:'Weixin',method:'getListMsg'},
+						check : true,
+						order : true,
+						page : true,
+						field : [
+							{text:'发送者昵称',name:'nikename',width:60},
+							{text:'类型',name:'msgtype',width:66},
+							{text:'内容',name:'',width:200},
+							{text:'时间',name:'createtime',width:66},
+							{text:'是否回复',name:'isreply',width:66},
+							{text:'操作',name:'fromusername',width:240,
+								render : function(value,rowData,rowIndex){
+									var str='<a id="'+value+'" msgid="'+rowData.msgid+'" class="button btn_del" href="javascript:void(0)" style="margin-left:4px;"><span>回复</span></a>';
+									return str;
+								}
+							}
+						]
+					}).on('click','.btn_del',function(){
+						var me = $(this);
+						var openId = me.attr('id');
+						var msgid = me.attr('msgid');
+						var para = {'openid':openId,'msgid':msgid};
+						self.replyMessage(para);
+					}).on('click','.btn_playVoice',function(){
+						var me = $(this);
+						var filename = me.attr('file');
+						art.dialog({
+							title: '收听语音消息',
+						    content:'<object width="200" height="200" classid="clsid:F08DF954-8592-11D1-B16A-00C0F0283628" codebase="http://www.apple.com/qtactivex/qtplugin.cab"><param name="src" value="'+filename+'"><param name="controller" value="true"><param name="type" value="video/quicktime"><param name="autoplay" value="false"><param name="target" value="myself"><param name="bgcolor" value="black"><param name="pluginspage" value="http://www.apple.com/quicktime/download/index.html"><embed src="'+filename+'" width="250" height="200" controller="true" align="middle" bgcolor="black" target="myself" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/index.html"></embed></object>',
+						    fixed:true,
+						    width:300,
+						    id:'listen3',
+						    height:150,
+						    lock:true,
+						    opacity: .1,
+						    padding:0,
+						    cancel:true
+						});
+					});
+				}
+			});
+			
+		});
+	},
+	
+	replyMessage:function(para){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/replyMessage',function(){
+			$('#openid').val(para.openid);
+			$('#msgtype').change(function(){
+				$('#showImg').html('');
+				$('#show').hide();
+				var me = $(this);
+				var msgtype = me.val();
+				if(msgtype == 'news'){
+					$('#ArticleCount').show();
+					$('[name=ArticleCount]').change(function(){
+						var _me = $(this);
+						var count = _me.val();
+						var html = '';
+						for(var i=1;i<=count;i++){
+							html += '<li><span class="span_one">标题：</span><span class="span_two"><input class="textInput titlelen" type="text" name="Atitle['+i+']" /></span><div style="clear:both;"></div></li>';
+							html += '<li><span class="span_one">描述：</span><span class="span_two"><textarea rows="20" cols="30" name="Adescription['+i+']"></textarea></span><div style="clear:both;"></div></li>';
+							html += '<li style="margin-top:10px"><span class="span_one">图片链接：</span><span class="span_two"><input class="textInput titlelen" type="text" name="Apicurl['+i+']" /></span><div style="clear:both;"></div></li>';
+							html += '<li><span class="span_one">点击后的链接：</span><span class="span_two"><input class="textInput titlelen" type="text" name="Aurl['+i+']" /></span><div style="clear:both;"></div></li><br/></br/>';
+						}
+						$('#mpnews').html(html);
+					});
+				}else{
+					$('#ArticleCount').hide();
+					$('#ArticleCount').val('');
+					$('#mpnews').html('');
+				}
+				if(msgtype == 'video' || msgtype == 'music'){
+					$('#title').show();
+					$('#description').show();
+				}else{
+					$('#title').hide();
+					$('#description').hide();
+				}
+				if(msgtype == 'music'){
+					msgtype = 'thumb';
+					$('#musicurl').show();
+					$('#hqmusicurl').show();
+				}else{
+					$('#musicurl').hide();
+					$('#hqmusicurl').hide();
+				}
+				if(msgtype != 'text' && msgtype != 'news' && msgtype != ''){
+					$('#loading').addClass('loading');
+					getData({'controller':'Weixin','method':'getByType','type':msgtype},function(ret){
+						$('#loading').removeClass('loading');
+						if(ret.statu){
+							var img = '';
+							var html = '<option value="">请选择...</option>';
+							$.each(ret.data,function(index,obj){
+								if(obj.type == 'thumb'){
+									html += '<option value="'+obj.thumb_media_id+'">'+obj.filename+'</option>';
+									img +=  '<img src="'+obj.filename+'" width="100" height="100" id="'+obj.thumb_media_id+'" style="display:none" />';
+								}else if(obj.type == 'video'){
+									html += '<option value="'+obj.video_media_id+'">'+obj.filename+'</option>';
+									img += '<video width="200" height="200" src="'+obj.filename+'" controls="controls" id="'+obj.video_media_id+'"></video>';
+								}else if(obj.type == 'voice'){
+									html += '<option value="'+obj.media_id+'">'+obj.filename+'</option>';
+									img += '<a class="button" href="javascript:void(0);" style="display:none;margin-bottom:10px;" amr="'+obj.filename+'" id="'+obj.media_id+'" style="display:none"><span>点击收听</span></a>';
+								}else{
+									html += '<option value="'+obj.media_id+'">'+obj.filename+'</option>';
+									img +=  '<img src="'+obj.filename+'" width="100" height="100" id="'+obj.media_id+'" style="display:none" />';
+								}
+							});
+							$('#media_id').show();
+							$('[name=media_id]').html(html);
+							$('#showImg').html(img);
+							$('[name=media_id]').change(function(){
+								var me = $(this);
+								var val = me.val();
+								if(val != ''){
+									$('#show').show();
+									$('#'+val).show();
+									if(msgtype == 'voice'){
+										$('#'+val).click(function(){
+											var filename = $(this).attr('amr');
+											art.dialog({
+												title: '收听语音消息',
+											    content:'<object width="200" height="200" classid="clsid:F08DF954-8592-11D1-B16A-00C0F0283628" codebase="http://www.apple.com/qtactivex/qtplugin.cab"><param name="src" value="'+filename+'"><param name="controller" value="true"><param name="type" value="video/quicktime"><param name="autoplay" value="false"><param name="target" value="myself"><param name="bgcolor" value="black"><param name="pluginspage" value="http://www.apple.com/quicktime/download/index.html"><embed src="'+filename+'" width="250" height="200" controller="true" align="middle" bgcolor="black" target="myself" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/index.html"></embed></object>',
+											    fixed:true,
+											    width:300,
+											    height:150,
+											    id:'listen4',
+											    lock:true,
+											    opacity: .1,
+											    padding:0,
+											    cancel:true
+											});
+										});
+									}else{
+										$('#'+val).unbind();
+									}
+									$('#'+val).siblings().hide();
+								}else{
+									$('#show').hide();
+								}
+							});
+						}else{
+							$('[name=media_id]').html('');
+							alert_message('还没有添加相关素材，<a style="color:red" id="addMsg" href="javascript:void(0)">点此前往添加</a>');
+							$('#addMsg').click(function(){
+								self.uploadMessage();
+								var list = art.dialog.list;
+								for(var i in list){
+									list[i].close();
+								}
+							});
+						}
+					});
+				}else{
+					$('#media_id').hide();
+				}
+				if(msgtype == 'text'){
+					$('[name=content]').ckeditor({width:800,height:370},function(){
+						
+					});
+					$('#content').show();
+				}else{
+					$('#content').hide();
+				}
+			});
+			$('#sendMessage').click(function(){
+				$('#loading').addClass('loading');
+				var val = $('[name=msgtype]').val();
+				switch(val){
+					case '':
+						alert_message('请选择要发送的信息类型');
+						return false;
+						break;
+					case 'news':
+						if($('[name=ArticleCount]').val() == ''){
+							alert_message('请选择要发送的图文总数');
+							return false;
+						}
+						break;
+					case 'text':
+						if($('[name=content]').val() == ''){
+							alert_message('发送的内容不能为空');
+							return false;
+						}
+						break;
+					case 'voice':
+						if($('[name=media_id]').val() == ''){
+							alert_message('请选择要发送的语音');
+							return false;
+						}
+						break;
+					case 'image':
+						if($('[name=media_id]').val() == ''){
+							alert_message('请选择要发送的图片');
+							return false;
+						}
+						break;
+					case 'video':
+						if($('[name=media_id]').val() == ''){
+							alert_message('请选择要发送的视频');
+							return false;
+						}
+						break;
+					case 'music':
+						if($('[name=media_id]').val() == ''){
+							alert_message('请选择要发送的缩略图');
+							return false;
+						}
+						if($('[name=musicurl]').val() == ''){
+							alert_message('音乐链接不能为空');
+							return false;
+						}else{
+							//正则验证
+						}
+						if($('[name=hqmusicurl]').val() == ''){
+							alert_message('高清音乐链接不能为空');
+							return false;
+						}else{
+							//正则验证
+						}
+						break;	
+						
+				}
+				var data = {'controller':'Weixin','method':'replyMessage','openid':para.openid,'msgid':para.msgid};
+				var formData = $('#replyForm').serializeArray();
+				$.each(formData,function(index,obj){
+					data[obj.name] = obj.value;
+				});
+				$('#loading').addClass('loading');
+				getData(data,function(ret){
+					$('#loading').removeClass('loading');
+					if(ret.statu){
+						alert_message(ret.msg);
+						self.messages();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+				$('#loading').removeClass('loading');
+			});
+		});
+	},
+	
+	addGroup : function(){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/addGroup',function(){
+			$('#loading').addClass('loading');
+			getData({controller:'Weixin',method:'groupAll'},function(ret){
+				$('#loading').removeClass('loading');
+				if(ret.statu){
+					var arr = [];
+					var str = '<option value="">改变分组名请选择</option>';
+					$.each(ret.data,function(index,obj){
+						str += '<option value="'+obj.id+'">'+obj.name+'</option>';
+						arr[obj.id] = obj.name;
+					});
+					$('#haveGroup').html(str).change(function(){
+						var me = $(this);
+						var val = me.val();
+						if(val != ''){
+							$('#groupid').val(val);
+							$('#groupname').val(arr[val]);
+						}else{
+							$('#groupid').val('');
+							$('#groupname').val('');
+						}
+					});
+					$('#save').click(function(){
+						var flag = true;
+						if($('#groupname').val() == ''){
+							alert_message('请输入分组名');
+							return false;
+						}else{
+							$.each(ret.data,function(index,obj){
+								if($('#groupname').val() == obj.name){
+									alert_message('分组名为《'+$('#groupname').val()+'》已经存在');
+									flag = false;
+									return false;
+								}
+							});
+						}
+						if(flag){
+							var data = {controller:'Weixin',method:'addGroup'};
+							var formData = $('#form1').serializeArray();
+							$.each(formData,function(i,ob){
+								data[ob.name] = ob.value;
+							});
+							$('#loading').addClass('loading');
+							getData(data,function(ret){
+								$('#loading').removeClass('loading');
+								if(ret.statu){
+									alert_message(ret.msg);
+									self.addGroup();
+								}else{
+									alert_message(ret.msg);
+								}
+							});
+						}
+						
+					});
+				}else{
+					alert_message(ret.msg);
+					$('#each').getHtml('./plugin/plugins/weixin/weixin',function(){
+						self.clickCount();
+					});
+				}
+			});
+		});
+	},
+	
+	users:function(){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/users',function(){
+			$('#loading').addClass('loading');
+			getData({controller:'Weixin',method:'groupAll'},function(ret){
+				$('#loading').removeClass('loading');
+				if(ret.statu){
+					var allgroup = '';
+					$.each(ret.data,function(index,obj){
+						allgroup += '<option value="'+obj.id+'">'+obj.name+'</option>';
+					});
+					$('#allGroup').append(allgroup);
+					$('#listAll').grad({
+						size : 10,
+						para : {controller:'Weixin',method:'userAll'},
+						check : true,
+						order : true,
+						page : true,
+						field : [
+							{text:'openID',name:'username',width:60},
+							{text:'所在分组',name:'groupid',width:66},
+							{text:'操作',name:'openid',width:240,
+								render : function(value,rowData,rowIndex){
+									var str='<a id="'+value+'" class="button btn_del" href="javascript:void(0)" style="margin-left:4px;"><span>修改备注</span></a>';
+									str+='<a class="button btn_edit" id="'+value+'" href="javascript:void(0)" style="margin-left:8px;"><span>修改分组</span></a>';
+									str+='<a class="button btn_reply" id="'+value+'" href="javascript:void(0)" style="margin-left:8px;"><span>发送消息</span></a>';
+									return str;
+								}
+							}
+						]
+					}).on('click','.btn_del',function(){
+						var me = $(this);
+						art.dialog({
+							title: '修改备注',
+						    content:'请输入备注名：<input type="text" id="remark" name="remark" />',
+						    fixed:true,
+						    icon: 'question',
+						    width:300,
+						    id:'edit1',
+						    height:150,
+						    lock:true,
+						    opacity: .1,
+						    padding:0,
+						    okVal:'提交',
+						    ok:function(){
+						    	var remark = $('#remark').val();
+						    	if(remark == ''){
+						    		alert_message('请输入备注名!');
+						    		return false;
+						    	}
+						    	var openid = me.attr('id');
+						    	var data = {};
+						    	data.remark = remark;
+						    	data.openid = openid;
+						    	$('#loading').addClass('loading');
+						    	getData({'controller':'Weixin','method':'updateRemark','data':data},function(ret){
+						    		$('#loading').removeClass('loading');
+						    		if(ret.statu){
+						    			alert_message(ret.msg);
+						    		}else{
+						    			alert_message(ret.msg);
+						    		}
+						    		self.users();
+						    	});
+						    },
+						    cancel:true
+						});
+					}).on('click','.btn_edit',function(){
+						var me = $(this);
+						var str = '<select name="groupid" id="groupid"><option id="first">添加到..</option>'+allgroup+'</select>';
+						art.dialog({
+							title: '修改分组',
+						    content:'请选择分组：'+str,
+						    fixed:true,
+							icon: 'question',
+							width:300,
+							height:150,
+							id:'edit2',
+							lock:true,
+							opacity: .1,
+							padding:0,
+							okVal:'提交',
+							ok:function(){
+								var groupid = $('#groupid').val();
+								if(groupid == ''){
+									alert_message('请选择分组!');
+								    return false;
+								}
+								var openid = me.attr('id');
+								var data = {};
+								var arr = [];
+								arr[0] = openid;
+								data.groupid = groupid;
+								data.data = arr;
+								$('#loading').addClass('loading');
+								getData({'controller':'Weixin','method':'updateGroup','data':data},function(ret){
+									$('#loading').removeClass('loading');
+									if(ret.statu){
+								    	alert_message(ret.msg);
+								    }else{
+								    	alert_message(ret.msg);
+								    }
+								    self.users();
+								});
+							},
+							cancel:true
+						});
+					}).on('click','[type=checkbox]',function(){
+						var userData = $('#listAll').grad('getRows');
+						if(userData.length != 0){
+							$('#groupShow').show();
+						}else{
+							$('#groupShow').hide();
+						}
+					}).on('click','.btn_reply',function(){
+						var me = $(this);
+						var openId = me.attr('id');
+						var para = {'openid':openId,'msgid':0};
+						self.replyMessage(para);
+					});
+					$('#allGroup').change(function(){
+						var me = $(this);
+						var val = me.val();
+						var userData = $('#listAll').grad('getRows');
+						if(userData.length != 0){
+							var data = {};
+							var arr = [];
+							$.each(userData,function(i,obj){
+								arr[i] = obj.openid;
+							});
+							data.data = arr;
+							data.groupid = val;
+							$('#loading').addClass('loading');
+							getData({'controller':'Weixin','method':'updateGroup','data':data},function(ret){
+								$('#loading').removeClass('loading');
+								if(ret.statu){
+							    	alert_message(ret.msg);
+							    }else{
+							    	alert_message(ret.msg);
+							    }
+							    self.users();
+							});
+						}else{
+							alert_message('请选择要改变分组的用户');
+						}
+					});
+					$('#updateUsers').click(function(){
+						$('#loading').addClass('loading');
+						getData({controller:'Weixin',method:'updateUsers'},function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								self.users();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+					});
+				}else{
+					alert_message(ret.msg);
+					$('#each').getHtml('./plugin/plugins/weixin/weixin',function(){
+						self.clickCount();
+					});
+				}
+			});
+		});
+	},
+	
+	uploadMessage:function(){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/uploadMessage',function(){
+			var trhtml ='';
+			//获取已有图文信息
+			getData({controller:'Weixin',method:'getByType',type:'news'},function(ret){
+				if(ret.statu){
+					$.each(ret.data,function(i,v){
+						var t = unix_to_time(v.update_time);	
+						trhtml += '<tr class="infotr">'
+							+'<td class="numtd" align="center"><input type="checkbox" name="check_one" value="'+v.media_id+'"  /></td>'
+							+'<td align="center">'+v.title+'</td>'
+							+'<td align="center">'+v.digest+'</td>'
+							+'<td align="center"><img src="'+v.filename+'" width="90px" /></td>'
+							+'<td align="center">'+t+'</td>'
+							+'<td align="center"><a href="javascript::void(0)" onclick="return false;" class="btn_edit" id="'+v.media_id+'" media_id="'+v.media_id+'" thumb="'+v.thumb_media_id+'"   flag="'+v.flag+'">编辑</a><a id="'+v.media_id+'" href="javascript::void(0)" onclick="return false;" class="btn_del"  flag="'+v.flag+'">删除</a></td>'
+							+'</tr>';
+					});
+					$("#tableAll").append(trhtml);
+
+				}		
+						
+			});
+			
+			//关键词搜索
+			$("#search").click(function(){
+				var msgname = $("#msgname").val();
+				getData({controller:'Weixin',method:'getMessageByTitle',msgname:msgname},function(ret){
+					var trhtml ='';			
+					if(ret.statu){
+						$.each(ret.data,function(i,v){
+							var t = unix_to_time(v.created_at);					
+							trhtml += '<tr class="infotr">'
+								+'<td class="numtd" align="center"><input type="checkbox" name="check_one" value="'+v.id+'"  /></td>'
+								+'<td align="center">'+v.title+'</td>'
+								+'<td align="center"><img src="'+v.filename+'" width="90px" /></td>'
+								+'<td align="center">'+t+'</td>'
+								+'<td align="center"><a href="javascript::void(0)" onclick="return false;" class="btn_edit" id="'+v.id+'" media_id="'+v.media_id+'" thumb="'+v.thumb_media_id+'"   flag="'+v.flag+'">编辑</a><a id="'+v.id+'" href="javascript::void(0)" onclick="return false;" class="btn_del"  flag="'+v.flag+'">删除</a></td>'
+								+'</tr>';
+						});
+						var temp = '<tr class="titletr">'
+						+'	<td width="30px;"><input type="checkbox" id="check_all" /></td>'
+						+'	<td>标题</td>'
+						+'	<td width="200px;">封面图</td>'
+						+'	<td  width="80px">编辑时间</td>'
+						+'	<td width="90px;">操作</td> </tr>';
+						$("#tableAll").html(temp + trhtml);
+	
+					}else{
+						alert_message('没有找到素材,请重新输入标题');
+						return false;		
+					}	
+					
+				
+				});
+			
+			});
+			
+			//新增 临时图文信息
+/*			$('#text_add').click(function(){
+				self.weixineditor(0);
+				return false;
+			});*/
+			//新增 永久图文信息
+			$('#material_add').click(function(){
+				self.weixineditor(1);
+				return false;
+			});			
+			
+			
+			//刷新
+			$('#text_refresh').click(function(){
+				self.uploadMessage();
+				return false;
+			});
+			
+			//全选 反选
+			$(document).on('change','#check_all',function(){
+	            if($(this).attr('checked') != undefined){
+	                $("input[name='check_one']").attr('checked','checked');
+	            }else{
+	                $("input[name='check_one']").removeAttr('checked');
+	            }						
+			});
+			
+			//编辑 临时图文信息
+			$(".btn_edit").click(function(){
+				var me = $(this);
+				var id= me.attr('id');
+				var flag = me.attr('flag');
+				var media_id = me.attr('media_id');
+				var thumb = me.attr('thumb');
+				var picfile = me.parent().prev().prev().find('img').attr('src');
+				if(flag == 0){  //临时
+/*					var method='getMessageById';
+					getData({controller:'Weixin',method:method,id:id},function(ret){
+						self.weixineditor(flag,ret.data,picfile,'',id);
+					});*/
+				}else{  //永久素材
+					var method='getMaterialByMid';
+					getData({controller:'Weixin',method:method,id:id},function(ret){	
+						self.weixineditor(flag,ret.news_item,picfile,media_id,id,thumb);
+					});
+
+				}
+
+			});
+			
+			//删除 单个 
+			$(document).unbind('click').on('click','.btn_del',function(){
+				var me = $(this);
+				var id= me.attr('id');
+				var flag = me.attr('flag');
+				if(flag == 0){
+					var method= 'delMessageById';  //临时图文信息
+				}else{
+					var method= 'delMaterialById';  //永久图文信息
+				}
+				art.dialog({
+					title: '删除素材',
+					id:'delMessage',
+				    content:'确定要删除这个素材吗？',
+				    fixed:true,
+				    icon: 'question',
+				    width:200,
+				    height:70,
+				    lock:true,
+				    opacity: .1,
+				    padding:0,
+				    okVal:'确定',
+				    ok:function(){
+				    	$('#loading').addClass('loading');
+						getData({controller:'Weixin',method:method,id:id},function(ret){
+							$('#loading').removeClass('loading');
+							if(ret.statu){
+								alert_message(ret.msg);
+								self.uploadMessage();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+				    },
+				    cancel:true
+				});					
+			});		
+			//删除 多个 临时图文信息
+			$("#text_del").click(function(){
+				var me = $(this);
+				var ids = [];
+				$("input[name='check_one']:checkbox").each(function(){
+					if($(this).attr("checked")){
+						ids.push($(this).val());
+					}
+				});				
+				if(ids.length <= 0){
+					alert_message('请选择您要删除的选项!');	
+				}else{
+					art.dialog({
+						title: '删除素材',
+						id:'delMessage1',
+					    content:'确定要删除这些素材吗？',
+					    fixed:true,
+					    icon: 'question',
+					    width:200,
+					    height:70,
+					    lock:true,
+					    opacity: .1,
+					    padding:0,
+					    okVal:'确定',
+					    ok:function(){
+					    	$('#loading').addClass('loading');
+							getData({controller:'Weixin',method:'delMessageById',id:ids},function(ret){
+								$('#loading').removeClass('loading');
+								if(ret.statu){
+									alert_message(ret.msg);
+									self.uploadMessage();
+								}else{
+									alert_message(ret.msg);
+								}
+							});
+					    },
+					    cancel:true
+					});		
+					
+				}
+			
+			});	
+		});
+	},
+	
+	uploadMpnews : function(){
+		var self = this;
+		$('#center').getHtml('./plugin/plugins/weixin/uploadMpnews',function(){
+			for(var i=1;i<=10;i++){
+				var tag = i;
+				$('#file_'+tag).uploadify({
+					uploader : '../../controller/index.php?controller=Weixin&method=uploadFile&dir=weixin',
+					swf : './public/js/uploadify.swf',
+					fileTypeExts : '*.jpg;*.gif;*.png;*.jpeg',
+					fileSizeLimit : '1MB',
+					buttonText : '',
+					width : 150,
+					height : 30,
+					onUploadSuccess : function(file,data,response){
+						var obj = eval('['+data+']');
+						if(obj[0].statu != undefined && !obj[0].statu){
+							alert_message(obj[0].msg);
+							return false;
+						}
+						$('#filename_'+tag).val(obj[0].filename);
+						$('#showImg_'+tag).attr('src',obj[0].showname).show();
+					},
+					overrideEvents : ['onSelectError','onDialogClose'],
+					onSelectError : function(file,errorCode,errorMsg){
+						switch(errorCode){
+							case -110 :
+								alert_message('文件'+file.name+'大小超过1M,请上传小于1M的图片');
+								break;
+							case -120 :
+								alert_message('文件'+file.name+'大小异常');
+								break;
+						}
+						return false;
+					}
+				});
+			}
+			$('#save').click(function(){
+				var arr = {};
+				for(var i=1;i<=10;i++){
+					if($('#title_'+i).val() != ''){
+						if($('#filename_'+i).val() == ''){
+							alert_message('标题为《'+$('#title_'+i).val()+'》的图片为空，请上传');
+							return false;
+						}
+						if($('#content_'+i).val() == ''){
+							alert_message('标题为《'+$('#title_'+i).val()+'》的内容为空，请填写');
+							return false;
+						}
+						if($('#content_source_url_'+i).val() != ''){
+							//正则验证
+						}
+					}
+					if($('#filename_'+i).val() != ''){
+						if($('#title_'+i).val() == ''){
+							alert_message('有一篇图文消息标题为空，请检测');
+							return false;
+						}
+						if($('#content_'+i).val() == ''){
+							alert_message('有一篇图文消息内容为空，请检测');
+							return false;
+						}
+						if($('#content_source_url_'+i).val() != ''){
+							//正则验证
+						}
+					}
+					if($('#author_'+i).val() != ''){
+						if($('#filename_'+i).val() == ''){
+							alert_message('作者为《'+$('#author_'+i).val()+'》的图片为空，请上传');
+							return false;
+						}
+						if($('#title_'+i).val() == ''){
+							alert_message('作者为《'+$('#author_'+i).val()+'》的标题为空，请填写');
+							return false;
+						}
+						if($('#content_'+i).val() == ''){
+							alert_message('作者为《'+$('#author_'+i).val()+'》的内容为空，请填写');
+							return false;
+						}
+						if($('#content_source_url_'+i).val() != ''){
+							//正则验证
+						}
+					}
+					if($('#content_source_url_'+i).val() != ''){
+						//正则验证
+						
+						//通过执行以下
+						if($('#filename_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了点击跳转的url但是图片没有上传，请上传');
+							return false;
+						}
+						if($('#title_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了点击跳转的url但是标题为空，请填写');
+							return false;
+						}
+						if($('#content_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了点击跳转的url但是内容为空，请填写');
+							return false;
+						}
+					}
+					if($('#digest_'+i).val() != ''){
+						if($('#filename_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了描述，但是图片没有上传，请上传');
+							return false;
+						}
+						if($('#title_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了描述，但是标题为空，请填写');
+							return false;
+						}
+						if($('#content_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了描述，但是内容为空，请填写');
+							return false;
+						}
+						if($('#content_source_url_'+i).val() != ''){
+							//正则验证
+						}
+					}
+					if($('#content_'+i).val() != ''){
+						if($('#filename_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了 内容，但是图片没有上传，请上传');
+							return false;
+						}
+						if($('#title_'+i).val() == ''){
+							alert_message('有一篇消息已经填写了内容，但是标题为空，请填写');
+							return false;
+						}
+						if($('#content_source_url_'+i).val() != ''){
+							//正则验证
+						}
+					}
+					arr[i] = $('#title_'+i).val();
+				}
+				var n=0;
+				$.each(arr,function(index,val){
+					if(val != ''){
+						n++;
+					}
+				});
+				if(n<2){
+					alert_message('多图文上传至少要上传2个图文信息，请添加');
+					return false;
+				}
+				var data = {'controller':'Weixin','method':'uploadMpnewses'};
+				var formData = $('#form1').serializeArray();
+				$.each(formData,function(index,obj){
+					data[obj.name] = obj.value;
+				});
+				$('#loading').addClass('loading')
+				getData(data,function(ret){
+					$('#loading').removeClass('loading')
+					if(ret.statu){
+						alert_message(ret.msg);
+						self.uploadMpnews();
+					}else{
+						alert_message(ret.msg);
+					}
+				});
+			});
+		});
+	},
+	
+	clickCount : function(){
+		$('#center').getHtml('./plugin/plugins/weixin/clickCount',function(){
+			getData({'controller':'Weixin','method':'clickCount'},function(ret){
+			var h = '';
+			var myDate = new Date();   //获取当前日期
+			var startTime = new Date(myDate.getTime()-31*24*3600*1000);  //获取当前日期-1个月
+			var start = startTime.toLocaleDateString(); 
+			var end = myDate.toLocaleDateString();     
+			if(ret.ttl>0){
+				$.each(ret.rows,function(n,v){
+				  h += '<tr class="">'
+					+'<td class="numtd" align="center">'+n+'</td>'
+					+'<td align="left">'+v.name+'</td>'
+					+'	<td align="center">'+start+'-'+end+'</td>'
+					+'	<td align="center">'+v.num+'</td></tr>';
+				});
+			}
+			$('#listAll table tbody').append(h);
+			});
+//			$('#listAll').grad({
+//				size : 10,
+//				para : {controller:'Weixin',method:'clickCount'},
+//				check : true,
+//				order : true,
+//				page : false,
+//				field : [
+//					{text:'被点击的菜单名称',name:'name',width:60},
+//					{text:'点击的次数',name:'num',width:66},
+//				]
+//			});
+		});
+	},
+	
+	reset : function(){
+		$('#loading').addClass('loading');
+		getData({'controller':'Weixin','method':'reset'},function(ret){
+			$('#loading').removeClass('loading');
+			if(ret.statu){
+				alert_message('成功，请刷新浏览器');
+			}
+		});
+	},
+	goback : function(){
+		var _me = this;
+		_me.start();
+	},
+	jbzz : function(){
+		window.open("/plugin/weixin/jbzz/index.html");
+	},
+	slys : function(){
+		window.open("/plugin/weixin/slys/index.html");
+	},
+	ysyj : function(){
+		window.open("/plugin/weixin/ysyj/index.html");
+	},
+	bztz : function(){
+		window.open("/plugin/weixin/bztz/index.html");
+	},	
+	jcbgdjd : function(){
+		window.open("/plugin/weixin/bgdjd/index.html");
+	},
+
+	weixineditor : function(flag,editdata,picfile,media_id,id,thumb){
+		var _me = this;
+		//默认都是图文素材，若以后分类型再放开此开关
+		flag = 1;
+		
+		$.get('./plugin/plugins/weixin/weixineditor.html',function(mydata){
+			if(flag ==1 ){
+				var material = 'material';
+			}else{
+				var material = '';
+			}	
+			if(editdata!=undefined && editdata!= null &&editdata !=""){
+				var title ="编辑素材";
+				var data1 = {'controller':'Weixin','method':'updateMessage','material':material,'media_id':media_id,'id':id,'thumb_media_id':thumb};
+			}else{
+				var title ="新增素材";
+				var data1 = {'controller':'Weixin','method':'uploadMessage','material':material};
+			}
+			var diaObj=art.dialog({
+				title: title,
+			    content:mydata,
+			    id:'addnewtexts',
+			    fixed:true,
+			    width:982,
+			    lock:true,
+			    opacity: .4,
+			    padding: 0,
+			    drag:false,
+				okVal:'保存',
+				ok:function(){
+						var formData = $('#wechateditor').serializeArray();
+						if($("#fileName").val() ==""){
+							alert_message('请上传封面大图');
+							return false;
+						}
+						$.each(formData,function(index,obj){
+							data1[obj.name] = obj.value;
+						});
+						$('#loading').addClass('loading');
+						getData(data1,function(ret){
+							$('#loading').removeClass('loading')
+							if(ret.statu){
+								alert_message('素材添加成功 ');
+								_me.uploadMessage();
+							}else{
+								alert_message(ret.msg);
+							}
+						});
+					
+					}
+			});
+			
+			$("#addColor").click (function() {
+				$(".sp-container").toggle();
+			});
+
+			if ($("#full").length>0) {
+				 $("#full").spectrum({
+					    color: "#ECC",
+					    flat: true,
+					    showInput: true,
+					    className: "full-spectrum",
+					    preferredFormat: "hex",
+					    chooseText: "确定",
+					    cancelText: "取消",
+					    hide: function (color) {
+					    alert(color);
+					    },
+					    change: function(color) {
+					        var color = color.toHexString();
+					        $("#addColor").before('<li class="colorli" style="background-color: '+color+';" onclick="changeColor(\''+color+'\')"><span class="delColor" id="delColor_'+color+'">X</span></li>');
+					        
+					        $("span[id^='delColor_']").click(function(e){e.stopPropagation(); $(this).parent().remove()});
+					        
+					        $(".sp-container").hide();
+					    }
+				});
+
+			    $(".sp-container").hide();
+			    $(".sp-cancel").click(function(){$(".sp-container").hide();});
+			
+			}
+			
+			//初次加载
+			var data = {'controller':'Weixin','method':'getWechatContent','type':'1'};
+			$('#loading').addClass('loading');
+			getData(data,function(ret){
+				$('#loading').removeClass('loading')
+				if(!ret.statu){
+					alert_message(ret.msg);
+				}
+				var html = '';
+				var data = ret.data;
+				for(var i in data) {
+					html += '<div class="list_content">';
+					html += '<p>' + data[i].wec_name + '</p>';
+					html += '' + data[i].content + '';
+					html += '</div>';
+				}
+				$('#info_group').html(html);
+			});
+			
+			$('[name=content]').ckeditor({width:500},function(){});	
+			if(flag!=undefined && flag!=null){
+				$("[name=flag]").val(flag);
+			}			
+			if(editdata!=undefined && editdata!= null &&editdata !=""){				
+				$.each(editdata[0],function(i,v){
+					$("[name="+i+"]").val(v);
+				});
+				$("#showImg").attr('src',picfile).show();
+				$("#fileName").val(picfile);
+			}
+	
+			$(document).on('click','.list_content',function(){
+				var c = $(this).html();
+				CKEDITOR.instances.content.insertHtml( c );
+			});
+			
+			$('#upload').uploadify({
+				uploader : '../../controller/index.php?controller=Weixin&method=uploadFile&dir=weixin',
+				swf : './public/js/uploadify.swf',
+				fileTypeExts : '*.jpg;*.gif;*.png;*.jpeg;',
+				fileSizeLimit : '3MB',
+				buttonText : '',
+				width : 116,
+				height : 30,
+				onUploadSuccess : function(file,data,response){
+					var obj = eval('['+data+']');
+					if(obj[0].statu != undefined && !obj[0].statu){
+						alert_message(obj[0].msg);
+						return false;
+					}
+					$('#fileName').val(obj[0].filename);
+					$('#showImg').attr('src',obj[0].showname).show();
+				},
+				overrideEvents : ['onSelectError','onDialogClose'],
+				onSelectError : function(file,errorCode,errorMsg){
+					switch(errorCode){
+						case -110 :
+							alert_message('文件'+file.name+'大小超过3M,请上传小于3M的图片');
+							break;
+						case -120 :
+							alert_message('文件'+file.name+'大小异常');
+							break;
+					}
+					return false;
+				}
+			});	
+			
+			
+			$(".left_menu li").click(function(){
+				if($(this).hasClass("allmenu_li")){
+					$(".left_menu li.choisecss").removeClass("choisecss").addClass("allmenu_li");
+					$(this).removeClass("allmenu_li").addClass("choisecss");
+					if($("li.firstli").hasClass("allmenu_li")){
+						$("li.firstli").css("border-top","1px solid #c6c6c6");
+					} else {
+						$("li.firstli").css("border-top","1px solid #666666");
+					}
+					//var num=$(this).index();
+					//$("div.info_group").hide().eq(num).show();
+					
+					var type = $(this).attr('flag');
+					$('#info_group').html('');
+					if (type == '11') {
+						var data = {'controller':'Library','method':'query'};
+						$('#loading').addClass('loading');
+						getData(data,function(ret){
+							$('#loading').removeClass('loading')
+							var html = '';
+							var data = ret.rows;
+							if (data == '') return false;
+							for(var i in data) {
+								html += '<div class="list_content">';
+								html += '<p>' + data[i].name + '</p>';
+								html += '' + data[i].content + '';
+								html += '</div>';
+							}
+							$('#info_group').html(html);
+						});
+						return false;
+					}
+					var data = {'controller':'Weixin','method':'getWechatContent','type':type};
+					$('#loading').addClass('loading');
+					getData(data,function(ret){
+						$('#loading').removeClass('loading')
+						if(!ret.statu){
+							alert_message(ret.msg);
+						}
+						var html = '';
+						var data = ret.data;
+						for(var i in data) {
+							html += '<div class="list_content">';
+							html += '<p>' + data[i].wec_name + '</p>';
+							html += '' + data[i].content + '';
+							html += '</div>';
+						}
+						$('#info_group').html(html);
+					});
+				}							  
+			});
+		});
+	}
+	
+});
+
+function changeColor(color) {
+	//$("#info_group").children().find('section').css("backgroundColor",color);
+	
+	$("#info_group").children().find('*').each(function(){
+		var rgb = $(this).css('background-color');
+		if (rgb != 'transparent') {
+			$(this).css("backgroundColor",color);
+			$(this).css("borderColor",color);
+		}
+	});
+	
+}

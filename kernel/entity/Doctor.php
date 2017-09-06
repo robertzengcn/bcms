@@ -1,0 +1,74 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Doctor extends Entity {
+
+    var $id;
+
+    var $name;
+
+    var $pic;
+
+    var $birthday;
+
+    var $gender;
+
+    var $content;
+
+    var $certificate;
+
+    var $specialty;
+
+    var $cultural;
+
+    var $university;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $click_count;
+
+    var $department_id;
+
+    var $position;
+     
+    var $reserve_id;
+    
+    /**
+     * 显示位置：1(pc), 2(手机网页), 3(app), 4(微站)
+     *
+     * 格式：1,2,3,4
+     * 注：等于1，则只在pc端口显示
+     *    等于0，所有显示位均可显示，默认
+     * */
+    var $show_position;
+    
+    
+
+    public function validate() {
+        if ($this->name == '' || strlen($this->name) == 0) {
+            throw new ValidatorException(71);
+        }
+        if ($this->content == '' || strlen($this->content) == 0) {
+            throw new ValidatorException(126);
+        }
+        if ($this->specialty == '' || strlen($this->specialty) == 0) {
+            throw new ValidatorException(123);
+        }        
+        if (! $this->isNum($this->department_id) || strlen($this->department_id) == 0) {
+            throw new ValidatorException(72);
+        }
+        if ($this->position == '' || strlen($this->position) == 0) {
+            throw new ValidatorException(157);
+        }
+        
+        if ($this->show_position == '' || strlen($this->show_position) == 0) {
+            $this->show_position = '0';
+        }
+    }
+}

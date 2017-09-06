@@ -1,0 +1,77 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/article.css">
+  {{/block}}
+  {{block name="body"}}
+  {{$article = $ArticleTag->get($id)}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}">{{$department->name}}</a>>{{if $article->disease_id == false}}<a target="_blank" href="#" class="current">{{$article->subject}}</a>{{else}}{{if $disease.parent_id == false}}<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/index.html">{{$disease.name}}</a>{{else}}{{Disease id=$disease.parent_id assign="dis"}}<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$dis->url}}/index.html">{{$dis->name}}</a>><a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/index.html">{{$disease.name}}</a>{{/if}}><a target="_blank" href="#" class="current">{{$article->subject}}</a>{{/if}}</div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <div class="content_title">
+        <h1>{{$article->subject}}</h1>
+        <p class="add-time">发布时间：{{'Y-m-d'|date:$article->plushtime}}</p>
+        <p>来源地址：{{$article->source}}</p>
+        <p class="top-zx"><a target="_blank" href="javascript:openWindow('chat')">立即咨询专家</a></p>
+      </div>
+      <div class="article_content">
+        {{$article->content}}
+      </div>
+      <div class="par-guide">
+      {{article id=$id+1 assign="next"}}
+      {{if $next->id == ''}} 
+      <span>下一篇：无</span>
+      {{else}}
+      {{$depar= $DepartmentTag->get($next->department_id)}}
+      {{if $next->disease_id != false}}
+      {{$disea = $DiseaseTag->get($next->disease_id)}}
+      <span>下一篇：<a target="_blank" href="{{$WEBSITE}}/{{$depar->url}}/{{$disea->url}}/{{$next->id}}.html">{{$next->subject}}</a></span>
+      {{else}}
+      <span>下一篇：<a target="_blank" href="{{$WEBSITE}}/{{$depar->url}}/{{$next->id}}.html">{{$next->subject}}</a></span>
+      {{/if}}
+      {{/if}}
+      {{article id=$id-1 assign="pre"}}
+      {{if $pre->id != $id and $pre->id != ''}}
+      {{$depar = $DepartmentTag->get($pre->department_id)}}
+      {{if $pre->disease_id != false}}
+      {{$disea = $DiseaseTag->get($pre->disease_id)}}
+                     上一篇：<a target="_blank" href="{{$WEBSITE}}/{{$depar->url}}/{{$disea->url}}/{{$pre->id}}.html">{{$pre->subject}}</a>
+      {{else}}
+                     上一篇：<a target="_blank" href="{{$WEBSITE}}/{{$depar->url}}/{{$pre->id}}.html">{{$pre->subject}}</a>
+      {{/if}}
+      {{else}}
+                    上一篇：无
+      {{/if}}
+      </div>
+      {{$img = $PicManagerTag->getPic('article_bottom')}}
+      <div class="par_info" style="background:url({{$UPLOAD}}{{$img->img}}) no-repeat;">
+        <h6>{{$ContactTag->get('name')}}温馨提示：</h6>
+        <p>想了解更多健康信息您可以拨打健康热线：{{$ContactTag->get('tel')}} 还可以进入在线咨询，{{$ContactTag->get('name')}}专家为您提供实时在线咨询及问答。友情提示：如需转载，请标注转自{{$ContactTag->get('name')}}。</p>
+      </div>
+      {{if $article->relation != false}}
+      <div class="par_article">
+        <div>想了解<strong>{{$department->name}}</strong>可以参考{{$ContactTag->get('name')}}其它的相关链接：</div>
+        <ul>
+          {{$relation = ','|explode:$article->relation}}
+          {{foreach $relation as $value}}
+          {{if $value@index <= 2}}
+          {{article id=$value assign="art"}}
+          {{$department = $DepartmentTag->get($art->department_id)}}
+          {{if $art->disease_id != false}}
+          {{$disease = $DiseaseTag->get($art->disease_id)}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$disease->url}}/{{$art->id}}.html">{{$art->subject}}</a></li>
+          {{else}}
+          <li>・<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}/{{$art->id}}.html">{{$art->subject}}</a></li>
+          {{/if}}
+          {{/if}}
+          {{/foreach}}
+        </ul>
+      </div>
+      {{/if}}
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  {{/block}}

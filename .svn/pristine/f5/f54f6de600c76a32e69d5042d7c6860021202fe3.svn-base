@@ -1,0 +1,244 @@
+<?php
+
+/**
+ *
+ * HMA专用预约数据处理接口
+ * @author Administrator
+ * @version v1.0
+ */
+include_once '../hwibsc/common.class.php';
+//ini_set("display_errors", "On");
+class Reservations extends common {
+	private $part = null;
+	
+	public function __construct() {
+		
+		parent::__construct();
+		
+		if (!in_array($_REQUEST['part'], array('doctormanager_outpatient_time','configure_info','search_article','article_title','departmentmanager_list','department_doctormanager_list','department_doctor_list','dispatcher'))){//需要排除登录的接口
+				
+			$this->getuser();
+		}
+	
+		
+		//$this->getuser();
+		
+		if( isset( $_REQUEST['part'] ) &&  $_REQUEST['part'] != '' ) {
+			$this->part = trim( $_REQUEST['part'] );
+			$method = 'get_'.$this->part;
+			if ( method_exists( $this , $method ) ) {
+				$this->$method();
+			}else{
+				die( json_encode( array( 'code'=>1,'msg'=>'part参数错误,不存在该调用接口!','departments'=>null ) ) );
+			}
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'part参数为空!','departments'=>null ) ) );
+		}
+	}
+	
+	/**
+	 * 取消预约方法
+	 * */
+	private function get_cancel_reservation(){
+		
+		if(!isset($_SESSION['member_id'])&&strlen($_SESSION['member_id'])<1){
+			echo json_encode(array('statu'=>false,'msg'=>'请先登陆！','code'=>1,'data'=>null));
+			exit();
+		}		 
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$resbookingser = new ResBookingInfoService();
+			$resbooking=new ResBookingInfo();
+			$resbooking->id=(int)$_REQUEST['id'];		
+			$reser=$resbookingser->get($resbooking);
+			$arr=array('id'=>(int)$_REQUEST['id'],'member_id'=>$_SESSION['member_id']);
+			$resbookingser->deletereser($arr);
+			$reservationser=new ResVationService();
+			if($reser->data){
+				$reservationser->reducemarknum(array('id'=>$reser->data->resvation_id));
+			}
+			echo json_encode(array('statu'=>true,'msg'=>'您的预约已成功取消!','code'=>0,'data'=>null));
+		}else{
+			echo json_encode(array('statu'=>false,'msg'=>'缺少id','code'=>2,'data'=>null));
+		}
+	}
+	
+	/**
+	 * 获取个人预约挂号信息
+	 * */
+	private function get_appointment_list(){		
+		$reserdetser=new ResBookingInfoService();
+		$arr=array('member_id'=>$_SESSION['member_id'], 'telephone'=>$_SESSION['member_mobile']);		
+		$result=$reserdetser->getreserdetailbymember($arr);		
+		if(!empty($result)){
+			
+			$departmentser=new ResDepartmentService();
+			$doctorser=new ResDoctorService();
+			foreach($result as $key=>$val){				
+				$result[$key]->datetime=date('Y-m-d',$result[$key]->date);
+				$result[$key]->time=date('H:i:s',$result[$key]->times);
+				unset($result[$key]->date);
+				unset($result[$key]->times);
+				unset($result[$key]->member_id);
+				if($result[$key]->statu=="已约"){
+					$result[$key]->statu=0;
+				}else{
+					$result[$key]->statu=1;
+				}				
+				$result[$key]->department_name=$departmentser->getDepartmentNameByID($result[$key]->department_id);
+				$result[$key]->doctor_name=$doctorser->getNameByID($result[$key]->doctor_id);
+				$result[$key]->name=$result[$key]->username;
+				$result[$key]->descript=$result[$key]->description;				
+			}
+			parent::msgPut(true, '', $result);
+		}else{
+			parent::msgPut(false, '未找到与您相关的预约信息！', null);
+		}	
+	}
+	
+	/**
+	 * 预约挂号
+	 * */	
+	private function get_appointment_finish(){		
+		$arr=array();
+		$arr['time_id']=$this->getRequest('time_id','');//处理所需要的参数,定义默认值
+		$arr['time_field']=$this->getRequest('time_field','');
+		$arr['username']=$this->getRequest('name','');
+		$arr['member_id']=$_SESSION['member_id'];
+		$arr['sex']=$this->getRequest('sex','');
+		$arr['age']=$this->getRequest('age','');
+		$arr['address']=$this->getRequest('address','');
+		$arr['telephone']=$this->getRequest('telephone','');
+		$arr['email']=$this->getRequest('email','');
+		$arr['id_card']=$this->getRequest('id_card','');//身份证
+		$arr['description']=urldecode($this->getRequest('ill',''));//病情描述
+		$arr['medical_card']=urldecode($this->getRequest('medical_card',''));//一卡通就诊卡		
+        $find=$this->queryRes($arr);
+        $boolcheck=$this->checktimevaild($find,$arr);//检查要预约的时间段是否已被人预约
+        $bookcheck=$this->checkrepeatbook($arr);//检查该信息近期是否己约过其他的号
+        if(!$boolcheck&&$bookcheck){
+        	
+        	$this->runRes( $find,$arr );//插入预约列表
+        }else{
+        	parent::msgPut(false, '该时间点已有约，请更换', null);
+        }
+        parent::msgPut(true, '预约成功', null);
+	}
+	//查询time_id值是否正确
+	private function queryRes($arr=array()) {
+		new ResVationService();
+		$timeidarr=array('time_id'=>$arr['time_id']);
+		$find = R::findOne(TABLENAME_RESERVATION,'id = :time_id and state=0',$timeidarr);	
+		if( is_object( $find ) ) {
+			//医生号源个数
+			$bookingNum=(int)$find->morning_source+(int)$find->afternoon_source+(int)$find->night_source;
+			if( ($bookingNum-(int)$find->mark) < 1 ) {
+				parent::msgPut(false, '该预约时间段已经无号了', null);
+			}else{
+				return $find;
+			}
+		}else{
+			parent::msgPut(false, 'time_id对应的预约信息不存在', null);
+		}
+	}
+	
+	//判断某个时间点是否己被约
+	private function checktimevaild($resInfo,$arr){
+		$resbooking=new ResBookingInfoService();		
+		$time=strtotime(date('Y-m-d',$resInfo->date).' '.$arr['time_field']);		
+		$result=$resbooking->checkdaytime(array('date'=>$resInfo->date,'times'=>$time));		
+		if($result){//如果已经有号源
+			return true;
+		}else{
+			return false;
+		}		
+	}
+	
+	//检查该信息近期是否己约过其他的号
+	private function checkrepeatbook($arr){
+		$bookservice=new ResBookingInfoService();			
+		if(isset($arr['telephone'])&&$arr['telephone']){
+			$where['telephone']=$arr['telephone'];
+		}
+		if(isset($arr['id_card'])&&$arr['id_card']){
+			$where['id_card']=$arr['id_card'];
+		}
+		if(isset($arr['medical_card'])&&$arr['medical_card']){
+			$where['medical_card']=$arr['medical_card'];
+		}
+		if(isset($arr['date'])&&$arr['date']){
+			if(strtotime($arr['date'])>time()){
+				$where['date']=strtotime($arr['date']);
+			}else{
+				$where['start_time']=time();
+				$where['end_time']=strtotime("+2 months") ;
+			}			
+		}		
+		$result=$bookservice->getbookingByCondition($where);
+		if($result['ttl']!=0){
+			$rows=$result['rows'][0];
+			parent::msgPut(false, '您己经预约过'.$rows->date.' '.$rows->doctor_name.'的号，不能重复预约，若您约错号，请进入您的个人信息中心在我的预约中取消预约！', null);				
+		}else{			
+			return true;
+		}
+	}
+	
+	
+	//实际预约功能
+	private function runRes( $resInfo,$arr ) {	
+			
+		try{
+			
+			$resInfo->dateform=date('Y-m-d',$resInfo->date);	
+			R::begin();
+			$resInfo->times=strtotime($resInfo->dateform.' '.$arr['time_field']);		 
+			$ressql="INSERT INTO ".TABLENAME_RESERVATIONDETAIL." (`department_id`,`doctor_id`,`date`,`times`,`statu`,`username`,`telephone`,`id_card`,`member_id`,`resvation_id`,`make_time`,`sex`,`age`,`address`,`email`,`description`,`medical_card`) VALUES (:department_id,:doctor_id,:date,:times,'已约',:username,:telephone,:id_card,:member_id,:resvation_id,:make_time,:sex,:age,:address,:email,:description,:medical_card)";
+			$resarray=array('department_id'=>$resInfo->department_id,
+					'doctor_id'=>$resInfo->doctor_id,
+					'date'=>$resInfo->date,
+					'times'=>$resInfo->times,
+					'username'=>$arr['username'],
+					'telephone'=>$arr['telephone'],
+					'id_card'=>$arr['id_card'],
+					'member_id'=>$arr['member_id'],
+					'resvation_id'=>$arr['time_id'],
+					'make_time'=>time(),
+					'sex'=>(int)$arr['sex'],
+					'age'=>(int)$arr['age'],					
+					'address'=>$arr['address'],					
+					'email'=>$arr['email'],
+					'description'=>$arr['description'],					
+					'medical_card'=>$arr['medical_card']
+			);	 
+		
+			R::exec($ressql,$resarray);
+			$timeidarrend=array('time_id'=>$arr['time_id']);
+			$reserbean=R::findOne('resvation','id = :time_id and state=0',$timeidarrend);
+			$reserbean->mark=$reserbean->mark+1;
+			R::store($reserbean);
+		}catch(Exception $e){
+			
+			R::rollback();
+			
+		}
+		R::commit();
+		
+	}
+	
+	/**
+	 * 获取某个预约时段等待的人数
+	* @param id预约时间段id
+	* */
+	protected function get_resnum(){		
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			if(isset($_REQUEST['time'])&&$_REQUEST['time']&&isset($_REQUEST['date'])&&$_REQUEST['date']){
+				$id=(int)$_REQUEST['id'];				
+				$times=strtotime($_REQUEST['date'].' '.$_REQUEST['time']);				
+				$reseser=new ResBookingInfoService();
+				$res=$reseser->getresnum(array('reserver_id'=>$id,'time'=>$times));
+				die(json_encode( array('code'=>0,'msg'=>$res) , true ));
+			}
+			
+		}
+	}
+}
+new Reservations();

@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>医院简介</title>
+</head>
+<body>
+<div class="pd-20">
+	<form id="frm_post" method="post" class="form form-horizontal" id="">			
+		<div class="row cl">
+			<label class="form-label col-2">缩略图：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius" onClick="gHospital.uploadImg('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=introduce','720','500')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<img id="img" src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail" width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+		</div>
+		<input type="hidden" id="pic" name="pic">
+		<input type="hidden" name="id" id="id" value="1"/>
+		<!--上传图片-->
+		<div class="row cl">
+			<label class="form-label col-2">简介正文：</label>
+			<div class="formControls col-10"> 
+			<textarea nullmsg="正文不能为空！" style="width:100%;height:400px;" id="editor" name="content" datatype="*"></textarea>
+			</div><div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<!--悬浮框按钮-->
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gHospital.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>
+        <a href="javascript:;" onClick="gHospital.openAdd('素材库','../shortcuts/source-material.html','900','560')"><li class="floating2"></li></a>        
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<input type="hidden"" name="plushtime" id="plushtime" value=""/>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/hospital.js"></script>
+<script type="text/javascript">
+var editor = UE.getEditor('editor');
+var gHospital = new Hospital();
+gHospital.setThisName('gHospital');
+gHospital.init();
+gHospital.introduce();
+
+</script>
+</body>
+</html>

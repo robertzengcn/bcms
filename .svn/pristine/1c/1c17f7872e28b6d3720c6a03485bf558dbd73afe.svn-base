@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{$voteinfo->hdbt}}</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="description" content="{{$voteinfo->fxms}}">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/jquery-weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/style.css?time={{$smarty.now}}">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/color/{{$color}}.css?time={{$smarty.now}}">
+</head>
+<body ontouchstart>
+<div class="details_player">选手{{$vid}}</div>
+<div class="home_num">
+	<div class="num_time">
+        <div class="day">活动结束倒计时</div>
+        <strong id="day_show">0天</strong>
+        <strong id="hour_show"><s id="h"></s>0时</strong>
+        <strong id="minute_show"><s></s>00分</strong>
+        <strong id="second_show"><s></s>00秒</strong>
+    </div>
+	<ul class="num_box w50">
+    	<li><span class="text">{{$vid}}号</span></li>
+        <li><span class="text js_num">{{$playerinfo->vcount}}票</span></li>
+    </ul>
+</div>
+	<input type="hidden" id="remtime" value="{{$remtime}}"/>
+	<input type="hidden" id="id" value="{{$id}}"/>
+	<input type="hidden" id="vid" value="{{$vid}}"/>
+	<input type="hidden" id="wxgz" value="{{$wxgz}}"/>
+	<input type="hidden" id="openid" value="{{$openid}}"/>
+	<input type="hidden" id="ktcs" value="{{$voteinfo->ktcs}}"/>
+	<input type="hidden" id="mcsl" value="{{$voteinfo->mcsl}}"/>
+<div class="details">
+	<div class="details_top">
+    	<div class=" weui-row">
+        	<div class="weui-col-50"><a href="javascript:;" class="weui_btn weui_btn_warn">热度：{{$playerinfo->dcount}}</a></div>
+            <div class="weui-col-50"><a href="javascript:;" class="weui_btn weui_btn_warn details_btn">第{{$mingci}}名</a></div>
+        </div>
+    </div>
+	<div class="details_pic">
+    	<ul>
+			{{if $playerinfo->startpicurl1 neq ''}}
+			<li><img src="{{$playerinfo->startpicurl1}}"></li>
+			{{/if}}
+			{{if $playerinfo->startpicurl2 neq ''}}
+			<li><img src="{{$playerinfo->startpicurl2}}"></li>
+			{{/if}}
+			{{if $playerinfo->startpicurl3 neq ''}}
+			<li><img src="{{$playerinfo->startpicurl3}}"></li>
+			{{/if}}
+			{{if $playerinfo->startpicurl4 neq ''}}
+			<li><img src="{{$playerinfo->startpicurl4}}"></li>
+			{{/if}}
+			{{if $playerinfo->startpicurl5 neq ''}}
+			<li><img src="{{$playerinfo->startpicurl5}}"></li>
+			{{/if}}
+		</ul>
+    </div>
+    <div class="details_txt">{{$playerinfo->intro}}</div>
+    <a href="./vote.php?method=cansai&id={{$id}}" class="weui_btn details_btn"><div class="details_btn_img"></div>我也要参加</a>
+</div>
+
+<div class="pd-40"></div>
+
+<div class="details_footer" id="details_footer">
+    <a class="yes" href="./vote.php?method=index&id={{$id}}">首页</a>
+    <a class="active js_vote" href="javascript:;">投票</a>
+	{{if $is_zs eq 1}}
+    <a class="yes" href="./vote.php?method=zuanshi&id={{$id}}">钻石</a>
+	{{else}}
+    <a class="yes" href="./vote.php?method=paiming&id={{$id}}">排名</a>
+	{{/if}}
+</div>
+<section>
+    <div class="pop" id="guanzhu" style="display:none;">
+        <div class="mengceng"></div>
+        <div class="pop_up">
+                        <p class="tit_p">如何参与活动</p> <!-- 引导关注标题 -->
+            <p class="tit_txt">请关注公众号后台再投票，点击下面的链接快速关注！</p>
+            <a href="./vote.php?method=wxyd&id={{$id}}" class="gz_btn">详细了解参与方法</a>
+        </div>
+    </div>
+</section>
+ <div id="pageDialogBG" class="pageDialogBG"><div class="Prompt"></div></div>
+<script src="{{$COMMON}}Vote/Public/js/jquery-2.1.4.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/fastclick.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/jquery-weui.min.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/details.js?time={{$smarty.now}}"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script type="text/javascript">
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: '{{$signPackage.appId}}', // 必填，公众号的唯一标识
+        timestamp: "{{$signPackage.timestamp}}", // 必填，生成签名的时间戳
+        nonceStr: '{{$signPackage.nonceStr}}', // 必填，生成签名的随机串
+        signature: '{{$signPackage.signature}}',// 必填，签名，见附录1
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+
+    wx.ready(function(){
+        wx.error(function(res){
+            console.log(res);
+        });
+        //朋友圈
+        wx.onMenuShareTimeline({
+            title: "{{$voteinfo->fxbt}}", // 分享标题
+            link: "{{$voteinfo->url}}", // 分享链接
+            imgUrl: "{{$playerinfo->startpicurl1}}", // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+            title: "{{$voteinfo->fxbt}}", // 分享标题
+            desc: "{{$voteinfo->fxms}}", // 分享描述
+            link: "{{$voteinfo->url}}", // 分享链接
+            imgUrl: "{{$playerinfo->startpicurl1}}", // 分享图标
+            type: '', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    });
+</script>
+</body>
+</html>

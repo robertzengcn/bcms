@@ -1,0 +1,87 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link href="{{$RESOURCE}}/css/index.css" rel="stylesheet" type="text/css" />
+{{/block}}
+{{block name=js}}
+<script type="text/javascript" src="{{$RESOURCE}}/css/jquery.min.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/css/right.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/css/index.js"></script>
+{{/block}}
+{{block name=body}}
+
+<div class="list_box">
+      <div class="list">
+           <div class="list_left arc">
+          <div class="list_nav">您当前的位置： <a href='{{$WEBSITE}}'>主页</a> > <a href='{{$WEBSITE}}/{{$department->url}}/'>{{$department->name}}</a> >
+              <a href='{{$WEBSITE}}/{{$department->url}}/{{$disease.url}}/index.html'>{{$disease.name}}</a> > <a>文章详情</a></div>
+    <div class="content_left_1">
+            <div class="content">
+                {{$article = $ArticleTag->get($id)}}
+                {{article id=$id assign="article"}}
+                  <div class="content_1">
+                     <h1>{{$article->subject}}</h1>
+                     <span>发布时间：{{'Y-m-d'|date:$article->plushtime}}&#160;&#160;&#160;&#160;&#160;来源：{{$article->source}} &#160;&#160;&#160;&#160;&#160;</span>
+                  </div>
+          <div class="content_2">
+              {{$article->content}}
+          </div>
+<div class="w4">
+        	<h4>看完本文后</h4>
+        	<a href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" target="_blank"><img src="{{$RESOURCE}}/images/aimg-3.jpg" style="float:left" /></a>
+        	<ul class="sx">
+                <div style="float: left">
+               {{$ArticlePage = $ArticleTag->getArticleIds($department->id,$id)}}
+
+               {{if $ArticlePage.beforeA==0}}
+               上一篇：无
+               {{else}}
+               {{article id=$ArticlePage.beforeA assign="pre"}}
+               {{$depar= $DepartmentTag->get($pre->department_id)}}
+               {{$disea = $DiseaseTag->get($pre->disease_id)}}
+
+               {{$content = $ArticleTag->get($ArticlePage.beforeA)}}
+               上一篇：<a href="{{$WEBSITE}}/{{$depar->url}}/{{$disea->url}}/{{$ArticlePage.beforeA}}.html">{{$content->subject}}</a>
+               {{/if}}
+                </div>
+                <div style="float: right">
+                {{if $ArticlePage.nextA==0}}
+                <span>下一篇：无</span>
+                {{else}}
+                {{article id=$ArticlePage.nextA assign="next"}}
+                {{$depar= $DepartmentTag->get($next->department_id)}}
+                {{$disea = $DiseaseTag->get($next->disease_id)}}
+                {{$content = $ArticleTag->get($ArticlePage.nextA)}}
+                <span>下一篇：<a href="{{$WEBSITE}}/{{$depar->url}}/{{$disea->url}}/{{$ArticlePage.nextA}}.html">{{$content->subject}}</a></span>
+                {{/if}}
+                </div>
+
+            </ul>
+            <h3><em>在线问医生</em><a href="{{$ContactTag->get('swt')}}"  onclick="openZoosUrl('chatwin');return false;"  target="_blank">您还需要了解哪些情况？</a></h3>
+            <div class="w4-1">
+            	<ul>
+                	<li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●了解疾病的症状详情</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●是否需要去医院检查</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;"  >●确诊需要做哪些检查</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●病情长期反复怎么办</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●选择什么治疗方法好</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●了解手术的具体情况</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●具体治疗费用是多少</a></li>
+                    <li><a target="_blank" href="{{$ContactTag->get('swt')}}" onclick="openZoosUrl('chatwin');return false;" >●日常生活需注意哪些</a></li>
+                </ul>
+                <span><div><a  href="{{$ContactTag->get('swt')}}"  class="fl" onclick="openZoosUrl('chatwin');return false;">在线咨询</a>
+          <a  href="{{$WEBSITE}}/reservation/reservation.html"  class="fr">预约专家</a></div></span>
+            </div>
+        </div>
+
+                        </div>
+                  </div>
+           </div>
+           
+         <!--右侧-->
+          {{include file="../common/right/doctor_right.htpl"}}
+          <!--右侧-->
+           </div>
+      </div>
+      <div style="clear:both"></div>
+</div>
+{{/block}}

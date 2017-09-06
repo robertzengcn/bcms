@@ -1,0 +1,783 @@
+<?php
+
+/**
+ * 登陆页面模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", true);
+include_once ABSPATH.'/mod/Mod.php';
+
+class Reservations extends Mod{
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 *预约首页
+	 *登录类方法
+	 */
+	public function index() {//进入预约医生列表页面
+		
+		$this->smarty->display( 'resdoctor/list'.SUBFIX);
+	}
+	
+	/**
+	 * 动态生成医生详情页并获取医生相关信息
+	 */
+	public function docdetail(){
+		if($_REQUEST['id'] != 0){
+			$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+			$doctor = new ResDoctor();
+			$department = new ResDepartment();
+			$doc = new ResDoctorService();
+			$dep = new ResDepartmentService();
+			$doctor->id = $id;
+			$docs = $doc->get($doctor);
+			$department->id = $docs->data->department_id;
+			$deps = $dep->get($department);
+			$this->smarty->assign('doc',$docs->data);
+			$this->smarty->assign('dep',$deps->data);
+			$this->smarty->assign('id',$id);
+			$this->smarty->display( 'resdoctor/detail'.SUBFIX);
+		}else{
+			$this->smarty->display( 'resdoctor/list'.SUBFIX);
+		}
+	}
+	
+	/**
+	 * 医生预约页面
+	 */
+	public function docreservation(){
+		$info = array();
+		$info['date'] = $_REQUEST['date'];
+		$info['dates'] = date("Y-m-d",$_REQUEST['date']);
+		$info['datetype'] = $_REQUEST['datetype'];
+		if($_REQUEST['datetype'] == 'mon'){
+			$info['type'] = '上午';
+		}elseif($_REQUEST['datetype'] == 'aft'){
+			$info['type'] = '下午';
+		}else{
+			$info['type'] = '晚上';
+		}
+		$weekday = array('星期日','星期一','星期二','星期三','星期四','星期五','星期六');
+		$info['week'] = $weekday[date('w', $_REQUEST['date'])];
+		$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+		$doctor = new ResDoctor();
+		$department = new ResDepartment();
+		$doc = new ResDoctorService();
+		$dep = new ResDepartmentService();
+		$doctor->id = $id;
+		$docs = $doc->get($doctor);
+		$department->id = $docs->data->department_id;
+		$deps = $dep->get($department);
+		$this->smarty->assign('doc',$docs->data);
+		$this->smarty->assign('info',$info);
+		$this->smarty->assign('SEO_TITLE','医生详情');
+		$this->smarty->assign('dep',$deps->data);
+		$this->smarty->display('resdoctor/reserve' .SUBFIX);
+	}
+	
+	/**
+	 * 获取医生排班时间段
+	 */
+	public function getreservation(){
+		$resvationService = new ResVationService();
+		$resbookingservice = new ResBookingInfoService();
+		$where = array();
+		$docred = $resbookingservice->getAllbookinginfos($where);
+		$docs = $resvationService->getAllresvations();
+// 		$_REQUEST['normaldate']=$_REQUEST['date'];
+// 		$_REQUEST['date'] = strtotime($_REQUEST['date']);
+// 		$reser=new ResVationService();
+// 		$result = $reser->getDetail($_REQUEST);
+		
+		echo json_encode(array(
+				'reserved'=>$docred,
+				'data'=>$docs
+				));
+		exit();		
+	}
+	
+	/**
+	 * 获取全部科室
+	 * */
+	public function getdepartments(){
+		$depservice=new ResDepartmentService();
+		$department = $depservice->getDepartments();        
+        $i=0;              
+        foreach($department->data as $k=>$v){
+        	if($v->belong==''||$v->belong==0){
+        		$result[$i]=$v;
+        		$j=$v->id;
+        		$i++;
+        		foreach ($department->data as $valSon){
+        			if($valSon->belong==$j){
+        				$valSon->name='&nbsp;&nbsp;|--'.$valSon->name;
+        				$result[$i]=$valSon;
+        				$i++;
+        				$x=$valSon->id;
+        				foreach ($department->data as $childSon){
+        					if($childSon->belong==$x){
+        						$childSon->name='&nbsp;&nbsp;&nbsp;&nbsp;|--'.$childSon->name;
+        						$result[$i]=$childSon;
+        						$i++;
+        					}        					     					
+        				}
+        			}
+        		} 
+        	}
+        }
+        $department->data=$result;
+        echo json_encode($department);
+	}
+	
+	/**
+	 * 根据科室ID获取科室医生
+	 * */
+	public function getByDepartmentID(){
+		$dorser = new ResDoctorService();
+		$res = $dorser->getByDepartmentID($_REQUEST['department_id']);		
+		echo json_encode($res);
+	}
+	
+	/**
+     * 获取所有满足条件的医生排班信息列表
+     * */
+    public function getAllresvations() {
+		$resvationService=new ResVationService();	
+    	$data = $resvationService->getAllresvations();      	
+    	echo json_encode($data);
+    }
+	
+	/**
+     * 获取所有满足条件预约人的信息列表
+     * */
+    public function getAllbookinginfos() { 
+		$resbookingservice=new ResBookingInfoService();
+    	$data = $resbookingservice->getAllbookinginfos();
+    	echo json_encode($data);
+    }
+	
+	/**
+	 * 提交预约挂号
+	 * */
+	public function reseruser(){
+		if(!session_id())session_start();
+		if(isset($_SESSION['validmobile'])){
+			$mobile=isset($_REQUEST['hometel'])&&strlen($_REQUEST['hometel'])>0?$_REQUEST['hometel']:null;
+			if(!$mobile){
+				$this->msgPut(false,11,'缺少手机号参数',null);
+			}
+			if(!in_array($mobile, $_SESSION['validmobile'])){
+				$this->msgPut(false,12,'缺少手机号参数',null);
+			}
+		
+		}else{
+			$this->msgPut(false,13,'手机号没有验证过',null);
+			 
+		}
+		$reservation = new ResVation();
+		if(isset($_REQUEST['time'])&&strlen($_REQUEST['time'])>0){
+		$reservation->id=(int)$_REQUEST['time'];
+		}else{
+			echo json_encode(array('statu'=>false,'code'=>1,'msg'=>'time参数为空'));
+			exit();
+		}
+		$reserservice = new ResVationService();
+		$ress=$reserservice->get($reservation);
+		$ress->data->along=$ress->data->morning+$ress->data->afternoon+$ress->data->night;
+		$num=$ress->data->along-$ress->data->mark;
+		if($_REQUEST['restime']==null){
+			throw new ValidatorException(144);
+		}
+		$arr = explode('-',$_REQUEST['restime']);
+		if (! $reservation->isHours($arr[0])) {
+			throw new ValidatorException(132);
+		}
+		if(isset($_REQUEST['name'])&&strlen($_REQUEST['name'])>0){
+			$name=$_REQUEST['name'];
+		}else{
+			$name="";
+		}
+		if(isset($_REQUEST['hometel'])&&strlen($_REQUEST['hometel'])>0){
+			$hometel=$_REQUEST['hometel'];
+		}else{
+			$hometel="";
+		}
+		if(isset($_REQUEST['sex'])&&strlen($_REQUEST['sex'])>0){
+			$sex=$_REQUEST['sex'];
+		}else{
+			$sex="";
+		}
+		if(isset($_REQUEST['age'])&&strlen($_REQUEST['age'])>0){
+			$age=$_REQUEST['age'];
+		}else{
+			$age="";
+		}
+		if(isset($_REQUEST['date'])&&strlen($_REQUEST['date'])>0){
+			$date=$_REQUEST['date'];
+		}else{
+			$date="";
+		}
+		if(isset($_REQUEST['address'])&&strlen($_REQUEST['address'])>0){
+			$address=$_REQUEST['address'];
+		}else{
+			$address="";
+		}
+		if(isset($_REQUEST['email'])&&strlen($_REQUEST['email'])>0){
+			$email=$_REQUEST['email'];
+		}else{
+			$email="";
+		}
+		if(isset($_REQUEST['ill'])&&strlen($_REQUEST['ill'])>0){
+			$ill=$_REQUEST['ill'];
+		}else{
+			$ill="";
+		}
+		if(isset($_SESSION['member_id'])&&strlen($_SESSION['member_id'])>0){
+			$member_id=$_SESSION['member_id'];
+		}else{
+			$member_id=0;
+		}
+		
+		if($num>0){
+
+			$reservationdetailservice=new ResBookingInfoService();
+			
+			$time=strtotime($_REQUEST['date'].' '.$arr[0]);
+				
+			$checkresult=$reservationdetailservice->checkdaytime(array('date'=>strtotime($ress->data->date),'times'=>$time));
+
+			if($checkresult){//如果已经有人预约
+				$this->msgPut(19,'改号源已经被预约了',null);
+			}
+			
+			$reservationDetail = new ReservationDetail();
+			$reservationDetail->doctor_id=$ress->data->doctor_id;
+			$reservationDetail->department_id=$ress->data->department_id;
+			$reservationDetail->date=strtotime($ress->data->date);
+			$reservationDetail->member_id=$member_id;
+			$reservationDetail->times=strtotime($ress->data->date.' '.$arr[0]);
+			$reservationDetail->username=$name;
+			$reservationDetail->telephone=$hometel;
+			if(isset($_REQUEST['card'])&&strlen($_REQUEST['card'])>0){
+			$reservationDetail->card=$_REQUEST['card'];
+			}
+			$reservationDetail->statu='待约';
+			$reservationDetail->reserver_id=$reservation->id;
+			$reservationDetail->make_time=date('Y-m-d H:i:s');
+		
+			$resv=$reservationdetailservice->save($reservationDetail);
+		
+			 
+			if($resv->statu){
+				$reserservice->addresnum($reservation);
+				$reserservice->insertuser($name,$sex,$age,$reservationDetail->date,$reservationDetail->times,$address,$hometel,$email,$ill,0,$resv->data->id,$member_id);
+			}
+			$result=array('statu'=>true,
+					'code'=>0,
+					'msg'=>null,
+					'data'=>null
+			);
+		}else{
+			$result=array('statu'=>false,
+					'code'=>170,
+					'msg'=>'所预约时间已无号员',
+					'data'=>null
+			);
+		}
+		echo json_encode($result);
+	}
+	
+	/**
+	 *提交预约挂号 new 
+	 */
+	public function saveBookingInfo() {
+	    	if(!session_id()) session_start();
+	    	$contectser = new ContactService ();
+	    	$needmsgres=$contectser->getContact('needmsgres')->data;
+	    	if($needmsgres->val){//如果需要短信验证
+	    	
+    	if(isset($_SESSION['validmobile'])){
+    		$mobile=isset($_REQUEST['telephone'])&&strlen($_REQUEST['telephone'])>0?$_REQUEST['telephone']:null;
+    		if(!$mobile){
+    			$this->msgPut(false,11,'缺少手机号参数',null);    			
+    		}
+    		if(!in_array($mobile, $_SESSION['validmobile'])){
+    			$this->msgPut(false,12,'缺少手机号参数',null);
+    		}
+    		
+    	}else{
+    		$this->msgPut(false,13,'手机号没有验证过',null);
+    	
+    	}
+	    	}
+    	
+	   $bookservice=new ResBookingInfoService();
+		if(isset($_REQUEST['telephone'])&&$_REQUEST['telephone']){
+			$where['telephone']=$_REQUEST['telephone'];
+		}
+		if(isset($_REQUEST['date'])&&$_REQUEST['date']){
+			if(strtotime($_REQUEST['date'])>time()){
+				$where['date']=strtotime($_REQUEST['date']);
+			}else{
+				$where['start_time']=time();
+				$where['end_time']=strtotime("+2 months") ;
+			}			
+		}			
+		$result=$bookservice->getAllbookinginfos($where);	
+	
+		if($result['ttl']!=0){
+			$rows=$result['rows'][0];
+			$this->msgPut(false,13,'您己经预约过'.$rows->date.' '.$rows->doctor_name.'的号，不能重复预约，若您约错号，请进入您的个人信息中心在我的预约中取消预约！',null);
+		}else{
+			
+			$this->blindParams($resbookinginfo = new ResBookingInfo());
+			if(isset($_REQUEST['resvationID'])&&$_REQUEST['resvationID']){
+				$resbookinginfo->resvation_id=$_REQUEST['resvationID'];
+				
+				$reservationser=new ResVationService();
+					
+				$reser=new ResVation();
+				$reser->id=$resbookinginfo->resvation_id;
+				
+				$reser=$reservationser->get($reser)->data;
+				if(!$reser){//如果预约排班信息不存在
+					$this->msgPut(false,14,'不存在该预约排班时间',null);
+				}
+				$resbookinginfo->department_id=$reser->department_id;
+				$resbookinginfo->doctor_id=$reser->doctor_id;
+				$resbookinginfo->statu="已约";
+				$resbookinginfo->date=strtotime($reser->date);
+			}	
+							
+			if(!isset($_REQUEST['times'])||strlen($_REQUEST['times'])<0){
+				$this->msgPut(false,15,'不存在该预约排班时间',null);											
+			}else{
+				$resbookinginfo->times=strtotime($reser->date.' '.$_REQUEST['times']);
+			}
+			$data = $bookservice->saveBookingInfo($resbookinginfo);
+		}
+		try{
+			
+		
+		$needmsgres=$contectser->getContact('resmsgnotice')->data;//是否开启预约后短信通知
+		if($needmsgres->val){//如果开启
+		//发送短信
+		if($data['statu']){
+		
+		
+		$urldata=$contectser->getContact('wuxian_ip')->data;
+		if($urldata->val){
+			$url=$urldata->val;
+		}else{
+			$url=null;
+		}
+		$pwddata=$contectser->getContact('wuxian_password')->data;
+		if($pwddata->val){
+			$pwd=$pwddata->val;
+		}else{
+			$pwd=null;
+		}
+		$ciddata=$contectser->getContact('wuxian_account')->data;
+		if($ciddata->val){
+			$cid=$ciddata->val;
+		}else{
+			$cid=null;
+		}
+		 
+		if($url==null||$cid==null||$pwd==null){
+	      throw new Exception('接口配置错误', 77);
+		}else{
+			$wuxianser = new WuxianService ( $url, $cid, $pwd);
+			$result = $wuxianser->sendNormalMessage($_REQUEST['telephone'],'你已成功预约'.$data['data']);
+		}
+		}
+		}
+		}catch(Exception  $e){
+			$error_log=GENERATEPATH . 'log/wuxian_error.log';
+			error_log(date('Y-m-d H:i:s') . ' wuxian error:' . $e->getMessage() . PHP_EOL, 3, $error_log);
+		}
+
+		
+		echo json_encode($data);		
+	}
+	
+		/**
+     * 按条件获取2
+     */
+    public function getReservation2() {
+		$resvationservice=new ResVationService();	
+        $_REQUEST['date'] = strtotime($_REQUEST['date']); 
+        $result = $resvationservice->getDetail2($_REQUEST);		
+        echo json_encode( $result );
+    }
+	/**
+	 *提交预约挂号 new 
+	 */
+	public function saveBookingInfo2() {
+		$bookservice=new ResBookingInfoService();
+		$this->blindParams($resbookinginfo = new ResBookingInfo());	
+		if(isset($_REQUEST['hometel'])&&$_REQUEST['hometel']){
+			$resbookinginfo->telephone =$_REQUEST['hometel'];
+		}
+		if(isset($_REQUEST['department'])&&$_REQUEST['department']){
+			$resbookinginfo->department_id =$_REQUEST['department'];
+		}
+		if(isset($_REQUEST['appointment'])&&$_REQUEST['appointment']){
+				$_REQUEST['times'] = $_REQUEST['appointment'];					
+		}
+		$resbookinginfo->username = htmlspecialchars($_REQUEST['name']);
+		$resbookinginfo->doctor_id = $_REQUEST['doctor_id'];	
+		$resbookinginfo->age = $_REQUEST['age'];
+		$resbookinginfo->sex = $_REQUEST['sex'];
+		$resbookinginfo->description = htmlspecialchars($_REQUEST['content']);	
+			$data = $bookservice->saveBookingInfo($resbookinginfo);		
+		echo json_encode($data);		
+	}
+	
+
+	
+	/**
+	 * 根据科室或星时间或职称获取医生
+	 */
+    public function getdoctors() {  
+    	$where = array();
+    	$date=date('Y-m-d');  //当前日期
+    	$where['department_id'] = isset($_REQUEST['dep']) ? $_REQUEST['dep'] : null;
+    	$where['time'] = isset($_REQUEST['time'])&&strlen($_REQUEST['time'])>0 ? (int)$_REQUEST['time'] : null;
+    	$where['start_time'] = isset($_REQUEST['start_time']) ? $_REQUEST['start_time'] : strtotime($date) ;
+    	$where['end_time'] = isset($_REQUEST['end_time']) ? $_REQUEST['end_time'] : $where['start_time'] + 6*86400;
+    	$where['position'] = isset($_REQUEST['position']) ? $_REQUEST['position'] : null;
+    	$where['page'] = (empty($_REQUEST['page']))?'1':$_REQUEST['page'];
+    	$where['size'] = isset($_REQUEST['size']) ? $_REQUEST['size'] : 4;
+		//获取当前礼拜内某天的时间戳
+    	//$week = strtotime(date('Y-m-d', time()));
+		//$first=1; //$first =1 表示每周星期一为开始日期 0表示每周日为开始日期
+		//$w=date('w',strtotime($date));  //获取当前周的第几天 周日是 0 周一到周六是 1 - 6
+		//$mon=strtotime("$date -".($w ? $w - $first : 6).' days'); //获取本周开始日期，如果$w是0，则表示周日，减去 6 天
+		//$now_end=$now_start +(6*86400);  //本周结束日期
+		//if(isset($_REQUEST['date'])&&strlen($_REQUEST['date'])>0){
+		//   $where['date'] = $mon+((int)$_REQUEST['date']-1)*86400;
+		//}else{
+		//   $where['date'] = null;
+		//}
+		$doctor = new ResDoctorService();
+    	$ser = new ResVationService();
+    	$ttl = $doctor->gettotalRows($where);
+    	$docs = $ser->getdoctors($where);
+    	$countpage = ceil($ttl/$where['size']);
+    	//$docs->data = array_slice($docs->data,($page-1)*$where['size'],$where['size']);
+//     	$where['page'] = (empty($_REQUEST['page']))?'1':$_REQUEST['page'];
+//     	$page = $where['page'];
+//     	$docs = $ser->getdoctors($where);
+//     	$docs->data = array_slice($docs->data,($page-1)*$where['size'],$where['size']);
+//     	$where['page'] = (empty($_REQUEST['page']))?'1':$_REQUEST['page'];
+//     	$page = $where['page'];
+//     	//$docs = $ser->getdoctors($where);
+//     	$docs->data = array_slice($docs->data,($page-1)*$where['size'],$where['size']);
+    	
+    	echo json_encode(array(
+    			'data' => $docs,
+    			'ttl' => $ttl,
+    			'page' => $where['page'],
+    			'pages' => $countpage
+    	));
+    }
+	
+	/**
+     * 预约挂号表单根据日期和科室获取医生
+     */
+    public function resergetdoctor(){
+    	$where = array();
+    	$where['department_id'] = isset($_REQUEST['department_id']) ? $_REQUEST['department_id'] : null;
+    	$where['date'] = strtotime($_REQUEST['date']);
+    	$ser = new ResVationService();
+    	$docs = $ser->getdoctors($where);
+    	echo json_encode($docs);
+    }
+    
+	 /**
+     * 获取科室下的从属科室
+     */
+    public function getdepchild(){
+    	$where = array();
+    	$where['id'] = isset($_REQUEST['dep']) ? $_REQUEST['dep'] : '';
+        $ser = new ResDepartmentService();
+        $result = $ser->getbelongdep($where);
+        echo json_encode($result);
+    }
+
+    /**
+     * 搜索医生
+     */
+    public function querydoc(){
+    	$_REQUEST['page']=(empty($_REQUEST['page']))?'1':$_REQUEST['page'];
+    	$page = $_REQUEST['page'];
+    	$ser = new ResDoctorService();
+    	$array = $ser->query($_REQUEST);
+    	if(isset($_REQUEST['size'])&&$_REQUEST['size']){
+    		$count = $_REQUEST['size'];
+    	}else{
+    		$count = 1;
+    	}
+    	unset($_REQUEST['page']);
+    	unset($_REQUEST['size']);
+    	$totals = $ser->totalRows($_REQUEST);
+    	$ttl = $totals->data;
+    	
+    	//$start=($page-1)*$count; #计算每次分页的开始位置
+    	$countpage=ceil($ttl/$count); #计算总页面数
+    	//$pagedata=array();
+    	//$pagedata=array_slice($array,$start,$count);
+    	echo json_encode(array(
+    		
+    	'rows' => $array->data,
+    	'ttl' => $totals->data,
+    	'curr' => $page,
+    	'pages' => $countpage
+    	));
+    	exit();
+    }
+	
+    /**
+     * 医生详情
+     */
+    public function getdoc(){
+    	$doctor = new ResDoctor();
+    	foreach ($doctor as $key => $value) {
+    		if (isset($_REQUEST[$key])) {
+    			$entity->$key = $_REQUEST[$key];
+    		}
+    	}
+    	$ser = new ResDoctorService();
+    	$result = $ser->get($doctor);
+    	echo json_encode($result);
+    }
+    /**
+     * 获取某个科室特定时间内的预约信息
+     * */
+    public function getreserverbydep(){
+    	if(!isset($_REQUEST['department_id'])||!$_REQUEST['department_id']){
+    		echo array('stute'=>false,'code'=>1,'msg'=>'科室id为空','data'=>null);
+    		exit();
+    	}
+    	if(isset($_REQUEST['start'])&&isset($_REQUEST['end'])){
+    		$start=strtotime($_REQUEST['start']);
+    		$end=strtotime($_REQUEST['end']);
+    	}else{
+    		$date=date('Y-m-d');  //当前日期    		
+    		$first=1; //$first =1 表示每周星期一为开始日期 0表示每周日为开始日期    		
+    		$w=date('w',strtotime($date));  //获取当前周的第几天 周日是 0 周一到周六是 1 - 6
+    		$start=strtotime("$date -".($w ? $w - $first : 6).' days'); //获取本周开始日期，如果$w是0，则表示周日，减去 6 天
+    		$end=$start +(6*86400);  //本周结束日期
+    	}
+    	
+    	$arr=array('department_id'=>(int)$_REQUEST['department_id'],'startdate'=>$start,'enddate'=>$end);
+
+    	$reser=new ResVationService();
+    	$shedult=$reser->getreservatiobydep($arr);
+    	
+    	if(!empty($shedult->data)){
+    		
+    		foreach($shedult->data as $key=>$v){
+    			if($v->morning){
+    				
+    				$shedult->data[$key]->angle='mon_'.date('w',strtotime($v->date));
+    				$shedult->data[$key]->time=$v->morning;
+    			}elseif($v->afternoon){
+    				$shedult->data[$key]->angle='aft_'.date('w',strtotime($v->date));
+    				$shedult->data[$key]->time=$v->afternoon;
+    			}else{
+    				$shedult->data[$key]->angle='nig_'.date('w',strtotime($v->date));
+    				$shedult->data[$key]->time=$v->night;
+    			}
+    		}
+    		echo json_encode(array('stute'=>true,'code'=>0,'msg'=>null,'data'=>$shedult->data));
+    	}else{
+    		echo json_encode(array('stute'=>false,'code'=>3,'msg'=>'没有该科室排班信息','data'=>null));
+    	}
+    	
+    }
+    
+    /**
+     * 获取我的预约信息
+     * */
+    public function getmyreser(){
+    	session_start();
+    	if(!isset($_SESSION['member_id'])&&strlen($_SESSION['member_id'])<1){
+    		echo json_encode(array('stute'=>false,'code'=>1,'msg'=>'用户未登陆','data'=>null));
+    		exit();
+    	}
+    	if(isset($_REQUEST['size'])&&strlen($_REQUEST['size'])>0){
+    		$count=(int)$_REQUEST['size'];
+    	}else{
+    		$count=1;
+    	}
+    	
+
+    	$reserdetailser=new ReservationDetailService();
+    	
+    	if(isset($_REQUEST['page'])&&isset($_REQUEST['size'])){
+    		$result=$reserdetailser->query(array('member_id'=>$_SESSION['member_id'],'page'=>(int)$_REQUEST['page'],'size'=>(int)$_REQUEST['size']));
+    	}else{
+    		$result=$reserdetailser->query(array('member_id'=>$_SESSION['member_id']));
+    	}
+    	$ttl=$reserdetailser->totalRows(array('member_id'=>$_SESSION['member_id']));
+    	$countpage=ceil($ttl/$count);
+    	
+    	echo json_encode(array('statu'=>true,'code'=>0,'msg'=>null,'data'=>$result->data,'pages'=>$countpage));
+    	exit();
+    	
+    }
+    
+    /**
+     * 取消预约
+     * */
+    public function cancelres(){
+    	session_start();
+    	if(!isset($_SESSION['member_id'])&&strlen($_SESSION['member_id'])<1){
+    		echo json_encode(array('statu'=>false,'msg'=>'用户未登陆','code'=>1,'data'=>null));
+    		exit();
+    	}
+    	
+    	if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+    		$reservationdetailser = new ReservationDetailService();
+    		$reservationdetail=new ReservationDetail();
+    		$reservationdetail->id=(int)$_REQUEST['id'];
+    		
+    		$reser=$reservationdetailser->get($reservationdetail);
+    		
+    		$arr=array('id'=>(int)$_REQUEST['id'],'member_id'=>$_SESSION['member_id']);
+    		$reservationdetailser->deletereser($arr);
+    		$reservationser=new ResVationService();
+    		
+    		
+    		if($reser->data){
+    			$reservationser->reducemarknum(array('id'=>$reser->data->reserver_id));
+    		}
+    		
+    		echo json_encode(array('statu'=>true,'msg'=>null,'code'=>0,'data'=>null));
+    	}else{
+    		echo json_encode(array('statu'=>false,'msg'=>'缺少id','code'=>2,'data'=>null));
+    	}
+    }
+    
+    /**
+     * 根据医生id和天数获取医生当天及未来天数的预约信息
+     */
+    public function docbyidandnum(){
+    	if(!isset($_REQUEST['id'])||strlen($_REQUEST['id'])<1){
+    		echo json_encode(array('statu'=>false,'msg'=>'参数id为空','code'=>11,'data'=>null));
+    	}
+    	$id=(int)$_REQUEST['id'];
+    	$num=isset($_REQUEST['num']) ? $_REQUEST['num'] : 15;
+    	$start=strtotime(date('y-m-d'));
+    	$end=$start + ($num*86400);
+    	$reservationser=new ResVationService();
+    	$result=$reservationser->getdoctorindate($id,$start,$end);
+    	$dates=array();
+    	$weekday = array('星期日','星期一','星期二','星期三','星期四','星期五','星期六');
+    	for($i=0; $i<=$num; $i++){
+    		$v=$start+($i * 86400);
+    		$p=date("m年d日",$v);
+    		//$dates[$i]=array("$v"=>$p);
+    		$dates[$i]['day']=$p;
+    		$dates[$i]['time']=$v;
+    		$dates[$i]['date']=$weekday[date('w', $v)];
+    	}
+    	if(!empty($result)){
+    		foreach($result as $key =>$val){
+    			$result[$key]->week=date('w',$val->date);
+    			if($val->morning){
+    				$result[$key]->timetype="mon";
+    			}
+    			if($val->afternoon){
+    				$result[$key]->timetype="aft";
+    			}
+    			if($val->night){
+    				$result[$key]->timetype="nig";
+    			}
+    		}
+    		echo json_encode(array('statu'=>true,'msg'=>'当前医生本周没有排班','dates'=>$dates,'data'=>$result));
+    		exit();
+    	}else{
+    		echo json_encode(array('statu'=>true,'msg'=>'当前医生本周没有排班','dates'=>$dates,'data'=>null));
+    		exit();
+    	}
+    	 
+    }
+    /**
+     * 通过医生id获取排班表
+     * */
+    public function getresbydoc(){
+    	if(!isset($_REQUEST['id'])||strlen($_REQUEST['id'])<1){
+    		echo json_encode(array('statu'=>false,'msg'=>'参数id为空','code'=>11,'data'=>null));
+    		exit();
+    	}
+    	$id=(int)$_REQUEST['id'];
+    	$reservationser=new ResVationService();
+    if(isset($_REQUEST['start'])&&isset($_REQUEST['end'])){
+    		$start=strtotime($_REQUEST['start']);
+    		$end=strtotime($_REQUEST['end']);
+    	}else{
+    		$date=date('Y-m-d');  //当前日期    		
+    		$first=1; //$first =1 表示每周星期一为开始日期 0表示每周日为开始日期    		
+    		$w=date('w',strtotime($date));  //获取当前周的第几天 周日是 0 周一到周六是 1 - 6
+    		$start=strtotime("$date -".($w ? $w - $first : 6).' days'); //获取本周开始日期，如果$w是0，则表示周日，减去 6 天
+    		$end=$start +(6*86400);  //本周结束日期
+    	}
+    	$result=$reservationser->getdoctorindate($id,$start,$end);
+    	if(!empty($result)){
+    		
+    		foreach($result as $key =>$val){
+    			$result[$key]->week=date('w',$val->date);
+    			if($val->morning){
+    				$result[$key]->timerang="上午";
+    				$result[$key]->timetype="mon";
+    			}else if($val->afternoon){
+    				$result[$key]->timerang="下午";
+    				$result[$key]->timetype="aft";
+    			}else{
+    				$result[$key]->timerang="晚上";
+    				$result[$key]->timetype="nig";
+    			}
+    		}
+    		echo json_encode(array('statu'=>true,'msg'=>'当前医生本周没有排班','code'=>0,'data'=>$result));
+    		exit();
+    	}else{
+    		echo json_encode(array('statu'=>true,'msg'=>'当前医生本周没有排班','code'=>15,'data'=>null));
+    		exit();
+    	}
+    	
+    }
+    
+    /**
+     * 检查手机号是否验证过
+     * */
+    public function checkmobile(){
+    	if(!session_id()) session_start();
+    	if(isset($_SESSION['validmobile'])){
+    		$mobile=isset($_REQUEST['mobile'])&&strlen($_REQUEST['mobile'])>0?$_REQUEST['mobile']:null;
+    		if(!$mobile){
+    			$this->msgPut(false,11,'缺少手机号参数',null);    			
+    		}
+    		if(in_array($mobile, $_SESSION['validmobile'])){
+    			$this->msgPut(true,0,null,null);
+    		}else{
+    			$this->msgPut(false,12,'缺少手机号参数',null);
+    		}
+    		
+    	}else{
+    		$this->msgPut(false,13,'手机号没有验证过',null);
+    	
+    	}
+    }
+    
+	
+}
+new Reservations();

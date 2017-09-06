@@ -1,0 +1,40 @@
+@charset "utf-8";
+/* CSS Document */
+html {-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;line-height:1.6}
+body {-webkit-touch-callout:none;font-family:"Microsoft YaHei",Arial;background-color:#fafafa;line-height:inherit; background-color:#fafafa;}
+h1,h2,h3,h4,h5,h6 {font-weight:400;font-size:16px}
+* {margin:0;padding:0}
+a {color:#333;text-decoration:none}
+img {height:auto!important;}
+
+#frame{ width:90%; margin:0 auto;padding: 10px 15px; font-size:14px; color:#3E3E3E; font-family:"Microsoft YaHei"; position:relative; max-width:740px; overflow:hidden;}
+#frame span { width:100%; margin:0 auto; border-radius:1000px;  display:block; box-shadow: 0 0 5px black;position:relative; float:left;background:-moz-linear-gradient(left, #f6f1ee, #dfe7f2);
+background:-webkit-gradient(linear, left top, right top, from(#f6f1ee), to(#dfe7f2));  }
+#frame span img{ width:25%; padding:3% 4%; float:left; border-radius:50%; overflow:hidden;} 
+#frame span h1{ float:left; font-size:13px; padding-top:5px;}
+#frame span h1 b{ color:#af1c27; font-size:18px}
+#frame span p{float:left;line-height:150%; padding-bottom:5px;}
+#frame span .text_one{ width:52%; color:#666;overflow:hidden; height:60px;}
+#frame .btn1 {background:transparent  url("../images/9.png") no-repeat scroll 0% 0%; position:absolute; top:45%; right:5%; width:22px; height:22px;}
+#frame span .text_two{ border-top: 2px  dotted #ccc; width:88%; margin:0 auto; float:none; overflow:hidden; padding-bottom:10px;}
+.line{ position:absolute; left:20%; top:0; width:1%; height:1000%; background-color:#1a59a9; opacity:0.5}
+.line1{ position:absolute; left:20%; top:10px; width:1%; height:1000%; background-color:#1a59a9; opacity:0.5}
+#frame span h2{ width:80px; height:80px; overflow:hidden; float:left;  border-radius:80px; margin:3% 4%;-moz-box-shadow: 0px 0px 5px #4e6d9c;/*firefox*/  
+    -webkit-box-shadow: 0px 0px 5px #4e6d9c;/*webkit*/  
+    box-shadow: 0px 0px 5px #4e6d9c;/*opera或ie9*/ }
+#floatDivBoxs{width:170px;background:#fff;position:fixed;top:260px;right:-170px;z-index:999;}
+#floatDivBoxs .floatDtt{width:100%;height:45px;line-height:45px; background:#4dace8;color:#fff;font-size:18px;text-indent:22px;position:relative;}
+#floatDivBoxs .floatDqq{padding:0 14px;}
+#floatDivBoxs .floatDqq li{height:45px;line-height:45px;font-size:15px;border-bottom:1px solid #e3e3e3; padding:0 0 0 50px; text-align:center;}
+#floatDivBoxs .floatDtxt{font-size:18px;color:#333;padding:12px 14px;}
+#floatDivBoxs .floatDtel{padding:0 0 15px 10px;}
+#floatDivBoxs .floatDtel img{display:block;}
+#floatDivBoxs .floatDbg{width:100%;height:20px;background: url("../images/online_botbg.jpg") no-repeat;box-shadow:-2px 0 3px rgba(0,0,0,0.25);}
+.floatShadow{ background:#fff;box-shadow:-2px 0 3px rgba(0,0,0,0.25);}
+#rightArrow{width:50px;height:45px;background:url("../images/online_arrow.jpg") no-repeat;position:fixed;top:260px;right:-5px;z-index:999; background-position: -50px 0px;opacity:0.3}
+#rightArrow a{display:block;height:45px;}
+#rightArrow:hover{opacity:1 }
+#rightHomePage a{width:50px;height:45px;background:url("../images/online_arrow2.jpg") no-repeat;position:fixed;top:160px;right:-5px;z-index:999; background-position: 0px 0px;opacity:0.3}
+#rightHomePage a:hover{opacity:1 }
+#rightconsult a{width:50px;height:45px;background:url("../images/online_arrow3.jpg") no-repeat;position:fixed;top:210px;right:-5px;z-index:999; background-position: 0px 0px;opacity:0.3}
+#rightconsult a:hover{opacity:1 }

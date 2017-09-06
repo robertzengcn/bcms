@@ -1,0 +1,23 @@
+<div class="footer2 container">
+	<ul class="text-center center-block">
+        <li><a href="" target="_blank">联系我们</a></li>
+        <li><a href="#" target="_blank">帮助信息</a></li>
+        <li><a href="#" target="_blank">京ICP备XXXXXXXX号</a></li>
+        <li><a >XXXXX版权所有</a></li>
+    </ul>
+</div>
+<script type="text/javascript">
+
+/*$(".suspension li p").hide();
+$(".suspension li img").hide();*/
+
+//回到顶部
+function goTop(){
+	$('html,body').animate({'scrollTop':0},600);
+}
+</script>
+
+
+
+</body>
+</html>

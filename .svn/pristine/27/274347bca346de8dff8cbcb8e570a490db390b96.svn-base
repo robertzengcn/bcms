@@ -1,0 +1,381 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增预约资料</title>
+<style type="text/css">
+
+body{background-color:ccc;}
+
+.client-subcat{position: relative; max-width:400px; height:328px; width:100%;}
+.client-subcat a{ color:#fff;}
+.client-subcat .client-tabs{overflow: hidden;}
+.client-subcat .client-tab-tit,.client-subcat .client-tab-con,.client-subcat .client-tab-box{width: 33.3%;height: 328px;overflow-y: auto;overflow-x: hidden;/* border:1px solid #f2f2f2;*/ top:0;
+-moz-box-shadow:0 0 5px #7bc37a inset;               /* For Firefox3.6+ */
+	-webkit-box-shadow:0 0 5px #7bc37a inset;            /* For Chrome5+, Safari5+ */
+	box-shadow:0 0 5px #7bc37a inset;                    /* For Latest Opera */
+}
+.client-subcat .client-tab-tit{ background-color: #8fcb8d; position:absolute; left:0; z-index:3}
+.client-subcat .client-tab-con{background-color: #8fcb8d; position:absolute; left:0; z-index:2}
+.client-subcat .client-tab-box{background-color: #8fcb8d;position:absolute; left:0; z-index:1}
+.client-tab-tit .client-tab-cur{background-color: #7bc37a; color:#fff}
+.client-subcat a {display: block;line-height: 24px;padding:8px 8px 8px 20px ; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.client-subcat .client-tab-con a{ border-color:#eee;}
+.client-subcat a.client-cur{ color: #fff; background-color:#5eb95e;}
+.client-tab-con li:first-child {display: block;}
+.client-tab-box a:hover{ background-color:#429842;}
+</style>
+
+
+</head>
+<body>
+<div class="pd-20">
+	<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>基础信息</span><span>客服记录</span><span>预约信息</span></div>
+				<form method="post" class="form form-horizontal" id="baseinfomation">
+					<div class="tabCon">							
+						<div class="row cl">
+						  <label class="form-label col-2"><span class="c-red">*</span>患者姓名：</label>
+						  <div class="formControls col-81">
+							<input type="text" nullmsg="姓名不能为空" datatype="*2-16" name="username" id="username" placeholder="" value="" class="input-text resinfo baseinfo" errormsg="限2-16个字" onKeyUp="gClients.findUserInfoByName(this)" autocomplete="off"/>
+						  </div>
+						  <div class="col-3 Namecheckdiv"></div>
+						</div>
+						<div class="row cl">
+							<label class="form-label col-2">手机号码：</label>
+							<div class="formControls col-81">
+								<input type="text" class="input-text resinfo baseinfo" value="" placeholder="请输入手机号" id="telephone" name="telephone" datatype="CheckMobile" nullmsg="手机不能为空，预约信息需要发送到患者手机" errormsg="请输入正确的手机号" onKeyUp="gClients.findUserInfoBytelephone(this)" autocomplete="off"/>
+							</div><div class="col-4"><span style="color:#b3b3b3;">（*预约信息会以短信发送到该手机）</span> </div>
+						</div>	
+						<div class="row cl">							
+							<label class="form-label col-2"><span class="c-red">*</span>出生日期：</label>
+							<div class="formControls col-2 skin-minimal">
+								<input type="text" maxlength="3" onBlur="gClients.changeAge();" onFocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd',vel:'birthday',isShowClear:false,onpicked:gClients.changeAge});" name="birthday" id="birthday" class="input-text Wdate resinfo baseinfo" style="width:120px;">	
+							</div>							
+						</div>
+						<div class="row cl">
+							<label class="form-label col-2"><span class="c-red">*</span>年龄：</label>
+							<div class="formControls col-94">
+								<input type="text" onKeyUp="value=value.replace(/(^0|[^\d])/g,'');" name="age" id="age" placeholder="" value="" class="input-text resinfo baseinfo"  datatype="INTS" errormsg="请输入正确的年龄" ignore="ignore" />
+							</div>
+							<div class="col-3"> </div>
+						</div>
+						<div class="row cl">
+							<label class="form-label col-2"><span class="c-red">*</span>性别：</label>
+							<div class="formControls col-91 skin-minimal">
+								<div class="radio-box">
+									<input type="radio" value="0" id="gender0" name="gender" checked="checked" class="baseinfo"/>
+									<label>男</label>
+								</div>
+								<div class="radio-box">
+									<input type="radio" value="1" id="gender1" name="gender" class="baseinfo"/>
+									<label>女</label>
+								</div>
+							</div>
+						</div>			
+						<div class="row cl">			
+							<label class="form-label col-2">邮箱：</label>
+							<div class="formControls col-81">
+								<input type="text" class="input-text resinfo baseinfo" placeholder="@请输入用户邮箱，没有请留空" name="email" id="email" datatype="CheckMail" errormsg="请输入正确的邮箱" ignore="ignore"/>
+							</div><div class="col-3"> </div>		
+									
+						</div>
+						<div class="row cl">
+							<label class="form-label col-2">QQ号码：</label>
+							<div class="formControls col-81">
+								<input type="text" class="input-text baseinfo" placeholder="请输入用户QQ，没有请留空" onKeyUp="value=value.replace(/[^\d]/g,'');" name="qq" id="qq" datatype="CheckQQ" errormsg="请输入正确的QQ号码，没有请留空" ignore="ignore"/>
+							</div><div class="col-3"> </div>
+						</div>
+						<div class="row cl">			
+							<label class="form-label col-2">所在地区：</label>
+							<div class="formControls col-10" style="position:relative;"> 
+								<span style="position:absolute;top:3px;right:162px;"><i class="Hui-iconfont">&#xe671;</i></span><input type="text" class="input-text resinfo baseinfo" value="" placeholder="请选择地区" id="address" name="address" style="width:474px;" onclick="gClients.showplacelist()" onblur="gClients.hideplacelist();"/>				
+								<div class="client-subcat" style="display:none;" info="hide">
+									<div class="client-tabs">
+									  <div class="client-tab-tit" id="firstDiv"></div>
+									  <ul class="client-tab-con" id="secondDiv"></ul>
+									  <div class="client-tab-box" id="thirdDiv"></div>
+									</div>
+								</div><a class="btn btn-success radius" id="" onClick="gClients.openAdd('地区管理','manage/place.html','700','400')" href="javascript:;"><i class="Hui-iconfont">&#xe671;</i> 管理</a>
+							</div>
+						</div>
+						<div class="row cl" id="">
+							<label class="form-label col-2">备注：</label>
+							<div class="formControls col-10">
+								<textarea name="mark" id="mark"  class="textarea baseinfo" style="height:90px;" placeholder="请输入该患者需要特别说明的事宜..." dragonfly="true" onKeyUp="textarealength(this,300)"></textarea>
+							</div><div class="col-2"></div>			
+						</div>										
+					</div>
+					<!--预约信息-->
+					<div class="tabCon">
+					
+						<div class="row cl">
+							<label class="form-label col-2">来源渠道：</label>
+							<div class="formControls col-2"> <span class="select-box" style="width:120px;">
+								<select class="select baseinfo source" name="source" id="source" size="1" plugin="jqtransform" datatype="*"  nullmsg="来源不能为空">
+								</select>
+								</span> </div><div class="col-2"></div><a class="btn btn-success radius" id="manageSource" onClick="gClients.openAdd('患者来源管理','manage/source.html','700','400')" href="javascript:;"><i class="Hui-iconfont">&#xe638;</i> 管理</a>
+						</div>
+						
+						<div class="row cl">
+							<label class="form-label col-2">关注人：</label>
+							<div class="formControls col-10">
+								<div class="form-label skin-minimal" style="text-align:left;" id="relation_ship"></div>
+								<a class="btn btn-primary radius" id="" onClick="gClients.openAdd('选择预约单传看人','manage/clientsGroup.html','700','500')" href="javascript:;" info=""><i class="Hui-iconfont">&#xe62b;</i> 人员管理</a>
+							</div>
+						</div>
+						<div class="sourceform">
+						<div class="row cl receptions">
+							<label class="form-label col-2">咨询日期：</label>
+							<div class="formControls col-2 skin-minimal">
+								<input type="text" maxlength="3" onFocus="WdatePicker({skin:'whyGreen'});" name="record[0][recordtime]" id="recordtime1" class="input-text Wdate baseinfo " style="width:120px;" />	
+							</div><div class="col-85"></div>
+							<label class="form-label col-85">本次客服：</label>
+							<div class="formControls col-2"> <span class="select-box" style="width:120px;">
+								<select class="select baseinfo receptionlist" id="reception_id1" name="record[0][reception_id]" flag="1" plugin="jqtransform" datatype="*"  nullmsg="请选择">									
+								</select>
+								</span> </div><div class="col-2"></div><a class="btn btn-success radius" id="manageSource" onClick="gClients.openAdd('客服人员管理','manage/service.html','700','400')" href="javascript:;"><i class="Hui-iconfont">&#xe6d0;</i> 管理</a>
+						</div>	
+						<div class="row cl news">
+							<label class="form-label col-2">客服记录：</label>
+							<div class="formControls col-10">
+								<textarea nullmsg="客服记录不能为空！" style="width:100%;height:200px;" id="editor1" name="record[0][content]" datatype="*"></textarea>
+							</div><div class="col-2"></div>			
+						</div>	
+						</div>		
+						<div class="row cl" id="msgbox">
+							<label class="form-label col-2"></label><div class="formControls col-5"><a class="btn btn-success radius" id="addnews" href="javascript:;"><i class="Hui-iconfont">&#xe6d0;</i> 添加客服记录</a><a class="btn btn-warning radius ml-10" id="deletlast" href="javascript:;" style="display:none;"><i class="Hui-iconfont">&#xe6e2;</i> 删除最后一项</a></div>
+						</div>	
+						<input type="hidden" name="id" id="id" value="">
+						<input type="hidden" name="plushtime" id="plushtime" value="">
+						<input type="hidden" name="record_ids" id="record_ids" value="">
+						<div style="width:100%;height:60px;clear:both;"></div>
+						<div class="row cl ps-b-5 pd-5 bg-1 bk-gray" id="savebtbox">
+							<div class="col-10 col-offset-1" id="btnbox">
+								<button onclick="gClients.saveClient();return false;" class="btn btn-primary radius" type="submit" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存信息</button>
+								<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+							</div>
+						</div>
+						
+					</div>
+				</form>
+				<!--客服记录-->	
+				<div class="tabCon">					
+					<div class="pd-5">
+						<form method="post" class="form form-horizontal" id="resbookinginfo">
+							<div class="row cl">
+								<label class="form-label col-2"><span class="c-red">*</span>预约日期：</label>
+								<div class="formControls col-2">
+									<input type="text" maxlength="3" onFocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd',vel:'date',isShowClear:false,onpicked:gClients.getReservationByDate});" name="date" id="date" class="input-text Wdate" style="width:110px;">	
+								</div><div class="col-2"></div>
+								<label class="form-label col-2">预约科室：</label>
+								<div class="formControls col-2"> <span class="select-box">
+									<select class="select" id="department_id" name="department_id" size="1" ></select>
+									</span>
+								</div><div class="col-2"></div>	
+							</div>
+							<div class="row cl">
+								<label class="form-label col-2">预约专家：</label>
+								<div class="formControls col-2"> <span class="select-box">
+									<select class="select" id="doctor_id" name="doctor_id" size="1">
+										<option value="">请选择医生</option>
+									</select>
+									</span>
+								</div><div class="col-2"></div>
+								<label class="form-label col-2">预约时间：</label>
+								<div class="formControls col-2"> <span class="select-box">
+									<select class="select" id="appointment" name="appointment" size="1" datatype="*" nullmsg="请选择预约时间">
+										<option  value="">请选择预约时间</option>
+									</select>
+									</span>
+								</div><div class="col-2"></div>
+							</div>	
+							<div class="row cl">
+								<label class="form-label col-2"><input type="hidden" name="client_ID" id="client_ID" value="" datatype="INTS" nullmsg="请先保存前面的基础信息及客服记录才能为该患者预约专家" errormsg="基础信息有误，请核验"></label>	
+								<div class="col-7"></div>
+							</div>
+							<div class="row cl">
+								<label class="form-label col-2">到诊评估：</label>
+								<div class="formControls col-95"> <span class="select-box" style="width:110px;">
+									<select class="select" id="statu" name="statu">
+										<option value="">请 选 择</option>
+										<option value="一定到诊">一定到诊</option>
+										<option value="不确定" selected>不确定</option>
+										<option value="不会到诊">不会到诊</option>
+										<option value="已到诊">已到诊</option>
+									</select>
+									</span> </div>				
+									<div class="col-95"></div>	
+							</div>	
+							<div class="row cl">
+								<label class="form-label col-2">短信通知：</label>
+								<div class=" col-80 skin-minimal">
+									<div class="check-box">
+										<input type="checkbox" id="checkbox-pinglun" />
+										<label for="checkbox-pinglun">是</label>
+									</div>
+								</div><label class="form-label col-5" style="color:#b3b3b3;">（<span class="c-red">*</span>预约详细信息将用短信发送至对方手机）</label>
+							</div>
+							<input type="hidden" name="resvation_id" id="resvation_id" value="">
+							<div style="width:100%;height:60px;clear:both;" class="sendmsg"></div>
+							<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+								<div class="col-10 col-offset-1">
+									<button id="savebookinginfo" onClick="gClients.savebookinginfo();return false;" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存预约信息</button>				
+									<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="pd-5">
+						<div class="cl pd-5 bg-1 bk-gray mt-20"><span class="l">&nbsp;&nbsp;&nbsp;历史预约记录</span>  <span class="r">共有数据：<span id="total"></span> 条</span> </div>
+						<div class="pd-20">
+							<table id="bookinglisttab" class="table table-border table-bordered table-bg table-hover table-sort">
+								<thead>
+									<tr class="text-c">										
+										<th width="50">序号</th>
+										<th>预约日期</th>
+										<th width="100">详细时间</th>	
+										<th width="100">预约科室</th>					
+										<th width="100">预约医生</th>
+										<th width="60">状态</th>
+									</tr>
+								</thead>		
+							</table>
+						</div>
+					</div>
+				</div>
+				<!--预约信息-->	
+
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/clients.js"></script>
+<script type="text/javascript">
+var editor = UE.getEditor('editor1',{
+    toolbars: [
+    [   
+		'source', //源代码
+		'|',
+        'undo', //撤销
+        'redo', //重做  
+		'cleardoc', //清空文档 
+        'removeformat', //清除格式
+		'searchreplace', //查询替换
+		'|',
+        'time', //时间
+        'date', //日期 
+		'spechars', //特殊字符		
+        '|', 
+        'simpleupload', //单图上传  
+		'snapscreen', //截图 
+		'insertimage', //多图上传		
+        '|',           
+        'justifyleft', //居左对齐
+        'justifyright', //居右对齐
+        'justifycenter', //居中对齐
+        'justifyjustify', //两端对齐 
+		'autotypeset', //自动排版
+		'|',
+		'fullscreen', //全屏  
+    ]
+]
+});
+
+window.onload=function()
+{
+	placeEvent();
+}
+
+function placeEvent() {
+	$(".client-tabs .client-tab-con > li:gt(0)").hide();
+	$(".client-tabs .client-tab-box > li").hide();
+	
+	$('.client-tabs .client-tab-tit a').mouseover(function() {
+		$(this).closest('.client-tab-tit').find('a.client-tab-cur').removeClass('client-tab-cur');
+		$(this).addClass('client-tab-cur');
+		$(".client-tabs .client-tab-con").animate({left:'33.3%'}, 500);
+		$(".client-tabs .client-tab-box").animate({left:'0'}, 500);
+		$(".client-tabs .client-tab-con > li").hide();
+		$(".client-tabs .client-tab-con > li:eq(" + $(this).index() + ")").show(300);
+		
+		$('.client-tabs .client-tab-box').find('ul.client-x').removeClass('client-x');			
+		$(".client-tabs .client-tab-box ul:eq(" + $(this).index() + ")").addClass('client-x');
+		$(".client-tabs .client-tab-box > ul").hide(); 
+		$(".client-tabs .client-tab-box > ul:eq(" + $(this).index() + ")").show(300);
+	});
+	
+	$('.client-tabs .client-tab-con a').mouseover(function(){
+		$(this).closest('.client-tab-con').find('a.client-cur').removeClass('client-cur');
+		$(this).addClass('client-cur');
+		if($(".client-tabs .client-tab-box").find('ul.client-x').length!=0){
+			$(".client-tabs .client-tab-box").animate({left:'66.6%'}, 500);
+			$(".client-tabs .client-tab-box ul li").hide();			
+			$(".client-tabs .client-tab-box ul.client-x li:eq(" + $(this).index() + ")").show(300);
+		}			
+	});
+	
+	$('.client-tabs a').click(function(){
+		var id = $(this).attr('data');
+		getPlaceFullPathById(id);		
+		$('.client-subcat').hide();
+	});
+	
+	$('div.client-subcat').mouseleave(function(){
+		$(this).hide();
+	});
+}
+
+function getPlaceFullPathById(id) {
+	$.getJSON("/hcc/clients/manage/place.json", function(data){
+		if (data[id] == 'undefined') return;
+		
+		var arr = id.split('-');
+		if (data[arr[0]] == 'undefined') return;
+		
+		var len = arr.length;
+		var path = first = second = third = '';
+		if (len == 1) {
+			path = data[id];
+		} else if (len == 2) {
+			path = data[arr[0]] + '>' + data[id];
+		} else if (len ==3) {
+			path = data[arr[0]] + '>' + data[arr[0]+'-'+arr[1]] + '>' + data[id];
+		}
+		$("#address").val(path);
+	});
+}
+
+var gClients = new gClients();
+gClients.setThisName('gClients');
+gClients.editorclient();
+</script>
+</body>
+</html>

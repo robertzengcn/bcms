@@ -1,0 +1,76 @@
+<?php
+include './HM.php';
+class User extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	protected function __login(){
+		if( isset( $_REQUEST['username'] ) && isset( $_REQUEST['pwd'] )  ){
+			$username = trim( $_REQUEST['username'] );
+			$pwd      = trim( $_REQUEST['pwd'] );
+			if( strlen( $pwd ) != 32 ){$this->__msg(1,'请将pwd参数进行md5小写转换后传入.',null);}
+			$password = md5( $pwd );
+			new ArticleService();
+			$result = R::findOne('worker',"`name` = '{$username}' and `password`='{$password}'");
+
+			if(!is_object( $result )){
+				$this->__msg(1,'账户密码不匹配,验证失败.',null); 
+			}else{
+				$passport=md5(time().$_REQUEST['username'].rand(1000,9999));
+				$returnarr=array('passport'=>$passport,'id'=>$result->id);
+				session_start();
+                $_SESSION['passport']=$passport;
+              //echo $_SESSION['passport'];
+				
+								
+				$this->__msg(0,'success',$returnarr);
+			};
+		}else{
+			$this->__msg(1,'缺少username或pwd参数.',null);
+		}
+	}
+	
+	/**
+	 * 获取登录用户所关注的所有客户咨询预约信息
+	 * */
+	protected function __getReseruserList() {
+		new ClientService();
+		$userId = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+		if ($userId) {
+			DTExpression::like('focus_id', $userId);
+			$clients = R::find('client', DTExpression::$sql, DTExpression::$params);
+			$users = array();
+			foreach ($clients as $client) {
+				$focus_ids = explode(',', $client->focus_id);
+				if (!empty($focus_ids) && in_array($userId, $focus_ids)) {
+					$users[]= $client->username;
+				}
+			}
+			
+			DTExpression::$params = array();
+			DTExpression::$limit = '';
+			DTExpression::$sql = ' 1=1 ';
+			DTOrder::$sql = '';
+			
+			//所有预约信息
+			DTExpression::in('name', $users);
+			DTExpression::page($_REQUEST);
+			$reseruser = R::find('reseruser', DTExpression::$sql. DTExpression::$limit, DTExpression::$params);
+			$data =array();
+			foreach ($reseruser as $bean) {
+				$user = new ReserUser();
+				$user->generateFromRedBean($bean);
+				$data[] = $user;
+			}
+			
+			$this->__msg(0,'success',$data);
+		} else {
+			$this->__msg(1,'缺少参数id.',null);
+		}
+	}
+	
+	
+}
+new User();

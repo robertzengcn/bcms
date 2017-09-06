@@ -1,0 +1,51 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/ask.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您现在的位置：<a target="_blank" href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a>>
+           <a target="_blank">专家答疑</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+    <div class="par-main">
+      <h2><span>专家答疑</span></h2>
+      <div class="question-tab"><h4 class="current">全部问题</h4></div>
+
+      <div class="question-list">
+        <ul>
+          <li class="title"><span class="title">标题</span><span class="status">状态</span><span class="time">提问时间</span>
+          <span class="name">提问人</span></li>
+          <!--ѭ����ʼ-->
+            {{foreach $AskTag->getList($cur) as $v}}
+            {{department id=$v->department_id assign="department"}}
+          <li><span class="title">[<a target="_blank" href="{{$WEBSITE}}/{{$department->url}}">{{$department->name}}</a>]
+              <a target="_blank" href="{{$v->id}}.html">{{$v->subject}}</a></span>
+              {{if $v->status == 1}}
+              <span class="status"><img src="{{$RESOURCE}}/images/ask/state.gif" alt="" /></span>
+              {{else}}
+              <span class="status"><img src="{{$RESOURCE}}/images/ask/state1.gif" alt="" /></span>
+              {{/if}}
+              <span class="time">{{$v->plushtime}}</span><div class="name">{{$v->name}}</div></span></li>
+            {{/foreach}}
+        </ul>      
+      </div>
+      <div class="fenye">{{$AskTag->getPageHtml($cur)}}</div>
+
+        <div class="ask-tab"><div></div><p>
+            您好，这里是{{$ContactTag->get('name')}}在线专家答疑，留下您的问题，我们的专家会对您的问题尽快进行回复，感谢您对
+            {{$ContactTag->get('name')}}的信任！<strong>健康热线：{{$ContactTag->get('tel')}}
+            </strong></p>
+        </div>
+    <!--���ʱ?begin-->
+          {{include file="../common/public/tiwen.htpl"}}
+    <!--���ʱ?end-->
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

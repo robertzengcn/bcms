@@ -1,0 +1,17 @@
+{{extends file="./common/layout/layout.htpl"}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/404.css">
+{{/block}}
+{{block name=body}}
+  <div class="clear h8"></div>
+  <!--404-->
+  <div class="error bk">
+    <div class="error_content">
+      {{error id="{{$id}}" assign="error"}}
+      <h2>{{$error[0]->content}}...</h2>
+      1.请检查您输入的地址是否正确; <br>
+      2.如果您不能确认您输入的网址,请进入<a href="{{$WEBSITE}}">网站首页</a>浏览更多精彩文章。</div>
+  </div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

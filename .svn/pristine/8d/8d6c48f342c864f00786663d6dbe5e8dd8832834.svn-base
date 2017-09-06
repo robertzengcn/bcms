@@ -1,0 +1,691 @@
+<?php
+
+class ClientController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        parent::__construct();
+        $this->service = new ClientService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *getGroups
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+    
+    /**
+     * 列表查询
+     * */
+    public function query() {
+        $result = $this->service->query($_REQUEST); 
+             
+        $totalRows = $this->service->totalRows($_REQUEST);        
+        echo json_encode(array(
+        		'rows' => $result->data,
+        		'ttl' => $totalRows
+        ));
+        
+    }
+
+    /**
+     * 根据client_id查找
+     */
+    public function getRecord($client_id) {
+        $result = $this->service->getRecord($client_id);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => ''
+        ));
+    }
+
+    /**
+     * 删除
+     */
+    public function del() {
+        $result = $this->service->deleteClient($_REQUEST['id']);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加保存基础信息及客服记录reception_id
+     */
+    public function save() {     	 	  	
+    	if(!isset($_REQUEST['id'])||$_REQUEST['id']==''){
+    		$this->blindParams($client = new Client()); 
+    		$result = $this->service->save($client);
+    		if($result->statu){//如果保存用户成功，则开始保存客服记录
+				$reception = array();
+    			$clientser=new ClientService();    			
+    			if(isset($_REQUEST['record'])){
+    				foreach($_REQUEST['record'] as $key =>$val){
+    					
+    					$clientRecord=new ClientRecord();
+    					$clientRecord->client_id=$result->data;
+    					$clientRecord->content=isset($val['content'])?$val['content']:null;
+    					$clientRecord->recordtime=isset($val['recordtime'])?$val['recordtime']:null;
+    					$clientRecord->reception_id=isset($val['reception_id'])?$val['reception_id']:null;
+						if($val['reception_id']){
+							$reception[$val['reception_id']] = (isset($reception[$val['reception_id']]) ? $reception[$val['reception_id']] : 0) +  1;
+						}
+						
+    				    $clientser->saveclientrecord($clientRecord);
+    				}
+    			}
+
+				$info = array('reception'=>$reception,'type'=>1);
+				$time = time();
+				$resdata = $this->service->checkData($time);
+					$this->blindParams($cdata = new ClientData());
+					$cdata->week = date("w",$time);
+					$cdata->daytime = date('Y-m-d',$time);
+				if($resdata){
+					$cdata->id = $resdata->id;
+					$cdata->zx_total = $resdata->zx_total + count($_REQUEST['record']);
+					$cdata->res_total = $resdata->res_total;
+					$info['department'] = $resdata->department;
+					$info['kefu'] = $resdata->kefu;
+					$this->service->updateClientData($cdata,$info);
+				}else{
+					$this->service->saveClientData($cdata,$info);							
+				}
+    			if (isset($_REQUEST['focus_id']) && !empty($_REQUEST['focus_id'])) {
+    				//$clientworkarr = explode(',', $_REQUEST['focus_id']);
+    				
+    				foreach($_REQUEST['focus_id'] as $val){
+    					$clientwork=new ClientWorker();
+    					$clientwork->client_id=$result->data;
+    					$clientwork->work_id=$val;
+    				}
+    				$clientser->saveclientwork($clientwork);
+    				
+    			}
+    			
+    		}
+    		
+    		global $controller;
+    		$controller->notify('NOTIFY_CLIENT_SAVE',array('send'=>true,'client_id'=>$result->data,'focus_id'=>isset($_REQUEST['focus_id'])&&!empty($_REQUEST['focus_id'])?$_REQUEST['focus_id']:array(),'data'=>'你有新的患者信息，请及时关注'));
+   		
+    		echo json_encode($result);
+    		
+    	}else{
+    		$this->update();
+    	}    	
+       
+    }
+    
+    /**
+     * 获取所有患者列表
+     * */
+    public function getAllPerson() {
+    	$data = $this->service->getAllPerson();
+    	echo json_encode($data);
+    }
+    
+    
+    /**
+     * 根据预约ID获取预约记录
+     * */
+    public function getResbookingByIDS() {
+    	$data='';
+    	$ttl='';
+    	if(isset($_REQUEST['ids'])&&is_array($_REQUEST['ids'])){    		
+    		$arr=array_filter($_REQUEST['ids']);
+    		$ttl=count($arr);
+    		$resbookservice=new ResBookingInfoService();
+    		$data = $resbookservice->getResbookingByIDS($arr);    		
+    	}    	
+    	echo json_encode(array(
+    			'rows' => array_reverse($data),
+    			'ttl' => $ttl
+    	));
+    }
+    
+    /**
+     * 修改
+     */
+    public function update() {
+    	
+        $contents = isset($_REQUEST['content']) ? $_REQUEST['content'] : '';
+        $record_ids = isset($_REQUEST['record_ids']) ? $_REQUEST['record_ids'] : '';
+        $record_ids = array_filter(explode(',', $record_ids));
+       
+        $this->blindParams($client = new Client()); 
+//         if (isset($_REQUEST['focus_id']) && !empty($_REQUEST['focus_id'])) {
+//         	$client->focus_id = implode(',', $_REQUEST['focus_id']);
+//         }
+        if (isset($_REQUEST['source']) && !empty($_REQUEST['source'])) {
+        	$client->last_source =(int)$_REQUEST['source'];
+        }
+        if (isset($_REQUEST['reception_id']) && !empty($_REQUEST['reception_id'])) {
+        	$last_reception=0;
+        	if(is_array($_REQUEST['reception_id'])){
+        		$last_reception=(int)end($_REQUEST['reception_id']);
+        	}else{
+        		$last_reception=(int)$_REQUEST['reception_id'];
+        	}
+        	$client->last_reception =$last_reception;
+        }
+        $clientRecords = array();  
+        if($contents){      
+        foreach ($contents as $key=>$content) {
+        	
+            $clientRecord = new ClientRecord();            
+            if (in_array($key, $record_ids)) {            	
+                $clientRecord->id = $key;
+            }
+            $clientRecord->content = $content;            
+            $clientRecords[] = $clientRecord;
+        }
+        }        
+        $result = $this->service->update($client); 
+        
+        if($result->statu){//如果保存用户成功，则开始保存客服记录
+        	$clientser=new ClientService();
+        	$clientser->deleteclientrecord($client->id);//删除原有记录
+        	if(isset($_REQUEST['record'])){
+        		foreach($_REQUEST['record'] as $key =>$val){
+        				
+        			$clientRecord=new ClientRecord();
+        			$clientRecord->client_id=$result->data;
+        			$clientRecord->content=isset($val['content'])?$val['content']:null;
+        			$clientRecord->recordtime=isset($val['recordtime'])?$val['recordtime']:null;
+        			$clientRecord->reception_id=isset($val['reception_id'])?$val['reception_id']:null;
+        			
+        			$clientser->saveclientrecord($clientRecord);
+        		}
+        	}
+        	
+        	if (isset($_REQUEST['focus_id']) && !empty($_REQUEST['focus_id'])) {
+        		$clientser->deleteclientwork($client->id);//删除原有记录
+        		//$clientworkarr = explode(',', $_REQUEST['focus_id']);
+        		
+        		foreach($_REQUEST['focus_id'] as $val){
+        			$clientwork=new ClientWorker();
+        			$clientwork->client_id=$result->data;
+        			$clientwork->work_id=$val;
+        			$clientser->saveclientwork($clientwork);
+        		}
+        		
+        	}
+        	
+        	 
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 处理预约信息*根据医生ID和日期获取可约时间点
+     */
+    public function getTimepointBydocID() { 
+    	
+    	#.信息来源      	
+		if( ! isset( $_REQUEST['docID'] ) || $_REQUEST['docID'] == '' || (int)$_REQUEST['docID'] <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'请选择医生','data'=>null ) ) );
+		}	
+		if( ! isset( $_REQUEST['date'] ) || $_REQUEST['date'] == '' ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'请选择预约日期','data'=>null ) ) );
+		}	
+		#.是否存在该医生的预约信息
+		new ResDoctorService();
+		$doctor_id = (int)$_REQUEST['docID'];
+		//调取指定日期的数据
+		$result    = R::find('resvation','doctor_id = '.$doctor_id.' and date='.strtotime($_REQUEST['date']));	
+		
+		if( count( $result ) <= 0 ) {
+			die( json_encode( array('statu'=>false, 'code'=>1,'msg'=>'该医生暂无排班信息!','data'=>null ) ) );
+		}else{	
+			
+			$num=0;
+			$code=0;
+			$resID=0;
+			//查询患者预约信息表(resbookinginfo)从数据中迁出己被约的时间点
+			foreach ($result as $key=>$val){
+				
+				$resID=$val->id;
+				//医生号源个数
+				$bookingNum=(int)$val->morning_source+(int)$val->afternoon_source+(int)$val->night_source;
+				//是否还有号源
+				$num=$bookingNum-(int)$val->mark;		
+				//裂解time_point
+				$timepoint=explode('@',$val->time_point);
+	
+				$timeobj=array();
+				for($i=0;$i<count($timepoint);$i++){
+					if(isset($timepoint[$i+1])&&$timepoint[$i+1]!=0&&$timepoint[$i]!=0){
+						$timeobj[$timepoint[$i]]=$timepoint[$i].'-'.$timepoint[$i+1];
+					}
+				}		
+				
+				if($num!=0&&(int)$val->mark!=0){
+					//有人预约，但还有余号
+					unset($_REQUEST['part']);
+					unset($_REQUEST['department_id']);
+					//还有号源，但部分号己被预约，查被约时间点
+					$resbookservice=new ResBookingInfoService();					
+					$bookresult=$resbookservice->getAllbookinginfos(array('resvation_id'=>$val->id));					
+					if($bookresult['ttl']>0){
+						//有人预约，将己约的时间点从总数据中迁出
+						$rows=$bookresult['rows'];
+						$timearrange=array();
+						foreach( $timeobj as $key=>$time) {
+							foreach ($rows as $k=>$row){
+								if(strtotime($key)==strtotime($row->times)){
+									unset($timeobj[$key]);
+									break;
+								}
+							}
+						}	
+					}
+					$timearrange= array_values($timeobj);
+					$results=$timearrange;					
+				}else if((int)$val->mark==0){
+						//无人预约
+					$results=array_values($timeobj);
+							
+				}else if($num==0&&(int)$val->mark!=0){
+					//该医生当日号己约完
+					$results='本日号已满';
+					$code=1;
+				}				
+			}// foreach over			
+			$result=array('statu'=>true,'code'=>$code,'msg'=>null,'data'=>$results,'resid'=>$resID);					
+			echo json_encode($result);
+		}
+    
+   }
+    
+    
+	/**
+	 *提交预约挂号 new 
+	 */
+	public function saveBookingInfo() {		
+		$bookservice=new ResBookingInfoService();
+		
+		if(isset($_REQUEST['telephone'])&&$_REQUEST['telephone']){
+			$where['telephone']=$_REQUEST['telephone'];
+		}
+
+		
+		
+		if(isset($_REQUEST['date'])&&$_REQUEST['date']){
+			if(strtotime($_REQUEST['date'].''.$_REQUEST['appointment'])<=time()){
+				
+				die(json_encode(array('statu'=>false,
+						'code'=>'11',
+						'msg'=>'该预约时间已过期',
+						'data'=>null
+				)));
+			}
+			if(strtotime($_REQUEST['date'])>time()){
+				$where['date']=strtotime($_REQUEST['date']);
+			}else{
+				$where['start_time']=time();
+				$where['end_time']=strtotime("+2 months");
+			}
+		}
+	
+		$result=$bookservice->getAllbookinginfos($where);	
+		
+		if($result['ttl']!=0){
+			$rows=$result['rows'][0];
+			$data=array('statu'=>false,
+					'code'=>'',
+					'msg'=>'查到有相同手机号己经预约过'.$rows->date.' '.$rows->doctor_name.'的号，请与患者核验！',
+					'data'=>null
+			);			
+		}else{
+			if(isset($_REQUEST['appointment'])&&$_REQUEST['appointment']){
+				$_REQUEST['times']=$_REQUEST['appointment'];
+				unset($_REQUEST['appointment']);
+			}
+			if(isset($_REQUEST['times'])&&$_REQUEST['times']){
+				$_REQUEST['times']=strtotime($_REQUEST['date']." ".$_REQUEST['times']);
+			}
+			if(isset($_REQUEST['date'])&&$_REQUEST['date']){
+				$_REQUEST['date']=strtotime($_REQUEST['date']);				
+			}
+
+			$send=isset($_REQUEST['send'])&&strlen($_REQUEST['send'])>0?$_REQUEST['send']:null;
+			
+			$this->blindParams($resbookinginfo = new ResBookingInfo());
+					
+			if(isset($resbookinginfo->times)&&$resbookinginfo->times){				
+				$boolcheck=$this->checktimevaild($resbookinginfo->date,$resbookinginfo->times);//检查要预约的时间段是否已被人预约
+				if(!$boolcheck){
+					
+					$results = $bookservice->saveBookingInfo($resbookinginfo);	
+					global $controller;
+					$controller->notify('NOTIFY_ADMIN_SAVEBOOKING',array('send'=>$send,'telephone'=>$_REQUEST['telephone'],'data'=>$results['data']));
+					//保存成功后将预约ID写入client表
+// 					if($results['statu']){//保存成功后返回res_code
+// 						$ret=$this->service->addrescode($results[data],$_REQUEST['client_ID']);						
+// 					}
+ 					if($results['statu']){
+						$info = array('department_id'=>$_REQUEST['department_id'],'statu'=>$_REQUEST['statu'],'type'=>2);
+						$time = time();
+						$resdata = $this->service->checkData($time);
+							$this->blindParams($cdata = new ClientData());
+							$cdata->week = date("w",$time);
+							$cdata->daytime = date('Y-m-d',$time);
+						if($resdata){
+							$cdata->id = $resdata->id;
+							$cdata->zx_total = $resdata->zx_total;
+							$cdata->res_total = $resdata->res_total + 1;
+							$info['department'] = $resdata->department;
+							$info['kefu'] = $resdata->kefu;
+							$this->service->updateClientData($cdata,$info);
+						}else{
+							$this->service->saveClientData($cdata,$info);							
+						}
+ 					}
+					$data=array('statu'=>true,
+							'code'=>'',
+							'msg'=>'',
+							'data'=>null
+					);
+				}else{
+					$data=array('statu'=>false,
+							'code'=>'',
+							'msg'=>'该时间点已被预约，请更换时间点！',
+							'data'=>null
+					);
+				}
+				
+			}			
+		}		
+		echo json_encode($data);		
+	}
+	
+	//判断某个时间点是否己被约
+	private function checktimevaild($date,$time){
+		$resbooking=new ResBookingInfoService();
+		$time=strtotime($date.' '.$time);
+		$result=$resbooking->checkdaytime(array('date'=>strtotime($date),'times'=>$time));
+		if($result){//如果已经有号源
+			return true;
+		}else{
+			return false;
+		}
+	}
+    
+    
+
+    /**
+     * 编辑
+     */
+    public function get() {
+    	if(!isset($_REQUEST['id'])||strlen($_REQUEST['id'])<1){
+    		echo json_encode(array('statu'=>false,'code'=>2,'msg'=>'缺少id','data'=>null));
+    	}
+    	$client=new Client();
+    	$client->id=$_REQUEST['id'];
+        $result = $this->service->get($client->id,$client);        
+        echo json_encode($result);
+    }
+    
+    /**
+     * 保存关注组信息
+     * */
+    public function saveGroup() {
+        $this->blindParams($group = new ClientGroup());
+        $group->remark = '';
+        $result = $this->service->saveGroup($group);
+        
+        echo json_encode($result);
+    }
+    
+    /**
+     * 获取所有组
+     * */
+    public function getGroups() {
+        $data = $this->service->getGroups();
+        echo json_encode(new Result(true, 0, '', $data));
+    }
+    
+    /**
+     * 获取指定组下用户
+     * */
+    public function getGroupUsers() {
+        $groupid = isset($_REQUEST['group_id']) ? $_REQUEST['group_id'] : 'all';
+        $data = $this->service->getGroupUsers($groupid);
+        echo json_encode(new Result(true, 0, '', $data));
+    }
+
+    /**
+     * 保存客户地址信息
+     */
+    public function savePlace() {
+        $places = array();
+        
+        //数据整理
+        $data = isset($_REQUEST['data']) ? $_REQUEST['data'] : '';
+        if ( $data ) {
+        	foreach ($data as $key=>$value) {
+        		$index = explode('TD-', $key);
+        		$places[$index[1]] = $value;
+        	}
+        }
+        
+        $filename = ABSPATH . '/hcc/clients/manage/place.json';
+        file_put_contents($filename, json_encode($places));
+        echo json_encode (new Result(true, '', '', ''));
+    }
+    
+    /**
+     * 删除客户地址信息
+     */
+    public function delPlace() {
+        $filename = ABSPATH . '/hcc/clients/manage/place.json';
+        $data = json_decode(file_get_contents($filename),true);
+        
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        if ( $data ) {
+            foreach ($data as $key=>$value) {
+                if (strlen($key)>=strlen($id)){
+                    $prefix = substr($key, 0, strlen($id));
+                    if ($id == $key || $id == $prefix) {
+                        //删除本身及子级
+                        unset($data[$key]);
+                    }
+                }
+                
+            }
+            $filename = ABSPATH . '/hcc/clients/manage/place.json';
+            file_put_contents($filename, json_encode($data));
+        }
+    
+        echo json_encode (new Result(true, '', '', ''));
+    }
+    
+    /**
+     * 获取客户地址信息
+     */
+    public function getPlace() {
+        $filename = ABSPATH . '/hcc/clients/manage/place.json';
+        $data = json_decode(file_get_contents($filename),true);
+    
+        $first = $second = $third = array();
+        if ( $data ) {
+            foreach ($data as $key=>$value) {
+                $arr = explode('-', $key);
+                if (count($arr) == 1) {
+                	$first[$key] = $value; 
+                }
+                
+                if (count($arr) == 2) {
+                    $second[$key] = $value; 
+                }
+                
+                if (count($arr) == 3) {
+                    $third[$key] = $value; 
+                }
+            }
+        }
+    
+        echo json_encode (new Result(true, '', '', array('first'=>$first, 'second'=>$second,'third'=>$third)));
+    }
+    
+    /**
+     * 获取来源信息
+     * */
+    public function getDataSource() {
+        $data = $this->service->getDataSource();
+        if (isset($_REQUEST['list']) && $_REQUEST['list']) {
+            $result = array('rows'=>$data,'ttl'=>count($data));
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 添加来源信息
+     * */
+    public function addSource() {
+        echo json_encode($this->service->saveDataSource());
+    }
+    
+    /**
+     * 删除来源信息
+     * */
+    public function delSource() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delDataSource($id));
+    }
+    
+    /**
+     * 修改来源信息
+     * */
+    public function modSource() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->modSource($id));
+    }
+    
+    /**
+     * 获取接待信息
+     * */
+    public function getReceptionist() {
+    	$worker=new WorkerService();
+    	$data=$worker->getnicknamelist($_REQUEST)->data;    	
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getReceptionistCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 添加前台接待信息
+     * */
+    public function addReceptionist() {
+        echo json_encode($this->service->addReceptionist());
+    }
+    
+    /**
+     * 修改前台接待信息
+     * */
+    public function modReceptionist() {
+        echo json_encode($this->service->modReceptionist());
+    }
+    
+    /**
+     * 删除前台接待信息
+     * */
+    public function delReceptionist() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delReceptionist($id));
+    }
+    
+    /**
+     * 获取统计数据
+     * */
+    public function getStatData() {
+        $rows = $this->service->getStatData();
+        $ttl = isset($rows['ttl']) ? $rows['ttl'] : count($rows);
+        $rows = isset($rows['rows']) ? $rows['rows'] : $rows;
+        echo json_encode(array('rows'=>$rows,'ttl'=>$ttl));
+    }
+    
+    /**
+     * 获取当月就诊数据
+     * */
+    public function statByDate() {
+        $data = $this->service->statByDate();
+        echo json_encode(array('statu'=>true,'data'=>$data));
+    }
+    
+    /**
+     * 获取关注人
+     * */
+    public function getclientworker(){
+    	if(!isset($_REQUEST['client_id'])||strlen($_REQUEST['client_id'])<1){
+    		die(json_encode(array('statu'=>false,'code'=>0,'msg'=>'缺少client_id','data'=>null)));
+    	}
+    	$result=$this->service->getclientworker($_REQUEST['client_id']);
+    	echo json_encode($result);
+    }
+    /**
+     * 取就诊记录
+     * */
+    public function getclientrecord(){
+    	if(!isset($_REQUEST['client_id'])||strlen($_REQUEST['client_id'])<1){
+    		die(json_encode(array('statu'=>false,'code'=>0,'msg'=>'缺少client_id','data'=>null)));
+    	}
+    	$result=$this->service->getclientrecord($_REQUEST['client_id']);
+    	echo json_encode($result);
+    }
+
+    /**
+     * 同步预约挂号数据到客服管理表
+     * */
+    public function syncData() {
+        //之前的未完成且不合理，故弃用
+        /*
+        $resbookingser=new ResBookingInfoService();
+        $resbooks=$resbookingser->getdistinct();
+        fb($resbooks);
+        */
+        
+        
+        //查找未同步数据
+    	$sql = "select * from resbookinginfo where not exists (select 1 from client where username=resbookinginfo.username or telephone=resbookinginfo.telephone)";
+    	$data = R::getAll($sql);
+    	
+    	//开始同步
+    	foreach ($data as $value) {
+    	    $client = new Client();
+    	    $client->username = $value['username'];
+    	    $client->telephone = $value['telephone'];
+    	    $client->age = $value['age'];
+    	    $client->gender = $value['sex'];
+    	    $client->mark = '';
+    	    $client->plushtime = time();
+    	    try {
+    	        $re = $this->service->save($client);
+    	    } catch (Exception $e) {
+    	    }
+    	    
+    	}
+    	
+    	echo json_encode($this->service->success());
+    }
+}
+
+?>

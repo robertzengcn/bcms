@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <title>博医</title>
+    <link href="./install/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="./install/dist/js/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner" style="background-color: darkseagreen">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="http://www.boyicms.com" target="_blank" class="navbar-brand" style="display:inline-block;width:125px;height:60px;border:none;padding:0px;">
+				<img src="./install/dist/img/logo.jpg" width="125" height="60" style="border:none;" />
+			</a>
+        </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation" >
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://www.boyicms.com"  target="_blank">官方网站</a></li>
+                <li><a href="http://www.boyicms.com/plugins/help/online/"  target="_blank">帮助</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="container">
+                <div class="panel panel-success">
+                    <div class="panel-heading">安装完成</div>
+                    <div class="panel-body">
+                        <div style="text-align: center;">
+                          	<p>恭喜您已经安装完成，您可以去往后台选择模板等：</p>
+                            <input type="button" class="btn btn-success" id="setp_button_admin" value="后台管理"/>
+                        </div>
+                    </div>
+
+                </div>
+</div>
+</body>
+<script language="javascript">
+function FileExist(FileURL)
+{
+	var xmlhttp;
+		if(window.ActiveXObject)//ActiveXObject对象到找到的时候返回的是真，否则是假
+		 {
+			 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");//这个是使用IE的方法创建XmlHttp
+		 }
+		 else if(window.XMLHttpRequest)
+		 {
+			 xmlhttp=new XMLHttpRequest();//这个是使用非IE的方法创建XmlHttp
+		 }
+	xmlhttp.open("GET",FileURL,false);
+	xmlhttp.send();
+	if(xmlhttp.readyState==4)
+	{
+		if(xmlhttp.status!=200) window.location.href="./install/index.php" 		
+	}
+ }
+FileExist('./install/install.txt')
+$('#setp_button_admin').click(function(){
+	location.href = '/hcc/index.html';
+})
+</script>
+</html>

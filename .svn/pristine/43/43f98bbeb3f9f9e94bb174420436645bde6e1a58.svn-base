@@ -1,0 +1,19 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class ClientRecord extends Entity {
+
+    var $id;
+
+    var $client_id;
+
+    var $content;
+
+    var $plushtime;
+
+    public function validate() {
+        if ($this->plushtime == '' || strlen($this->plushtime) == 0) {
+            throw new ValidatorException(44);
+        }
+    }
+}

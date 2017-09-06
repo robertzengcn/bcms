@@ -1,0 +1,68 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,Log-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]--><title>系统日志</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 用户帮助中心 <span class="c-gray en">&gt;</span> 系统日志 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+  <form id="frm_post">
+  <div class="text-c"> 日期范围：
+    <input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end_time\')||\'%y-%M-%d\'}'})" id="start_time" name="start_time" class="input-text Wdate" style="width:120px;">
+    -
+    <input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start_time\')}',maxDate:'%y-%M-%d'})" id="end_time" name="end_time" class="input-text Wdate" style="width:120px;">
+    <button id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜日志</button>
+  </div>
+  </form>
+  <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onClick="gLog.openSys();" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe605;</i> 开启日志</a> <a href="javascript:;" onClick="gLog.closeSys();" class="btn btn-secondary radius"><i class="Hui-iconfont">&#xe60e;</i> 关闭日志</a> <a href="javascript:;" onClick="gLog.clearSys();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 清空日志</a> <a href="javascript:;" onClick="gLog.exportCSV();" class="btn btn-success radius"><i class="Hui-iconfont">&#xe6e2;</i> 导出CSV</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+  <table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+    <thead>
+      <tr class="text-c">
+        <th width="80">ID</th>
+        <th width="100">类型</th>
+        <th>内容</th>
+        <th width="17%">用户名</th>
+        <th width="120">时间</th>
+      </tr>
+    </thead>
+  </table>
+  <div id="pageNav" class="pageNav"></div>
+</div>
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script>  
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>  
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/log.js"></script>
+<script type="text/javascript">
+var gLog = new Log();
+gLog.setThisName('gLog');
+gLog.initList();
+
+</script>
+</body>
+</html>

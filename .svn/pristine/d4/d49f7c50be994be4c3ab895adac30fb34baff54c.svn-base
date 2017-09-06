@@ -1,0 +1,167 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增站点-多站管理</title>
+</head>
+<body>
+<div class="pd-20">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>站点配置</span><span>头尾信息</span></div>
+			<div class="tabCon">
+				<form action="" method="post" class="form form-horizontal" id="">
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>站点名称：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="" placeholder="请输入站点名称..." id="" name="" datatype="*2-16" nullmsg="站点名称不能为空">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>站点域名：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="" placeholder="请输入站点域名，如：www.boyicms.com..." id="" name="" datatype="*2-16" nullmsg="域名不能为空">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>数据库地址：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="" placeholder="请输入数据库的远程连接地址/IP..." id="" name="" datatype="*2-16" nullmsg="数据库地址不能为空">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>端口：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="3306" placeholder="" id="" name="" datatype="*2-16" nullmsg="端口不能为空" info="数据库端口值一般默认为3306，无特需情况无须修改">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>数据库名：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="" placeholder="请输入站点的数据库名称..." id="" name="" datatype="*2-16" nullmsg="数据库名不能为空">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>数据库用户名：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="" placeholder="请输入数据库用户名，如：root..." id="" name="" datatype="*2-16" nullmsg="数据库用户名不能为空">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-3"><span class="c-red">*</span>数据库密码：</label>
+					  <div class="formControls col-5">
+						<input type="text" class="input-text" value="" placeholder="请输入数据库密码..." id="" name="" datatype="*2-16" nullmsg="数据库密码不能为空">
+					  </div>
+					  <div class="col-4"> </div>
+					</div>			
+					<div class="row cl">
+						<div class="col-10 col-offset-2">
+							<button onClick="" class="btn btn-primary radius bt-normal" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+							<button onClick="layer_close();" class="btn btn-default radius bt-normal" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+						</div>
+					</div>
+				</form>
+			</div>
+			<!--站点配置-->
+			<div class="tabCon">
+				<div class="pd-5">
+					<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onClick="gArticle.delBatch();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" onClick="open_newindow('新增伪原创信息','p-original-add.html','800','500')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加信息</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>					
+					<div class="mt-10" id="">
+						<table class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">
+									<th width="25"><input type="checkbox" name="" value=""></th>
+									<th width="40">序号</th>
+									<th width="80">信息类型</th>
+									<th>内容预览</th>	
+									<th width="80">添加时间</th>	
+									<th width="60">操作</th>																	
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="text-c">
+									<td><input type="checkbox" value="" name=""></td>
+									<td>1</td>
+									<td>头部信息</td>									
+									<td class="text-l">欢迎访问泉州南方医院官网，泉州南方医院是鲤城区最大的综合性，全日制医院。</td><!--限40个字-->
+									<td>2016-03-05</td>
+									<td><a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+								</tr>
+								<tr class="text-c">
+									<td><input type="checkbox" value="" name=""></td>
+									<td>2</td>
+									<td>头部信息</td>									
+									<td class="text-l">欢迎访问泉州南方医院官网，泉州南方医院是鲤城区最大的综合性，全日制医院。</td>
+									<td>2016-03-05</td>
+									<td><a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>					
+			</div>
+			<!--头尾信息-->
+		</div><!--HuiTab over-->
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+/*上传图片*/
+function upload_img(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+/*打开新窗口*/
+function open_newindow(title,url,w,h){
+	parent.layer_show(title,url,w,h);
+}
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	$(".form").Validform({
+		tiptype:2,
+		callback:function(form){
+			form[0].submit();
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.$('.btn-refresh').click();
+			parent.layer.close(index);
+		}
+	});
+	$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+});
+
+</script>
+</body>
+</html>

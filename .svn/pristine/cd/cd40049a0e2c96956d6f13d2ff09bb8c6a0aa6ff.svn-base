@@ -1,0 +1,126 @@
+<?php
+
+class WinlogService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new WinlogDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $commodityArray = $this->dao->getBatch($ids);
+
+      
+/*无此功能页面 
+        $files = array();
+        $recommendListDAO = new RecommendListDAO();
+        foreach ($commodityArray as $commodity) {
+          $filename = GENERATEPATH . 'commodity/' . $commodity->id . '.html';
+            if ($commodity->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $files[] = $filename;
+            $recommendListDAO->deleteById('$commodity_id', $$commodity->id);
+        } 
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+*/
+        return $this->dao->deleteBeans($commodityArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($draw) {
+        $this->dao->get($draw->id, $draw);
+        
+     
+        if($draw->start_time){
+        	$draw->start_time=date('Y-m-d',$draw->start_time);
+        }
+        if($draw->end_time){
+        	$draw->end_time=date('Y-m-d',$draw->end_time);
+        }
+        
+ //       $commodity->tags = $tagsService->getTags($commodity->plushtime);
+//         $recommend = new RecommendListService();
+//         $result = $recommend->getById('commodity_id', $commodity->id);
+//         $commodity->recommend = $result; 
+        return $this->success($draw);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+    	
+        $winarr = $this->dao->query($where);
+      
+        foreach ($winarr as $key => $value) {
+            //$value->plushtime = date('Y-m-d', $value->plushtime);
+            $value->date=date('Y-m-d',$value->date);
+            
+        }
+
+        return $this->success($winarr);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($draw) {
+    	
+         $draw->validate();        
+        // 获取class对象并插入数据
+        $rs=$this->dao->save($draw);
+        
+
+        return $this->success($rs);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($commodity) {
+    //    $commodity->updatetime = time();
+    	
+        $commodity->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($commodity);
+    }
+    
+    public function setstute($id){
+    	//Entity::isIds($id);
+    	$arr=array('id'=>(int)$id);
+    	$this->dao->setstute($arr);
+    	return $this->success();
+    	
+    }
+}
+

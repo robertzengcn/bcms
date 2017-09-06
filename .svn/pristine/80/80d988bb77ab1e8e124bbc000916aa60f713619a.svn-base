@@ -1,0 +1,490 @@
+<?php
+
+class DTExpression {
+
+    static $sql = ' 1=1 ';
+
+    static $limit = '';
+
+    static $params = Array();
+
+    /**
+     * =
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     */
+    public static function eq($field, $para, $table = '') {
+        $key = DTExpression::getKey($field);
+        if (! is_array($para)) {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' = ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' = ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para;
+            return DTExpression::$sql;
+        }
+
+        if (isset($para[$field]) && $para[$field] != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' = ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' = ' . $key . ' ';
+            }
+            DTExpression::$params[$key] = $para[$field];
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * =
+     *
+     * @param array $arr[]=
+     *            array('field'=>'','value'=>'')
+     * @return string
+     */
+    public static function allEq($arr) {
+        foreach ($arr as $k) {
+            $key = DTExpression::getKey($k['field']);
+
+            DTExpression::$sql .= $k['field'] . ' = ' . $key . ' ';
+            DTExpression::$params[$key] = $k['value'];
+        }
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * >
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     * @return string
+     */
+    public static function gt($field, $para, $value = '', $table = '') {
+        $value = ($value == '') ? $field : $value;
+        $key = DTExpression::getKey($value);
+        if (! is_array($para)) {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' > ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' > ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para;
+            return DTExpression::$sql;
+        }
+
+        if (isset($para[$value]) && $para[$value] != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' > ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' > ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para[$value];
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * >=
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     * @return string
+     */
+    public static function ge($field, $para, $value = '', $table = '') {
+        $value = ($value == '') ? $field : $value;
+        $key = DTExpression::getKey($value);
+        if (! is_array($para)) {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' >= ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' >= ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para;
+            return DTExpression::$sql;
+        }
+
+        if (isset($para[$value]) && $para[$value] != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' >= ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' >= ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para[$value];
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * <
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     * @return string
+     */
+    public static function lt($field, $para, $value = '', $table = '') {
+        $value = ($value == '') ? $field : $value;
+        $key = DTExpression::getKey($value);
+        if (! is_array($para)) {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' < ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' < ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para;
+            return DTExpression::$sql;
+        }
+
+        if (isset($para[$value]) && $para[$value] != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' < ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' < ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para[$value];
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * <=
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     * @return string
+     */
+    public static function le($field, $para, $value = '', $table = '') {
+        $value = ($value == '') ? $field : $value;
+        $key = DTExpression::getKey($value);
+        if (! is_array($para)) {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' <= ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' <= ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para;
+            return DTExpression::$sql;
+        }
+
+        if (isset($para[$value]) && $para[$value] != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' <= ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' <= ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = $para[$value];
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * between
+     *
+     * @param unknown $field
+     * @param unknown $para
+     * @param unknown $startValue
+     * @param unknown $endValue
+     * @param string $table
+     * @return string
+     */
+    public static function between($field, $para, $startValue, $endValue, $table = '') {
+        if (isset($para[$startValue]) && $para[$startValue] != '' && isset($para[$endValue]) && $para[$endValue]) {
+            $startKey = DTExpression::getKey($startValue);
+            $endKey = DTExpression::getKey($endValue);
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' between ' . $startKey . ' and ' . $endKey;
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' between ' . $startKey . ' and ' . $endKey;
+            }
+
+            DTExpression::$params[$startKey] = $para[$startValue];
+            DTExpression::$params[$endKey] = $para[$endValue];
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * like
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     * @return string
+     */
+    public static function like($field, $para, $table = '') {
+        $key = DTExpression::getKey($field);
+        if (! is_array($para)) {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' like ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' like ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = '%' . $para[$field] . '%';
+            return DTExpression::$sql;
+        }
+
+        if (isset($para[$field]) && $para[$field] != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' like ' . $key . ' ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' like ' . $key . ' ';
+            }
+
+            DTExpression::$params[$key] = '%' . $para[$field] . '%';
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * in
+     *
+     * @param unknown $field
+     * @param unknown $value
+     * @param string $table
+     */
+    public static function in($field, $para, $table = '') {
+        if (isset($para) && $para != '') {
+            if ($table != '') {
+                DTExpression::$sql .= ' and ' . $table . '.' . $field . ' in (' . R::genSlots($para) . ') ';
+            } else {
+                DTExpression::$sql .= ' and ' . $field . ' in (' . R::genSlots($para) . ') ';
+            }
+
+            foreach ($para as $k) {
+                DTExpression::$params[] = $k;
+            }
+
+            return DTExpression::$sql;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * field=field
+     *
+     * @param unknown $field
+     * @param unknown $field
+     * @return string
+     */
+    public static function eqProperty($fieldLeft, $fieldRight) {
+        DTExpression::$sql .= $fieldLeft . ' = ' . $fieldRight;
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * field>field
+     *
+     * @param unknown $fieldLeft
+     * @param unknown $fieldRight
+     * @return string
+     */
+    public static function gtProperty($fieldLeft, $fieldRight) {
+        DTExpression::$sql .= $fieldLeft . ' > ' . $fieldRight;
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * field>=field
+     *
+     * @param unknown $fieldLeft
+     * @param unknown $fieldRight
+     * @return string
+     */
+    public static function geProperty($fieldLeft, $fieldRight) {
+        DTExpression::$sql .= $fieldLeft . ' >= ' . $fieldRight;
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * field<field
+     *
+     * @param unknown $fieldLeft
+     * @param unknown $fieldRight
+     * @return string
+     */
+    public static function ltProperty($fieldLeft, $fieldRight) {
+        DTExpression::$sql .= $fieldLeft . ' < ' . $fieldRight;
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * field<=field
+     *
+     * @param unknown $fieldLeft
+     * @param unknown $fieldRight
+     * @return string
+     */
+    public static function leProperty($fieldLeft, $fieldRight) {
+        DTExpression::$sql .= $fieldLeft . ' <= ' . $fieldRight;
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * and
+     *
+     * @param unknown $exp1
+     * @param unknown $exp2
+     * @return string
+     */
+    public static function _and($exp1, $exp2) {
+        DTExpression::$sql .= $exp1 . ' and ' . $exp2;
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * or
+     *
+     * @param unknown $exp1
+     * @param unknown $exp2
+     * @param boolean $contain
+     * @return string
+     */
+    public static function _or($exp1, $exp2, $contain = false) {
+        if ($contain) {
+            DTExpression::$sql .= $exp1 . ' or ' . '(' . $exp2 . ')';
+        } else {
+            DTExpression::$sql .= $exp1 . ' or ' . $exp2;
+        }
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * 分页语句
+     *
+     * @param array $para
+     *            return string
+     */
+    public static function page($para) {
+        if (isset($para['page']) && isset($para['size'])) {
+            $m = ($para['page'] - 1) * $para['size'];
+            $n = $para['size'];
+            DTExpression::limit($m, $n);
+        }
+
+        return DTExpression::$sql;
+    }
+
+    /**
+     * limit
+     *
+     * @param unknown $m
+     * @param unknown $n
+     * @return string
+     */
+    public static function limit($m, $n) {
+        if (! is_array($n)) {
+            DTExpression::$limit .= ' limit ' . $m . ' , ' . $n . ' ';
+        } else {
+            DTExpression::$limit .= ' limit ' . $n[0] . ' , ' . $n[1] . ' ';
+        }
+
+        return DTExpression::$limit;
+    }
+
+    /**
+     * sql
+     *
+     * @param unknown $sql
+     */
+    public static function sql($sql) {
+        return DTExpression::$sql;
+    }
+
+    /**
+     * get key
+     *
+     * @param unknown $field
+     * @return string
+     */
+    private static function getKey($field) {
+        $key = ':' . $field;
+        if (isset(DTExpression::$params[$key])) {
+            $rand = rand(1, 100000);
+            $key = ':' . $field . $rand;
+        }
+
+        return $key;
+    }
+    /**
+     * delFields
+     *  去除并查询某张表的字段
+     * @param string $tablename
+     * @param array $fields
+     * @param bool $spot
+     * @return string
+     */
+	public static function  delFields($tablename,$fields,$spot=false) {
+		$tablefields = R::getAll("select COLUMN_NAME from information_schema.COLUMNS where table_name = '".$tablename."' and table_schema = '".DBNAME."'");
+		$str = '';
+		foreach($tablefields as $value){
+			if(!in_array($value['COLUMN_NAME'],$fields)){
+				if($spot){
+					$str .= $tablename . '.' . $value['COLUMN_NAME'] . ',';					
+				}else{
+					$str .= $value['COLUMN_NAME'] . ',';				
+				}
+			}
+		}
+		$str = substr($str, 0, strlen($str) - 1);
+		return $str;
+	}
+    /**
+     * joinFields
+     * 
+     * @param array $fields
+     * @param bool $spot
+     * @param string $tablename	 
+     * @return string
+     */
+	public static function joinFields($fields,$tablename='',$spot=false) {
+		$str = '';
+		foreach($fields as $value){
+			if($spot && $tablename){
+				$str .= $tablename . '.' . $value . ',';					
+			}else{
+				$str .= $value . ',';			
+			}
+		}
+		$str = substr($str, 0, strlen($str) - 1);
+		return $str;
+	}
+}

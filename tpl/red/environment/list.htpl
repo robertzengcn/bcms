@@ -1,0 +1,29 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+<div id="breadcrumb"><span>您当前的位置：&nbsp;</span>
+    <a target="_blank" href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> > <a target="_blank" href="####" onclick="return false;">医院环境</a></div>
+<div class="clear"></div>
+<div class="main">
+    <div class="par-main">
+        <h2><span>医院环境</span></h2>
+        {{environments page="$cur"}}
+        {{foreach $environments as $v}}
+        <div class="device">
+            <a target="_blank" href="{{$WEBSITE}}/hospital/environments/{{$v->id}}.html"><img src="{{$UPLOAD}}/{{$v->pic}}" alt="{{$v->subject}}" /></a>
+            <h3><a target="_blank" href="{{$WEBSITE}}/hospital/environment/{{$v->id}}.html">{{$v->subject}}</a></h3>
+            <p><span>介绍：</span>{{$v->description|truncate:80}}...<a target="_blank" href="{{$WEBSITE}}/hospital/environments/{{$v->id}}.html">[详细]</a></p>
+        </div>
+        {{/foreach}}
+        <div class="fenye">{{$EnvironmentTag->getPageHtml($cur)}}</div>
+    </div>
+    <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+</div>
+<div class="main-bottom"></div>
+<!--footer-->
+<div class="clear h8"></div>
+{{/block}}

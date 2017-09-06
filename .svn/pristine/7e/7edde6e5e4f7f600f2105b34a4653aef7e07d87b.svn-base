@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=Backups-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>系统管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 系统备份/还原 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <div id="tab-category" class="HuiTab">
+		<div class="tabBar cl" id="aaa" ><span value='SysFile'>重要文件备份/还原</span><span value='Backups'>数据库备份/还原</span></div>
+		<!-- 模板相关文件 -->
+		<div class="tabCon">
+			<div class="cl pd-5 bg-1 bk-gray mt-20" id="progressDiv2"> 
+			    <span class="l"><div id="picker2"><i class="Hui-iconfont">&#xe642;</i> 上传备份文件</div>
+			    <a class="btn btn-success radius" onClick="gBackups.backups()" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 生成备份文件</a></span>  
+			</div>
+			
+			<div class="mt-20">
+				<table id="SysFile" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<!-- <th width="50">序号</th> -->
+							<th>模板文件名称</th>
+							<th width="90">文件大小</th>
+							<th width="160">备份时间</th>
+							<th width="90">操作</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		 </div>
+		 <!-- 数据库备份/还原 -->
+		 <div class="tabCon"  id="error">
+			<div class="cl pd-5 bg-1 bk-gray mt-20" id="progressDiv2"> 
+			    <span class="l"><div id="picker"></div>
+			    <a class="btn btn-primary radius" onClick="gBackups.backups()" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 数据库备份</a></span>  
+			</div>
+			<!-- <div class="cl pd-5 bg-1 bk-gray mt-20" id="uploaderDiv" style="display:none;"> 
+		    </div> -->
+			
+			<div class="mt-20">
+				<table id="Backups" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<!-- <th width="50">序号</th> -->
+							<th>数据库备份文件名称</th>
+							<th width="90">文件大小</th>
+							<th width="160">备份时间</th>
+							<th width="90">操作</th>
+						</tr>
+					</thead>
+				</table>
+		 </div>
+	 </div>
+</div>
+<div class="pos-f pof-floating">
+    <ul>   		   
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script>  
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/backups.js"></script>
+<script type="text/javascript">
+var gBackups = new Backups();
+gBackups.setThisName('gBackups');
+gBackups.initList();
+
+//设置上传数据包按钮  （webuploder.js与layer.js某部分可能有冲突）
+window.onload = function() { 
+var id = $("#picker div:nth-child(2)").attr("id");
+$("#"+id).css('width','120px');
+$("#"+id).css('height','60px');
+}; 
+</script>
+</body>
+</html>

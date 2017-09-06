@@ -1,0 +1,391 @@
+<?php
+
+class DoctorManagerService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new DoctorManagerDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $doctors = $this->dao->getBatch($ids);
+
+
+        $this->dao->beginTrans();
+        try {
+            $this->dao->deleteBeans($doctors);
+            // 删除医生疾病
+            foreach ($ids as $id) {
+                $this->dao->deleteDisease($id);
+            }
+            // 删除简历
+            $workHistoryService = new WorkHistoryService();
+            foreach ($ids as $id) {
+                $workHistoryService->deleteByDoctor($ids);
+            }
+
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+
+        return $this->success();
+    }
+    
+    /**
+     * 批量更新医生所在的科室
+     * 
+     * 
+     * 
+     * */
+    
+    public function update_department($doctor_id,$departments_id){
+    	
+    	if (!$doctor_id||!$departments_id) {
+    		throw new ValidatorException(7);
+    	}
+
+    	
+    	$this->dao->update_department($doctor_id,$departments_id);
+    }
+
+    /**
+     * 获取医生信息
+     */
+    public function getByDepartmentID($department_id) {
+        $doctor = $this->dao->getByDepartmentID($department_id);
+
+        return $this->success($doctor);
+    }
+    
+    public function get_otherdoctor($where){
+    	if(strlen($where['departmentmanager_id'])<=0){
+    		throw new ValidatorException(7);
+    	}
+    	$arr=array('departmentmanager_id'=>(int)$where['departmentmanager_id']);
+    	
+    	
+    	$doctor = $this->dao->get_otherdoctor($where);
+    	$newarray=array();
+    	foreach ($doctor as $key=>$val){
+    		$newarray[$key]['id']=$val->id;
+    		$newarray[$key]['name']=$val->name;
+    		$newarray[$key]['pic']=$val->pic;
+    		$newarray[$key]['content']=$val->content;
+    	}
+    	
+ 
+    	return $this->success($newarray);
+    	//return $this->success($result);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $doctor
+     * @return Result
+     */
+    public function get($doctor) {
+        if (! $doctor->id) {
+            throw new ValidatorException(7);
+        }
+        
+   
+
+        $this->dao->get($doctor->id, $doctor);
+   
+
+        if ($doctor->pic) {
+            $doctor->src1 = UPLOAD . $doctor->pic;
+        }
+        if ($doctor->certificate) {
+            $doctor->src2 = UPLOAD . $doctor->certificate;
+        }
+
+        $result = $this->dao->getDisease($doctor->id);
+        $doctor->disease = $result;
+        $recommend = new RecommendListService();
+        $result = $recommend->getById('doctor_id', $doctor->id);
+        $doctor->recommend = $result;
+        return $this->success($doctor);
+    }
+    /*
+     * get doctor id by name
+     * 
+     * */
+    
+    public function getdoctor_name($name){
+    	$array=array('name'=>$name);
+    	
+    	 return $doctors = $this->dao->query($array);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+
+        $doctors = $this->dao->query($where);
+        $diseaseService = new DiseaseService();
+
+        foreach ($doctors as $key) {
+            $result = $this->dao->getDisease($key->id);
+            $ids = array();
+            foreach ($result as $value) {
+                $ids[] = $value->disease_id;
+            }
+            $disease = $diseaseService->getNames($ids);
+            $key->disease = '';
+            foreach ($disease as $d) {
+                $key->disease .= $d->name . ',';
+            }
+            $key->disease = rtrim($key->disease, ',');
+            if ($key->plushtime != '') {
+                $key->plushtime = date('Y-m-d', $key->plushtime);
+            }
+        }
+
+
+
+        return $this->success($doctors);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $doctor
+     * @return Result
+     */
+    public function save($doctor) {
+        $doctor->validate();
+        // 获取科室对象
+        $departments = new DepartmentManager();
+        $departmentsDao = new DepartmentManagerDAO();
+        
+        $departments->id = $_REQUEST['departmentmanager_id'];
+        $departmentsBean = $departmentsDao->getDepartmentByID($departments);
+
+//         if ($departments->id == 0) {
+//             throw new ValidatorException(27);
+//         }
+        if(isset($_REQUEST['disease_id'])&&$_REQUEST['disease_id']){
+        $diseaseArray = $_REQUEST['disease_id'];
+        }else{
+        	$diseaseArray=array();
+        }
+        $doctor->plushtime = time();
+        $doctor->click_count = rand(30, 100);
+        // 获取class对象并插入数据
+        $this->dao->beginTrans();
+        try {
+            $this->dao->doctorSave($doctor, $departmentsBean);
+            if(!empty($diseaseArray)){
+            foreach ($diseaseArray as $val) {
+                $this->dao->addDisease($doctor->id, $val);
+            }
+            }
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+        if (! empty($_REQUEST['recommendposition'])) {
+            $recommendList = new RecommendListService();
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->recommendposition_id = $value;
+                $recommend->doctor_id = $doctor->id;
+                $recommendList->save($recommend);
+            }
+        }
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $doctor
+     * @return Result
+     */
+    public function update($doctor) {
+        $doctor->validate();
+        if (! $doctor->id) {
+            throw new ValidatorException(7);
+        }
+
+        $this->dao->beginTrans();
+        try {
+            $this->dao->update($doctor);
+            if(isset($_REQUEST['disease_id'])&&$_REQUEST['disease_id']){
+            $this->dao->updateDisease($doctor, $_REQUEST['disease_id']);
+            }
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage());
+        }
+        if (! empty($_REQUEST['recommendposition'])) {
+            $recommendList = new RecommendListService();
+            $recommendList->deleteById('doctor_id', $doctor->id);
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->recommendposition_id = $value;
+                $recommend->doctor_id = $doctor->id;
+                $recommendList->save($recommend);
+            }
+        }
+        return $this->success();
+    }
+    
+    
+    /**
+     * 检查科室表里是否有数据存在
+     *
+     *
+     * @return Result
+     */
+    public function checkdate(){
+    	return $this->dao->getDoctors();
+    	 
+    }
+
+    /**
+     * 根据疾病ID获取医生
+     *
+     * @return Result
+     */
+    public function getByDiseaseId() {
+        $diseaseId = $_REQUEST['disease_id'];
+        $doctors = $this->dao->getByDiseaseId($diseaseId);
+        $array['doctors'] = $doctors;
+
+        return $this->success($array);
+    }
+    /**
+     * 获取静态url列表
+     *
+     * @return Result
+     */
+    public function getHtmlUrl() {
+    	$fxed = '';
+    	switch ( $_REQUEST['func'] ){
+    		case 'mobile':$fxed    = 'mobile/';break;
+    		case 'app':$fxed    = 'app/';break;
+    		case 'wechat':$fxed = 'wechat/';break;
+    	}
+    	$fxed = '';
+    	$url = array();
+    	
+    	$doctors = $this->dao->getListAll();
+    	return $this->success($doctors);
+    	
+    }
+    /**
+     * 计算各个科室的医生数量
+     * @param departmentid
+     *
+     * @return Result
+     */
+    public function countbydepartment($departmentid){
+  
+    	
+    	return $this->dao->countByDepartment($departmentid);
+    	
+    }
+    
+    /**
+     * 从原医生表导入数据到预约医生表
+     *
+     *
+     * @return Result
+     */
+    public function importdate(){
+    	 
+    	return $this->dao->importdate();
+    
+    }
+    
+    /*
+     * 批量更新医生所属的科室
+    *
+    * */
+    public function changedepartment($id,$department_id){
+    	 
+    	if(strlen($department_id)<=0){
+    		throw new ValidatorException(7);
+    	}
+    	 
+    	return $this->dao->changedepartment($id,$department_id);
+    }
+    
+    public function delete_relation($arr){
+    	if($arr['id']==null){
+    		throw new ValidatorException(7);
+    	}
+    	return $this->dao->delete_relation($arr);
+    }
+    
+    /*
+     * 根据医生姓名查询医生这周内的排班情况
+     * */
+    public function getdoctorstu($name){
+    	if(strlen($name)<1){
+    		throw new ValidatorException(7);
+    	}
+    	//$start=strtotime('last monday 0:0:0');
+    	//$end=strtotime('next sunday 0:0:0');
+    	$date=date('Y-m-d');  //当前日期
+
+    	$first=1; //$first =1 表示每周星期一为开始日期 0表示每周日为开始日期
+
+    	$w=date('w',strtotime($date));  //获取当前周的第几天 周日是 0 周一到周六是 1 - 6
+    	$now_start=strtotime("$date -".($w ? $w - $first : 6).' days'); //获取本周开始日期，如果$w是0，则表示周日，减去 6 天
+    	$now_end=$now_start +(6*86400);  //本周结束日期
+    	
+    	
+    	$result=$this->getdoctor_name($name);
+    	if(!empty($result)){
+    		$reserver=new ReservationService();
+    		
+    		$schedule=$reserver->getdoctorindate($result['0']->id,$now_start,$now_end);
+   
+    		if(!empty($schedule)){
+    			return $schedule;
+    		}else{
+    			return null;
+    		}
+    		
+    		
+    	}else{
+    		return null;
+    	}
+    	
+
+    }
+    /**
+     * 根据科室ID获得科室名称
+     */
+    public function getDoctorNameByID($ID) {
+    	if($ID!=''&&$ID!='0'){
+    		return $this->dao->getDoctorNameByID($ID);
+    	}else{
+    		throw new ValidatorException(7);
+    	}
+    }
+    
+}

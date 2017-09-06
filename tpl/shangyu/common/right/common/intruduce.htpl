@@ -1,0 +1,5 @@
+<div class="par-about bk">
+    <h4><span><a target="_blank" href="{{$WEBSITE}}/hospital/introduce.html">医院介绍</a></span></h4>
+    <p>{{$IntroduceTag->getContent()|truncate:"200"}}...<a target="_blank" href="{{$WEBSITE}}/hospital/introduce.html">[详细]</a></p>
+    <div><a target="_blank" href="#" rel="nofollow"><img src="{{$RESOURCE}}/images/disease/about.gif" alt="#" /></a><a target="_blank" href="#" rel="nofollow"><img src="{{$RESOURCE}}/images/disease/pic.gif" alt="#" /></a></div>
+</div>

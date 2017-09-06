@@ -1,0 +1,34 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/doctor.css">
+  {{/block}}
+  
+  {{block name=body}}
+  {{doctor id=$id assign="doctor"}}
+  {{block name="keywords"}}{{$docotr->keywords}}{{/block}}
+  {{block name="description"}}{{$doctor->desciption}}{{/block}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}{{$HTMLURL}}">医生列表</a>><a target="_blank" href="#" class="current">{{$doctor->name}}</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <h2>医生介绍</h2>
+      <div class="doctor_par"><div><img src="{{$UPLOAD}}{{$doctor->pic}}"></div>
+        <h4><span>医生姓名：</span><strong>{{$doctor->name}}</strong>{{$doctor->position}}<br />
+        	{{$department = $DepartmentTag->in($doctor->department_id)}}
+        	{{foreach $department as $v}}
+            <span>所属科室：</span>{{$v->name}}</h4>
+            {{/foreach}}
+      </div>   
+      <div class="par-ask"><a target="_blank" href="javascript:Layout.openWindow('chat')"><img src="{{$RESOURCE}}/images/zx.gif" alt="#" /></a><a target="_blank" href="{{$WEBSITE}}/reservation/index.html"><img src="{{$RESOURCE}}/images/yy.gif" alt="#" /></a></div>
+      <div class="doctor_par_content">
+      <span>擅长疾病：</span><p>{{$doctor->specialty}}</p>
+      <p>{{$doctor->content}}</p>
+      </div>
+      <!--医生end-->
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  {{/block}}

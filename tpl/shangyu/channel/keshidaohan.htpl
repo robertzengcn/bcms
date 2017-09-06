@@ -1,0 +1,64 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_dep container">
+	<div class="main_tit"><strong class="pull-left"><a href="#" target="_blank">科室设置</a></strong></div>
+    <div class="main_three mdep_one">
+    	<h4>门诊科室：</h4>
+    	<div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+        {{deptlist page="1" pagesize="3" assign="dep"}}{{/deptlist}}
+        {{foreach from=$dep item=v1}}
+    	<h3><a href="/{{$v1->url}}" target="_blank"><i class="icon icon-circle"></i>  {{$v1->name}}</a></h3>
+        <ul>
+            {{diseasebydept limit="12" department=$v1->id assign="dis"}}{{/diseasebydept}}
+            {{foreach from=$dis item=v2}}
+            {{if $v2->name neq "健康教育" && $v2->name neq "检查及流程" && $v2->name neq "图片集锦"}}
+            <li><a>{{$v2->name}}</a></li>
+            {{/if}}
+            {{/foreach}}
+         </ul>
+        {{/foreach}}
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+          {{deptlist page="2" pagesize="3" assign="dep"}}{{/deptlist}}
+        {{foreach from=$dep item=v1}}
+    	<h3><a href="/{{$v1->url}}" target="_blank"><i class="icon icon-circle"></i>  {{$v1->name}}</a></h3>
+        <ul>
+            {{diseasebydept limit="12" department=$v1->id assign="dis"}}{{/diseasebydept}}
+            {{foreach from=$dis item=v2}}
+            {{if $v2->name neq "健康教育" && $v2->name neq "检查及流程" && $v2->name neq "图片集锦"}}
+            <li><a>{{$v2->name}}</a></li>
+            {{/if}}
+            {{/foreach}}
+        </ul>
+        {{/foreach}}
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi">
+          {{deptlist page="3" pagesize="3" assign="dep"}}{{/deptlist}}
+        {{foreach from=$dep item=v1}}
+    	<h3><a href="/{{$v1->url}}" target="_blank"><i class="icon icon-circle"></i>  {{$v1->name}}</a></h3>
+        <ul>
+            {{diseasebydept limit="12" department=$v1->id assign="dis"}}{{/diseasebydept}}
+            {{foreach from=$dis item=v2}}
+            {{if $v2->name neq "健康教育" && $v2->name neq "检查及流程" && $v2->name neq "图片集锦"}}
+            <li><a>{{$v2->name}}</a></li>
+            {{/if}}
+            {{/foreach}}
+        </ul>
+        {{/foreach}}
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 mthree_keshi bord_none">
+         {{deptlist page="4" pagesize="3" assign="dep"}}{{/deptlist}}
+        {{foreach from=$dep item=v1}}
+    	<h3><a href="/{{$v1->url}}" target="_blank"><i class="icon icon-circle"></i>  {{$v1->name}}</a></h3>
+        <ul>
+            {{diseasebydept limit="12" department=$v1->id assign="dis"}}{{/diseasebydept}}
+            {{foreach from=$dis item=v2}}
+            {{if $v2->name neq "健康教育" && $v2->name neq "检查及流程" && $v2->name neq "图片集锦"}}
+            <li><a>{{$v2->name}}</a></li>
+            {{/if}}
+            {{/foreach}}
+        </ul>
+        {{/foreach}}
+    </div>
+</div>
+{{/block}}

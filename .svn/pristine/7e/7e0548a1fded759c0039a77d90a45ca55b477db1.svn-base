@@ -1,0 +1,86 @@
+<?php
+include './HM.php';
+class Order extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	protected function __getorder(){
+		
+		//if( isset( $_REQUEST['passport'] ) &&  $_REQUEST['passport'] !=null  ){
+			//session_start();
+		
+		
+		if(isset($_REQUEST['querynum'])){
+		
+			$querynum=explode('_', $_REQUEST['querynum']);
+			
+			if($querynum[0]=='draw'){
+				$winlog=new WinlogService();
+				$data=$winlog->getdetailbyflag(array('flag'=>$querynum[1]));
+				echo json_encode(array('statue'=>true,'code'=>0,'msg'=>null,'data'=>$data));
+				
+			}elseif($querynum[0]=='order'){
+			$orderser=new OrderService();							
+			$arr=array('order_num'=>$querynum[1],'qrcode'=>$querynum[2]);
+			$result=$orderser->gdetaibyqr($arr);
+			echo json_encode($result);
+			}else{
+				$this->__msg(1,'querynum参数错误',null);
+			}
+		}else{
+			$this->__msg(1,'缺少参数query num',null);
+		}	
+			
+			
+			
+/* if( isset( $_REQUEST['username'] ) && isset( $_REQUEST['pwd'] )  ){
+	
+	
+	
+			$username = trim($_REQUEST['username']);
+			$pwd      = trim( $_REQUEST['pwd'] );
+			if( strlen( $pwd ) != 32 ){$this->__msg(1,'请将pwd参数进行md5小写转换后传入.',null);}
+			$password = md5( $pwd );
+			new ArticleService();
+			$arr=array('username'=>$username,'password'=>$password);
+			$result = R::findOne('worker',"`name` = :username and `password`=:password",$arr);
+			
+
+			if(!is_object( $result )){
+				$this->__msg(1,'账户密码不匹配,验证失败.',null); 
+			}else{
+	
+	$orderser=new OrderService();
+	if(isset($_REQUEST['querynum'])){
+		
+		$querynum=explode('_', $_REQUEST['querynum']);
+		$arr=array('order_num'=>$querynum[0],'qrcode'=>$querynum[1]);
+		$result=$orderser->gdetaibyqr($arr);
+		echo json_encode($result);
+		
+	}else{
+		$this->__msg(1,'缺少参数query num',null);
+	}
+}
+	
+	
+}else{
+
+	
+	$this->__msg(2,'密码错误',null);
+	//$this->__msg(2,array('1'=>$_REQUEST['passport'],'2'=>$_SESSION['passport']),null);
+} */
+ 
+
+// 		}else{
+// 			$this->__msg(1,'缺少username或pwd参数.',null);
+// 		}
+	}
+	
+	
+	
+	
+}
+new Order();

@@ -1,0 +1,481 @@
+function Doctormanager(){
+	BaseFunc.call(this);
+	var self = this;
+
+
+    //医生管理
+	this.doctor_manager = function(para){
+        var self = this;
+		
+		this.checkdate();
+		
+				var departtable=$("#doctormanagertable").DataTable({
+			
+			bStateSave:false,
+			serverSide: false,
+			processing: true,
+			searching: true,
+			//data:retd.rows,
+			ajax:{
+				'url':'/controller/?controller=DoctorManager&method=query',
+				//'dataSrc': 'data',
+				'type':'POST',				
+				'dataType':'json',
+				'dataSrc': function(json){
+					
+					return json.data;
+					
+				}
+				
+			},
+			order: [[ 1, "desc" ]],
+
+
+columns: [
+				            {
+				            	data : 'id',
+				            	render : function (id, type, row) {
+				            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+				            	},
+				            	name: 'xuanze',
+				            	orderable:false
+				            },
+                            { data: 'id',name:'id' },
+				            { data: 'name',name:'name' },
+				            { data: 'pic',name:'pic',
+				            	render:function(id, type, row){
+				            		if(id!=""){
+				            		var picth='';
+				            		picth +='<img width="90px" src="/upload/'+row.pic+'" />';
+				            		return picth;
+				            		}else{
+				            			return null;
+				            		}
+				            	},
+				            	orderable:false
+				            	},
+							{ data: 'department_name',name:'department_name' },	
+				            { data: 'content',name:'content',
+				            	render:function(id, type, row){
+				            		var contents=id.substring(0,30);
+				            		return contents;
+				            	}
+				            	},
+							{ data: 'plushtime',name:'plushtime' },	
+							{ data: 'resernum',name:'resernum' },
+							{ data: 'mark',name:'mark' },
+				            { data : 'id',
+							  render : function(id, type, row){
+								
+								  var str = '';
+								  str += '<a class="ml-5 editdoctor" title="编辑" style="text-decoration:none" dataid="'+row.id+'"><i class="Hui-iconfont"></i></a><a title="删除" class="ml-5 deldo" dataid="'+row.id+'" style="text-decoration:none"><i class="Hui-iconfont"></i></a>';
+						    	  return str;
+							  },
+							  orderable:false
+							 }
+				        ]
+
+
+		
+		});
+		
+		$('body').on('click','.reflash',function(){
+			troad('#doctormanagertable');	
+			self.checkdate();
+		});
+		
+		
+		
+		
+		
+		  	$('body').on('click','#submitbutton', function () {
+			var table = $('#doctormanagertable').DataTable();
+			var name=$.trim($('#searchkey').val());
+			 table.columns(2).search(name).draw();			
+		});
+		
+			$('body').on('click', '#datadel',function() {
+			//chooseall('reservationtable');
+			var data = chooseall('#doctormanagertable');
+			var ids = [];
+			//console.log(data);
+			if(data.length <= 0){
+				layer.msg('请选择需要删除的选项!', function(){					
+				}); 
+			}else{
+				
+				layer.confirm('真的要删除么？', {icon: 3, title:'提示'}, function(index){
+				  
+					$.each(data,function(i,obj){
+						ids[i] = obj.value;
+					});	
+				    layer.close(index);
+				
+
+
+
+					self.cmd(gHttp,{controller:'DoctorManager',method:'del',id:ids},function(ret){
+						if(ret.statu){
+							
+							layer.msg('删除成功!', function(){					
+							}); 
+							troad('#doctormanagertable');
+							$('.firstone').attr('checked', false);
+
+						}else{
+							
+							layer.msg(ret.msg, function(){					
+							}); 
+							
+						}
+					});
+				});
+				
+			}
+			return false; 
+			
+
+			 
+			});
+			
+			
+		$('body').on('click','.deldo',function(){
+			var id=$(this).attr('dataid');
+			layer.open({
+				type:1,	
+				//area: ['900px', '400px'],
+			    content: '<p>确定要删除吗?</p>',
+			    btn: ['确定', '取消'],
+			    yes:function(index,layero){
+					layer.close(index);
+			    	self.cmd(gHttp,{controller:'DoctorManager',method:'del',id:id},function(result1){
+						if(result1.statu){
+							layer.msg('删除成功!');
+							troad('#doctormanagertable');	
+							self.checkdate();
+							
+						}else{
+							layer.msg(result1.msg);
+							
+						}
+						return false;
+					});
+			    	
+			    	
+			    },
+			    cancel:function(index,layero){
+			    	layer.close(index);
+			    }
+//			    success: function(layero,index){
+//			        layer.setTop(layero); 
+//			        var body = layer.getChildFrame('body', index);
+//			        var iframeWin = window[layero.find('iframe')[0]['name']];
+//			       // $(window.frames["iframeSon"].document).find(":text");
+//			        //console.log(body.html());
+//			      iframeWin.doctortodepart.doctortodepartment({department_id:id});//这里
+//			    }
+			});
+			
+		});
+			
+			
+		
+		
+		$('#searchkey').on( 'keyup click', function () {   // for text boxes
+			var table = $('#doctormanagertable').DataTable();
+		    var v =$(this).val();  // getting search input value
+		    table.columns(2).search(v).draw();
+		});
+		
+		$('body').on('click','#adddoctor',function(){
+						layer.open({
+				type:2,	
+				area: ['900px', '500px'],
+			    content: 'edit-doctor.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			      iframeWin.editdoctor.adddoctorframe();//这里
+			    }
+			});
+		});
+		
+		
+		$('body').on('click','#exp',function(){
+			self.cmd(gHttp,{controller:'DoctorManager',method:'exportdate'},function(ret){
+				if(ret.stutes){
+				layer.open({
+				type:1,	
+				title:'下载csv',
+				btn: ['确定'],
+				yes: function(index, layero){
+					layer.close(index);
+				},
+				//area: ['900px', '500px'],
+			    content: '<div id="downloadcsvdiv"><a href="'+ret.url+'"><input type="button" value="下载"></a></div>',
+			    success: function(layero,index){
+
+
+
+			    }
+			});
+			}
+			});
+			});
+			
+			
+			$('body').on('click','#imp',function(){
+				
+				self.cmd(gHttp,{controller:'DoctorManager',method:'importdate'},function(ret){
+					if(ret.stutes){
+						$('#grid').grid('reload');
+						$('#imp').hide();
+						$('#exp').show();
+
+						
+					}else{
+						layer.msg('导入数据成功!',function(){
+							troad('#doctormanagertable');
+							this.checkdate();
+						});
+					}
+				});
+			});
+			
+			$('body').on('click','.editdoctor',function(){
+				var id=$(this).attr('dataid');
+				layer.open({
+				type:2,	
+				area: ['900px', '500px'],
+			    content: 'edit-doctor.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			      iframeWin.editdoctor.adddoctorframe({
+				  	id: id
+				  });
+			    }
+			});
+			});
+			
+		
+		
+		
+		
+		
+		  }
+
+	this.checkdate=function(){
+				self.cmd(gHttp,{controller:'DoctorManager',method:'checkdate'},function(ret){
+			if(ret.stutes){
+
+				$('#exp').show();
+				$('#imp').hide();
+
+			}else{
+				$('#imp').show();
+				$('#exp').hide();
+			
+			}
+		});
+	}
+	
+	this.adddoctorframe=function(para){
+		if (para == undefined) {
+			self.cmd(gHttp, {
+				controller: 'DepartmentManager',
+				method: 'getDepartments'
+			}, function(ret){
+				var html = '';
+				if (ret.statu) {
+					departments = ret.data;
+					html = '';
+					$.each(ret.data, function(i, obj){
+						html += '<option value="' + obj.id + '">' + obj.name + '</option>';
+					});
+					
+					$('#department_id').html(html);
+				}
+				else {
+					layer.alert(ret.msg);
+				}
+				return false;
+			});
+			
+			$(".form").Validform({
+				tiptype: 2,
+				ajaxPost: true,
+				url: '/controller/index.php?controller=DoctorManager&method=add',
+				btnSubmit: '#savedoc',
+				datatype: {
+					"username": function(gets, obj, curform, regxp){
+						//参数gets是获取到的表单元素值，obj为当前表单元素，curform为当前验证的表单，regxp为内置的一些正则表达式的引用;
+						var reg1 = /[\u4E00-\u9FA5\uf900-\ufa2d]/;
+						
+						
+						if (reg1.test(gets)) {
+							return true;
+						}
+						if (gets.length >= 4) {
+							return true;
+						}
+						
+						return false;
+						
+					//注意return可以返回true 或 false 或 字符串文字，true表示验证通过，返回字符串表示验证失败，字符串作为错误提示显示，返回false则用errmsg或默认的错误提示;
+					},
+				},
+				beforeSubmit:function(curform){
+					
+					var docvalue=$('#thumbnail_doc').attr('src');
+					$('#thumbnail_doc_value').val(docvalue);
+					var provevalue=$('#thumbnail_prove').attr('src');
+					$('#thumbnail_prove_value').val(provevalue);
+		            return true;
+	            },
+
+				callback: function(data){
+					//alert(data);
+					if (data.statu) {
+						window.parent.troad('#doctormanagertable');
+						var index = parent.layer.getFrameIndex(window.name);
+						
+						parent.layer.close(index);
+					}
+					else {
+						layer.msg(data.msg, function(){
+						});
+					}
+					
+				}
+			});
+			
+			
+		}else{
+			self.cmd(gHttp, {
+				controller: 'DepartmentManager',
+				method: 'getDepartments'
+			}, function(ret){
+				var html = '';
+				if (ret.statu) {
+					departments = ret.data;
+					html = '';
+					$.each(ret.data, function(i, obj){
+						html += '<option value="' + obj.id + '">' + obj.name + '</option>';
+					});
+					
+					$('#department_id').html(html);
+					
+				self.cmd(gHttp,{controller:'DoctorManager',method:'get',id:para.id},function(ret){
+				if(ret.statu){
+					$('#department_id').children("option").each(function(){  
+		               var dotemp_value = $(this).val();
+		              if(dotemp_value == ret.data.departmentmanager_id){
+		            	 //console.log(retdts.data.doctor_id);
+		                    $(this).attr("selected","selected");  
+		              }  
+		              
+		         });
+				 $('#doctorform').append('<input type="hidden" value="'+para.id+'" name="id" />')
+				 
+				 $("#thumbnail_doc").attr("src", ret.data.pic); 
+				 $("#thumbnail_prove").attr("src", 	ret.data.certificate);
+				 
+				 $('#thumbnail_prove_value').val(ret.data.pic);
+				 $('#thumbnail_doc_value').val(ret.data.certificate);
+				 
+				 $('#doctorname').val(ret.data.name);
+				 $('#birthdate').val(ret.data.birthday);
+				 if(ret.data.gender==0){
+				 	$('#sex-1').iCheck('check');
+				 }else{
+				 	$('#sex-2').iCheck('check');
+				 }
+				 $('#pic').attr('src','/upload/'+ret.data.pic); 
+				  $('#certify').attr('src','/upload/'+ret.data.certificate); 
+				  $('#university').val(ret.data.university);
+				  $('#cultural').val(ret.data.cultural);
+				  $('#position').val(ret.data.position);
+				  $('#specialty').val(ret.data.specialty);
+				  $('#content').val(ret.data.content);
+				  
+				    var ue = UE.getEditor('editor');
+    				ue.ready(function() {
+    				ue.setContent(ret.data.fulldescript);
+    				});
+				 
+				}
+				
+			});
+			
+			
+					
+					
+					
+				}
+				else {
+					layer.alert(ret.msg);
+				}
+				return false;
+			});
+			
+						$(".form").Validform({
+				tiptype: 2,
+				ajaxPost: true,
+				url: '/controller/index.php?controller=DoctorManager&method=edit',
+				btnSubmit: '#savedoc',
+				datatype: {
+					"username": function(gets, obj, curform, regxp){
+						//参数gets是获取到的表单元素值，obj为当前表单元素，curform为当前验证的表单，regxp为内置的一些正则表达式的引用;
+						var reg1 = /[\u4E00-\u9FA5\uf900-\ufa2d]/;
+						
+						
+						if (reg1.test(gets)) {
+							return true;
+						}
+						if (gets.length >= 4) {
+							return true;
+						}
+						
+						return false;
+						
+					//注意return可以返回true 或 false 或 字符串文字，true表示验证通过，返回字符串表示验证失败，字符串作为错误提示显示，返回false则用errmsg或默认的错误提示;
+					},
+				},
+				beforeSubmit:function(curform){
+					var docvalue=$('#thumbnail_doc').attr('src');
+					$('#thumbnail_doc_value').val(docvalue);
+					var provevalue=$('#thumbnail_prove').attr('src');
+					$('#thumbnail_prove_value').val(provevalue);
+		            return true;
+	            },
+
+				callback: function(data){
+					//alert(data);
+					if (data.statu) {
+						window.parent.troad('#doctormanagertable');
+						var index = parent.layer.getFrameIndex(window.name);
+						
+						parent.layer.close(index);
+					}
+					else {
+						layer.msg(data.msg, function(){
+						});
+					}
+					
+				}
+			});
+			
+			
+
+			
+		}
+		
+	}
+
+	
+	
+	
+};

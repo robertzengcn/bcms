@@ -1,0 +1,28 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+{{honor id=$id }}
+<div id="breadcrumb"><span>您当前的位置:&nbsp;</span><a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> > <a href="{{$WEBSITE}}{{$HTMLURL}}">医院荣誉</a> > <a href="###" onclick="return false;">{{$honor->subject}}</a></div>
+<div class="clear"></div>
+<div class="main">
+
+    <div class="par-main">
+        <h2><span>荣誉介绍</span></h2>
+        <div class="device_par">
+            <h3>{{$honor->subject}}</h3>
+            <div><img width="200" height="200" src="{{$UPLOAD}}/{{$honor->pic}}"></div>
+        </div>
+        <div class="device_par_content">
+            {{$honor->content}}
+        </div>
+    </div>
+ 
+  <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->    
+</div>
+
+
+{{/block}}

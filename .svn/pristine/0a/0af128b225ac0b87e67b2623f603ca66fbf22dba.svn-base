@@ -1,0 +1,151 @@
+<?php
+
+class NewsService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new NewsDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $newsArray = $this->dao->getBatch($ids);
+        $files = array();
+        $recommendListDAO = new RecommendListDAO();
+        foreach ($newsArray as $news) {
+            $filename = GENERATEPATH . 'news/' . $news->id . '.html';
+            if ($news->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $files[] = $filename;
+            $recommendListDAO->deleteById('news_id', $news->id);
+        }
+
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        return $this->dao->deleteBeans($newsArray);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $news
+     * @return Result
+     */
+    public function get($news) {
+        $this->dao->get($news->id, $news);
+        if ($news->pic) {
+            $news->src = UPLOAD . $news->pic;
+        }
+
+        $tagsService = new TagService();
+        $news->tags = $tagsService->getTags($news->plushtime);
+
+        $recommend = new RecommendListService();
+        $result = $recommend->getById('news_id', $news->id);
+        $news->recommend = $result; 
+        return $this->success($news);
+    }
+
+    
+    /**
+     * 获取所有科室和所有推荐位置
+     *
+     * @return Result
+     */
+    public function getAll() {
+        $recommendPositionService = new RecommendPositionService();
+        $positionArray = $recommendPositionService->getList();
+        $arrayAll['re'] = $positionArray;
+        return $this->success($arrayAll);
+    }
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $newsArray = $this->dao->query($where);
+       /*  foreach ($newsArray as $key => $value) {
+            $value->plushtime = date('Y-m-d', $value->plushtime);
+        }	 */	
+        return $this->success($newsArray);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $news
+     * @return Result
+     */
+    public function save($news) {
+        $news->plushtime = time();
+        $news->updatetime = time();
+        $news->validate();
+        $news->click_count = rand(30, 1000);
+        $tagsService = new TagService();
+        $tagsService->tagsSave($news->plushtime);
+        // 获取class对象并插入数据
+        $this->dao->save($news);   
+
+        $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+        if (! empty($_REQUEST['recommendposition'])) {
+            $recommendList = new RecommendListService();
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->recommendposition_id = $value;
+                $recommend->news_id = $news->id;
+                $recommend->is_tomobile = $is_tomobile;
+                $recommendList->save($recommend);
+            }
+        }        
+
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $news
+     * @return Result
+     */
+    public function update($news) {
+        $news->updatetime = time();
+        $news->validate();
+
+        $tagsService = new TagService();
+        $tagsService->tagsClear($news->plushtime);
+        $tagsService->tagsSave($news->plushtime);
+       
+        $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+        if (! empty($_REQUEST['recommendposition'])) {
+            $recommendList = new RecommendListService();
+            $recommendList->deleteById('news_id', $news->id);
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->recommendposition_id = $value;
+                $recommend->news_id = $news->id;
+                $recommend->is_tomobile = $is_tomobile;
+                $recommendList->save($recommend);
+            }
+        }       
+        
+        return $this->dao->update($news);
+    }
+	
+}

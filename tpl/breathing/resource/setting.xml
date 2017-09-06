@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+		<File>
+			<item><source>/upload/mobileLogo.png</source><whither>/upload/picmanager/mobileLogo.png</whither></item>
+			<item><source>/upload/20150312160635303.jpg</source><whither>/upload/picmanager/20150312160635303.jpg</whither></item>
+			<item><source>/upload/20150312160726178.jpg</source><whither>/upload/picmanager/20150312160726178.jpg</whither></item>
+			<item><source>/upload/20150312160937492.jpg</source><whither>/upload/picmanager/20150312160937492.jpg</whither></item>
+			<item><source>/upload/20150312161009264.jpg</source><whither>/upload/picmanager/20150312161009264.jpg</whither></item>
+			<item><source>/upload/20150312161044695.jpg</source><whither>/upload/picmanager/20150312161044695.jpg</whither></item>
+			<item><source>/upload/20150312161120750.gif</source><whither>/upload/picmanager/20150312161120750.gif</whither></item>
+			<item><source>/upload/20150312161214676.jpg</source><whither>/upload/picmanager/20150312161214676.jpg</whither></item>
+			<item><source>/upload/20150312170905598.gif</source><whither>/upload/picmanager/20150312170905598.gif</whither></item>
+			<item><source>/upload/20150312171408932.jpg</source><whither>/upload/picmanager/20150312171408932.jpg</whither></item>
+			<item><source>/upload/20150331102550671.jpg</source><whither>/upload/picmanager/20150331102550671.jpg</whither></item>
+			<item><source>/upload/2015033109553286.jpg</source><whither>/upload/picmanager/2015033109553286.jpg</whither></item>
+			<item><source>/upload/20150331115419416.jpg</source><whither>/upload/picmanager/20150331115419416.jpg</whither></item>
+			<item><source>/upload/20150331164010514.png</source><whither>/upload/picmanager/20150331164010514.png</whither></item>
+		</File>
+	<!-- 新版sql盒子 -->
+	<Insert>		
+		<item>INSERT INTO `picmanager` (`name`,`flag`,`img`,`link`,`sort`,`kind`,`text`) VALUES ('logo','logo','picmanager/20150331115419416.jpg','',1,1,NULL),('手机LOGO', 'mobileLogo', 'picmanager/mobileLogo.png', '', 0, 1, NULL),('科室列表图片1','index_department1','picmanager/20150312160635303.jpg','',1,1,NULL),('科室列表图片2','index_department2','picmanager/20150312160726178.jpg','',1,1,NULL),('科室列表图片3','index_department3','picmanager/20150312160937492.jpg','',1,1,NULL),('科室列表图片4','index_department4','picmanager/20150312161009264.jpg','',1,1,NULL),('科室列表图片5','index_department5','picmanager/20150312161044695.jpg','',1,1,NULL),('文章底部图片','article_bottom','picmanager/20150312161120750.gif','',1,1,NULL),('右侧图片底部','right_bottom','picmanager/20150312161214676.jpg','',1,1,NULL),('联系图片','par-title','picmanager/20150312170905598.gif','',1,1,NULL),('案例头部图片','case-bg','picmanager/20150312171408932.jpg','',1,1,NULL),('就医指南','department_tab','picmanager/2015033109553286.jpg','',1,1,NULL),('侧边轮播图', 'listPic', '1', '', 0, 2, NULL),('index', 'index', '1', '', 0, 2, NULL);</item>
+		<item>INSERT INTO `picmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`) VALUES('弹窗1', 'special_one', 'picmanager/20150331164010514.png', '', 1, '3', NULL);</item>
+		<item>INSERT INTO `pic` (`pid`,`sort`,`url`,`pic`,`text`) values ('','1','','picmanager/20150312161120750.gif','listPic');</item>
+		<item>INSERT INTO `pic` (`pid`,`sort`,`url`,`pic`,`text`) values ('','1','','picmanager/20150331102550671.jpg','index');</item>		
+	</Insert>			
+	<Parent>
+		<item>
+			<get>{t:picmanager,f:flag,g:id,v:listPic}</get>
+			<set>{t:pic,f:text,s:pid,v:{"listPic"}}</set>
+		</item>
+		<item>
+			<get>{t:picmanager,f:flag,g:id,v:index}</get>
+			<set>{t:pic,f:text,s:pid,v:{"index"}}</set>
+		</item>
+	</Parent>	
+	<Delete>
+		<item>{t:picmanager,f:flag,v:{"logo"|"listPic"|"index"|"special_one"|"index_department1"|"index_department2"|"index_department3"|"index_department4"|"index_department5"|"article_bottom"|"right_bottom"|"par-title"|"case-bg"|"department_tab"|"mobileLogo"}}</item>
+		<item>{t:pic,f:text,v:{"listPic"|"index"}}</item>
+	</Delete>			
+</body>

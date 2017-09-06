@@ -1,0 +1,200 @@
+<?php
+/**
+ * 医生管理相关标签
+ * */
+require_once 'common.php';
+/**
+ * 根据页码获取对应的数据
+ * 
+ * 对应function标签中的{doctors}
+ */
+function smarty_block_doctorlist( $params, $content, $template, &$repeat ) {
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $sort = isset($params['sort']) ? $params['sort'] : true;
+    $current = isset($params['page']) ? $params['page'] : $template->getTemplateVars('cur');
+    $current = $current == '' ? 1 : $current;
+    
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->getList($current, $pagesize, $sort);
+        foreach ($data as $key=>$doctorinfo) {
+            if ($doctorinfo->pic&&strpos($doctorinfo->pic, NETADDRESS) === false) {
+                $data[$key]->pic = UPLOAD . $doctorinfo->pic;
+            }
+            $data[$key]->url = NETADDRESS . "/doctor/" . $doctorinfo->id . ".html";
+        }
+        $template->assign('cur', $current);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据唯一id获取该id的详细信息
+ * 
+ * 对应function标签中的{doctor}
+ */
+function smarty_block_doctorinfo( $params, $content, $template, &$repeat ) {
+    $id = isset($params['name_or_id']) ? $params['name_or_id'] : ($template->getTemplateVars('id'));
+
+    $ser = new DoctorTag();
+    $data = $ser->get($id);
+    if ($data->pic&&strpos($data->pic, NETADDRESS) === false) {
+        $data->pic = UPLOAD . $data->pic;
+    }
+    
+    if ($repeat) {
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        //医生所属科室
+        $template->assign('department_in', $data->department_id);
+    } else {
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ *根据id或者name集合获取数据
+ *
+ */
+function smarty_block_doctorin($params, $content, $template, &$repeat){
+    $doctor = isset($params['doctor_in']) ? $params['doctor_in'] : ($template->getTemplateVars('doctor_in'));
+
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->in($doctor);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 随机获取现有的医生中的一条
+ */
+function smarty_block_randdoctor($params, $content, $template, &$repeat){
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->getDoctorToday();
+        if ($data->pic&&strpos($data->pic, NETADDRESS) === false) {
+            $data->pic = UPLOAD . $data->pic;
+        }
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据科室获取医生 --返回单个对象
+ * 
+ * 对应function标签中的{doctorsInDepartment}
+ */
+function smarty_block_doctorbydept($params, $content, $template, &$repeat){
+    $department = isset($params['department']) ? $params['department'] : 0;
+    
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->getByDepartment($department);
+        if ($data->pic&&strpos($data->pic, NETADDRESS) === false) {
+            $data->pic = UPLOAD . $data->pic;
+        }
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据科室获取医生 --返回数组
+ */
+function smarty_block_doctorsbydept($params, $content, $template, &$repeat){
+    $department = isset($params['department']) ? $params['department'] : 0;
+    
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->getDocByDepartment($department);
+        foreach ($data as $k=>$docinfo) {
+            if ($data->pic&&strpos($docinfo->pic, NETADDRESS) === false) {
+                $data[$k]->pic = UPLOAD . $docinfo->pic;
+            }
+        }
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取医生工作经历
+ * 
+ * 对应function标签中的{resume}
+ */
+function smarty_block_doctorresumes($params, $content, $template, &$repeat){
+    $id = isset($params['name_or_id']) ? $params['name_or_id'] : 0;
+    
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->getResumes($id);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据推荐位置获取医生信息...
+ */
+function smarty_block_doctorsbyrecommend($params, $content, $template, &$repeat){
+    $recommend = isset($params['recommend_name']) ? $params['recommend_name'] : 0;
+    $name = isset($params['name']) ? $params['name'] : 'doctor_id';
+    $is_tomobile = isset($params['is_tomobile']) ? $params['is_tomobile'] : '';
+
+    if (!$repeat) {
+        $ser = new DoctorTag();
+        $data = $ser->getByRecommend($recommend,$name,$is_tomobile);
+        foreach ($data as $k=>$docinfo) {
+            if ($data->pic&&strpos($docinfo->pic, NETADDRESS) === false) {
+                $data[$k]->pic = UPLOAD . $docinfo->pic;
+            }
+        }
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}

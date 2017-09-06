@@ -1,0 +1,108 @@
+@charset "gb2312";
+/* CSS Document */
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td, button{padding:0;margin:0;}
+fieldset, img{border:0;}
+input, label, select, option, textarea, button, fieldset, legend{font:12px/18px Verdana, Simsun, Helvetica, Arial, sans-serif; vertical-align:middle}
+table{border-collapse:collapse;border-spacing:0;font:12px/18px Verdana, Simsun, Helvetica, Arial, sans-serif;}
+ul,li{list-style:none;}
+body{;font:12px/18px Verdana, Simsun, Helvetica, Arial, sans-serif;color:#555; font-family:"Microsoft YaHei"; background:#c0c0c0;}
+h1,h2,h3,h4,h5,h6{font-size:100%;}
+del{ font-family:georgia}
+img{ vertical-align:top}
+/* π≤”√ */
+a{ text-decoration:none; color:#5a5a5a; transition:all 0.4s ease 0s;}
+a:hover{ color:#F00;}
+.w320{ width:320px; margin:0 auto; background:#fff;}
+.left{ float:left;}
+.right{ float:right;}
+.mt10{ margin-top:10px;}
+.mt20{ margin-top:20px;}
+.h0{ height:0; clear:both;}
+.h10{ height:10px; clear:both;}
+.pdlr16{ padding:0 16px;}
+
+.banner{ background:url(../images/banner.jpg) no-repeat; height:167px; position:relative;}
+.banner a{  height:28px; width:110px; display:block; position:absolute; left:147px; top:125px;}
+.contbt{ background:url(../images/btbg.jpg) no-repeat; height:41px;}
+.contbt span.sp1 font{ text-align:center; color:#861fa4;font-size:16px; font-weight:bold;}
+.contbt span.sp1 { text-align:center; padding:8px 10px 0px 2px;  color:#861fa4; font-size:14px;}
+.contbt span.sp2 { width:256px; color:#fff; font-size:18px; line-height:41px;}
+.zjjs{ font-family:"Œ¢»Ì—≈∫⁄"; color:#000;}
+.zjjs p.english{ font-size:10px; }
+.zjjs p.zw{ font-size:21.9px; }
+.zjjs p.name{ font-size:38px; font-weight:bold; margin-top:20px; padding-bottom:15px; }
+.zjjs p.ry{ font-size:13px; color:#1d1d1d; margin-top:8px; }
+.zjjs p.ry font{ color:#861fa4;}
+.ryzs{ padding:10px 10px 0;}
+.ryzs p{ text-align:center; padding:20px 0 25px;}
+
+.comt3bd{ background:#e7e5fb; margin-top:5px; padding:25px 4px 22px; height:310px;}
+.comt3bd ul li{ float:left; margin-right:7px; margin-bottom:15px;}
+.comt3bd ul li.bian{  margin-right:0;}
+.comt3bd p{ text-align:center;}
+.jrzt{ background:url(../images/jrzt.jpg) no-repeat; height:173px;}
+.jrzt a{ height:173px; display:block;}
+
+
+.cont6bd{ padding:8px 7px 0;}
+.cont6bd ul li{ margin-right:4px; float:left; line-height:30px; text-align:center; height:30px; margin-bottom:6px;}
+.cont6bd ul li.fir{ background:#32ccfe; width:170px;}
+.cont6bd ul li.sec{ margin-right:0; background:#ffb217; width:130px;}
+.cont6bd ul li.thi{ background:#ff9a66; width:130px;}
+.cont6bd ul li.fou{ margin-right:0; background:#3398cc; width:170px;}
+.cont6bd ul li.fiv{  background:#716ac9; width:304px;}
+.cont6bd ul li.six{ background:#33cb98; width:170px; margin-bottom:0;}
+.cont6bd ul li.sev{ margin-right:0; background:#32ccfe; width:130px; margin-bottom:0;}
+.cont6bd ul li a{ color:#fff;}
+.zjdh{ text-align:center;}
+
+.connr{ margin-top:15px;}
+.connr ul li{ float:left;}
+.connr ul li strong{ color:#ff4342;}
+.connr ul li.lil{ width:150px;}
+.connr ul li.lic{ width:90px;}
+.connr ul li.lir span{ margin-right:2px;}
+.connr p{ padding-bottom:14px; border-bottom:1px dashed #cacaca;}
+.page { margin-top:30px; padding-left:15px;}
+.page ul li{ float:left; border:1px solid #cacaca; color:#8AB6C3; padding:0 5px; margin-right:5px;}
+.page ul li.dot{ border: none;  margin-right:0; }
+.page ul li.bian{ margin-right:0;}
+
+	
+/*==∆¿º€==*/
+h2{
+	 background:url(../images/bg.gif) no-repeat 0 -196px; 
+	 height:34px; font-family:Œ¢»Ì—≈∫⁄; 
+	 overflow:hidden;
+	 }
+h2 span{
+	 float:left; 
+	 display:inline-block; 
+	 width:88px; 
+	 height:29px; 
+	 margin:5px 0 0 10px; 
+	 text-align:center; 
+	 font-size:16px; 
+	 font-weight:400; 
+	 line-height:32px; 
+	 color:#680576;
+	 }
+h2 a{
+	 float:right;
+	  margin-right:10px; 
+	  line-height:34px; 
+	  color:#FFF;
+	  }
+.dp h3 {
+    background: url(../images/bg.gif) no-repeat scroll 0 -230px rgba(0, 0, 0, 0);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 400;
+    height: 35px;
+    margin-top: 10px;
+    padding: 3px 0;
+    text-indent: 2em;
+}
+.dp .con { padding: 0 10px;}
+
+.footer{ background:#FFF;}

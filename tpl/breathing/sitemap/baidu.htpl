@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+	{{foreach $SiteMapTag->getHeadAdv() as $vo}}
+		<url>
+			<loc>{{$WEBSITE}}/{{$vo->url}}</loc>
+			<lastmod>{{$vo->lastmod}}</lastmod>
+			<changefreq>{{$vo->changefreq}}</changefreq>
+			<priority>{{$vo->priority}}</priority>
+		</url>	
+	{{/foreach}}
+	{{foreach $SiteMapTag->getDepartment() as $vo}}
+		<url>
+			<loc>{{$WEBSITE}}/{{$vo->url}}/index.html</loc>
+			<lastmod>{{$vo->lastmod}}</lastmod>
+			<changefreq>{{$vo->changefreq}}</changefreq>
+			<priority>{{$vo->priority}}</priority>
+		</url>
+		{{foreach $SiteMapTag->getDiease({{$vo->id}}) as $vo2}}
+		<url>
+			<loc>{{$WEBSITE}}/{{$vo2->url}}/index.html</loc>
+			<lastmod>{{$vo2->lastmod}}</lastmod>
+			<changefreq>{{$vo2->changefreq}}</changefreq>
+			<priority>{{$vo2->priority}}</priority>
+		</url>
+		{{/foreach}}
+	{{/foreach}}
+</urlset>

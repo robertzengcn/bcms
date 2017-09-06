@@ -1,0 +1,272 @@
+<?php
+
+/**
+ * 在线问答模块service服务层
+ * @author Administrator
+ *
+ */
+class AskService extends BaseService {
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化dao数据表处理层,并将其赋值给dao属性
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->dao = new AskDAO();
+        $this->limitCount = 50; // 每小时ip设定提交次数
+    }
+
+    /**
+     * 在线问题添加方法
+     * 处理问题添加逻辑处理方法,并需要开启事务,处理ask、ask_desc、ask_assay三表的数据插入
+     *
+     * @param object $ask
+     *            ask实体对象
+     * @param object $askDesc
+     *            askdesc实体对象
+     * @param object $askAssay
+     *            数据实体对象
+     */
+    public function save($ask, $askDesc, $askAssay) {
+        // 数据补充
+        $this->dataSupply($ask);
+        // ip地址验证
+        $this->limitIp($ask->ip);
+        // 数据实体对象数据验证
+        $ask->validate();
+        // 开启事务处理
+        $this->dao->beginTrans();
+        // 异常try模块
+        try {
+            // ask数据入库
+            $saveHandler = $this->dao->save($ask); // 在线提问简单数据入库
+                                                     // desc数据入库
+            $AskDescService = new AskDescService();
+            $askDesc->ask_id = $saveHandler->id;
+            $AskDescService->save($askDesc);
+            // assay数据入库
+            $AskArrayService = new AskAssayService();
+            $askAssay->ask_id = $saveHandler->id;
+            $AskArrayService->save($askAssay);
+            $this->dao->commitTrans(); // 事务提交
+            unset($saveHandler);
+            unset($AskDescService);
+        } catch (ValidatorException $ve) {
+            $this->dao->rollbackTrans(); // 事务回滚
+            throw new ValidatorException($ve->getCode());
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans(); // 事务回滚
+            return $this->fail(0, $e->getMessage());
+        }
+        // 回执
+        return $this->success();
+    }
+
+    /**
+     *
+     *
+     * 分页查询&数据列表
+     *
+     * @param array $params
+     */
+    public function query($params) {
+        $Result = $this->dao->query($params);
+        foreach ($Result as $key => $value) {
+            $Result[$key]->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+            $Result[$key]->isanswer = (int) $value->isanswer == 0 ? '否' : '是';
+            if( (int)$value->gender === 0 || (int)$value->gender === 1 ){
+            	$Result[$key]->gender = (int) $value->gender == 0 ? '女' : '男';
+            }else{
+            	$Result[$key]->gender = $value->gender;
+            }
+            if ($Result[$key]->department_name == '') {
+                $Result[$key]->department_name = '其他';
+            }
+            if ($Result[$key]->disease_name == '') {
+                $Result[$key]->disease_name = '其他';
+            }
+            if ($value->isanswer == 1) {
+                $Result[$key]->answertime = date('Y-m-d H:i:s', $value->answertime);
+            }
+            if (mb_strlen($value->subject, 'utf8') >= 20) {
+                $Result[$key]->subject = mb_substr($value->subject, 0, 20, 'utf8') . '...';
+            }
+        }
+        return $this->success($Result);
+    }
+
+    /**
+     *
+     *
+     * 获取前端回复需要的数据包,包含回复、化验单等
+     * 将化验单提取并组合成tr标签
+     *
+     * @param int $id
+     * @return object 数据对象
+     */
+    public function getRepeat($id) {
+        $Result = $this->dao->getRepeat($id);
+        $Result = $Result[0];
+        // 化验单组合
+        $pattern = '#\{(.*)\}#iUs';
+        preg_match_all($pattern, $Result->item, $items); // 项目
+        preg_match_all($pattern, $Result->consult, $consults); // 参考值
+        preg_match_all($pattern, $Result->unit, $units); // 单位
+        preg_match_all($pattern, $Result->finally, $finallys); // 结果
+        $len = count($items[1]);
+        $html = '';
+        for ($i = 0; $i < $len; $i ++) {
+            $html .= "<tr>";
+            $html .= "<td>" . $items[1][$i] . "</td>";
+            $html .= "<td>" . $consults[1][$i] . "</td>";
+            $html .= "<td>" . $finallys[1][$i] . "</td>";
+            $html .= "<td>" . $units[1][$i] . "</td>";
+            $html .= "</tr>";
+        }
+        $Result->assay   = $html;
+        $Result->plushtime = date('Y-m-d H:i:s', $Result->plushtime);
+        $Result->content = strip_tags( $Result->content );
+        
+        $recommend  = new RecommendListService();
+        $recommends = $recommend->getById('ask_id', $id);
+        $Result->recommend = $recommends;
+        
+        return $Result;
+    }
+
+    /**
+     * 查询数据总量
+     *
+     * @see kernel/BaseService::totalRows()
+     */
+    public function totalRows($params) {
+        return $this->success($this->dao->totalRows($params));
+    }
+
+    /**
+     *
+     *
+     * 通过askID修改对应的记录设置成已回答状态
+     *
+     * @param int $askID
+     *            ask主键id
+     * @return object ask 数据实体
+     */
+    public function modifyAnswer($askID) {
+        $this->dao->get($askID, $ask = new Ask());
+        $ask->answertime = time(); // 时间
+        $ask->isanswer   = 1; // 状态
+        $this->dao->update($ask);
+        return $ask;
+    }
+
+    /**
+     *
+     *
+     * 通过askID获取对应的数据实体对象
+     *
+     * @param int $askID
+     *            ask主键id
+     * @return object ask 数据实体
+     */
+    public function getAsk($askID) {
+        $this->dao->get($askID, $ask = new Ask());
+        return $ask;
+    }
+
+    /**
+     * 在线问题添加方法(数据补充)
+     * 用于补充默认数据,而这些数据是不需要用户选择或填写的
+     *
+     * @param object $ask
+     *            ask实体对象
+     */
+    private function dataSupply($ask) {
+        $ask->userID = isset($_SESSION['id']) ? (int) $_SESSION['id'] : 0; // 登录者id(问题发布者)
+        if ((int) $ask->departmentID == 0) { // 如果科室没有选择，则疾病默认为0
+            $ask->diseaseID = 0;
+        }
+        $ask->plushtime = time(); // 提交时间
+        $ask->isanswer = 0; // 是否回答(默认为未回答)
+        $ask->answertime = 0; // 回答时间
+        $ask->status = 1; // 记录是否正常(1为正常，0为逻辑删除)
+        $ask->ip = $_SERVER['REMOTE_ADDR']; // 客户端ip
+    }
+
+    /**
+     * 获取科室信息
+     *
+     * @return Result
+     */
+    public function getDepartments() {
+        $departmentService = new DepartmentService();
+        return $departmentService->getDepartments();
+    }
+
+    /**
+     * 根据科室id获取对应的疾病信息
+     */
+    public function getByDepartmentID($department_id) {
+        $diseaseService = new DiseaseService();
+        return $diseaseService->getByDepartmentID($department_id);
+    }
+
+    /**
+     * 通过ip地址，获取最近N小时内的在线问题提交数据debug
+     * 防止恶意进行数据提交操作
+     *
+     * @param string $ip
+     *            ip地址
+     */
+    private function limitIp($ip) {
+        if ($this->dao->getLimitIp($ip) >= $this->limitCount) {
+            $Result = new Result(false, 137, ErrorMsgs::get(137), NULL);
+            die($Result->toJSON());
+        }
+    }
+
+    /**
+     *
+     *
+     * 根据科室ID获取问答信息
+     *
+     * @param
+     *            $department_id
+     * @return array
+     */
+    public function getDepartmentAsk($department_id, $limit) {
+        return $this->dao->getDepartmentAsk($department_id, $limit);
+    }
+
+    /**
+     *
+     *
+     * 根据疾病ID获取问答信息
+     *
+     * @param
+     *            $disease_id
+     * @return array
+     */
+    public function getDiseaseAsk($disease_id) {
+        return $this->dao->getDiseaseAsk($disease_id);
+    }
+    
+    /**
+     * 设置问答是否显示
+     * */
+    public function setDisplay($ids, $isdisplay) {
+        try {
+            $ids = explode(',', $ids);
+            foreach ($ids as $id) {
+                $this->dao->get($id, $ask = new Ask());
+                $ask->isdisplay = $isdisplay; // 显示状态
+                $this->dao->update($ask);
+            }
+        } catch (Exception $e) {
+            return $this->fail(0, $e->getMessage());
+        }
+        // 执行返回
+        return $this->success();
+    }
+}

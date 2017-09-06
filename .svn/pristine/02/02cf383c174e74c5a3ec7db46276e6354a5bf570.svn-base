@@ -1,0 +1,85 @@
+<?php
+
+class MemberLogService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new MemberLogDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $scoreruleArray = $this->dao->getBatch($ids);
+
+        return $this->dao->deleteBeans($scoreruleArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function get($scorerule) {
+        $this->dao->get($scorerule->id, $scorerule);
+ 
+        return $this->success($scorerule);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $scoreruleArray = $this->dao->query($where);
+        
+        foreach($scoreruleArray as $key=>$val){
+        	$scoreruleArray[$key]->last_log=date('Y-m-d H:i',$val->last_log);
+        	
+        }
+       
+
+        return $this->success($scoreruleArray);
+    }
+    
+ 
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function save($member) {
+    	
+         $member->validate();        
+        // 获取class对象并插入数据
+        $this->dao->save($member);
+      
+        return $this->success();
+    }
+    
+    /*
+     * 通过接口保存用户登录记录
+     * */
+    public function savelog($arr){
+    	$member=new member();
+    	$member->uid=$arr['member_id'];
+    }
+    
+ 
+    
+}
+

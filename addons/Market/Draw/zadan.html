@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>砸金蛋抽奖活动</title>
+<style type="text/css">
+html,body{overflow-x:hidden;} 
+.egg{width:259px; padding-top:110px;margin: 0 auto;}
+.egg ul li{z-index:999;}
+.eggList{padding-top:90px;position:relative;width:259px;}
+.eggList li{list-style-type:none;float:left;background:url("{{$COMMON}}Draw/public/zadan/images/egg_1.png") no-repeat bottom;width:259px;height:220px;cursor:pointer;position:relative; background-size:cover;left:-50px;}
+.eggList li span{position:absolute; width:30px; height:60px; left:68px; top:64px; color:#ff0; font-size:42px; font-weight:bold}
+.eggList li.curr{background:url("{{$COMMON}}Draw/public/zadan/images/egg_2.png") no-repeat bottom ;cursor:default;z-index:300;background-size:cover;}
+.eggList li.curr sup{position:absolute;background:url("{{$COMMON}}Draw/public/zadan/images/img-4.png") no-repeat;width:232px; height:181px;top:-36px;left:-34px;z-index:800;}
+.hammer{background:url("{{$COMMON}}Draw/public/zadan/images/img-6.png") no-repeat;width:74px;height:87px;position:absolute; text-indent:-9999px;z-index:150;left:170px;top:80px;}
+.resultTip{position:absolute; background:#ffc ;width:148px;padding:6px;z-index:500;top:300px; left:30px; color:#f60; text-align:center;overflow:hidden;display:none;z-index:500;}
+.resultTip b{font-size:14px;line-height:24px;}
+body{ background:#ff0000 url("{{$COMMON}}Draw/public/zadan/images/zajindan_bg.png") no-repeat; background-size:cover;}
+#caption{ background:transparent url("{{$COMMON}}Draw/public/zadan/images/biaoti.png") no-repeat; width:280px; height:200px;background-size:cover; margin:40px auto; position:absolute; left:50%; margin-left:-120px;}
+
+.layer { display:none; position:fixed; width:100%; max-width:720px; height:100%; top:0; left:0; z-index:99; background:rgba(0,0,0,0.6);} 
+.pop {display:none; position:fixed; width:100%;  height:100%; top:0; left:0; z-index:9999; }
+.pop-box { position: relative;width:80%; height:80%; max-height:300px; margin:40% auto;}
+.close-pop { float:right;padding-top:5px;padding-right:5px;}
+.pop-title{font-size:20px;color:#FFFFFF;position: absolute;top:55%;width: 90%;margin-left:10px;text-align:center;}
+.pop-img{position: absolute;top:16%;left:32%;}
+.pop-img img{width:100px;height:100px;}
+.pop-font{font-size:20px;position: absolute;top:75%;width: 90%;margin-left:10px;text-align:center;}
+.pop-font a{text-decoration:none;}
+
+.btn-rule {font-size:12px; color:#FDB012;  float:right; cursor:pointer;margin-right:15px;text-decoration:underline;}
+.btn-rule:hover,.btn-rule:focur{color:#FDB012;}
+.rule { display:none;  position:fixed; width:100%; max-width:720px; height:100%; top:0; left:0; z-index:999; }
+.rule-box { position: relative;padding:15px 15px 30px 15px; width:86%; height:70%; max-height:220px; margin:40% auto; background:rgba(247,98,116,1); background-size:100% 90%; }
+.close-rule { position: absolute;top:5px;right:5px;}
+.rule-title { font-size:16px; font-weight: bold; color:#524120; margin-bottom:5px;color:#FFFFFF;}
+.rule-time{color:#FDB012;font-size:12px; float:left;margin-left:15px;}
+.rule-detail { margin-left:25px;margin-bottom:20px;overflow:scroll;max-height:200px;color:#FFFFFF;}
+
+ #notify{position: absolute;height:120px;margin-top:230px;}
+ #nImg{ height:100px;position: absolute;}
+ #nImg_div {position: absolute;color:white;font-size: 12px;font-family: '黑体'}
+ marquee{width:245px;height:80px; margin:10px 0px 0px 60px; overflow:hidden; text-align:left;}
+ marquee p{ margin:0;padding:0;}
+</style>
+</head>
+
+<body>
+<div id="caption"></div>
+<br><!--<h2><center>jquery+php 请在服务器环境运行才能看到敲蛋后的效果。</center></h2>-->
+ <div id="main">
+	<div class="egg">
+		<ul class="eggList">
+			<p class="hammer" id="hammer">锤子</p>
+			<p class="resultTip" id="resultTip"><b id="result"></b></p>
+			<li><span></span><sup></sup></li>
+<!-- 			<li><span></span><sup></sup></li>
+			<li><span></span><sup></sup></li> -->
+		</ul>
+	</div>
+</div>
+<div class="layer"></div>
+<div class="pop">
+	<div class="pop-box">
+		<div class="close-pop"><img src="{{$COMMON}}Draw/public/zhuanpan/images/close.png" width="26"></div>
+		<div class="pop-title"></div>
+	</div>
+</div>
+<div class="title"><span class="rule-time">活动时间:{{$ruletime}}</span><a class="btn-rule">活动规则</a></div>
+<div class="layer"></div>
+<div class="rule">
+	<div class="rule-box">
+		<div class="close-rule"><img src="{{$COMMON}}Draw/public/zhuanpan/images/close.png" width="26"></div>
+		<div class="rule-title">活动细则:</div>
+		<div class="rule-detail">{{$rulecontent}}</div>
+	</div>
+</div>
+<div id="notify">
+	<img id="nImg" src="{{$COMMON}}Draw/public/guaguaka/img/notice_bg.png">
+	<div id="nImg_div" align="center">		
+		<marquee behavior="scroll"  scrollamount="3" direction=up>
+		{{foreach from=$prizeall item=v}}
+            <p>{{$v->name}}&nbsp;&nbsp;&nbsp;{{$v->prize_count}}份(余)&nbsp;&nbsp;&nbsp;{{$v->prize_win}}份(中)</p>
+		{{/foreach}}
+		</marquee>
+	</div>
+</div>
+<script type="text/javascript" src="{{$COMMON}}Draw/public/zadan/js/jquery.min.js"></script>
+
+<script type="text/javascript">
+function eggClick(obj) {
+	var _this = obj;
+	$.getJSON("./draw.php?method=drawdan&drawid={{$draw_id}}",function(res){
+		if(res.statu){		
+			if(res.code==1){
+			sleep(500);
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/winning.png)","background-size":"100% 100%"});
+				$('.pop-box').append('<div class="pop-img"><img src="'+res.img+'"></div>');
+				$(".pop-box").append('<div class="pop-font"><a href="./draw.php?method=getmydraw&id='+res.data.zid+'">前去领奖</a></div>');
+				$(".pop-title").html("恭喜，您中得"+res.msg+"!");
+				$(".layer ,.pop").show();
+				_this.removeClass("curr");
+			}else{
+			sleep(500);
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/n_winning.png)","background-size":"100% 100%"});
+				$(".pop-title").html(res.msg);
+				$(".layer ,.pop").show();
+				_this.removeClass("curr");
+			}
+		}else{
+			sleep(500);
+				$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/n_winning.png)","background-size":"100% 100%"});
+			$(".pop-title").html(res.msg);
+			$(".layer ,.pop").show();	
+			_this.removeClass("curr");
+		}
+	});
+}
+$(".eggList li").click(function() {
+	var _this = $(this);
+	$(this).children("span").hide();
+	var flag = 1;
+		if(_this.hasClass("curr")){
+			$('.pop-box').css({"background-image":"url({{$COMMON}}Draw/public/zadan/images/n_winning.png)","background-size":"100% 100%"});
+			$(".pop-title").html("蛋都碎了，别砸了！刷新再来.");
+			$(".layer ,.pop").show();			
+			flag++;
+		}
+	if(flag==1){
+		//_this.unbind('click');
+		$(".hammer").css({"top":_this.position().top-55,"left":_this.position().left+185});
+		$(".hammer").animate({
+			"top":_this.position().top-25,
+			"left":_this.position().left+125
+			},30,function(){
+				_this.addClass("curr"); //蛋碎效果
+				_this.find("sup").show(); //金花四溅
+				$(".hammer").hide();
+			}
+		);
+		eggClick($(this));
+	}
+});
+$(".eggList li").hover(function() {
+	var posL = $(this).position().left+170;
+	$("#hammer").show().css('left', posL);
+})
+$(".pop-box,.close-pop").click(function() {
+	$(".layer ,.pop").hide();
+});
+	$(".btn-rule").click(function() {
+		$(".layer ,.rule").show()
+	});
+	$(".close-rule").click(function() {
+		$(".layer ,.rule").hide();
+	});
+function sleep(numberMillis) {
+    var now = new Date();
+    var exitTime = now.getTime() + numberMillis;
+    while (true) {
+        now = new Date();
+        if (now.getTime() > exitTime)
+            return;
+    }
+}
+$(window).load(function(){	
+		var body_width = $(window).width();
+		$("#nImg").width(body_width*0.95);				
+	});	
+</script>
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+</div>
+</body>
+</html>

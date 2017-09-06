@@ -1,0 +1,57 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_hos2 container">
+	<div class="row">
+    	<div class="main_hos2_l col-xs-12 col-sm-12 col-md-8">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/xinxigongkai" target="_blank">信息公开</a></strong></div>
+                <ul>
+                    {{channelarcsbyname name="信息公开" size="6" }}
+                	<li><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"Y-m-d"/]</span></li>
+                    {{/channelarcsbyname}}
+                </ul>
+            </div>
+        </div>
+        <div class="main_hos2_r col-xs-12 col-sm-12 col-md-4">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/guanliguifan" target="_blank">管理规范</a></strong></div>
+                <ul>
+                	{{channelarcsbyname name="管理规范" size="6" }}
+                    <li><a href="[field:url/]" target="_blank">[field:subject/]</a></li>
+                    {{/channelarcsbyname}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="main_hos2 container">
+	<div class="row">
+    	<div class="main_hos2_l col-xs-12 col-sm-12 col-md-8">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/banshizhinan" target="_blank">办事指南</a></strong></div>
+                <ul>
+                	{{channelarcsbyname name="办事指南" size="6" }}
+                	<li><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"Y-m-d"/]</span></li>
+                    {{/channelarcsbyname}}
+                </ul>
+            </div>
+        </div>
+        <div class="main_hos2_r col-xs-12 col-sm-12 col-md-4">
+        	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/dashiji" target="_blank">大事记</a></strong></div>
+                <ul>
+                	{{channelarcsbyname name="大事记" size="6" }}
+                    <li><a href="[field:url/]" target="_blank">[field:subject/]</a></li>
+                    {{/channelarcsbyname}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{/block}}
+        

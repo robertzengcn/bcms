@@ -1,0 +1,517 @@
+<?php
+
+/**
+ *
+ * 模版安装以及列表控制器
+ * @className  TemplateController
+ * @author HWIBS-TEAM
+ * @version v1.0.0
+ *
+ */
+class TemplateController extends Controller {
+
+	//初始化数据入口模型
+	private $templateIni  = null;
+    // 模版列表(本地)
+    private $templateList = array();
+    // PclPHP句柄
+    private $pclzipHandler = null;
+    // xml配置文件中必须存在的配置项
+    private $templateXmlMust = array(
+        'Name',
+        'Shorthand'
+    );
+    // 是否允许覆盖安装
+    private $installCover = true;
+    // 禁止模版内文件后缀
+    private $NoneAllowedSuffixFile = '';
+    // 获取在线模版列表
+    private $remoteTemplateListUrl = 'http://www.boyicms.com/interface/hwibs/product/index.php?product=template&method=getList';
+    // 获取某产品的权限地址
+    private $remoteTemplateAuthUrl = 'http://www.boyicms.com/interface/hwibs/product/index.php?product=template&method=productAuth';
+    // 获取在线专题模版列表
+    private $remoteTopicListUrl    = 'http://www.boyicms.com/interface/hwibs/product/index.php?product=topic&method=getList';
+    // 模版安装位置配置项
+    private $installPath = array();
+
+    /**
+     * 构造方法
+     */
+    public function __construct() {
+        require_once GENERATEPATH . 'lib/plugin/pclzip-2-8-2/pclzip.lib.php'; // .引入PclPHP插件
+        require_once GENERATEPATH . 'lib/io.php';
+        require_once GENERATEPATH . 'lib/templateIni.php';
+        $this->installPath = array(
+            'upload' => GENERATEPATH . 'upload/template', // 模版包上传目录
+            'configXml' => 'config.xml', // 配置文件名称
+            'cssDir' => 'public', // 模版包内样式文件夹
+            'public' => ABSPATH . '/public', // 系统public路径
+            'temp' => COMPILEDIR . 'tempZip' // 模版包临时解压目录
+                );
+    }
+
+    /**
+     * 安全过滤
+     */
+    public function filter() {
+        parent::__construct();
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+        return $filterService->execute();
+    }
+
+    /**
+     * 获取模版列表(本地)
+     *
+     * @method getLocalTemplateList
+     *         @info 获取本地已有的模版列表进行输出
+     */
+    public function getLocalTemplateList() {
+        if (is_dir(TEMPDIR)) {
+            $this->templateList = Io::getDirList(TEMPDIR);
+            if (count($this->templateList) >= 1) {
+                $inputData['currentUsed'] = $this->getCurrentUsedTemp();
+                foreach ($this->templateList as $key => $value) {
+                    $this->templateList[$key]['config'] = (array) Io::configXmlAnalytical($value['xml']);
+                    $this->templateList[$key]['currentUsed'] = 0;
+                    if ($this->templateList[$key]['config']['Shorthand'] == $inputData['currentUsed']) {
+                        $this->templateList[$key]['currentUsed'] = 1;
+                    }
+                    if ($this->templateList[$key]['config']['Face'] != '') {
+                        $this->templateList[$key]['config']['Face'] = '/tpl/' . $this->templateList[$key]['config']['Shorthand'] . '/' . $this->templateList[$key]['config']['Face'];
+                    }
+                    if ($this->templateList[$key]['config']['Screenshot'] != '') {
+                        $this->templateList[$key]['config']['Screenshot'] = '/tpl/' . $this->templateList[$key]['config']['Shorthand'] . '/' . $this->templateList[$key]['config']['Screenshot'];
+                    }
+                }
+                die(json_encode(new Result(true, 0, '', $this->templateList)));
+            } else {
+                die(json_encode(new Result(false, 149, ErrorMsgs::get(149), null)));
+            }
+        } else {
+            die(json_encode(new Result(false, 148, ErrorMsgs::get(148), null)));
+        }
+    }
+
+    /**
+     * 获取模版列表(远程)
+     *
+     * @method getRemoteTemplateList
+     *         @info 使用url进行get方式获取,允许传递参数,比如分页或验证机制
+     *         @info 此功能需总控中心模版管理模块建立后方可进行对接工作
+     */
+    public function getRemoteTemplateList() {
+        $content = @Io::urlPost($this->remoteTemplateListUrl . '&domain=' . $_SERVER['SERVER_NAME']);
+        $data = json_decode($content, true);
+        $templateList = $data['data'];
+        if (count($templateList) >= 1) {
+            $templateList = array_values($templateList);
+            die(json_encode(new Result(true, 0, '', $templateList)));
+        } else {
+            die(json_encode(new Result(false, 150, ErrorMsgs::get(150), null)));
+        }
+    }
+    
+    /**
+     * 获取专题模版列表(远程)
+     *
+     * @method getRemoteTemplateList
+     *         @info 使用url进行get方式获取,允许传递参数,比如分页或验证机制
+     *         @info 此功能需总控中心模版管理模块建立后方可进行对接工作
+     */
+    public function getRemoteTopicList() {
+        $content = @Io::urlPost($this->remoteTopicListUrl . '&domain=' . $_SERVER['SERVER_NAME']);
+        $data = json_decode($content, true);
+        $templateList = $data['data'];
+        if (count($templateList) >= 1) {
+            $templateList = array_values($templateList);
+            die(json_encode(new Result(true, 0, '', $templateList)));
+        } else {
+            die(json_encode(new Result(false, 150, ErrorMsgs::get(150), null)));
+        }
+    }
+
+    /**
+     * (远程)获取某在线插件是否有权限进行下载行为
+     *
+     * @method getRemoteProductAuth
+     *         @info 通过产品id获取对应的产品是否具备下载安装权限
+     */
+    public function getRemoteProductAuth() {
+        $id = (int) $_REQUEST['id'];
+        $content = @Io::urlPost($this->remoteTemplateAuthUrl . '&product_id=' . $id . '&domain=' . $_SERVER['SERVER_NAME']);
+        $product = json_decode($content);
+        die(json_encode(new Result($product->statu, $product->code, $product->msg, $product->data)));
+    }
+
+    /**
+     * 模版包上传(本地)
+     *
+     * @method templateLocalUpload
+     *         @info 系统管理员或维护人员可在模版管理模块手动上传zip模版安装包
+     *         @info 上传后并不会直接安装,将zip本地路径回传到页面上，由操作人员手动触发安装功能
+     */
+    public function templateLocalUpload() {
+        $upload = false;
+        // 进入上传
+        if (isset($_FILES['Filedata'])) {
+            $file = $_FILES['Filedata'];
+            $updir = $this->installPath['upload'];
+            if (! Io::ioMkDir($updir)) {
+                $this->dirMkError($updir);
+            }
+            // 上传大小限制
+            if ((int) $_FILES['Filedata']['size'] > Io::getApachePostMaxValue() * 1024 * 1024) {
+                die(json_encode(new Result(false, 151, ErrorMsgs::get(151), null)));
+            }
+            $zipFileName = $updir . '/' . $file['name'];
+            $tmpName = $file['tmp_name'];
+            if (is_uploaded_file($tmpName)) {
+                if (move_uploaded_file($tmpName, $zipFileName)) {
+                    $upload = true;
+                }
+            }
+        }
+        if ($upload) {
+            $data = array(
+                'zip' => $zipFileName
+            );
+            die(json_encode(new Result(true, 0, '', $data)));
+        } else {
+            die(json_encode(new Result(false, 151, ErrorMsgs::get(151), null)));
+        }
+    }
+
+    /**
+     * 模版切换操作
+     *
+     * @method templateSwitch
+     *         @info 模版切换操作,操作人员可在界面上随意的对正在使用的模版进行切换
+     *         @$_REQUEST['used'] string 模版名称 (config.xml->Shorthand)
+     */
+    public function templateSwitch() {
+        if (isset($_REQUEST['used'])) {
+            $used = $_REQUEST['used'];
+            $usedTempDir = TEMPDIR . $used;
+            if (is_dir($usedTempDir) && file_exists($usedTempDir . '/' . $this->installPath['configXml'])) {
+                $xmlConfig = Io::configXmlAnalytical($usedTempDir . '/' . $this->installPath['configXml']);
+                if ($xmlConfig->Shorthand != '') {
+                	
+                	//切换模版前进行初始化数据交互操作
+                	$iniHander = new TemplateIni( $this->getCurrentUsedTemp() , $xmlConfig->Shorthand );
+                	$iniRunEnd = $iniHander->getError();
+					if( $iniRunEnd['msg'] != 'true' ) {
+						die(json_encode(new Result(false, 152 , $iniRunEnd['msg'] , null)));
+					}
+                	
+                    $switchContent = '[{"currentUsed":"' . $xmlConfig->Shorthand . '"}]';
+                    if( ! file_exists( TEMPDIR . 'config.json' ) ) {
+			        	@fopen(TEMPDIR . 'config.json','w+');
+			        }
+                    $size = file_put_contents(TEMPDIR . 'config.json', $switchContent);
+                    if ($size >= 1) {
+                    	//清空现有public样式文件夹文件
+                    	Io::DirDelete( $this->installPath['public'] );
+                        // public样式文件夹文件复制操作
+                        if (Io::DirCopy($usedTempDir . '/' . $this->installPath['cssDir'], $this->installPath['public'])) {
+                            die(json_encode(new Result(true, 0, '', null)));
+                        }
+                    }
+                }
+            }
+        }
+        die(json_encode(new Result(false, 152, ErrorMsgs::get(152), null)));
+    }
+	
+	/**
+     * 
+     * 设置当前安装模版为当前被选择模版
+    */
+    public function templateSwitch_install( $used ) {
+        if (isset( $used )) {
+            $usedTempDir = TEMPDIR . $used;
+            if (is_dir($usedTempDir) && file_exists($usedTempDir . '/' . $this->installPath['configXml'])) {
+                $xmlConfig = Io::configXmlAnalytical($usedTempDir . '/' . $this->installPath['configXml']);
+                if ($xmlConfig->Shorthand != '') {
+                    $switchContent = '[{"currentUsed":"' . $xmlConfig->Shorthand . '"}]';
+                    if( ! file_exists( TEMPDIR . 'config.json' ) ) {
+			        	@fopen(TEMPDIR . 'config.json','w+');
+			        }
+                    $size = file_put_contents(TEMPDIR . 'config.json', $switchContent);
+                    if ($size >= 1) {
+                    	//清空现有public样式文件夹文件
+                    	Io::DirDelete( $this->installPath['public'] );
+                        // public样式文件夹文件复制操作
+                        if (Io::DirCopy($usedTempDir . '/' . $this->installPath['cssDir'], $this->installPath['public'])) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 模版安装操作
+     *
+     * @method templateInstall
+     *         @info 模版安装流程操作
+     */
+    public function templateInstall() {
+        $installInfo = '系统错误,请刷新页面重试.';
+        if (isset($_REQUEST['zipFile']) && $_REQUEST['zipFile'] != '') {
+            $zipFile = trim($_REQUEST['zipFile']);
+            $installInfo = $this->templateInstallInfo($zipFile);
+            if ($installInfo === true) {
+                die(json_encode(new Result(true, 0, '', null)));
+            }
+        }
+        die(json_encode(new Result(false, 0, $installInfo, null)));
+    }
+
+    /**
+     * 模版包删除(本地)
+     *
+     * @method templateZipDelete
+     *         @info 作用为前端上传安装包后,不想安装则点击了“删除”按钮
+     */
+    public function templateZipDelete() {
+        if (isset($_REQUEST['zipFile']) && $_REQUEST['zipFile'] != '') {
+            $zipFile = trim($_REQUEST['zipFile']);
+            @unlink($zipFile);
+            die(json_encode(new Result(true, 0, '', null)));
+        }
+    }
+
+    /**
+     * 模版删除操作
+     *
+     * @method templateDelete
+     *         @info 模版删除操作
+     *         @$_REQUEST['used'] string 模版名称 (config.xml->Shorthand)
+     */
+    public function templateDelete() {
+        if (isset($_REQUEST['used'])) {
+            $used = $_REQUEST['used'];
+            $usedTempDir = TEMPDIR . $used;
+            $currentUsed = $this->getCurrentUsedTemp();
+            if (is_dir($usedTempDir)) {
+                if ($used != $currentUsed) {
+                    if (Io::DirDelete($usedTempDir)) {
+                        die(json_encode(new Result(true, 0, '', null)));
+                    }
+                } else {
+                    die(json_encode(new Result(false, 153, ErrorMsgs::get(153), null)));
+                }
+            } else {
+                die(json_encode(new Result(false, 154, ErrorMsgs::get(154), null)));
+            }
+        }
+    }
+
+    // #################################################################
+    // System Functions #
+    // #################################################################
+
+    /**
+     * 模版安装操作(流程)
+     *
+     * @method templateInstallInfo
+     *         @info 模版安装包安装细节
+     * @param
+     *            string p_zipname 模版文件包完整路径
+     * @return true || errorInfo 返回真或错误信息
+     */
+    private function templateInstallInfo($p_zipname) {
+        if (file_exists($p_zipname)) {
+            // 实例化Pclphp
+            $this->pclzipHandler = new PclZip($p_zipname);
+            // 删除临时目录并清空下面的文件
+            $tempZipDir = $this->installPath['temp'];
+            if (! is_dir($tempZipDir)) {
+                if (! Io::ioMkDir($tempZipDir)) {
+                    $this->dirMkError($tempZipDir);
+                }
+            } else {
+                Io::DirDelete($tempZipDir);
+            }
+            if ($this->pclzipHandler->extract(PCLZIP_OPT_PATH, $tempZipDir, PCLZIP_OPT_REMOVE_PATH, '') != 0) {
+                // 检测包内是否包含不被允许的文件后缀
+                Io::NoneAllowedSuffixFile($tempZipDir, $this->NoneAllowedSuffixFile);
+                if (! is_null(Io::$getNoneAllowedSuffixFile)) {
+                    return '模版内包含不被允许的后缀文件,模版禁止后缀：' . $this->NoneAllowedSuffixFile;
+                }
+                // 检查配置文件
+                $xmlConfig = $tempZipDir . '/' . $this->installPath['configXml'];
+                if (file_exists($xmlConfig)) {
+                    $config = Io::configXmlAnalytical($xmlConfig);
+                    // 检查必须存在配置项目
+                    foreach ($this->templateXmlMust as $key => $value) {
+                        if (! isset($config->$value) || $config->$value == '') {
+                            return '配置文件中缺少必要的配置项：' . $value;
+                        }
+                    }
+                    // 即将生成模版路径文件夹
+                    $tpl_TemplateDir = TEMPDIR . $config->Shorthand;
+                    // 是否已存在相同名称的模版文件夹
+                    if (is_dir($tpl_TemplateDir)) {
+                        if (! $this->installCover) {
+                            return '已存在相同的模版,请勿重复安装';
+                        }
+                        // 允许覆盖安装,则需要清空原有
+                        Io::DirDelete($tpl_TemplateDir);
+                    } else {
+                        if (! Io::ioMkDir($tpl_TemplateDir)) {
+                            $this->dirMkError($tpl_TemplateDir);
+                        }
+                    }
+                    // 模版文件复制
+                    if (Io::DirCopy($tempZipDir, $tpl_TemplateDir)) {
+                    	// 获取切换前的模版名称
+                    	$front = $this->getCurrentUsedTemp();
+                    	// 设置当前模版为目前模版
+                    	$this->templateSwitch_install(  $config->Shorthand );
+                        // 删除源包
+                        @unlink($p_zipname);
+                		// 安装新模版后进行初始化数据交互操作
+                		$iniHander = new TemplateIni( $front , (string)$config->Shorthand );
+                        $iniRunEnd = $iniHander->getError();
+						if( $iniRunEnd['msg'] != 'true' ) {
+							die(json_encode(new Result(false, 152 , $iniRunEnd['msg'] , null)));
+						}
+                        return true;
+                    } else {
+                        return '模版安装失败,请重试';
+                    }
+                } else {
+                    return '缺少配置文件';
+                }
+            } else {
+                return '安装包解压失败,请重试';
+            }
+        } else {
+            return '安装包不存在,请重试';
+        }
+    }
+
+    /**
+     * 获取当前正在使用模版
+     *
+     * @method getCurrentUsedTemp
+     *         @info 获取当前正在使用的模版名称
+     * @return string 返回当前模版名称
+     */
+    private function getCurrentUsedTemp() {
+        // .默认模版路径
+        if( ! file_exists( TEMPDIR . 'config.json' ) ) {
+        	@fopen(TEMPDIR . 'config.json','w+');
+        }
+        $currentUsed = file_get_contents(TEMPDIR . '/config.json');
+        $array = json_decode($currentUsed, true);
+        if (isset($array[0]['currentUsed']) && $array[0]['currentUsed'] != '') {
+            return $array[0]['currentUsed'];
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * 输出当前服务器允许的最大post上传限制
+     *
+     * @method readPostMaxValue
+     */
+    public function readPostMaxValue() {
+        die(json_encode(new Result(true, 0, '', Io::getApachePostMaxValue())));
+    }
+
+    /**
+     *
+     *
+     * 文件夹无法生成输出
+     * @methdo dirMkError
+     * @info 用于文件夹无法生成的时候,统一向前端提供报错信息
+     *
+     * @param string $dirPath
+     *            文件夹地址
+     */
+    private function dirMkError($dirPath) {
+        die(json_encode(new Result(false, 0, '操作失败,请检查' . $dirPath . ',失败原因：' . Io::$dirMakeError, null)));
+    }
+    
+    /**
+     * 在线安装专题模版
+     */
+    public function remoteInstallTopic(){
+    	$filepath = $_REQUEST['zipFile'];
+    	$this->install_topic_tpl($filepath);
+    }
+    
+    /**
+     * 专题模版文件包上传
+     * @method uploadTpl
+     */
+    public function uploadTpl(){
+    	$filename = explode('.',$_FILES['Filedata']['name']);
+    	$suffixes = '.'.end($filename);
+    	$path = 'upload/topic/'.time().rand(10,99).$suffixes;
+    	$filepath =GENERATEPATH.$path;
+    	if(move_uploaded_file($_FILES['Filedata']['tmp_name'],$filepath)){
+    		$this->install_topic_tpl($filepath);
+    	}else{
+    		die( json_encode( new Result(false,-1, '', null) ) );
+    	}
+    }
+    
+    /**
+     * 专题模版安装共用方法
+     * @param unknown $filepath
+     */
+    private function install_topic_tpl($filepath){
+    	//路径文件夹生成
+    	$toPath = GENERATEPATH.'upload/topic/';
+    	if(!file_exists(GENERATEPATH.'upload')){
+    		mkdir(GENERATEPATH.'upload');
+    	}
+    	if(!file_exists(GENERATEPATH.'upload/topic/')){
+    		mkdir($toPath);
+    	}
+    	//创建压缩文件临时文件夹
+    	$tmppath = GENERATEPATH.'template_c/topictmp';
+    	if(is_dir($tmppath)){
+    		Io::DirDelete($tmppath);
+    	}else{
+    		mkdir($tmppath);
+    	}
+    	$pclZip = new PclZip($filepath);
+    	if($pclZip->extract(PCLZIP_OPT_PATH, $tmppath, PCLZIP_OPT_REMOVE_PATH, '')){
+    		$config = $tmppath.'/config.xml';
+    		$configs = Io::configXmlAnalytical($config);
+    		$copypath = $toPath.$configs->Name;
+    		// 重复上传
+    		if( is_dir( $copypath ) ) {
+    			@unlink($filepath);
+    			die( json_encode( new Result(false, 1, '', null) ) );
+    		}
+    		if($configs->Title){
+    			if (Io::DirCopy($tmppath,$copypath)){
+    				// 删除源包
+    				@unlink($filepath);
+    			}
+    			$tplpath = 'upload/topic/'.$configs->Name.'/'.$configs->Htpl;
+    			$TopicService = new TopicService();
+    			$result = $TopicService->uploadTpl($tplpath,$configs->Title);
+    			if($result){
+    				die( json_encode( new Result(true, 0, '', null) ) );
+    			}else{
+    				die( json_encode( new Result(false, 1, '', null) ) );
+    			}
+    		}else{
+    			@unlink($filepath);
+    			die( json_encode( new Result(false, 1, '', null) ) );
+    		}
+    	};
+    }
+    
+}

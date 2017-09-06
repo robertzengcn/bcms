@@ -1,0 +1,166 @@
+<?php
+/**
+ *
+ * HMA患者管理接口
+ * @author Administrator
+ * @version v1.0
+ */
+include_once '../hwibsc/common.class.php';
+ini_set("display_errors", "On");
+class Patientmanagers extends common {
+	private $part = null;
+	
+	public function __construct() {
+	
+		parent::__construct();
+		if(!isset($_SESSION)){
+			session_start();
+		}
+		
+		if (!in_array($_REQUEST['part'], array('doctormanager_outpatient_time','configure_info','search_article','article_title','departmentmanager_list','department_doctormanager_list','department_doctor_list','dispatcher'))){//需要排除登录的接口
+				
+			$this->getuser();
+		}
+	
+	
+		//$this->getuser();
+	
+		if( isset( $_REQUEST['part'] ) &&  $_REQUEST['part'] != '' ) {
+			$this->part = trim( $_REQUEST['part'] );
+			$method = 'get_'.$this->part;
+			if ( method_exists( $this , $method ) ) {
+				$this->$method();
+			}else{
+				die( json_encode( array( 'code'=>1,'msg'=>'part参数错误,不存在该调用接口!','departments'=>null ) ) );
+			}
+		}else{
+
+			die( json_encode( array( 'code'=>1,'msg'=>'part参数为空!','departments'=>null ) ) );
+		}
+	}
+	
+	
+	/*
+	 * 取患者管理列表
+	* */
+	private function get_patientcaselist(){
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+		$type=$this->getRequest('type',0);
+
+		$patientserviceser=new PatientService();
+		if(!$_SESSION['member_mobile']){
+			$this->msgPut(false,'用户手机号为空',null,'2');
+		}
+		$result=$patientserviceser->getListPatientCase(array('telphone'=>$_SESSION['member_mobile'],'type'=>$type,'page'=>$page,'size'=>$size));
+
+		if(!empty($result['rows'])){
+			foreach($result['rows'] as $key=>$val){
+				unset($result['rows'][$key]['detail_id']);
+			}
+			$this->msgPut(true,null,$result,0);
+		}
+		$this->msgPut(false,'没有数据',null,'1');
+	}
+	
+	/*
+	 * 根据case_id取详情数据
+	 * */
+	private function get_patientcasedetail(){
+		if(!isset($_SESSION)){
+			session_start();
+		}
+		$case_id=(int)($this->getRequest('case_id'));
+		$patientser=new PatientService();
+		if(!$_SESSION['member_mobile']){
+			$this->msgPut(false,'用户手机号为空',null,'2');
+		}
+		$result=$patientser->getListPatientCase(array('case_id'=>$case_id,'telphone'=>$_SESSION['member_mobile']));
+		if(!empty($result['rows'][0])){
+			
+			$result['rows'][0]['pic']=UPLOAD.$result['rows'][0]['pic'];
+			$result['rows'][0]['medical']=$patientser->getPrescriptionsByDetailId($case_id);
+			
+			$this->msgPut(true,null,$result,0);
+		}
+		$this->msgPut(false,'没有数据',null,'1');
+		
+	}
+	
+	/*
+	 * 根据case_number取详情数据
+	* */
+	private function get_patientcasenumberdetail(){
+		if(!isset($_SESSION)){
+			session_start();
+		}
+		
+		$case_number=(int)($this->getRequest('case_number'));
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+		$type=$this->getRequest('type');
+
+		if(!$_SESSION['member_mobile']){
+			$this->msgPut(false,'用户手机号为空',null,'2');
+		}
+		
+		$patientser=new PatientService();
+		$result=$patientser->getListPatientCase(array('case_number'=>$case_number,'type'=>$type,'telphone'=>$_SESSION['member_mobile'],'page'=>$page,'size'=>$size));
+		
+
+		if(!empty($result['rows'])){
+	
+			foreach($result['rows'] as $key=>$val){
+				if($val['pic']){
+					$result['rows'][$key]['pic']=UPLOAD.$val['pic'];
+					//$result['rows'][$key]['medical']=$patientser->getPrescriptionsByDetailId($result['rows'][$key]['case_id']);
+				}
+			
+				$result['rows'][$key]['medical']=$patientser->getPrescriptionsByDetailId($val['case_id']);
+			}
+				
+			//$result['rows'][0]['pic']=UPLOAD.$result['rows'][0]['pic'];
+			//$result['rows'][0]['medical']=$patientser->getPrescriptionsByDetailId($case_id);
+				
+			$this->msgPut(true,null,$result,0);
+		}
+		$this->msgPut(false,'没有数据',null,'1');
+	
+	}
+	
+	/*
+	 * 取复诊列表
+	* @param case_id
+	* */
+	protected function get_consultation(){
+		if(!isset($_SESSION)){
+			session_start();
+		}
+		$case_number=$this->getRequest('case_number',null);
+		$type=$this->getRequest('type',null);
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+
+		if(!$case_number){
+			$this->msgPut(false,'病例号有误',3,null);
+		}
+
+	if(!$_SESSION['member_mobile']){
+		$this->msgPut(false,'用户手机号为空',null,2);
+	}
+		$page=$this->getRequest('page',1);
+		$size=$this->getRequest('size',10);
+		$patientserviceser=new PatientService();
+	
+		$result=$patientserviceser->getListPatientCase(array('case_number'=>$case_number,'type'=>$type,'telphone'=>$_SESSION['member_mobile'],'page'=>$page,'size'=>$size));
+	
+		if(!empty($result['rows'])){
+			$this->msgPut(true,null,0,$result);
+		}
+		$this->msgPut(false,'没有数据',1,null);
+	}
+	
+	
+	
+}
+new Patientmanagers();

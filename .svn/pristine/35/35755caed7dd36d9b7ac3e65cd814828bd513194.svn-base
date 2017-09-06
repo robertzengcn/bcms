@@ -1,0 +1,76 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/pop.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<link href="../lib/lightbox2/2.8.1/css/lightbox.css" rel="stylesheet" type="text/css" >
+<title>弹窗管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe612;</i> 网站图片管理 <span class="c-gray en">&gt;</span> 网页弹窗管理 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<div class="portfolio-content">
+		<ul class="cl portfolio-area">
+			<li class="item page_attr" attr=3 flag="special_one">
+				<div class="Popup">					
+					<div class="picbox"><a><img id="show_img3" src=""></a></div>
+                    <a href="javascript:;"><div id="show_top3" class="page_attr_T">弹窗1</div></a></div>
+			</li>
+			<li class="item page_attr" flag="special_two" attr=4>
+				<div class="Popup">
+					<div class="picbox"><a><img id="show_img4" src=""></a></div>
+                    <a href="javascript:;"><div id="show_top4" class="page_attr_T">弹窗2</div></a></div>
+			</li>
+			<li class="item page_attr" attr=5 flag="special_three">
+				<div class="Popup">
+					<div class="picbox"><a><img id="show_img5" src=""></a></div>
+                    <a href="javascript:;" ><div id="show_top5" class="page_attr_T">弹窗3</div></a></div>
+			</li>
+            <li class="item page_attr" attr=6 flag="special_four">
+				<div class="Popup">
+					<div class="picbox"><a><img id="show_img6" src=""></a></div>
+                    <a href="javascript:;" ><div id="show_top6" class="page_attr_T">弹窗4</div></a></div>
+			</li>
+			<li class="item page_attr" attr=7 flag="special_five">
+				<div class="Popup">
+					<div class="picbox"><a><img id="show_img7" src=""></a></div>
+                    <a href="javascript:;" ><div id="show_top7" class="page_attr_T">弹窗5</div></a></div>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/lightbox2/2.8.1/js/lightbox-plus-jquery.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/picManager.js"></script>
+<script type="text/javascript">
+var gPicManager = new PicManager();
+gPicManager.setThisName('gPicManager');
+gPicManager.initPopList();
+
+</script> 
+</body>
+</html>
+

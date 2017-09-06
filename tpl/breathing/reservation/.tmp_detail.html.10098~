@@ -1,0 +1,144 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name="css"}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/ask.css" />
+  {{/block}}
+  {{block name=js}}
+  <script type="text/javascript" src="{{$RESOURCE}}/js/reservation.js"></script>
+  <script type="text/javascript" src="{{$RESOURCE}}/js/reservation_base.js"></script>
+  {{/block}}
+  {{block name="body"}}
+  <div id="breadcrumb">您的位置：<a href="#">首页</a>><a href="{{$WEBSITE}}/reservation/reservation.html">在线预约</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <h2>在线预约</h2>
+      <div class="Online_bespeak_top_list bk"> 1、网上预约挂号，免挂号费，优先就诊，无需排队； <br />
+        2、为您建立个人健康档案，享受医院提供的专业医疗服务信息。<br />
+        3、本站坚决维护患者隐私权，网上填写的所有资料只为预约提供方便，不作其它用途,就诊后即删除填写资料。 <br />
+        4、网上挂号无任何附加费用，主要是为了方便您及时就诊，也方便我们及时安排针对您病情的专家号。<br />
+        <div><span>如有健康方面的咨询，请</span><a href="javascript:Layout.openWindow('chat');"><img src="{{$RESOURCE}}/images/zx.gif" alt="在线咨询" /></a></div>
+      </div>
+      <div class="online_list_B bk">
+        <div class="online_list">
+          <FORM id=form1 name=form1 onSubmit="return xxg();initAd();submitonce(this);">
+                    <table width="100%" cellpadding="0" cellspacing="4">
+                        <tr>
+                            <td height="35" align="right" nowrap="nowrap"> </td>
+                            <td width="1056" class="red"><span class="red">请您认真填写以下信息</span> </td>
+                        </tr>
+                        <tr>
+                            <td height="35" align="right" nowrap="nowrap">姓　　名：</td>
+                            <td width="1056" class="red"><input size="20" name="name"/>
+                               <span class="red"> *</span> </td>
+                        </tr>
+                        <tr>
+                            <td height="35" align="right" nowrap="nowrap">性　　别：</td>
+                            <td class="red"><select name="sex">
+                                    <option selected="selected" value="">请选择</option>
+                                    <option value="0">男</option>
+                                    <option value="1">女</option>
+                                </select>
+                                <span class="red"> *</span></td>
+                        </tr>
+                        <tr>
+                            <td height="35" align="right" nowrap="nowrap">年　　龄：</td>
+                            <td class="red"><input size="10" name="age"/>
+                                <span class="red"> *</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td height="35" align="right" >预约日期：</td>
+ 							<td><span id="span_date" >预约日期 </span>
+ 							<input type="hidden" id="date" name="date" />  
+                                <span class="red"> *</span></td>
+                        </tr>          
+                      
+                         <tr>
+                            <td height="35" align="right" nowrap="nowrap">选择科室和医生：</td>
+                             <td>
+                               <span id="span_department" >预约科室 </span>
+                               <span id="span_doctor" > 预约医生</span>
+                               <span id="span_k" >已约时间段 </span> 
+                               <input type="hidden" id="department_id" name="department_id" />                                         
+                                 <input type="hidden" id="doctor_id" name="doctor_id" />
+                                  <input type="hidden" id="time" name="time" />                                            
+                           	   <span class="red"> *</span>
+                           	</td>
+                         </tr>  				
+                        <tr>
+                            <td height="35" align="right" nowrap="nowrap">家庭住址：</td>
+
+                            <td class="red"><input name="address" size="45" value="请输入家庭住址" onfocus="if (value =='请输入家庭住址'){value =''}" onblur="if (value ==''){value='请输入家庭住址'}"/></td>
+                        
+                        </tr>
+                        <tr>
+                            <td height="35" align="right">电话号码：</td>
+                            <td class="red"><input name="hometel" size="20"/>
+                                <span class="red"> *</span></td>
+                        </tr>
+                        <tr>
+                            <td height="35" align="right">E-mail：&nbsp;&nbsp;</td>
+                            <td><input name="email" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="35" align="right" valign="top">病情描述：</td>
+                            <td class="red">
+                                <textarea name="ill" cols="45" rows="5"></textarea> </td>
+                        </tr>
+
+                        <tr>
+                            <td height="30"><p>&nbsp;</p></td>
+                            <td height="50" align="left">
+                                <INPUT class="ask_form_btn" id="button" type="button" value="预约"  name="button">&nbsp;
+                                <input type="reset" class="ask_form_btn2" name="Reset" value="重置">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="30"><p>&nbsp;</p></td>
+                            <td height="50" align="left">注：带有<span class="red"> *</span> 的为必填项 </td>
+                        </tr>
+                    </table>
+                </FORM>
+          <p>友情提醒：预约成功后，我们会及时按您提供的联系方式和您取得联系！</p>
+        </div>
+      </div>
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  <script>
+function GetRequest() {
+	   var url = decodeURI(location.search); //获取url中"?"符后的字串     		
+	   var theRequest = new Object();
+	   if (url.indexOf("?") != -1) {
+	      var str = url.substr(1);
+	      strs = str.split("&");
+	      for(var i = 0; i < strs.length; i ++) {
+	         theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+	      }
+	   }
+	   return theRequest;
+	   
+}
+
+function deal(){
+	theRequest =GetRequest();	
+	for(i in theRequest){
+		$("#span_"+i).html(theRequest[i]);
+		$("#"+i).val(theRequest[i]);
+	}
+	var url = window.location.pathname;
+	   var title = document.title;
+	   var state = {
+				title: title,
+				url: url,
+	   };  
+	   window.history.pushState(state, document.title, url);
+	
+}
+deal();
+</script> 
+  {{/block}}

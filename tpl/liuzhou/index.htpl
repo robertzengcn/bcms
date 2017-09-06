@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<meta name="description" content="{{seolist}}[field:description /]{{/seolist}}">
+<meta name="keywords" content="{{seolist}}[field:keywords /]{{/seolist}}">
+<!--取消百度转码-->
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--清浏览器缓存-->
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!--国产浏览器高速模式-->
+<meta name="renderer" content="webkit">
+<title>{{seolist}}[field:title/]{{/seolist}}</title>
+{{picbyflag flag="ico" assign="ouds"}}
+<link rel="icon" type="image/png" href="[field:src/]">
+{{/picbyflag}} 
+<!-- Bootstrap -->
+<link href="{{resource}}/framework/css/bootstrap.min.css" rel="stylesheet">
+<!--新增样式-->
+<link href="{{resource}}/css/style.css" rel="stylesheet" type="text/css" />
+<!--新增医疗图标-->
+<!--<link href="{{resource}}/iconfont/iconfont.css" rel="stylesheet" type="text/css" />-->
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="{{resource}}/framework/lib/ieonly/html5shiv.min.js"></script>
+      <script src="{{resource}}/framework/lib/ieonly/respond.min.js"></script>
+      <script src="{{resource}}/framework/lib/ieonly/excanvas.js"></script>
+    <![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{resource}}/framework/lib/jquery/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{resource}}/framework/js/bootstrap.min.js"></script>
+
+<!--滑动js-->
+<script type="text/javascript" src="{{resource}}/framework/lib/SuperSlide/jquery.SuperSlide.2.1.1.js"></script>
+<!--新增js--> 
+<script type="text/javascript" src="{{resource}}/js/index.js"></script>
+</head>
+<body>
+<!--提示IE7及更早版本的用户--> 
+<!--[if lt IE 8]>
+      <div class="alert alert-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  <![endif]--> 
+
+<!--顶部banner 开始-->
+<div class="header">{{picbyflag flag="scroll0"}}<img src="[field:img/]"> {{/picbyflag}}
+  <div class="top_bg"></div>
+  <div class="top_txt container"> <span class="pull-left">欢迎访问{{contactlist  flag='name' }}[field:val/]{{/contactlist}}</span> <span class="pull-right"><a href="javascript:void(0)" onclick="shoucang(document.title,window.location)">加入收藏</a>  | <a href="javascript:void(0)" onclick="SetHome(this,window.location)">设为首页</a></span> </div>
+</div>
+<div class="clearfix"></div>
+<!--顶部banner 结束--> 
+
+
+<!--导航 开始-->
+<div class="header_nav">
+  <div class="container">
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse" aria-expanded="false"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar_collapse">
+        <ul id="wydh" class="nav navbar-nav nav-justified">
+          {{navbylimit order="cate asc,sort asc"   cate="1" children="true" pid="0" is_display="1" limit="13"}}
+          <li class="mainlevel"><a href="[field:url/]" target="_self">[field:subject/]</a> 
+            <ul style="display: none;">
+              [children]
+              <li><a href="[children:url/]" target="_blank">[children:subject/]</a></li>
+              [/children]
+            </ul>
+          </li>
+          {{/navbylimit}}
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+<!--导航 结束--> 
+
+<!--关键词搜索 开始-->
+<div class=" container">
+  <div class="Keyword">
+    <form class="search" role="search">
+      <input name="" class="search-text" id="keyword" value="请输入关键字" onfocus="if(value=='请输入关键字') {value=''}" type="text">
+      <button value="" class="search-btn" id="save" type="button"><i class="glyphicon glyphicon-search"></i></button>
+    </form>
+    <div class="Keyword_text"> 热门关键词： {{navgroup flag="keyword"}} <a href="[field:url /]" target="_blank" title="[field:subject /]">[field:subject/]</a>  {{/navgroup}}</div>
+  </div>
+</div>
+<!--关键词搜索 结束--> 
+
+<!--新闻公告 开始-->
+<div class="container">
+  <div class="home_xwgg">
+    <div class="row">
+      <div class="xwgg_l col-md-8">
+        <div class="box pd-10">
+          <div class="row">
+            <div class="xw_l col-sm-5">
+              <div id="slidershow" class="carousel slide" data-ride="carousel"> 
+                <!-- 设置图片轮播的顺序 -->
+                {{scrollpicbyflag flag="scroll1" assign="pic"}}{{/scrollpicbyflag}}
+                <ol class="carousel-indicators">
+                   {{foreach from=$pic item=v name=nava}}
+                   {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+                  <li class="{{$active}}" data-target="#slidershow" data-slide-to="{{$smarty.foreach.nava.iteration-1}}"><img src="{{$v->pic}}"></li>
+                  {{/foreach}}
+                </ol>
+                <!-- 设置轮播图片 -->
+                <div class="carousel-inner">
+                  {{foreach from=$pic item=v name=nava}}
+                  {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+                  <div class="item {{$active}}"> <a href="{{$v->url}}"><img src="{{$v->pic}}">
+                    <p>{{$v->text}}</p>
+                    </a> </div>
+                  {{/foreach}}
+                </div>
+              </div>
+            </div>
+            <div class="xw_r col-sm-7">
+              <div class="xw_top">
+                {{newsbyrecommend recommend_name="首页头版头条"  limit="1" name="content1" }}   <!-- assign="newss" -->
+                <h1><a href="{{newsurl}}[field:id/].html" target="_blank" title="">[field:subject/]</a></h1>
+                <p class="text-ind2em">[field:description|length:35/]<a href="{{newsurl}}[field:id/]" target="_blank" title="详细">[详细]</a></p>
+                {{/newsbyrecommend}}
+              </div><!-- {{$newss|var_dump}} -->
+              <ul class="xw_list">
+                {{newslist pagesize="4" }}
+                <li class="new"><a href="{{newsurl}}[field:id/].html" target="_blank" title="">[field:subject|length:30/]</a><span>【[field:plushtime|date_format:"Y-m-d"/]】</span></li>
+                {{/newslist}}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="xwgg_r col-md-4">
+        <div class="box">
+          <div class="home_tit"> <span class="pull-left">最新公告</span> <a class="more" href="#">MORE+</a> </div>
+          <ul class="zxgg_list" id="zxgg_list">
+            {{channelarcsbyname name="最新公告" size="12" }}
+            <li><a href="[field:url/]">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></li>
+            {{/channelarcsbyname}}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--新闻公告 结束--> 
+
+<!-- 首页科室导航 开始-->
+<div class="container mt-20 mb-20">
+  <ul class="home_ks">
+    {{deptlist page="1" pagesize=4 assign="dep"}}{{/deptlist}}
+    {{foreach from=$dep item=v1}}
+    <li><a class="tit" href="/{{$v1->url}}">{{$v1->name}}</a>
+      <div class="ks_box">
+        <dl class="ks_list">
+          {{$dis=$DiseaseTag->getByDeparment($v1->id,12)}}
+          {{foreach from=$dis[0] item=v2}}
+          {{if $v2->name neq "" && $v2->name neq "" && $v2->name neq ""}}
+          <dd><a href="/{{$v1->url}}/{{$v2->url}}" title="" target="_blank">{{$v2->name}}</a></dd>
+          {{/if}}
+          {{/foreach}}
+        </dl>
+      </div>
+    </li>
+    {{/foreach}}
+
+    <li><a class="tit" href="#">门诊出诊表</a> </li>
+    <li><a class="tit" href="#">预约挂号</a> </li>
+  </ul>
+  <div class="clearfix"></div>
+</div>
+<!-- 首页科室 结束--> 
+
+<!-- 首页专家滚动 开始-->
+<div class="container">
+  <div class="home_zj">
+    <div class="home_tit"> <span class="pull-left">专家名录</span> <a class="more" href="#">MORE+</a> </div>
+    <div class="home_zj_left">
+      <div class="hd"> <a class="next"></a> <a class="prev"></a> </div>
+      <div class="bd">
+        <ul class="picList">
+          {{doctorlist page="1" pagesize=20 assign="dep" departmentjoin="name,pic" }}  <!-- type="json" -->
+          <li> 
+            <div class="pic"><a href="[field:url /]" target="_blank"><img src="[field:pic/]" /></a></div>
+            <div class="title">
+              <p class="text-ellipsis"><strong>姓名：</strong><a href="[field:department_pic /]" target="_blank">[field:name /]</a></p>
+              <p class="text-ellipsis"><strong>科室：</strong>[field:department_name /]</p>
+              <p class="intro"><strong>简介：</strong><a href="[field:url/]" target="_blank" style="">[field:description /]</a></p>
+              <p class="text-right"><a href="[field:url /]" target="_blank">【详细】</a></p>
+            </div>
+          </li>
+          {{/doctorlist}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 首页专家滚动 结束--> 
+
+<!-- 首页科研教学指南 开始-->
+<div class="home_kyjxzn container  mt-20 mb-20">
+  <div class="row">
+    <div class="col-md-4 kyjxzn_l">
+      <div class="box">
+        <div class="home_tit"> <span class="pull-left">科研动态</span> <a class="more" href="#">MORE+</a> </div>
+        <ul>
+          {{channelarcsbyname name="科研动态" size="7" }}
+          <li class="new"><a href="#" title="" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></li>
+{{var_dump([field/])}}         
+		 {{/channelarcsbyname}}
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-4 kyjxzn_m">
+      <div class="box">
+        <div class="home_tit"> <span class="pull-left">教学动态</span> <a class="more" href="#">MORE+</a> </div>
+        <ul>
+          {{channelarcsbyname name="教学动态" size="7"}}
+          <li class="new"><a href="#" title="" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></li>
+          {{/channelarcsbyname}}
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-4 kyjxzn_r">
+      <div class="box">
+        <div class="zn_tit">就医指南</div>
+        <ul>
+          {{channelarcsbyname name="就医指南" size="5"}}
+          <li style=" width:50%;"><a href="[field:url/]"><span><img src="[field:pic/]"></span>
+            <p>[field:subject/]</p>
+            </a></li>
+          {{/channelarcsbyname}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 首页科研教学指南 结束--> 
+
+<!-- 首页专题 开始-->
+<div class="container mt-20 mb-20">
+  <div class="home_zt">
+    <div class="home_tit"> <span class="pull-left">医院专题</span> <a class="more" href="#">MORE+</a> </div>
+    <ul>
+      {{channelarcsbyname name="医院专题" size="4"}}
+      <li>
+        <div class="pic"><a href="[field:url/]" target="_blank" title=""><img src="[field:pic/]"></a></div>
+        <div class="text">
+          <p>[field:title /] </p>
+          <a class="in" href="#">【进入专题】</a></div>
+      </li>
+      {{/channelarcsbyname}}
+    </ul>
+  </div>
+</div>
+<!-- 首页专题 结束--> 
+
+<!-- 友情链接 开始-->
+<div class="container mt-20 mb-20">
+  <div class="home_yqlj">
+    <div class="home_tit"> <span class="pull-left">友情链接</span></div>
+    <div class="yqlj_left">
+      <div class="bd">
+        <ul>
+          {{navgroup flag="blogroll"}}
+          <li><a href="[field:url /]"><img src="[field:pic /]"></a></li>
+          {{/navgroup}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 友情链接 结束--> 
+
+<!-- 页尾 开始-->
+<div class="footer">
+	<div class=" container text-center">
+    	<p><a href="#">医院介绍</a>|<a href="#">医院文化</a>|<a href="#">招聘信息</a>|<a href="#">联系我们</a>|<a href="javascript:void(0)" onclick="SetHome(this,window.location)">设为首页</a>|<a href="javascript:void(0)" onclick="shoucang(document.title,window.location)">加入收藏</a></p>
+        <p>{{contactlist  flag='name' }}[field:val/]{{/contactlist}} 版权所有 {{contactlist  flag='icp' }}[field:val/]{{/contactlist}}</p>
+        <p>本站信息仅供参考，不能作为诊断和医疗的依据</p>
+        <p>地址：{{contactlist  flag='address' }}[field:val/]{{/contactlist}} 邮政编码：333000 预约挂号：{{contactlist  flag='tel' }}[field:val/]{{/contactlist}}</p>
+    </div>
+</div>
+<!-- 页尾 结束-->
+
+<!--回到顶部-->
+<p id="back-to-top"><a href="#top"><span></span>返回<br>顶部</a></p>
+
+</body>
+</html>

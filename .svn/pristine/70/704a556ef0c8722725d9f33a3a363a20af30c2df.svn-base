@@ -1,0 +1,147 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../../css/H-ui.admin.css">
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../../../lib/Hui-iconfont/1.0.1/iconfont.css">
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>自动回复设置</title>
+<style type="text/css">
+	/*导航条*/
+    .mainnav{z-index:1;background-color:#222}/*导航条背景*/
+    .mainnav > ul{ font-size: 0; line-height: 0}
+    .mainnav > ul > li,.mainnav > ul > li > a{height:40px;line-height:40px}/*导航条高度*/
+    .mainnav > ul > li{display:inline-block;color:#fff;font-size:14px;font-weight:bold}/*设置字体*/
+    .mainnav > ul > li > a{display:inline-block;padding:0 20px;color:#fff;text-align:center}/*链接颜色*/
+    .mainnav > ul > li > a:hover,.mainnav > ul > li.current > a{color:#fff;text-decoration:none; background-color:#e74c3c;-webkit-transition: background-color 0.3s ease 0s; -moz-transition: background-color 0.3s ease 0s; -o-transition: background-color 0.3s ease 0s; -ms-transition: background-color 0.3s ease 0s;transition: background-color 0.3s ease 0s}/*交互颜色*/
+    .Hui-nav-toggle{ display:none; position:absolute; top:0px; right:15px; font-size: 20px; color:#999; padding:6px 11px; -moz-border-radius:4px;-webkit-border-radius:4px;-ms-border-radius:4px;border-radius:4px; background-color:rgba(0,0,0,0.5);color:#fff;}
+    .Hui-nav-toggle:hover{ text-decoration: none;}
+	
+	/*内容显示div*/
+	.emoDiv{font-size:14px;height:100px;padding:4px;border:1px solid #ddd;box-sizing: border-box;transition: all 0.2s linear 0s;}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 营销功能管理 <span class="c-gray en">&gt;</span> 微信公众号管理 <span class="c-gray en">&gt;</span> 自动回复 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">	
+    <nav class="mainnav cl">
+    	<ul class="cl ifr_list">
+    		<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/detail-wx.html">自定义菜单</a></li>
+    		<li class="menulist current"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/detail-wx-reply.html">自动回复</a></li>
+    		<li class="menulist"><a href="javascript:;" _href="plugin/plugins/weixin/clickstat-menu.html">菜单点击</a></li>
+			<li class="menulist"><a href="javascript:;" _href="plugin/plugins/weixin/manage-text.html">素材管理</a></li>
+			<li class="menulist"><a href="javascript:;" _href="/hcc/plugin/plugins/weixin/send-message.html">群发消息</a></li>				
+    	</ul>
+    </nav>
+	<div class="mt-10">		
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>关键词回复</span><span>自动回复</span></div>
+			<div class="tabCon">
+				<div class="cl pd-5 bg-1 bk-gray mt-10"><span class="l"><a href="javascript:;" onClick="gWeiXin.delBatchKeywordReply();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" onClick="gWeiXin.openEdit('添加关键词回复信息','add-keywords.html','650','500')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加回复</a></span> <form id="frm_post"><span class="r">关键词：<input type="text" name="keyname" id="keywordname" placeholder=" 请输入查询关键词..." style="width:150px" class="input-text"> <button id="qry" class="btn btn-success patientmanage" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button></span> </form></div>
+				<div class="pd-10">
+				<table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th width="25"><input type="checkbox" name="" value=""></th>					
+							<th width="130">序号</th>
+							<th width="80">关键词</th>
+							<th width="110">回复内容</th>
+							<th width="160">回复格式</th>							
+							<th width="80">操作</th>
+						</tr>
+					</thead>
+				</table>
+				</div>
+			</div>
+			<!--关键词回复-->
+			<div class="tabCon">
+				<form class="form form-horizontal" id="addnewkeywords">					
+					<div class="row cl">
+						<label class="form-label col-81">
+						<div class="radio-box skin-minimal">
+							<input type="radio" id="" value="0" name="focusType" checked>
+							<label>自动回复文本内容:</label>
+						</div></label>
+						<div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+					  <!--<label class="form-label col-2"></label>-->					  
+					  <div class="formControls col-82" style="margin-left:68px;">
+						<textarea name="" id="reply_contain" cols="" rows="" class="textarea"  placeholder="请输入想要回复给用户的内容..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,200)"></textarea>
+			            <div id="viewEmo" contenteditable="true" class="emoDiv" style="display: none;"></div>
+						<p class="textarea-numberbar"><a class="" id="emotion" href="javascript:;"><i class="Hui-iconfont">&#xe656;</i></a>&nbsp;&nbsp;<em class="textarea-length">0</em>/200</p>
+					  </div>
+					  <div class="col-4"> </div>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-81"><div class="radio-box  skin-minimal">
+							<input type="radio" id="setimage" name="focusType" value="1" >
+							<label>自动回复图文内容:</label>
+						</div></label>
+						<div class="formControls col-5" style="display:none;" id="addSucai">
+							<span class="mt-3">您还没有添加任何图文素材，请</span><a href="javascript:;" onClick="gWeiXin.openEdit('新增素材','add-text.html','1000','700')" style="color:#0000FF;">点击添加</a>！
+						</div>
+						<div class="formControls col-5" style="display:none;" id="selSucai">
+						    <a class="btn btn-success radius addpatient_bt bt-normal" onClick="gWeiXin.goToChooseMsg('autoReply','welSucai');" href="javascript:;"><i class="Hui-iconfont">&#xe61f;</i> 选择图文信息</a>
+						</div>
+					 	<div class="formControls col-5" style="display:none;" id="welSucai">
+						     <div class="cl bg-1 bk-gray informations" id="chooseMsg"></div>
+						</div>
+						<div class="col-4"> </div>
+					</div>
+					<div style="width:100%;height:20px;clear:both;"></div>
+					<div class="row cl pd-5">
+						<div class="formControls col-10 ml-5">(关键词无与关注时自动回复)</div>
+					</div>
+					<div style="width:100%;height:20px;clear:both;"></div>
+					<div class="row cl">
+						<div class="col-10 col-offset-1">
+							<button id="saveFocus" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>	
+						</div>
+					</div>
+				</form>
+			</div>
+			<!--关注时回复-->
+			
+		</div><!--HuiTab over-->
+	</div>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script>  
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/weixin/js/browser.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/weixin/js/jquery.qqFace.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/weixin/js/weixin.js"></script>
+<script type="text/javascript">
+var gWeiXin = new WeiXin();
+gWeiXin.setThisName('gWeiXin');
+gWeiXin.initAutoReply();
+</script>
+</body>
+</html>

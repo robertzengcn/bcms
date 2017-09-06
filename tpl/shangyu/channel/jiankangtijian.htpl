@@ -1,0 +1,224 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_hcup container">
+	<ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a>为您服务</a></li>
+      <li class="active">健康体检</li>
+    </ol>
+    <div class="int_main row">
+    	<div class="int_menu hidden-xs hidden-sm col-sm-2">
+        	<div class="int_menu_title">
+            	 <h1>SHANG YU</h1>
+                 <h2>健康体检</h2>
+            </div>
+            <nav class="int_menu_list" data-toggle="menu">
+            <ul class="nav" >
+            	 <li class="show"><a >体检中心</a>
+                 	<ul class="nav" id="abc"> 
+                 	{{navgroup flag="physical"}}
+					    <li><a href="javascript:void(0);">[field:subject/]</a></li>
+					{{/navgroup}}
+                    </ul>
+                 </li>
+            </ul>
+            </nav>
+        </div>
+        <div class="int_cont col-xs-12 col-sm-12 col-md-10">
+        	<div class="int_cont_tjxm">
+            	<div class="int_cont_tit"><b>体检项目</b></div>
+            </div>
+            <div class="int_cont_jctj">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1 qq1">
+            	     {{channelarcsbyname name="基础体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="基础体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1 ww1">
+                    {{channelarcsbyname name="基础体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="基础体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1 qq2">
+            	     {{channelarcsbyname name="常规体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="常规体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1 ww2">
+                    {{channelarcsbyname name="常规体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="常规体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1 qq3">
+            	     {{channelarcsbyname name="标准体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="标准体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1 ww3">
+                    {{channelarcsbyname name="标准体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="标准体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1 qq4">
+            	     {{channelarcsbyname name="女性体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="女性体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1 ww4">
+                    {{channelarcsbyname name="女性体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="女性体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="生育婚检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="生育婚检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="生育婚检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="生育婚检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="白领体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="白领体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="白领体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="白领体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="入职体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="入职体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="入职体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="入职体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="商务体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="商务体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="商务体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="商务体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="豪华体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="豪华体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="豪华体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="豪华体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="糖尿病体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="糖尿病体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="糖尿病体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="糖尿病体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="心血管体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="心血管体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="心血管体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="心血管体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj 111111111111" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="肝病/肠胃病体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="肝病/肠胃病体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="肝病/肠胃病体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="肝病/肠胃病体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_jctj" style="display:none;">
+            	<div class="int_cont_tit">
+            	  <ul class="int_index1">
+            	     {{channelarcsbyname name="肿瘤体检" page=1 size=1}}<li class="active">[field:subject/]</li>{{/channelarcsbyname}}
+            	     {{channelarcsbyname name="肿瘤体检" page=2 size=1}}<li>[field:subject/]</li>{{/channelarcsbyname}}
+            	  </ul>
+                </div>
+                <ul class="int_box1">
+                    {{channelarcsbyname name="肿瘤体检" page=1 size=1}}<li>[field:content/]</li>{{/channelarcsbyname}}
+                    {{channelarcsbyname name="肿瘤体检" page=2 size=1}}<li style="display: none;">[field:content/]</li>{{/channelarcsbyname}}
+                </ul>
+            </div>
+            <div class="int_cont_tjyd">
+            	<div class="int_cont_tit"><b>推荐阅读</b></div>
+                <ul>
+            {{relatednews limit="6"}}
+                    	<li><a href="[field:url]">[field:subject/]</a><span>[field:plushtime|date_format:"Y-m-d"/]</span></li>
+            {{/relatednews}}
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#abc li:first").addClass('active');
+	$(function (){
+			$('.int_index1 li:not(.disabled)').click(function() {
+				$(this).closest('.int_index1').find('li.active').removeClass('active');
+				$(this).addClass('active');
+				$(this).find(".int_box1 li").css("display","none");//将main下所有的div都隐藏
+			    $(this).find(".int_box1 li:eq(" + $(this).index() + ")").css("display","block"); //链接对应的div显示
+			    console.log($(this).index());
+		});
+		
+ 		$('#abc li:not(.disabled)').click(function() {
+				$(this).closest('#abc').find('li.active').removeClass('active');
+				$(this).addClass('active');
+		});
+	    $("#abc li").click(function(){//点击链接
+		$(".int_cont_jctj").css("display","none");//将main下所有的div都隐藏
+		$(".int_cont_jctj:eq(" + $(this).index() + ")").css("display","block"); //链接对应的div显示
+		});  
+	});  
+</script>
+
+
+    
+{{/block}}

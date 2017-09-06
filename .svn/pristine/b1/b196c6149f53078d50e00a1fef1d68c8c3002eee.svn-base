@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * 投票
+ * @author Administrator
+ *
+ */
+class VotePrizeService extends BaseService {
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化dao数据表处理层,并将其赋值给dao属性
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->dao = new VotePrizeDAO();
+    }
+   /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+    	
+        $votepArray = $this->dao->query($where);
+        return $this->success($votepArray);
+    }
+    /**
+     * 查询数据总量
+     *
+     * @see kernel/BaseService::totalRows()
+     */
+    public function totalRows($params) {	
+        return $this->success($this->dao->totalRows($params));
+    }
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($prize) {
+        $this->dao->get($prize->id, $prize);
+ 
+        return $this->success($prize);
+    }
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($draw) {
+    	
+         $draw->validate();        
+        // 获取class对象并插入数据
+        $rs=$this->dao->save($draw);
+        
+
+        return $this->success($rs);
+    }
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($prize) {
+    //    $commodity->updatetime = time();
+    	
+        $prize->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($prize);
+    }
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $prizeArray = $this->dao->getBatch($ids);
+      
+        return $this->dao->deleteBeans($prizeArray);
+    }
+	
+}

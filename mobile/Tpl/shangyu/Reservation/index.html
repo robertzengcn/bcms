@@ -1,0 +1,139 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}预约挂号{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/reservation.js"></script>
+<script src="{{$RESOURCE}}/js/reservation_base.js"></script>
+<script src="{{$RESOURCE}}/js/date/WdatePicker.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.reservation();
+
+</script>
+{{/block}}
+{{block name=body}}
+<div class="am-container main_yygh">
+	<form class="am-form" id="form1">
+        <div class="am-form-group">
+          <input class="" id="name" placeholder="就诊人姓名" type="text" name="name">
+        </div>
+        <fieldset class="am-form-set">
+          <input class="" id="hometel" placeholder="手机号" type="tel" name="telephone">
+          
+        </fieldset>
+
+        <div class="am-form-group row">
+                         <div class="col-md-6">
+                         <input class="form-control" placeholder="请输入您的年龄" id="age" nullmsg="年龄输入错误！" datatype="n" name="age" type="number" min="0" max="200"/>
+                         </div>
+                         
+                         <div></div>
+        </div>
+       <div class="am-form-group row">
+                         
+                    	<div class="col-md-6">
+                         <select id="sex" class="form-control" name="sex" datatype="*" nullmsg="性别不能为空！">
+                         <option value="">性别</option>
+                         <option value="0">女</option>
+                         <option value="1">男</option>
+                         </select>
+                         </div>
+	</div>
+	       <div class="am-form-group row">
+                         
+                    	<div class="col-md-6">
+                         <select id="department_id" class="form-control" name="department" datatype="*" nullmsg="科室不能为空！" onchange="getDoctor(this.value);">
+                          <option value="">--请选择科室--</option>
+                          {{foreach from=$departmentlist item=dep}}
+                           <option value="{{$dep->id}}">{{$dep->name}}</option>
+                          {{/foreach}}
+                         </select>
+                         </div>
+	</div>
+	
+	    <div class=" am-form-group col-md-6">
+                         <select id="doctor_id" class="form-control" name="doctor_id" datatype="*" nullmsg="医生不能为空！" onchange="getReservation();">
+                         
+                      <option value="">--请选择医生--</option>
+                         </select>
+                         </div>
+	        <div class="am-form-group row">
+                         <div class="col-md-6">
+                         <input class="form-control choosedate" placeholder="日期" id="date" nullmsg="年龄输入错误！" datatype="n" name="date" onfocus="WdatePicker({minDate:'%y-%M-%d'})" placeholder="请输入日期" onchange="getReservation();" />
+                         </div>
+                         
+                         <div></div>
+        </div>
+               <div class="am-form-group row">
+                         
+                    	<div class="col-md-6">
+                         <select id="appointment" class="form-control" name="times" datatype="*" nullmsg="时间不能为空！">
+                         
+                        <option value="">--请选择时间--</option>
+                         </select>
+                         </div>
+	</div>
+
+	
+
+	
+
+
+    <div class="am-accordion-content" id="docrestab" style="display:none;">
+    <h3>本周坐诊时间：</h3>
+                <table class="am-table am-table-bordered" id="doctab">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>一</th>
+                      <th>二</th>
+                      <th>三</th>
+                      <th>四</th>
+                      <th>五</th>
+                      <th>六</th>
+                      <th>日</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>上午</td>
+                      <td id="mon_1" class="dtd"></td>
+                      <td id="mon_2" class="dtd"></td>
+                      <td id="mon_3" class="dtd"></td>
+                      <td id="mon_4" class="dtd"></td>
+                      <td id="mon_5" class="dtd"></td>
+                      <td id="mon_6" class="dtd"></td>
+                      <td id="mon_0" class="dtd"></td>
+                    </tr>
+                    <tr>
+                      <td>下午</td>
+                      <td id="aft_1" class="dtd"></td>
+                      <td id="aft_2" class="dtd"></td>
+                      <td id="aft_3" class="dtd"></td>
+                      <td id="aft_4" class="dtd"></td>
+                      <td id="aft_5" class="dtd"></td>
+                      <td id="aft_6" class="dtd"></td>
+                      <td id="aft_0" class="dtd"></td>
+                    </tr>
+                   <tr>
+                      <td>晚上</td>
+                      <td id="nig_1" class="dtd"></td>
+                      <td id="nig_2" class="dtd"></td>
+                      <td id="nig_3" class="dtd"></td>
+                      <td id="nig_4" class="dtd"></td>
+                      <td id="nig_5" class="dtd"></td>
+                      <td id="nig_6" class="dtd"></td>
+                      <td id="nig_0" class="dtd"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+                      
+              <button type="button" class="am-btn am-btn-primary am-btn-block" id="button">确认预约</button>
+    </form>
+</div>
+</div>
+{{/block}}

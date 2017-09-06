@@ -1,0 +1,110 @@
+<?php
+/**
+ * 
+ * 抽象controller基类
+ * @author Administrator
+ *
+ */
+abstract class Controller {
+	
+	function __construct(){
+		
+	}
+	
+	function __destruct(){
+			
+	}
+
+
+    /**
+	 * 自动加载
+	 *
+	 * @param unknown $class        	
+	 */
+
+	static function load($class) {
+		if (strpos ( $class, 'Service' ) !== false) {
+			$file_path = KERNELPATH . $class . '.php';
+		} elseif (strpos ( $class, 'DAO' ) !== false) {
+			$file_path = DAOPATH . $class . '.php';
+		} elseif (strpos ( $class, 'Model_' ) !== false) {
+			$file_path = false;
+		} elseif (strpos ( $class, 'Smarty' ) !== false) {
+			$file_path = strtolower ( ABSPATH . '/lib/smarty/sysplugins/' . $class . '.php' );
+		} elseif (strpos ( $class, 'Tag' ) !== false && $class == 'Tag') {
+			$file_path = ENTITYPATH . $class . '.php';
+		} elseif (strpos ( $class, 'Tag' ) !== false) {
+			$file_path = ABSPATH . '/tagobj/' . $class . '.php' ;
+		} elseif (strpos ( $class, 'Exception')) {
+            $file_path = KERNELPATH . '/exception/' . $class . '.php' ;
+        } else {
+			$file_path = ENTITYPATH . $class . '.php';
+		}
+		
+		if ($file_path) {
+			if (file_exists ( $file_path )) {
+				require_once $file_path;
+			} else {
+				exit ( $file_path . '文件不存在!' );
+			}
+		}
+		
+		if (PLUGINSDIR_SMARTY == ABSPATH . '/tagobj/common/') {
+		    define ( 'PLUGINSDIR_SMARTY_SECOND', ABSPATH . '/tagobj/cusplugins/' );
+		}
+		
+		//标签加载
+		if (is_dir(PLUGINSDIR_SMARTY_SECOND)) {
+		    $handle=opendir(PLUGINSDIR_SMARTY_SECOND);
+		    while($file=readdir($handle)) {
+		        if (($file!=".")and($file!="..")) {
+		            require_once PLUGINSDIR_SMARTY_SECOND. $file;
+		        }
+		    }
+		    closedir($handle);
+		}
+	}
+	
+	/**
+	 * 绑定参数
+	 *
+	 * @param unknown $entity        	
+	 */
+	protected function blindParams($entity) {
+		foreach ( $entity as $key => $value ) {
+			if (isset ( $_REQUEST [$key] )) {
+				$entity->$key = $_REQUEST [$key];
+			}
+		}
+	}
+	
+	/*
+	 * FilterService::addFunc(FilterService::SQLInjection); FilterService::addFunc(FilterService::Addslashes); .... FilterService::excute() -> result; 或者是其他自定义的过滤
+	 */
+	abstract function filter();
+	
+	/**
+	 * 
+	 * 方法执行
+	 */
+	public function excute() {
+		if ((! isset ( $_REQUEST ['method'] )) || $_REQUEST ['method'] == NULL || strlen ( $_REQUEST ['method'] ) == 0) {
+			return new Result ( false, 3, ErrorMsgs::get ( 3 ), NULL );
+		}
+		
+		$method_name = get_class_methods ( $this );
+		if (! in_array ( $_REQUEST ['method'], $method_name )) {
+			return new Result ( false, 3, ErrorMsgs::get ( 3 ), NULL );
+		}
+		
+		try {
+			$methodName = $_REQUEST ['method'];		
+			return $this->$methodName ();	
+		} catch( ValidatorException $ve) {
+            $code = $ve->getCode ();
+            return new Result ( false, $code, ErrorMsgs::get ( $code ), null );
+        } catch ( Exception $e ) {
+			return new Result ( false, '', $e->getMessage(), null );
+		}
+	}
+}

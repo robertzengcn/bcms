@@ -1,0 +1,25 @@
+/* CSS Document */
+
+#page{overflow:hidden;}
+#page header{width:100%;height:50px;background:#289ABC;color:#FFFFFF;}
+#page header h1{font-size:16px;max-width:50%;height:50px;line-height:50px;text-align:left;overflow: hidden;height: inherit;float:left;}
+#page header h1 a img{ vertical-align:middle;padding:0px 6px;}
+.homenav {float:right;padding:15px 6px;}
+
+.content{width:96%;background:#FFFFFF;text-align:left;border:1px solid #c0e1ee;border-radius:8px;-moz-border-radius:8px; /* Old Firefox */ background:#f3f9fb;margin:10px auto;font-size:14px;}
+
+.content h2{height:35px;line-height:35px;color:#0694cb;font-weight:normal;font-size:16px;padding:0px 10px;}
+.content p{color:#666666;line-height:25px;padding:3px 10px;}
+.content p span{font-weight:bolder;color:#333333;}
+
+
+.foodlist{width:96%;margin:0px auto;}
+.foodlist h4{font-size:16px;text-align:left;}
+.foodlist ul li{width:30%;float:left;border:1px solid #d9d9d9;border-radius:8px;-moz-border-radius:8px; /* Old Firefox */ background:#f6f6f6;height:35px;line-height:35px;margin-left:2%;overflow:hidden;}
+.foodlist ul li a{font-size:15px;padding:0 3px;}
+
+.advisevtbox{width:96%;margin:10px auto;font-size:14px;background:#fff9f3;border:1px solid #fcd17a;border-radius:8px;-moz-border-radius:8px; /* Old Firefox */ }
+.advisevtbox p{line-height:25px;padding:6px;text-align:left;}
+.advisevtbox p span{color:#fe7900;}
+.askbuttom{width:100%;text-align:center;padding:0px 0px 10px 0px;}
+.askbuttom a{display:block;height:35px;line-height:35px;color:#FFFFFF;font-size:16px;border:1px solid #fc9232;border-radius:6px;-moz-border-radius:6px; /* Old Firefox */ background:#fc9232;width:30%;margin:0 auto;}

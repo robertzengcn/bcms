@@ -1,0 +1,104 @@
+<?php
+/**
+ * 新闻标签
+ * */
+require_once 'common.php';
+/**
+ * 根据页码获取对应的数据
+ * 
+ * 对应function标签中的{newses}
+ */
+function smarty_block_newslist( $params, $content, $template, &$repeat ) {
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $sort = isset($params['sort']) ? $params['sort'] : true;
+    $current = $template->getTemplateVars('cur');
+    $current = $current == '' ? 1 : $current;
+    
+    if (!$repeat) {
+        $ser = new NewsTag();
+        $data = $ser->getList($current, $pagesize, $sort);
+        foreach ($data as $key=>$newsinfo) {
+            $data[$key]->url = getNewsUrl($newsinfo->id);
+        }
+        
+        $template->assign('cur', $current);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据唯一id获取该id的详细信息
+ * 
+ * 对应function标签中的{news}
+ */
+function smarty_block_newsinfo( $params, $content, $template, &$repeat ) {
+    $id = isset($params['id']) ? $params['id'] : ($template->getTemplateVars('id'));
+
+    if (!$repeat) {
+        $ser = new NewsTag();
+        $data = $ser->get($id);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 相关文章推荐
+ *
+ */
+function smarty_block_relatednews($params, $content, $template, &$repeat){
+    $limit = isset($params['limit']) ? $params['limit'] : 10;
+
+    if (!$repeat) {
+        $ser = new NewsTag();
+        $data = $ser->getResemble($limit);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取最新新闻
+ */
+function smarty_block_latestnews($params, $content, $template, &$repeat){
+    $offset = isset($params['from']) ? intval($params['from']) : 1;
+    $limit = isset($params['limit']) ? intval($params['limit']) : 10;
+    $limit = $limit + $offset -1;
+    $offset = $offset -1;
+    
+    if (!$repeat) {
+        $ser = new NewsTag();
+        $data = $ser->getNewest($limit);
+        $data = array_slice($data, $offset, $limit);
+        foreach ($data as $key=>$newsinfo) {
+            $data[$key]->url = getNewsUrl($newsinfo->id);
+        }
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据推荐位置获取 媒体报道...
+ */
+function smarty_block_newsbyrecommend($params, $content, $template, &$repeat){
+    $recommend = isset($params['recommend_name']) ? $params['recommend_name'] : 0;
+    $name = isset($params['name']) ? $params['name'] : 'news_id';
+
+    if (!$repeat) {
+        $ser = new NewsTag();
+        $data = $ser->getByRecommend($recommend,$name);
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * public方法：获取新闻地址
+ * */
+function getNewsUrl($news_id) {
+    if (empty($news_id)) {
+    	return '';
+    }
+    return NETADDRESS . "/hospital/news/{$news_id}.html";
+}

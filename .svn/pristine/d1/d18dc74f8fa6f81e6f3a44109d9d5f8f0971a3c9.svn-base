@@ -1,0 +1,163 @@
+/**
+ * 文章库
+ * */
+
+function ArticleLibrary() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.init = function() {
+		$(function(){
+			$("#qry").click(function(){
+				self.searchAllow();
+			});
+		});
+	}
+
+	// }}}
+    // {{{ function initView()
+	
+	/**
+	 * 初始化预览
+	 * */
+	this.initView = function() {
+		$(function(){
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				self.cmd(gHttp,{controller:'Library',method:'search_view',id:para.id},function(result1){
+					if(result1.statu){
+						$("#article-title").html(result1.data.subject);
+						$("#article-body").html(result1.data.content);
+					}else{
+						layer.alert(result1.msg,{icon:2});
+					}
+				});
+			}
+		});
+	}
+
+	// }}}
+	// {{{ function searchAllow()
+	
+	/**
+	 * 是否允许搜索
+	 * */
+	this.searchAllow = function(){
+		self.cmd(gHttp, {controller:'Library',method:'check_search_allow'}, function(result){
+			switch( result.statu ){
+			case true:
+				self.searchBegin();
+				break;
+			case false:
+				layer.alert('对不起,您的站点暂时没有搜索权限,请购买后进行!');return true;
+				break;
+		    }
+		});
+	}
+	
+	// }}}
+	// {{{ function searchBegin()
+	
+	/**
+	 * 进行实际搜索操作
+	 * */
+	this.searchBegin = function(){
+		var keyword_one = $('input[name="keyword_one"]').val();
+		var keyword_two = $('input[name="keyword_two"]').val();
+		if( $.trim( keyword_one ) == '' ){
+			layer.alert('请输入至少一个以上的关键词进行搜索!',{icon:2});return false;
+		}
+		
+		$("#article-info").hide();
+		$("div[id^='article-list']").show();
+		self.fillDataTable();
+	}
+	
+	// }}}
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Library',method:'search_begin'},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'subject' },
+			            { data: 'description',render:function(value){return value.substr(0,60)+'...';}},
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+				              str += '<a style="text-decoration:none" onClick="gArticleLibrary.FopenEdit(\'预览文章\',\'shortcuts/article-preview.html?id='+id+'\',\'920\',\'460\');" href="javascript:;" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>';
+				              str += '<a style="text-decoration:none" onClick="gArticleLibrary.signleDownload('+id+');" href="javascript:;" title="下载" id="search_download_'+id+'" class="ml-5"><i class="Hui-iconfont">&#xe641;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+    // {{{ function signleDownload()
+	
+	/**
+	 * 单个下载
+	 * */
+	this.signleDownload = function(id){
+		var ht = $('#search_download_'+id).html();
+		if( ht == '<span class="label label-success radius">已下载</span>' || ht == '<span>down...</span>' ){
+			layer.alert('本篇文章已下载,请勿重新下载!');return true;
+		}
+		
+		$('#search_download_'+id).html('<span>down...</span>');
+		
+		self.cmd(gHttp, {controller:'Library',method:'search_download',id:id}, function(result) {
+			switch( result.statu ){
+				case true:
+					$('#search_download_'+id).html('<span class="label label-success radius">已下载</span>');
+					break;
+				case false:
+					$('#search_download_'+id).html('<span class="label label-fail radius">下载失败</span>');
+					break;
+		    }
+		});
+	}
+	
+	// }}}
+	// {{{ function patchDownload()
+	
+	/**
+	 * 批量下载
+	 * */
+	this.patchDownload = function() {
+		var data = $("#dataTable").getSelectedAll();
+		if(data.length <= 0){
+			layer.alert('请选择您要下载的文章.');return false;
+		}else{
+			layer.confirm('确定下载选中的文章吗?', function(index){
+				$.each(data,function(i,id){
+					self.signleDownload( id );
+				});
+				layer.close(index);
+			});
+		}
+	}
+	
+	// }}}
+}

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../css/H-ui.min.css">
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<style type="text/css">
+	.static-progress,.static-progress-bar,.sr-only{height:10px; font-size:0;line-height:0}
+    .static-progress{overflow:hidden; -khtml-border-radius:6px;-ms-border-radius:6px;-o-border-radius:6px;-moz-border-radius:6px;-webkit-border-radius:6px;border-radius:6px}
+    .static-progress-bar{width:100%;background-color:#efefef}
+    .sr-only{display:inline-block; background-color:#58b957}
+</style>
+<title>生成手机应用</title>
+</head>
+<body>
+<div class="pd-5">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>APK生成</span><span>下载管理</span></div>
+			<div class="tabCon">
+			<form action="" method="post" class="form form-horizontal" id="formEdit">
+				<div class="row cl">
+					<label class="form-label col-2">当前域名：</label>
+					<div class="formControls col-6" id="domainshow"></div>
+					<input id="domain" type="hidden" value="" name="domain">
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">&nbsp;</label>
+					<div class="formControls" style="color:red;">（*域名必须己解析并可访问，内网地址不能生成APK，如：localhost）</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">应用图标：</label>						
+					<div class="formControls col-91">
+					    <!--用来存放文件信息-->
+					    <div class="btns_app_logo" info="../../images/boyicms/apk/apkicon-i.png"></div>
+					</div>
+					<div class="thumbnailbox" style="width:104px;height:104px;">
+						<img id="img" src="../../images/boyicms/logo/thumbnail_mobile.png" flag="../../images/boyicms/logo/thumbnail_mobile.gif" id="center_img" style="width:100px;padding:2px;"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div><div class="formControls col-94"><input type="hidden" id="pic" name="img" value="" datatype="*" nullmsg="图标不能为空！" /></div><div class="col-3"> </div>
+				</div><!--上传图片-->
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>APK类型：</label>	
+					<div class="formControls col-2"> <span class="select-box">
+						<select name="apk_type" id="apk_type" class="select" datatype="*" nullmsg="请选择类型"></select>
+						</span> 
+					</div><div class="col-2"> </div>
+					<span id="statecheck" style="font-size:12px;color:red;font-weight:border;margin-left:8px;"></span>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>应用名：</label>
+					<div class="formControls col-4">
+						<input type="text" class="input-text" value="" placeholder="应用安装到手机上时显示的名称，2-6个字以内..." id="app_name" name="app_name" nullmsg="名称不能为空" datatype="*2-6" errormsg="限2-6个字"  info="../../images/boyicms/apk/apkname-i.png"/>
+					</div><div class="col-2"> </div>
+				</div>
+				<div class="row cl" id="createDiv">
+					<div class="col-10 col-offset-2">
+						<button id="save" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 开始生成</button>				
+					</div>
+				</div>
+				<div class="row cl" id="downloadDiv1" style="display:none;">
+					<label class="form-label col-2">&nbsp;</label>
+					<div class="formControls col-4">
+					    <label id="make_right"></label>
+					    <label id="apk_message"></label>
+					</div>
+				</div>
+				<div class="row cl" id="downloadDiv2" style="display:none;">
+					<label class="form-label col-2">&nbsp;</label>
+					<div class="formControls col-10">
+					    <div class="static-progress col-8 pd-10"><div class="static-progress-bar"><span class="sr-only" style="width:0%;" id="makehtml_loading"></span></div></div>
+					    <div style="width:100%;height:10px;clear:both;"></div>
+						<div class="text-c col-8">
+							<label id="time"></label>
+						</div>
+					</div>
+				</div>
+				<div class="row cl" id="downloadDiv3" style="display:none;">
+				    <div class="col-10 col-offset-2" id="btnDiv"></div>
+				</div>
+				<input type="hidden" value="cms" name="from">
+			</form>	
+			</div>
+			<!--APK生成-->
+			<div class="tabCon">
+				<div class="row cl mt-10">
+					<label class="form-label col-2" style="text-align:right;">上传APK文件：</label>
+					<div class="formControls col-2">
+					    <!--用来存放文件信息-->
+					    <div class="btns"></div>
+					</div>
+					<label class="form-label col-8" id="apkUrl"></label>
+					<input type="hidden" id="apk_upload_url">
+				</div>
+				<div class="row cl  mt-10">
+					<label class="form-label col-2 text-r">中间图标：</label>						
+					<div class="formControls col-91">
+					    <!--用来存放文件信息-->
+					    <div class="btns_logo" info="../../images/boyicms/apk/apkexam_i.png"></div>
+					</div>
+					<div class="thumbnailbox" style="width:104px;height:104px;">
+						<img id="logo_img" src="../../images/boyicms/logo/thumbnail_mobile.png" flag="../../images/boyicms/logo/thumbnail_mobile.gif" id="center_img" width="100px;" style="padding:2px;"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+				</div><!--上传图片-->
+				<div class="row cl mt-20" id="explan_qr_div">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6"  id="explan_qr"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2" style="text-align:right;"><span class="c-red">*</span>医院营销APK：</label>
+					<div class="formControls col-6" id="ex1"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6">下载地址：<span id="url1"></span></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6" id="step1"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2" style="text-align:right;"><span class="c-red">*</span>医院管理APK：</label>
+					<div class="formControls col-6" id="ex2"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6">下载地址：<span id="url2"></span></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6" id="step2"></div>
+				</div>
+			</div>
+			<!--下载管理-->
+
+		</div><!--HuiTab over-->
+		<div class="row cl"></div>
+		<div class="row cl"></div>
+
+</div>
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gApk.openAdd('数据批量替换','../../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>       
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/apk.js"></script>
+<script type="text/javascript">
+var intervalID;
+var makeStop= false;
+var c = 0;
+var t;
+var gApk = new Apk();
+gApk.setThisName('gApk');
+gApk.initApk();
+
+</script>
+</body>
+</html>

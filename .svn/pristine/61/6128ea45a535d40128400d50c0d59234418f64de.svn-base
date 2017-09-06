@@ -1,0 +1,31 @@
+{{if $pageCount gt 1}}
+<ul class="NeskyPage">
+	{{if $page eq 1}}
+	<li><span>首页</span></li>
+	{{else}}
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page=1{{$moreParam}}'>首页</a></li>
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$page-1}}{{$moreParam}}'>上一页</a></li>
+	{{/if}}
+	{{if $page eq $pageCount}}
+	<li><span>末页</span></li>
+	{{else}}
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$page+1}}{{$moreParam}}'>下一页</a></li>
+	<li><a href='{{$MOBILE}}/{{$url}}.php?method=query&page={{$pageCount}}{{$moreParam}}'>末页</a></li>
+	{{/if}}
+</ul>
+{{/if}}
+<style type="text/css">
+    /*分页*/
+    .NeskyPage{width:100%;clear:both;font-size:14px;text-align:center;}
+    .NeskyPage{height:22px;line-height:22px;overflow:hidden;padding:15px 0px;}
+    .NeskyPage li{display:inline;}
+    .NeskyPage li em.btnlists{background:#600567;text-align:center;color:#fff;padding:5px 13px;}
+    .NeskyPage li span{padding:3px 8px;color:#686868;border:1px solid #dbdcd3;}
+    .NeskyPage li.thisclass span{color:#ffffff;text-align:center;overflow:hidden;font-weight:bold;background:#8f9558;height:20px;width:24px;}
+    .NeskyPage li a{	padding:3px 8px;color:#686868;border:1px solid #dbdcd3;}
+    .NeskyPage li.pre a,#NeskyPage ul li em a{border:0;padding:0;color:#fff;}
+    .NeskyPage li.pre a{margin-top:0;background:#600567;color:#fff;padding:5px 12px 5px 12px;}
+    .NeskyPage li a:hover{background:#00632A;height:20px;width:24px;color:#fff;}
+    .NeskyPage li span.pageinfo{padding:0;border:0;color:#000;}
+    .NeskyPage li span strong{padding:0 4px;text-decoration:underline;color:#a52709;}
+</style>

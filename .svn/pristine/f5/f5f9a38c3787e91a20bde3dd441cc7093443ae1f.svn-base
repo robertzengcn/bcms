@@ -1,0 +1,230 @@
+<?php
+/**
+ * 网站地图
+ * */
+require_once 'common.php';
+/**
+ * 获取头部导航
+ */
+function smarty_block_headnavmap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getHeadAdv();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取所有科室列表
+ */
+function smarty_block_deptmap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getDepartment();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取所有疾病列表
+ */
+function smarty_block_diseasemap( $params, $content, $template, &$repeat ) {
+    $id = isset($params['department_id']) ? $params['department_id'] : 1;
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getDiease($id);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 通过疾病id，获取文章列表
+ */
+function smarty_block_arcmapbydisease( $params, $content, $template, &$repeat ) {
+    $id = isset($params['disease_id']) ? $params['disease_id'] : '';
+
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getByDisease($id);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取最新新闻
+ */
+function smarty_block_newsmap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getNews();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取媒体新闻
+ */
+function smarty_block_mediamap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getMedia();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取视频
+ */
+function smarty_block_moviemap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getMovie();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取特色技术
+ */
+function smarty_block_technologymap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getTechnology();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取成功案例
+ */
+function smarty_block_succmap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getSuccess();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取医院设备
+ */
+function smarty_block_devicemap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getDevice();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取医院荣誉
+ */
+function smarty_block_honormap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getHonor();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取医院环境
+ */
+function smarty_block_environmentmap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getEnvironment();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取医院医生
+ */
+function smarty_block_doctormap( $params, $content, $template, &$repeat ) {
+    if (!$repeat) {
+        $ser = new SiteMapTag();
+        $data = $ser->getDoctor();
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+

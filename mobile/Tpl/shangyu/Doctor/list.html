@@ -1,0 +1,57 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}医师介绍{{/block}}
+{{block name="navchose"}}<button type="button" class="am-btn am-btn-primary" data-am-modal="{target: '#doc-modal-1', closeViaDimmer: 1}">按科室查询</button>{{/block}}
+{{block name=body}}
+
+<div class="am-container main_drinf">
+  <ul class="am-list">
+
+ {{section name=zj loop=$list}}
+    <li class="am-g am-list-item-desced am-list-item-thumb-left">
+      <div class="am-u-sm-4 am-list-thumb am-padding-left-0">
+          <img alt="{{$list[zj]->name}}" src="{{$smarty.const.UPLOAD}}{{$list[zj]->pic}}" class="am-img-responsive">
+      </div>
+      <div class="am-list-main am-padding-0">
+        <h3 class="am-list-item-hd am-margin-bottom-xs">{{$list[zj]->name}}</h3>
+        <div class="am-list-item-text am-margin-bottom-xs color_444">科室：{{$list[zj]->department_name}}&nbsp;&nbsp; 职称：{{$list[zj]->position}}</div>
+        <div class="am-list-item-text">个人简介: {{$list[zj]->description}}<a href="/mobile/doctor.php?method=get&id={{$list[zj]->id}}">&lt;详情&gt;</a></div>
+        <div class="am-list-item-text am-u-md-8 am-margin-top-sm main_irm" style="padding:0;">
+        
+        </div>
+      </div>
+    </li>
+{{/section}}
+  </ul>
+
+{{include file="Common/doctorpage.html"}}
+
+</div>
+
+<div class="am-modal am-modal-no-btn" tabindex="-1" id="doc-modal-1">
+  <div class="am-modal-dialog">
+    <div class="am-modal-hd">选择科室
+      <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+    </div>
+    <div class="am-modal-bd">
+      <ul>
+      {{foreach $department as $s}}
+      <li><a href="/mobile/doctor.php?department_id={{$s->id}}">{{$s->name}}</a></li>
+      {{/foreach}}
+      <li><a href="/mobile/doctor.php">全部</a></li></li>
+      </ul>
+    </div>
+  </div>
+</div>
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+<script src="{{$RESOURCE}}/js/Validform.min.js"></script>
+<script src="{{$RESOURCE}}/js/jquery.md5.js"></script>
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.doctorpage();
+
+</script>
+{{/block}}
+

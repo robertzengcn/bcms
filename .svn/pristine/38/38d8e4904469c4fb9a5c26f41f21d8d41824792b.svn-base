@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>药品管理</title>
+</head>
+<body>
+<div class="pd-20">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>己开处方</span><span>库存管理</span><span>新增药品</span></div>
+			<div class="tabCon">				
+				<div class="mt-5">
+					<table id="selectedPrescriptionList" class="table table-border table-bordered table-bg table-hover table-sort">
+							<thead>
+								<tr class="text-c">	
+									<th width="25"><input type="checkbox" name="" value=""></th>									
+									<th width="80">拼音代码</th>	
+									<th width="180">药品名称</th>								
+									<th width="60">规格</th>									
+									<th width="50">数量</th>	
+									<th width="50">单位</th>								
+									<th>用法</th>	
+									<th width="50">操作</th>										
+								</tr>
+							</thead>
+							<tbody id="had_prescription">
+							</tbody>
+							<thead>
+								<tr class="text-l"><th colspan="9"><a class="btn btn-success radius bt-normal" onClick="gAddPatient.addNewItem()" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 新增项目</a></th></tr>
+							</thead>
+						</table>
+				</div>
+				<div style="width:100%;height:50px;clear:both;"></div>				
+				<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+					<button onClick="gAddPatient.saveSelectedPrescription();" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe676;</i> 保存修改</button>
+					<button onClick="gAddPatient.delPrescriptionItem();" class="btn btn-danger radius  bt-normal" type="button"><i class="Hui-iconfont">&#xe6e2;</i> 删除项目</button>	
+				</div>
+			</div>
+			<!--己开处方-->
+			<div class="tabCon">
+				<div class="pd-5">
+					<div class="text-c mt-10">
+						名称：<input type="text" name="name" id="name" placeholder=" 请输入关键词..." style="width:150px" class="input-text"/>	&nbsp;
+						拼音代码：<input type="text" name="code" id="code" placeholder=" 请输入关键词..." style="width:150px" class="input-text"/>					
+						<button id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+					</div>
+					<div class="cl pd-5 bg-1 bk-gray mt-20"><span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+						<table id="prescriptionList" class="table table-border table-bordered table-bg table-hover table-sort">
+								<thead>
+									<tr class="text-c">	
+										<th width="25"><input type="checkbox" name="" value=""></th>										
+										<th width="80">拼音代码</th>	
+										<th width="180">药品名称</th>								
+										<th width="180">规格</th>											
+										<th width="50">操作</th>										
+									</tr>
+								</thead>
+							</table>	
+						<div style="width:100%;height:50px;clear:both;"></div>
+						<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+							<button onClick="gAddPatient.delBatchPrescription();" class="btn btn-danger radius  bt-normal" type="button"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</button>	
+						</div>
+				</div>
+			</div>
+			<!--库存管理-->
+			<div class="tabCon">
+				<form action="" method="post" class="form form-horizontal" id="formEdit">
+					<div class="row cl">
+					  <label class="form-label col-2"><span class="c-red">*</span>名称：</label>
+					  <div class="formControls col-7">
+					    <input type="hidden" id="id" name="id" value="">
+						<input type="text" class="input-text" value="" placeholder="" id="name" name="name" datatype="*2-50" nullmsg="药品名称不能为空" errormsg="限2-50个字" >
+					  </div>
+					  <div class="col-3"> </div>
+					</div>					   
+					<div class="row cl">
+					  <label class="form-label col-2"><span class="c-red">*</span>拼音码：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="TBPTS" placeholder="" id="code" name="code" datatype="Pcode" nullmsg="拼音码不能为空" errormsg="请输入4位以上的大写字母" >
+					  </div>
+					  <div class="col-3"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-2"><span class="c-red">*</span>规格：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="" id="specification" name="specification" datatype="*2-50" nullmsg="规格不能为空" errormsg="限2-50个字" >
+					  </div>
+					  <div class="col-3"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-2"><span class="c-red">*</span>单位：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="" id="unit" name="unit" datatype="*1-20" nullmsg="单位不能为空" errormsg="限1-20个字" >
+					  </div>
+					  <div class="col-3"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-2">品牌：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="" id="brand" name="brand"/>
+					  </div>
+					  <div class="col-3"> </div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-2">批推文号：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="" id="batch_number" name="batch_number" datatype="*2-30" nullmsg="批推文号不能为空" errormsg="限2-30个字">
+					  </div>
+					  <div class="col-3"> </div>
+					</div>
+					<div class="row cl">
+						<label class="form-label col-2">剂型：</label>
+						<div class="formControls col-10"> <span class="select-box" style="width:150px;">
+							<select class="select" name="dosage_form" id="dosage_form" size="1" onChange="gAddPatient.fillDosageForm(this.value);">
+							</select>
+							</span> 
+							<span class="select-box ml-5" style="width:150px;">
+							<select class="select" name="dosage_form_detail" id="dosage_form_detail" size="1">
+							</select>
+							</span></div>
+					</div>
+					<div class="row cl">
+					  <label class="form-label col-2">预设用法：</label>
+					  <div class="formControls col-7">
+						<input type="text" class="input-text" value="" placeholder="请输入该药品的常用用法作为模板，如：0.5g po tid 口服一日三次" id="usage" name="usage" datatype="*2-100" nullmsg="用法不能为空" errormsg="限2-100个字"/>
+					  </div><div class="col-3"> </div>				  
+					</div>
+					<div style="width:100%;height:50px;clear:both;"></div>
+					<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+							<button id="save" class="btn btn-primary radius  bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存新项</button>	
+					</div>
+				  </form>
+			</div>
+			<!--新增药品-->
+		</div><!--HuiTab over-->
+
+</div>
+<script type="text/javascript" src="../../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../../../lib/Validform/5.3.2/Validform.min.js"></script>
+<script type="text/javascript" src="../../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>  
+<script type="text/javascript" src="../../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/js/addPatient.js"></script>
+<script type="text/javascript">
+var gData = {};
+var gAddPatient = new AddPatient();
+gAddPatient.setThisName('gAddPatient');
+gAddPatient.manageInitHtml('prescription');
+</script>
+</body>
+</html>

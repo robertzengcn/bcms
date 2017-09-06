@@ -1,0 +1,174 @@
+ <!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>现场新增医生排班信息</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="/controller/index.php?controller=Reservation&method=add_one" method="post" class="form form-horizontal" id="addreserform">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择科室：</label>
+			<div class="formControls col-4"> <span class="select-box" style="width:150px;">
+				<select id="department_list" class="select" name="department_id" size="1" datatype="/[^0]/" errormsg="请选择科室">
+
+				</select>
+				</span> </div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择医生：</label>
+			<div class="formControls col-4"> <span class="select-box" style="width:150px;">
+				<select class="select doctorlistsec" name="doctor_id" size="1" id="editsdoctors_list" datatype="*" nullmsg="请选择医生">
+	
+				</select>
+				</span> </div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择时间：</label>
+			<div class="formControls col-4">
+				<input type="text" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" id="edits_time" class="input-text Wdate" style="width:150px;" name="date" datatype="*" nullmsg="请选择时间">
+			</div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>时间段：</label>
+			<div class="formControls col-6 skin-minimal">
+				<div class="radio-box">
+					<input type="radio" name="timetype" id="mon" datatype="*" nullmsg="请选择时间段！" value="mon">
+					<label>上午</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="aft" name="timetype" value="aft">
+					<label>下午</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="nig" name="timetype" value="nig">
+					<label>晚上</label>
+				</div>
+			</div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>详细时间段：</label>
+			<div class="formControls col-5">
+				<input type="text" class="input-text" value="" placeholder="8:00" id="timefir" name="start" datatype="need1" nullmsg="详细时间不能为空！" style="width:80px;">-<input type="text" class="input-text" value="" placeholder="12:00" id="timesec" name="end" datatype="need2" nullmsg="详细时间不能为空！" style="width:80px;"/>
+			</div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>总号源：</label>
+			<div class="formControls col-4">
+				<input type="number" class="input-text" value="" placeholder="输入医生预计接诊数量，限整数" id="edittotalnum" name="along" datatype="/^([1-9]\d?|100)$/" min="1" max="100" errormsg="请输入1-100" nullmsg="总号源不能为空">
+			</div>
+			<div class="col-4"> </div>
+		</div>		
+		<div class="row cl">
+			<div class="col-9 col-offset-3">
+				<button onClick="" class="btn btn-primary radius bt-normal" type="submit"><i class="Hui-iconfont">&#xe603;</i> 提交</button>	
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	$('#morning').iCheck('check');
+	
+
+	
+	$(".form").Validform({
+		tiptype:2,
+		ajaxPost:true,
+		btnSubmit:'.bt-normal',
+		datatype:{
+			"need1":function(gets,obj,curform,regxp){
+				
+				
+					reg=/^([0-2][0-9]|[0-9])\:[0-9][0-9]$/;
+					if(reg.test(gets)){return true;}else{
+						return false;
+					}
+					
+				
+			},
+			"need2":function(gets,obj,curform,regxp){
+				
+				
+					reg=/^([0-2][0-9]|[0-9])\:[0-9][0-9]$/;
+					if(reg.test(gets)){
+						
+						return true;}else{
+						return false;
+					}
+					
+				
+			},
+//			"need3": function(gets, obj, curform, regxp){
+//					reg='^([1-9]{1})(\d{0,2})$';
+//					if(reg.test(gets)){
+//						
+//						return true;}else{
+//						return false;
+//					}
+//			}
+			},
+		callback:function(data){
+			//alert(data);
+			if(data.statu){
+				window.parent.troad('#reservationtable');
+				var index = parent.layer.getFrameIndex(window.name);
+				
+				parent.layer.close(index);
+			}else{
+									layer.msg(data.msg, function(){					
+									}); 
+			}
+
+		}
+	});
+	
+
+	
+});
+</script>
+<script type="text/javascript">
+var gReservation = new Reservation();
+gReservation.setThisName('gReservation');
+//gReservation.reser_add();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+<?php
+/**
+ *  
+ * 第三方代码:根据外部引用代号(subject)获取对应的脚本信息
+ * {thirdcode key="*"}
+ * 
+ */
+function smarty_function_thirdcode($params, &$smarty) {
+	$fun    = explode( '_' , __FUNCTION__ );
+	$assign   = isset($params['assign']) ? $params['assign'] : $fun[2];
+	$thirdTag = new ThirdTag();
+	$smarty->assign ( $assign , $thirdTag->get( $params['key'] ) );
+}

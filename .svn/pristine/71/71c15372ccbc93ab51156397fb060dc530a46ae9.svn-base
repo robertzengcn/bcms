@@ -1,0 +1,926 @@
+<?php
+class PatientController extends Controller{
+	
+	protected $service;
+	
+	public function __construct(){
+		parent::__construct();
+		$this->service = new PatientService();
+
+	}
+	
+	public function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$FILERPLUSHTIME);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+        return $filterService->execute();
+    }
+    
+    /**
+     * 获取患者总数...
+     */
+    public function getCountPatient(){
+    	$array = $this->service->getCountPatient();
+    	echo json_encode($array);
+    }
+    
+    /**
+     * 保存患者信息
+     */
+    public function savePatient(){    	
+    	$re = $this->service->savePatient();
+    	echo json_encode($re);
+    }
+    
+    /**
+     * 获取患者出诊信息
+     */
+    public function getListPatientCase(){
+        $result = $this->service->getListPatientCase($_REQUEST);
+        echo json_encode($result);
+    }
+    
+    /**
+     * 删除患者信息
+     */
+    public function deletePatient(){
+    	$ids = array();
+    	if (is_array($_REQUEST['id'])) {
+    		foreach ($_REQUEST['id'] as $value){
+    			if($value == 'undefined'){
+    				unset($value);
+    			}else{
+    				$ids[] = $value;
+    			}
+    		}
+            $id = $ids;
+        } else {
+            $id = array(
+                $_REQUEST['id']
+            );
+        }
+    	$re = $this->service->deletePatient($id);
+    	echo json_encode($re);
+    }
+    
+    /**
+     * 获取添加时页面加载数据
+     * */
+    public function getFillData() {
+        //病历号
+    	$caseNumber = $this->getCaseNumber();
+    	$data = array(
+    	    'case_number'=>$caseNumber,
+    	);
+    	$result = new Result(true, 0, '', $data);
+    	echo json_encode($result);
+    }
+    
+    /**
+     * 添加来源信息
+     * */
+    public function addSource() {
+    	echo json_encode($this->service->saveDataSource());
+    }
+    
+    /**
+     * 删除来源信息
+     * */
+    public function delSource() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delDataSource($id));
+    }
+    
+    /**
+     * 添加添加会员级别信息
+     * */
+    public function addVipLevel() {
+        echo json_encode($this->service->saveVipLevel());
+    }
+    
+    /**
+     * 删除会员级别信息
+     * */
+    public function delVipLevel() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delVipLevel($id));
+    }
+    
+    /**
+     * 修改会员级别信息
+     * */
+    public function modVipLevel() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->modVipLevel($id));
+    }
+    
+    /**
+     * 修改来源信息
+     * */
+    public function modSource() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->modSource($id));
+    }
+    
+    /**
+     * 获取会员级别信息
+     * */
+    public function getVipLevels() {
+        $data = $this->service->getVipLevels();
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getVipLevelsCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    } 
+    
+    /**
+     * 获取来源信息
+     * */
+    public function getDataSource() {
+        $data = $this->service->getDataSource();
+        if (isset($_REQUEST['list']) && $_REQUEST['list']) {
+            $result = array('rows'=>$data,'ttl'=>count($data));
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 按名称获取来源信息
+     * */
+    public function getDataByName() {
+    	if(isset($_REQUEST['keywords'])&&$_REQUEST['keywords']!=''){
+    		$data = $this->service->getDataByName();
+    	}
+    	if($data!=0){
+    		$result = new Result(true, 0, '', '');
+    	}   
+    	else{
+    		$result = new Result(false, 0, '', '');
+    	}
+    	echo json_encode($result);
+    }
+    
+    /**
+     * 获取接待信息
+     * */
+    public function getReceptionist() {
+        $data = $this->service->getReceptionist();
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getReceptionistCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 获取主治医生信息
+     * */
+    public function getDoctors() {
+        $data = $this->service->getDoctors();
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getDoctorsCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 获取科室信息
+     * */
+    public function getDepartments() {
+        $data = $this->service->getDepartments();
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getDepartmentsCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 获取疾病信息
+     * */
+    public function getDiseases() {
+        $data = $this->service->getDiseases();
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getDiseasesCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }      
+        echo json_encode($result);
+    }
+    
+    /**
+     * 获取项目信息
+     * */
+    public function getExamineItems() {
+        $data = $this->service->getExamineItems();
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getExamineItemsCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 添加医生信息
+     * */
+    public function addDoctor() {
+        echo json_encode($this->service->addDoctor());
+    }
+    
+    /**
+     * 修改医生信息
+     * */
+    public function modDoctor() {
+        echo json_encode($this->service->modDoctor());
+    }
+    
+    /**
+     * 删除医生信息
+     * */
+    public function delDoctor() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delDoctor($id));
+    }
+    
+    
+    
+    /**
+     * 添加科室
+     * */
+    public function addDepartment() {
+        echo json_encode($this->service->addDepartment());
+    }
+    
+    /**
+     * 修改科室
+     * */
+    public function modDepartment() {
+        echo json_encode($this->service->modDepartment());
+    }
+    
+    /**
+     * 删除科室
+     * */
+    public function delDepartment() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delDepartment($id));
+    }
+    
+    /**
+     * 添加疾病
+     * */
+    public function addDisease() {
+        echo json_encode($this->service->addDisease());
+    }
+    
+    /**
+     * 修改疾病
+     * */
+    public function modDisease() {
+        echo json_encode($this->service->modDisease());
+    }
+    
+    /**
+     * 删除疾病
+     * */
+    public function delDisease() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delDisease($id));
+    }
+    
+    /**
+     * 添加前台接待信息
+     * */
+    public function addReceptionist() {
+        echo json_encode($this->service->addReceptionist());
+    }
+    
+    /**
+     * 修改前台接待信息
+     * */
+    public function modReceptionist() {
+        echo json_encode($this->service->modReceptionist());
+    }
+    
+    /**
+     * 添加回访信息
+     * */
+    public function addReturnVisit() {
+    	echo json_encode($this->service->addReturnVisit());
+    }
+    
+    /**
+     * 删除回访信息
+     * */
+    public function delReturnVisit() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delReturnVisit($id));
+    }
+    
+    /**
+     * 添加诊疗项目信息
+     * */
+    public function addExamineItem() {
+        echo json_encode($this->service->addExamineItem());
+    }
+    
+    /**
+     * 修改诊疗项目信息
+     * */
+    public function modExamineItem() {
+        echo json_encode($this->service->modExamineItem());
+    }
+    
+    /**
+     * 删除诊疗项目信息
+     * */
+    public function delExamineItem() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delExamineItem($id));
+    }
+    
+    /**
+     * 添加回复信息
+     * */
+    public function modReturnVisit() {
+        echo json_encode($this->service->modReturnVisit());
+    }
+    
+    /**
+     * 获取回访信息
+     * */
+    public function getReturnVisitList() {
+    	$result = $this->service->getReturnVisitList($_REQUEST);
+    	echo json_encode($result);
+    }
+    
+    /**
+     * 获取复诊信息
+     * */
+    public function getReturnDiagnosisList() {
+        $result = $this->service->getReturnDiagnosisList();
+    	echo json_encode($result);
+    }
+    
+    /**
+     * 删除前台接待信息
+     * */
+    public function delReceptionist() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delReceptionist($id));
+    }
+    
+    /**
+     * 获取自动生成的病历号
+     * */
+    public function getCaseNumber() {
+        //从总控接口去取病例号
+        $url = 'http://www.boyicms.com/interface/hwibs/patient/PatientInterface.php';
+        $data = array('action'=>'createCaseNumber');
+        
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curl, CURLOPT_HEADER, 0);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+         
+        $tmpInfo = curl_exec($curl);
+        if (curl_errno($curl)) {
+            echo 'Errno' . curl_error($curl);
+        }
+        curl_close($curl);
+        $tmpInfo = json_decode($tmpInfo);
+        $case_number = rand(100000, 999999);
+        if ($tmpInfo->statu) {
+            $case_number = $tmpInfo->data;
+        }
+        
+        return $case_number;
+    }
+    
+    /**
+     * 获取详情
+     * */
+    public function patientDetail() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+    	$detail = $this->service->getPatientCaseById($id);
+    	echo json_encode($detail);
+    }
+    
+    /**
+     * 获取复诊详情
+     * */
+    public function diagnosisDetail() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        $detail = $this->service->diagnosisDetail($id);
+        echo json_encode($detail);
+    }
+    
+    /**
+     * 删除详情
+     * */
+    public function delReturnDiagnosisDetail() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';        
+        echo json_encode($this->service->delReturnDiagnosisDetail($id));       	
+       
+    }
+    
+    /**
+     * 获取患者基本信息
+     * */
+    public function getPatientByName() {
+        $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : '';
+        echo json_encode($this->service->getPatientByName($username));
+    }
+    
+    /**
+     * 获取根据id患者基本信息
+     * */
+    public function getPatientById() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->getPatientById($id));
+    }
+    
+    /**
+	 * 获取根据id患者基础信息
+	 * */
+	public function getPatientInfoById() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->getPatientById($id));
+    }
+    
+    
+    /**
+     * 根据ids获取诊疗项目串
+     * */
+    public function getExaineItemsStrByIds($ids) {
+        return $this->service->getExaineItemsStrByIds($ids);
+    }
+    
+    /**
+     * 获取所有患者列表
+     * */
+    public function getAllPatients() {
+        $data = $this->service->getAllPatients();        
+        echo json_encode($data);
+    }
+    
+    /**
+     * 获取统计详情
+     * */
+    public function getStatDetail() {
+    	echo json_encode($this->service->getStatDetail());
+    }
+    
+    /**
+     * 获取统计数据
+     * */
+    public function getStatData() {
+        $rows = $this->service->getStatData();               
+        $ttl = isset($rows['ttl']) ? $rows['ttl'] : count($rows);
+        $rows = isset($rows['rows']) ? $rows['rows'] : $rows;
+        echo json_encode(array('rows'=>$rows,'ttl'=>$ttl));
+    }
+    
+    /**
+     * 获取当月就诊数据
+     * */
+    public function statByDate() {
+        $data = $this->service->statByDate();        
+        echo json_encode(array('statu'=>true,'data'=>$data));
+    }
+    
+    /**
+     * 登录患者管理
+     * */
+    public function loginPatient() {
+        $file = ABSPATH . '/hcc/plugin/plugins/patient/password.txt';
+        $pwd = trim(file_get_contents($file));
+        $flag = false;
+        $msg='';        
+        if (empty($pwd)) {
+            //未设置密码，则默认管理员登陆密码
+            $login_id = $_COOKIE['login_id'];
+            $flag = $this->service->checkPwdById($login_id, trim(md5($_REQUEST['password'])));
+        } else {
+            $flag = md5(md5(trim($_REQUEST['password']))) == $pwd ? true : false;
+        }
+        
+        if ($flag) {
+        	//写入密码文件
+        	file_put_contents($file, md5(md5(trim($_REQUEST['password']))));
+        } else {
+            $msg = '密码有误';
+        }
+        
+        echo json_encode(array('statu'=>$flag, 'msg'=>$msg));
+    }
+    
+    /**
+     * 修改管理密码
+     * */
+    public function modifyPatientLoginPwd() {
+        $file = ABSPATH . '/hcc/plugin/plugins/patient/password.txt';
+        $pwd = trim(file_get_contents($file));
+        $flag = false;
+        //验证旧密码
+        if (md5(trim($_REQUEST['old_password'])) == $pwd) {
+            //写入新密码文件
+            file_put_contents($file, md5(trim($_REQUEST['password'])));
+            $flag = true;
+        } else {
+            $msg = '原密码不正确';
+        }
+        
+        echo json_encode(array('statu'=>$flag, 'msg'=>$msg));
+    }
+    
+    /**
+     * 添加处方信息
+     * */
+    public function addPrescription() {
+        echo json_encode($this->service->savePrescription());
+    }
+    
+    /**
+     * 删除处方信息
+     * */
+    public function delPrescription() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->delPrescription($id));
+    }
+    
+    /**
+     * 修改处方信息
+     * */
+    public function modPrescription() {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+        echo json_encode($this->service->modPrescription($id));
+    }
+    
+    /**
+     * 获取处方信息
+     * */
+    public function getPrescriptions() {
+    	
+        $data = $this->service->getPrescriptions();
+      
+        if (isset($_REQUEST['isPage'])) {
+            $ttl = $this->service->getPrescriptionsCount();
+            $result = array('rows'=>$data,'ttl'=>$ttl);
+        } else {
+            $result = new Result(true, 0, '', $data);
+        }
+        echo json_encode($result);
+    }
+    
+    /**
+     * 获取单条处方信息
+     * */
+    public function getPrescriptionById() {
+    	$data = $this->service->getPrescriptionById();
+    	$result = new Result(true, 0, '', $data);
+    	echo json_encode($result);
+    }
+    
+    /**
+     * 根据id获取患者处方信息
+     * */
+    public function getPrescriptionByIds() {
+        $data = $this->service->getPrescriptionByIds();
+        $result = new Result(true, 0, '', $data);
+        echo json_encode($result);
+    }
+    
+    /**
+     * 通过code获取单条处方信息
+     * */
+    public function getPrescriptionByCode() {
+        $data = $this->service->getPrescriptionByCode();
+        $result = new Result(true, 0, '', $data);
+        echo json_encode($result);
+    }
+    
+    /**
+     * 根据detail_id获取处方信息
+     * */
+    public function getPrescriptionsByDetailId() {
+    	$id=isset($_REQUEST['id'])?$_REQUEST['id']:"";
+        $data = $this->service->getPrescriptionsByDetailId($id);
+        $result = new Result(true, 0, '', $data);
+        echo json_encode($result);
+    }
+    
+    /*
+     * 显示化验单列表
+     * */
+    public function getchecklist(){
+    	if(!isset($_REQUEST['pid'])||strlen($_REQUEST['pid'])<1){
+    	    die(json_encode(new Result(false, 0, 'pid 为空', null)));	
+    	}
+    	$patientchecker=new PatientCheckService();
+    	$data=$patientchecker->query($_REQUEST);
+    	
+
+    	echo json_encode($data);
+    	
+    	
+    }
+    
+    /*
+     * 删除某项的化验单
+     * @param $pid
+     * */
+    public function deletechecklist(){
+    	if(!isset($_REQUEST['pid'])||strlen($_REQUEST['pid'])<1){
+    		die(json_encode(new Result(false, 0, 'pid 为空', null)));
+    	}
+    	$patientchecker=new PatientCheckService();
+    	$data=$patientchecker->delebypid(array('pid'=>(int)$_REQUEST['pid']));
+    	echo json_encode($data);
+    }
+    
+    /*
+     * 根据id删除checkitem
+     * */
+    public function deletecheckitem(){
+    	if(!isset($_REQUEST['id'])||strlen($_REQUEST['id'])<1){
+    		die(json_encode(new Result(false, 0, 'id 为空', null)));
+    	}	
+    	$patientchecker=new PatientCheckService();
+    	$data=$patientchecker->delebyid((int)$_REQUEST['id']);
+    	echo json_encode($data);
+    }
+    
+    /**
+     * 剂型分类
+     * */
+    public function getDosageForm($parentId = '') {
+        $parentId = $_REQUEST['parentId'];
+    	$parent = array(
+    		'1' => '片剂（Tab）',
+    	    '2' => '胶囊剂（Cap）',
+    	    '3' => '药用辅料（Adj）',
+    	    '4' => '气雾剂（Aer）',
+			'5' => '颗粒剂（Gran）',
+			'6' => '注射剂（Inj）',
+			'7' => '糖浆剂（Syr）',
+    		'8' => '软膏剂（Oint）',
+    		'9' => '口服制剂（OraL）',
+    		'10' => '膜剂（Pel）',
+    	    '11' => '滴耳剂（EarD）',
+    		'12' => '滴眼剂（EyeD）',
+    		'13' => '眼膏剂（EyeO）',
+    		'14' => '凝胶剂（Gel）',
+    		'15' => '滴鼻剂（NasD）',
+    		'16' => '贴剂（Pat）',
+    		'17' => '丸剂（Pil）',
+    		'18' => '散剂（Powd）',
+    		'19' => '溶液剂（Sol）',
+    		'20' => '栓剂（Sup）',
+    		'21' => '酊剂（Tin）',
+    		'22' => '搽剂（Lin）',
+    		'23' => '洗剂（Lot）',
+    		'24' => '其他剂型'
+    	);
+    	
+    	$data = $parent;
+    	if (!empty($parentId)) {
+    	    //键值即为上一级id(parentId)
+    	    $children = array(
+    	    	'1' => array(
+    	    	    '1'=>'普通片',
+					'2'=>'包衣片',
+					'3'=>'口含片',
+					'4'=>'舌下片',
+					'5'=>'咀嚼片',
+					'6'=>'分散片',
+					'7'=>'泡腾片',
+					'8'=>'阴道片',
+					'9'=>'阴道泡腾片',
+					'10'=>'速释片',
+					'11'=>'缓释片',
+					'12'=>'控释片',
+					'13'=>'肠溶片',
+					'14'=>'口分散片',
+					'15'=>'纸型片',
+					'16'=>'口腔粘贴片',
+					'17'=>'溶液片',
+					'18'=>'外用片',
+					'19'=>'模制片',
+					'20'=>'锭剂'
+    	        ),
+				'2' => array(
+    	    	    '1'=>'硬胶囊剂',
+					'2'=>'软胶囊剂',
+					'3'=>'肠溶胶囊剂',
+					'4'=>'缓释胶囊剂',
+					'5'=>'控释胶囊剂',
+					'6'=>'直肠用胶囊'
+    	        ),
+				'3' => array(
+    	    	    '1'=>'稀释剂',
+					'2'=>'黏合剂',
+					'3'=>'崩解剂',
+					'4'=>'润滑剂',
+					'5'=>'基质',
+					'6'=>'芳香剂',
+					'7'=>'甜味剂',
+					'8'=>'着色剂',
+					'9'=>'防腐剂',
+					'10'=>'抗氧化剂',
+					'11'=>'包衣剂',
+					'12'=>'成膜材料',
+					'13'=>'溶剂',
+					'14'=>'增溶剂',
+					'15'=>'润湿剂',
+					'16'=>'吸附剂',
+					'17'=>'助滤剂',
+					'18'=>'乳化剂',
+					'19'=>'表面活性剂',
+					'20'=>'助悬剂',
+					'21'=>'增稠剂',
+					'22'=>'增塑剂',
+					'23'=>'螯合剂',
+					'24'=>'透皮促进剂',
+					'25'=>'气雾抛射剂',
+					'26'=>'起泡剂',
+					'27'=>'酸碱调节剂',
+					'28'=>'缓冲剂'
+    	        ),
+				'4' => array(
+    	    	    '1'=>'吸入气雾剂',
+					'2'=>'吸入粉雾剂',
+					'3'=>'非吸入气雾剂',
+					'4'=>'非吸入粉雾剂',
+					'5'=>'外用气雾剂',
+					'6'=>'喷雾剂',
+					'7'=>'药用泡沫剂',
+					'8'=>'鼻腔用喷雾剂'
+    	        ),
+				'5' => array(
+    	    	    '1'=>'细粒剂',
+					'2'=>'可溶颗粒剂',
+					'3'=>'混悬颗粒剂',
+					'4'=>'泡腾颗粒剂',
+					'5'=>'肠溶颗粒剂',
+					'6'=>'缓释颗粒剂',
+					'7'=>'控释颗粒剂'
+    	        ),
+				'6' => array(
+    	    	    '1'=>'乳状液',
+					'2'=>'混悬液',
+					'3'=>'静脉滴注用输液',
+					'4'=>'注射用灭菌粉末',
+					'5'=>'注射用浓溶液',
+					'6'=>'植入剂'
+    	        ),
+				'7' => array(
+    	    	    '1' => '干糖浆', 
+					'2' => '舐剂'
+    	        ),
+    	        '8' => array(
+    	        		'1' => '乳膏剂',
+    	        		'2' => '糊剂',
+    	        		'3' => '阴道霜'
+    	        ),
+    	        '9' => array(
+    	        		'1'=>'口服液体制剂',
+						'2'=>'口服溶液剂',
+						'3'=>'口服混悬剂',
+						'4'=>'口服乳剂',
+						'5'=>'口服滴剂',
+						'6'=>'口服干混悬剂',
+						'7'=>'合剂',
+						'8'=>'酏剂',
+						'9'=>'乳浆剂'
+    	        ),
+    	        '10' => array(
+    	        		'1'=>'口服膜剂',
+						'2'=>'黏膜外用药膜',
+						'3'=>'牙周条'						
+    	        ),
+    	        '11' => array(
+    	        		'1'=>'溶液型滴耳液',
+						'2'=>'混悬型滴耳液',
+						'3'=>'洗耳剂'						
+    	        ),
+    	        '12' => array(
+    	        		'1'=>'溶液型滴眼剂',
+						'2'=>'混悬型滴眼剂',
+						'3'=>'眼内注射溶液',
+						'4'=>'眼用洗剂'						
+    	        ),
+    	        '13' => array(
+    	        		'1'=>'眼用乳膏',
+    	        		'2'=>'眼用凝胶'
+    	        ),
+    	        '14' => array(
+    	        		'1'=>'混悬凝胶剂',
+    	        		'2'=>'局部用凝胶剂',
+    	        		'3'=>'胶浆剂',
+    	        		'4'=>'火棉胶剂'
+    	        ),
+    	        '15' => array(
+    	        		'1'=>'鼻腔用溶液',
+    	        		'2'=>'鼻腔用混悬液',
+    	        		'3'=>'洗鼻液',
+    	        		'4'=>'鼻用胶浆'
+    	        ),
+    	        '16' => array(
+    	        		'1'=>'透皮贴剂'    	        		
+    	        ),
+    	        '17' => array(
+    	        		'1'=>'滴丸',
+						'2'=>'糖丸',
+						'3'=>'耳丸',
+						'4'=>'眼丸',
+						'5'=>'小丸',
+						'6'=>'缓释小丸' 	        		
+    	        ),
+    	        '18' => array(
+    	        		'1'=>'内服散剂',
+						'2'=>'局部用散剂',
+						'3'=>'撒布剂',
+						'4'=>'口服泡腾散剂'	        		
+    	        ),
+    	        '19' => array(
+    	        		'1'=>'局部用溶液',
+						'2'=>'灌肠剂',
+						'3'=>'直肠用溶液',
+						'4'=>'灌洗液',
+						'5'=>'透析液'	,
+						'6'=>'含漱液'	,
+						'7'=>'吸入溶液剂',
+						'8'=>'雾化用溶液'			        		
+    	        ),
+    	        '20' => array(
+    	        		'1'=>'直肠栓',
+						'2'=>'阴道栓',
+						'3'=>'耳栓'	        		
+    	        ),
+    	        '21' => array(
+    	        		'1'=>'醑剂'
+    	        ),
+    	        '22' => array(
+    	        		'1'=>'搽剂'
+    	        ),
+    	        '23' => array(
+    	        		'1'=>'洗剂'
+    	        ),
+    	        '24' => array(
+    	        		'1'=>'敷贴',
+						'2'=>'芳香水剂',
+						'3'=>'胶接剂',
+						'4'=>'浸蘸用',
+						'5'=>'流浸膏',
+						'6'=>'胶姆剂',
+						'7'=>'柠檬水剂',
+						'8'=>'脂质体',
+						'9'=>'皮肤敷贴用液体制剂',
+						'10'=>'药用咀嚼胶姆剂',
+						'11'=>'药用泡沫剂',
+						'12'=>'微球',
+						'13'=>'指甲液或涂剂',
+						'14'=>'眼用植入剂',
+						'15'=>'醋蜜剂',
+						'16'=>'涂抹',
+						'17'=>'贴膏',
+						'18'=>'拭抹剂',
+						'19'=>'泥罨剂',
+						'20'=>'洗发剂',
+						'21'=>'棒',
+						'22'=>'胶带剂',
+						'23'=>'外用混悬剂',
+						'24'=>'宝塔糖',
+    	        )
+    	    );
+    		$data = isset($children[$parentId])?$children[$parentId]:array();
+    	}
+    	$result = new Result(true, 0, '', $data);
+    	echo json_encode($result);
+    }
+}

@@ -1,0 +1,175 @@
+<?php
+ini_set("display_errors", "On");
+/**
+ *
+ * HMA专用预约数据处理接口
+ * @author Administrator
+ * @version v1.0
+ */
+include_once '../hwibsc/common.class.php';
+class Reservations extends common {
+	private $part = null;
+	
+	public function __construct() {
+		
+		parent::__construct();
+	
+		
+		$this->getuser();
+		
+		if( isset( $_REQUEST['part'] ) &&  $_REQUEST['part'] != '' ) {
+			$this->part = trim( $_REQUEST['part'] );
+			$method = 'get_'.$this->part;
+			if ( method_exists( $this , $method ) ) {
+				$this->$method();
+			}else{
+				die( json_encode( array( 'code'=>1,'msg'=>'part参数错误,不存在该调用接口!','departments'=>null ) ) );
+			}
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'part参数为空!','departments'=>null ) ) );
+		}
+	}
+	
+	/*
+	 * 
+	 * */
+	private function get_cancel_reservation(){
+		
+		if(!isset($_SESSION['member_id'])&&strlen($_SESSION['member_id'])<1){
+			echo json_encode(array('statu'=>false,'msg'=>'用户未登陆','code'=>1,'data'=>null));
+			exit();
+		}
+		 
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$reservationdetailser = new ReservationDetailService();
+			$reservationdetail=new ReservationDetail();
+			$reservationdetail->id=(int)$_REQUEST['id'];
+		
+			$reser=$reservationdetailser->get($reservationdetail);
+		
+			$arr=array('id'=>(int)$_REQUEST['id'],'member_id'=>$_SESSION['member_id']);
+			$reservationdetailser->deletereser($arr);
+			$reservationser=new ReservationService();
+		
+		
+			if($reser->data){
+				$reservationser->reducemarknum(array('id'=>$reser->data->reserver_id));
+			}
+		
+			echo json_encode(array('statu'=>true,'msg'=>null,'code'=>0,'data'=>null));
+		}else{
+			echo json_encode(array('statu'=>false,'msg'=>'缺少id','code'=>2,'data'=>null));
+		}
+	}
+	
+	/*
+	 * 预约挂号
+	 * */
+	
+	private function get_appointment_finish(){
+		
+		$arr=array();
+		$arr['time_id']=$this->getRequest('time_id','');//处理所需要的参数,定义默认值
+		$arr['time_field']=$this->getRequest('time_field','');
+		$arr['username']=$_SESSION['user'];
+		$arr['member_id']=$_SESSION['member_id'];
+		$arr['sex']=$this->getRequest('sex','');
+		$arr['age']=$this->getRequest('age','');
+		$arr['address']=$this->getRequest('address','');
+		$arr['telephone']=$this->getRequest('telephone','');
+		$arr['email']=$this->getRequest('email','');
+		$arr['card']=$this->getRequest('card','');
+		$arr['ill']=$this->getRequest('ill','');
+		$arr['address']=$this->getRequest('address','');
+		
+
+		
+		//$arr=array('time_id'=>$time_id,'time_field'=>$time_field,'sex'=>$sex,'age'=>$age,'telephone'=>$telephone,'email'=>$email,'card'=>$card,'ill'=>$ill,);
+		
+        $find=$this->queryRes($arr);
+        $this->runRes( $find,$arr );//插入预约列表
+        parent::msgPut(true, '预约成功', null);
+	}
+	//查询time_id值是否正确
+	private function queryRes($arr=array()) {
+
+		new ReservationService();
+		$timeidarr=array('time_id'=>$arr['time_id']);
+		$find = R::findOne('reservation','id = :time_id and state=0',$timeidarr);
+
+	
+		if( is_object( $find ) ) {
+			if( ($find->along-$find->mark) < 1 ) {
+				parent::msgPut(4, '该预约时间段已经无号了', null);
+			}else{
+				return $find;
+
+			}
+		}else{
+			parent::msgPut(3, 'time_id对应的预约信息不存在', null);
+		}
+	}
+	
+	//实际预约功能
+	private function runRes( $resInfo,$arr ) {
+		try{
+		$resInfo->dateform=date('Y-m-d',$resInfo->date);
+	
+		R::begin();
+		$resInfo->times=strtotime($resInfo->dateform.' '.$arr['time_field']);
+		 
+		$ressql="INSERT INTO `reservationdetail`(`department_id`,`doctor_id`,`date`,`times`,`statu`,`username`,`telephone`,`card`,`member_id`,`reserver_id`,`make_time`) VALUES (:department_id,:doctor_id,:date,:times,'待约',:username,:telephone,:card,:member_id,:reserver_id,:make_time)";
+		$resarray=array('department_id'=>$resInfo->department_id,
+				'doctor_id'=>$resInfo->doctor_id,
+				'date'=>$resInfo->date,
+				'times'=>$resInfo->times,
+				'username'=>$arr['username'],
+				'telephone'=>$arr['telephone'],
+				'card'=>$arr['card'],
+				'member_id'=>$arr['member_id'],
+				'reserver_id'=>$arr['time_id'],
+				'make_time'=>date('Y-m-d H:i:s',time())
+		);
+		 
+		R::exec($ressql,$resarray);
+		 
+		$sql = "INSERT INTO `reseruser` (`name`,`sex`,`age`,`date`,`time`,`address`,`hometel`,`email`,`ill`,`reservation_id`,`reservation_fid`,`member_id`) VALUES (
+		:name,:sex,:age,:date,:time,
+		:address,:hometel,:email,
+		:ill,:reservation_id,:reservation_fid,:member_id
+		)";
+		
+		$arrresuser=array('name'=>$arr['username'],
+				'sex'=>(int)$arr['sex'],
+				'age'=>(int)$arr['age'],
+				'date'=>(int)$resInfo->date,
+				'time'=>$resInfo->times,
+				'address'=>$arr['address'],
+				'hometel'=>$arr['telephone'],
+				'email'=>$arr['email'],
+				'ill'=>$arr['ill'],
+				'reservation_id'=>0,
+				'reservation_fid'=>$arr['time_id'],
+				'member_id'=>$arr['member_id']
+		);
+	
+		
+	
+		R::exec($sql,$arrresuser);
+		$timeidarrend=array('time_id'=>$arr['time_id']);
+		$reserbean=R::findOne('reservation','id = :time_id and state=0',$timeidarrend);
+		$reserbean->mark=$reserbean->mark+1;
+		R::store($reserbean);
+		}catch(Exception $e){
+			R::rollback();
+		}
+		R::commit();
+		
+	}
+	
+
+	
+
+	
+}
+new Reservations();

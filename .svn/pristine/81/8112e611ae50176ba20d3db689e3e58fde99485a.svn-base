@@ -1,0 +1,45 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class CommodityCategories extends Entity {
+
+	var $id;
+	
+	var $name;
+	
+	var $types;
+	
+	var $descript;
+	
+	var $categories_image;
+	
+	var $categories_status;
+
+
+
+
+
+	public function validate() {
+		if (strlen($this->name) == 0) {
+			throw new ValidatorException(6);
+		}
+		/*
+ 		if (strlen($this->descript) == 0) {
+			throw new ValidatorException(174);
+		}
+		*/
+		if (strlen($this->types) == 0) {
+			throw new ValidatorException(175);
+		}
+		/*
+ 		if (strlen($this->isbidding) == 0) {
+			throw new ValidatorException(8);
+		} 
+ 		if ($this->plushtime == '' || strlen($this->plushtime) == 0) {
+			$this->plushtime = time();
+		}
+		if ($this->updatetime == '' || strlen($this->updatetime) == 0) {
+			$this->updatetime = time();
+		}  */
+	}
+}

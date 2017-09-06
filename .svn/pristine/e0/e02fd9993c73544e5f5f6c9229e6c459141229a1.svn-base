@@ -1,0 +1,345 @@
+<?php
+
+class DoctorManagerController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        parent::__construct();
+        $this->service = new DoctorManagerService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+
+    /**
+     * 删除数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+            $doctors = $_REQUEST['id'];
+        } else {
+            $doctors = array(
+                $_REQUEST['id']
+            );
+        }
+        $result = $this->service->deleteBatch($doctors);
+        echo json_encode($result);
+    }
+    
+
+    
+    /*
+     * 更新医生部门
+     * 
+     * */
+    public function update_department(){
+    	if (is_array($_REQUEST['id'])) {
+    		$doctors = $_REQUEST['id'];
+    	} else {
+    		$doctors = array(
+    				$_REQUEST['id']
+    		);
+    	}
+    	$department=$_REQUEST['department_id'];
+    	foreach ($doctors as $key=>$val){
+
+    		$this->service->update_department($val,$department);
+    	}
+    	
+    	
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+    	
+    	function objectToArray($obj){
+    		$arr = is_object($obj) ? get_object_vars($obj) : $obj;
+    		if(is_array($arr)){
+    	    	
+    			return array_map(__FUNCTION__, $arr);
+    			 
+    		}else{
+    			 
+    			 
+    			return $arr;
+    		}
+    	}
+    	
+    	    		
+    	
+        $doctors = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);        
+        $counter=new CounterHistoryService();
+        $mark=new MarkHistoryService();
+ 
+        $thedate=$this->service->objectToArray($doctors->data);
+        if(isset($_REQUEST['start_time'])&&$_REQUEST['start_time']){
+        $startdate=$this->changedate($_REQUEST['start_time']);
+        }else{
+        	$startdate="";
+        }
+        if(isset($_REQUEST['end_time'])&&$_REQUEST['end_time']){
+        $enddate=$this->changedate($_REQUEST['end_time']);
+        }else{
+        	$enddate="";
+        }
+        $arrid=array();
+        $arresult=array();
+
+
+
+        
+        foreach ($thedate as $key=>$value){
+        	$arrid[$key]['reserver']=$counter->getcounterbydoctor($value['id'],$startdate,$enddate);
+        	$arrid[$key]['mark']=$mark->getcounterbydoctor($value['id'],$startdate,$enddate);
+        	$arrid[$key]['genters']=$this->genderchar($value['gender']);
+        	$arrid[$key]['department_name']=$this->changenull($value['department_name']);
+        	$arresult[$key]=array_merge($thedate[$key], array('resernum'=>$arrid[$key]['reserver'],'mark'=>$arrid[$key]['mark'],'genters'=>$arrid[$key]['genters'],'department_name'=>$arrid[$key]['department_name']));
+        	
+        }
+    
+
+        echo json_encode(array(
+        	'data'=>$arresult,
+            'rows' => $arresult,
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得单笔动态数据
+     */
+    public function get() {
+        $this->blindParams($doctor = new Doctor());
+        $result = $this->service->get($doctor);
+
+        echo json_encode($result);
+    }
+    
+    /*
+     * 修改医生和科室的关联关系
+    * */
+    
+    public function change_relation(){
+         if(is_array($_REQUEST['id'])){
+         	foreach ($_REQUEST['id'] as $k=>$v){
+         		$arr=array('id'=>(int)$v);
+         		$this->service->delete_relation($arr);
+         	}
+         }else{
+         	$arr=array('id'=>(int)$_REQUEST['id']);
+         	$this->service->delete_relation($arr);
+         }
+    	
+
+    
+
+    		$array=array('statu'=>true,
+    				     'msg'=>null,
+    				     'data'=>null
+    		);
+
+    	echo json_encode($array);
+    }
+    
+    
+    /*
+     * 查询是否有数据存在
+    *
+    * */
+    public function checkdate(){
+    	$thedate=$this->service->checkdate();
+    	if(empty($thedate)){
+    		$stute=false;
+    	}else{
+    		$stute=true;
+    	}
+    	echo json_encode(array('stutes'=>$stute));
+    }
+
+    /**
+     * 编辑新闻动态数据
+     */
+    public function edit() {
+        $this->blindParams($doctor = new DoctorManager());
+        $doctor->department_id = $_REQUEST['department_id'];
+        $result = $this->service->update($doctor);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 动态新闻添加
+     */
+    public function add() {
+        $this->blindParams($doctor = new DoctorManager());
+        $result = $this->service->save($doctor);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 根据疾病ID 获取医生
+     */
+    public function getByDiseaseId() {
+        $result = $this->service->getByDiseaseId();
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 根据科室ID来获取医生
+     */
+    public function getByDepartmentID() {
+        $res = $this->service->getByDepartmentID($_REQUEST['department_id']);
+
+        echo json_encode($res);
+    }
+    /**
+     * 获取静态url列表
+     */
+    public function getHtmlUrl() {
+
+    	$result = $this->service->getHtmlUrl();
+    
+    	echo json_encode($result);
+    }
+    
+    
+    /*
+     * 导出数据
+    *
+    * */
+    
+    public function exportdate(){
+    	function objectToArray($obj){
+    		$arr = is_object($obj) ? get_object_vars($obj) : $obj;
+    		if(is_array($arr)){
+    			return array_map(__FUNCTION__, $arr);
+    		}else{
+    			return $arr;
+    		}
+    	}
+  
+    
+    
+    	$thedate=$this->service->checkdate();
+    	if(empty($thedate)){
+    		throw new ValidatorException(180);
+    	}else{
+    
+    		$result = $this->service->query($_REQUEST);
+    		
+    		$totalRows = $this->service->totalRows($_REQUEST);
+            $counter=new CounterHistoryService();
+            $mark=new MarkHistoryService();
+    
+    
+    		$thedate=$this->service->objectToArray($result->data);
+    		$startdate=$this->changedate($_REQUEST[start_time]);
+    		$enddate=$this->changedate($_REQUEST[end_time]);
+    
+    		$arrid=array();
+    		$arresult=array();
+    		foreach ($thedate as $key=>$value){
+    
+    
+        	$arrid[$key]['reserver']=$counter->getcounterbydoctor($value[id],$startdate,$enddate);
+        	$arrid[$key]['mark']=$mark->getcounterbydoctor($value[id],$startdate,$enddate);
+        	$arresult[$key]=array_merge($thedate[$key], array('resernum'=>$arrid[$key]['reserver'],'mark'=>$arrid[$key]['mark']));
+    		}
+    
+    		$str = "医生id,医生姓名,科室,擅长病种,更新时间,预约数,到诊数\n";
+    
+    
+    		while(list($key, $value)=each($arresult)){
+    			$str .= $value[id].",".$value[name].",".$value[department_name].",".$value[disease].",".$value[plushtime].",".$value[resernum].",".$value[mark]."\n";
+    
+    		}
+    
+    		$filename = date('Ymdhis').rand(1000,9999).'.csv';
+    		$csv_url = ABSPATH."/upload/". $filename;
+    		$myfile = @fopen( $csv_url, "w") or die("Unable to open file!");
+    		$strdate =iconv('utf-8','GB2312//IGNORE',$str);
+    
+    		@fwrite($myfile, $strdate);
+    
+    		@fclose($myfile);
+    		$files=NETADDRESS."/upload/".$filename;
+    		echo json_encode(array('stutes'=>true,'url'=>$files));
+    	}
+    }
+    
+    public function importdate(){
+    	 
+        	   	 
+    	$thedate=$this->service->checkdate();
+    	
+    	if(empty($thedate)){
+    		$result=$this->service->importdate();
+    	}else{
+    		$result=false;
+    	}
+    
+    	echo json_encode(array('stutes'=>$result));
+    }
+    
+    /*
+     * 获取除本科室外的其它科室医生
+    * */
+    public function get_otherdoctor(){
+    
+    	$result=$this->service->get_otherdoctor($_REQUEST);
+    	echo json_encode($result);
+    }
+    
+    /*
+     * 批量设置医生所属科室
+    *
+    * */
+    public function changedepartment(){
+    	
+    	if(isset($_REQUEST['id'])&&$_REQUEST['id']!=null){
+    		if(isset($_REQUEST['departmentmanager_id'])&&$_REQUEST['departmentmanager_id']!=null){
+    			$reserverationservice=new ReservationService();
+    	if(is_array($_REQUEST['id'])){
+    	foreach($_REQUEST['id'] as $key=>$val){
+    		$this->service->changedepartment($val,$_REQUEST['departmentmanager_id']);
+    		$reserverationservice->updatedepartment($val,$_REQUEST['departmentmanager_id']);
+    	}
+    	}else{
+    		$this->service->changedepartment($_REQUEST['id'],$_REQUEST['departmentmanager_id']);
+    		
+    		$reserverationservice->updatedepartment($_REQUEST['id'],$_REQUEST['departmentmanager_id']);
+    	}
+    	$arr=array('stute'=>true,
+    	             'msg'=>null,
+    	             'data'=>null);
+    	echo json_encode($arr);
+    		}else{
+    			throw new ValidatorException(27);
+    		}
+    }else{
+    	throw new ValidatorException(7);
+    }
+    }
+}
+

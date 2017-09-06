@@ -1,0 +1,64 @@
+<?php
+/**
+ * 医院荣誉标签
+ * */
+require_once 'common.php';
+/**
+ * 根据页码获取对应的数据
+ * 
+ * 对应function标签中的{honors}
+ */
+function smarty_block_honorlist( $params, $content, $template, &$repeat ) {
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $sort = isset($params['sort']) ? $params['sort'] : true;
+    $current = isset($params['page']) ? $params['page'] : $template->getTemplateVars('cur');
+    $current = $current == '' ? 1 : $current;
+    
+    if (!$repeat) {
+        $ser = new HonorTag();
+        $data = $ser->getList($current, $pagesize, $sort);
+        foreach ($data as $key=>$honorinfo) {
+            if ($honorinfo->pic&&strpos($honorinfo->pic, NETADDRESS) === false) {
+                $data[$key]->pic = UPLOAD . $honorinfo->pic;
+            }
+            $data[$key]->url = NETADDRESS . "/hospital/honor/" . $honorinfo->id . ".html";
+        }
+        
+        $template->assign('cur', $current);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据唯一id获取该id的详细信息
+ * 
+ * 对应function标签中的{honor}
+ */
+function smarty_block_honorinfo( $params, $content, $template, &$repeat ) {
+    $id = isset($params['id']) ? $params['id'] : ($template->getTemplateVars('id'));
+
+    if (!$repeat) {
+        $ser = new HonorTag();
+        $data = $ser->get($id);
+        if ($data->pic&&strpos($data->pic, NETADDRESS) === false) {
+            $data->pic = UPLOAD . $data->pic;
+        }
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}

@@ -1,0 +1,19 @@
+    <!--专家答疑-->
+    <div class="par-sense bk top8 nonebottom">
+        <h4><a target="_blank" href="{{$WEBSITE}}/ask/">专家答疑</a></h4>
+        {{$asks = $AskTag->getList(1)}}
+        {{foreach from=$asks item=value name=name}}
+        {{if $smarty.foreach.name.first}}
+        {{$pic = $PicManagerTag->getPic('askPic')}}
+        <div class="sense-img"><img width="226" height="80" src="{{$UPLOAD}}{{$pic->img}}" />
+            <div>
+                <h5><a target="_blank" href="{{$WEBSITE}}/ask/{{$value->id}}.html">{{$value->subject|truncate:"10"}}</a></h5>
+            </div>
+        </div>
+        <ul>
+        {{elseif $value@iteration <= 7}}
+            <li>・<a target="_blank" href="{{$WEBSITE}}/ask/{{$value->id}}.html">{{$value->subject|truncate:"10"}}</a></li>
+        {{/if}}
+        {{/foreach}}
+        </ul>
+    </div>

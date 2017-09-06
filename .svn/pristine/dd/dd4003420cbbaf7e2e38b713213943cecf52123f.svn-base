@@ -1,0 +1,148 @@
+<?php
+
+class PrizeService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new PrizeDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $prizeArray = $this->dao->getBatch($ids);
+      
+        return $this->dao->deleteBeans($prizeArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($prize) {
+        $this->dao->get($prize->id, $prize);
+ 
+        return $this->success($prize);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+    	
+        $prizeArray = $this->dao->query($where);
+        
+//         foreach ($commodityArray as $key => $value) {
+//             //$value->plushtime = date('Y-m-d', $value->plushtime);
+//             $value->startdate=date('Y-m-d',$value->start_time);
+//             $value->enddate=date('Y-m-d',$value->end_time);
+//         }
+
+        return $this->success($prizeArray);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($draw) {
+    	
+         $draw->validate();        
+        // 获取class对象并插入数据
+        $rs=$this->dao->save($draw);
+        
+
+        return $this->success($rs);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($prize) {
+    //    $commodity->updatetime = time();
+    	
+        $prize->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($prize);
+    }
+    
+    /*
+     * 取某次活动下的奖品,过滤今日已达到限制的奖品
+     * */
+    public function drawprize($arr){
+    	$result=$this->dao->drawprize($arr);
+
+
+    	$winlog=new WinlogService();
+    	foreach($result as $key=>$val){
+    		$todaycount=$winlog->gettodaycount($val->id);
+    		            
+    		if($todaycount->data>=$val->prize_every){
+    			unset($result[$key]);
+    		}
+    		
+    	}
+
+    	return $result;
+    	    	
+    }
+    
+    /*奖品数量减一
+     * @param $prizeid 奖品id
+     * 
+     * */
+    public function reducecount($prizeid){
+    
+    	$prize=new Prize();
+    	
+    	$this->dao->get($prizeid['id'], $prize);
+    	$prize->prize_count=$prize->prize_count-1;
+    	$this->dao->update($prize);
+    	return $this->success($prize);
+    	//$this->dao->prizecountreduce($arr);
+    	
+    }
+    
+    /*
+     * 取某个活动的奖品
+     * */
+    
+    public function getprizedraw($arr){
+    	$result=$this->dao->drawprize($arr);
+    	$winlog=new WinlogService();
+    	foreach($result as $key=>$val){
+    		$count=$winlog->getprizeamount($val->id);
+    	    $val->prize_count=$val->prize_count+$count;   	
+    	}
+    	
+    	return $this->success($result);
+    }
+    /*
+     * 获取某个奖品的详细信息
+     * */
+    public function getprizedetail($arr){
+    	$prize=new Prize();
+    	$this->dao->get($arr['id'], $prize);
+    	return $this->success($prize);
+    }
+}
+

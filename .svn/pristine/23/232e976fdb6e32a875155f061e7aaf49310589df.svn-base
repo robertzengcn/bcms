@@ -1,0 +1,311 @@
+<?php
+
+/**
+ * 登陆页面模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", "0");
+include_once ABSPATH.'/mod/Mod.php';
+
+/**
+ * @author Administrator
+ * 
+ *  注册模块
+ *  
+ */
+class Register extends Mod{
+	private $HMAKEY='Vb4!PLCzCW';
+	private $boyiurl="http://www.boyicms.com/interface/hma/HmaAccountInterface.php";
+
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 *
+	 *  登录类方法
+	 *  
+	 *  
+	 */
+	public function index() {
+		
+        session_start();
+		$_SESSION['token']=md5(time().rand(1,999));//产生一个随机数防止域外提交	
+		$this->smarty->assign("token", $_SESSION['token']);
+		$this->smarty->display( 'register/index'.SUBFIX);
+	}
+	/**
+	 * 注册
+	 * */
+	public function register(){
+		session_start();
+		if(!isset($_REQUEST['verify'])||strtolower($_SESSION['verify'])!=strtolower($_REQUEST['verify'])){
+			$array = array('status'=>false,'msg'=>'验证码错误','code'=>10001,'data'=>null);
+			$_SESSION['verify']=rand(1,100);//随机生成一个验证码覆盖原来的
+			echo json_encode($array);
+			exit();
+		}
+		
+		if(!isset($_REQUEST['token'])||$_SESSION['token']!=$_REQUEST['token']){
+			$array = array('status'=>false,'msg'=>'非法跨域请求','code'=>10002,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		if(!isset($_REQUEST['auth_code'])||md5($_REQUEST['auth_code'])!=$_SESSION['MOBILE_AUTH_CODE']){
+			$array = array('status'=>false,'msg'=>'短信验证码不正确','code'=>10005,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+		if(!isset($_REQUEST['mobile'])||!strlen($_REQUEST['mobile'])>1){
+			$array = array('status'=>false,'msg'=>'缺少mobile参数','code'=>10003,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		if(!isset($_REQUEST['password'])||!strlen($_REQUEST['password'])>1){
+			$array = array('status'=>false,'msg'=>'缺少password参数','code'=>10004,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		$memberser=new MemberService();
+		
+		$result=$memberser->registmember(array('mobile'=>$_REQUEST['mobile'],'password'=>$_REQUEST['password'],'username'=>$_REQUEST['mobile']));
+
+		
+		if($result->statu){
+			$array = array('status'=>true,'msg'=>null,'code'=>0,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}else{
+			
+			$array = array('status'=>false,'msg'=>$result->msg,'code'=>$result->code,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		
+		
+	}
+	
+	/**
+	 * 生成一个token
+	 * */
+	
+	public function gettoken(){
+		if(!session_id()) session_start();
+		$_SESSION['token']=md5(time().rand(1,999));//产生一个随机数防止域外提交
+		$array = array('status'=>true,'msg'=>null,'code'=>null,'data'=>$_SESSION['token']);
+		echo json_encode($array);
+	}
+	
+	/**
+	 * 调用总控发送验证码
+	 * 
+	 * @param $_REQUEST['token']
+	 * @param $_REQUEST['mobile']
+	 * 
+	 */
+	public function sendcode(){
+		if(!session_id()) session_start();
+/* 		if($_SESSION['token']!=$_REQUEST['token']){
+			$array = array('statu'=>false,'msg'=>'非法跨域请求','code'=>10002,'data'=>null);
+			echo json_encode($array);
+			exit();
+		} */
+		
+		$phonenum=isset($_REQUEST['mobile'])&&strlen($_REQUEST['mobile'])>0?$_REQUEST['mobile']:null;
+		 
+		if(preg_match("/^13[0-9]{1}[0-9]{8}$|15[0-9]{1}[0-9]{8}$|18[0-9]{1}[0-9]{8}$|17[0-9]{1}[0-9]{8}/",$phonenum)){ //验证通过
+			//$HMAKEY='Vb4!PLCzCW';
+		    		//$HMAKEY='Vb4!PLCzCW';
+		  if(!isset($_REQUEST['cms'])||isset($_REQUEST['cms'])&&strlen($_REQUEST['cms'])<1){//调用总控发送短信  		
+    		$url=$this->boyiurl."?type=sendcode";//请求总控发送验证码
+    		$post_data=array(
+    				'mobile'=>$phonenum,
+    				'hmkey'=>md5( $this->HMAKEY . date('Y-m-d') ),
+    				'website'=>NETADDRESS,
+    				   				    				   		
+    		);
+    		$fresult=$this->send_post($url,$post_data);
+    	
+    		$result=json_decode($fresult,true);
+    		
+    		if($result['res']==0){
+    			echo json_encode(array('stute'=>true,'msg'=>null,'code'=>0,'data'=>null));    			
+    		}else{
+    			echo json_encode(array('stute'=>false,'msg'=>$result['message'],'code'=>0,'data'=>null));
+    		}  
+		  }else{
+		  	$contectser = new ContactService ();
+				$url = $contectser->getwuxianip()->val;
+		$cid = $contectser->getwuxianaccount()->val;
+		$pwd = $contectser->getwuxianpassword()->val;
+		  	if($url==null||$cid==null||$pwd==null){
+		  		echo json_encode ( array (
+		  				'stute' => false,
+		  				'msg' => '短信接口参数配置错误，请检查',
+		  				'code' => 2,
+		  				'data' => null
+		  		) );
+		  		exit ();
+		  	}
+		  	$wuxianser = new WuxianService ( $url, $cid, $pwd);
+		  	$result = $wuxianser->sendAuthCode($phonenum);
+		  	
+		  	echo json_encode(array('stute'=>true,'msg'=>'发送成功','code'=>0,'data'=>null));
+		  }		
+
+		}else{
+			//手机号码格式不对
+			echo json_encode(array('stute'=>false,'msg'=>'手机号码不正确','code'=>0,'data'=>null));
+		}
+		exit();
+	}
+	
+	/**
+	 * 注册免输图形验证码，但须短信验证码
+	 * 
+	 * @param $_REQUEST['token']
+	 * @param $_REQUEST['auth_code'] 短信验证码
+	 * @param $_REQUEST['mobile']
+	 * @param $_REQUEST['password']  密码
+	 * 
+	 * @return json
+	 * 
+	 * 
+	 * */
+	public function registernocaptcha(){
+		if(!session_id()) session_start();
+	
+		if(!isset($_REQUEST['auth_code'])||md5($_REQUEST['auth_code'])!=$_SESSION['MOBILE_AUTH_CODE']){
+			$array = array('status'=>false,'msg'=>'短信验证码不正确','code'=>10005,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+	
+		if(!isset($_REQUEST['mobile'])||!strlen($_REQUEST['mobile'])>1){
+			$array = array('status'=>false,'msg'=>'缺少mobile参数','code'=>10003,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		if(!isset($_REQUEST['password'])||!strlen($_REQUEST['password'])>1){
+			$array = array('status'=>false,'msg'=>'缺少password参数','code'=>10004,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}
+		$memberser=new MemberService();
+		
+
+		$result=$memberser->registmember($_REQUEST);
+	
+	
+		if($result->statu){
+			$array = array('status'=>true,'msg'=>null,'code'=>0,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}else{
+				
+			$array = array('status'=>false,'msg'=>$result->msg,'code'=>$result->code,'data'=>null);
+			echo json_encode($array);
+			exit();
+		}		
+	}
+	
+	/**
+	 * 找回密码
+	 * */
+	public function findbackpass(){
+		session_start();
+		$_SESSION['token']=md5(time().rand(1,999));//产生一个随机数防止域外提交
+		$this->smarty->assign("token", $_SESSION['token']);
+		$this->smarty->display( 'register/findbackpass'.SUBFIX);
+	}
+	
+	/**
+	 * 验证短信验证码找回密码,此短信通过总控发送
+	 * 
+	 * @param $_REQUEST['mobile'] 手机号
+	 * @param $_REQUEST['verify'] 图形验证码
+	 * @param $_REQUEST['tcode'] 短信验证码为空
+	 * @param $_REQUEST['userpassword'] 新密码
+	 * @param $_REQUEST['twopassword'] 新密码
+	 * 
+	 * @return json
+	 * 
+	 * */
+	public function valimesscode(){
+		if(!session_id()) session_start();
+		if(!isset($_REQUEST['mobile'])||strlen($_REQUEST['mobile'])<1){
+		       $this->msgPut(false,1,'手机号为空',null);
+		}
+		if(!isset($_REQUEST['verify'])||strlen($_REQUEST['verify'])<1){
+			$this->msgPut(false,2,'图像验证码为空',null);
+		}
+		if(strtolower($_REQUEST['verify'])!=strtolower($_SESSION['verify'])){
+			//$_SESSION['verify']=rand(1000,9999);//产生一个随机数覆盖原来的验证码
+			$this->msgPut(false,3,'图像验证码错误',$_SESSION['verify']);
+		}
+
+		if(!isset($_REQUEST['tcode'])||strlen($_REQUEST['tcode'])<1){
+			$tcode=$_REQUEST['tcode'];
+			$this->msgPut(false,4,'短信验证码为空',null);
+		}
+		if(!isset($_REQUEST['tcode'])||strlen($_REQUEST['tcode'])<1){
+			$tcode=$_REQUEST['tcode'];
+			$this->msgPut(false,5,'短信验证码为空',null);
+		}
+		if(!isset($_REQUEST['userpassword'])||strlen($_REQUEST['userpassword'])<1){
+			$this->msgPut(false,6,'新密码为空',null);
+		}
+
+		if(!isset($_REQUEST['twopassword'])||$_REQUEST['twopassword']!=$_REQUEST['userpassword']){
+			$this->msgPut(false,7,'两次密码不一致',null);
+		}
+		
+		$memberser=new MemberService();
+	
+		$result=$memberser->validmobilemess($_REQUEST['mobile'],$_REQUEST['tcode'],$_REQUEST['userpassword']);
+		if($result->statu){
+			$this->msgPut(true,0,null,null);
+		}else{
+			$this->msgPut(false,8,$result->msg,null);
+		}
+		
+		
+		
+	}
+
+
+	/**
+	 * 微信用户注册
+	 */
+	public function wechatregister(){
+		if(!session_id()) session_start();
+/* 		if(!isset($_REQUEST['token'])||$_SESSION['token']!=$_REQUEST['token']){
+			$array = array('status'=>false,'msg'=>'非法跨域请求','code'=>10002,'data'=>null);
+			echo json_encode($array);
+			exit();
+		} */
+/* 		if(!isset($_REQUEST['auto_code'])||md5($_REQUEST['auto_code'])!=$_SESSION['MOBILE_AUTH_CODE']){
+			$array = array('status'=>false,'msg'=>'auth_code不正确','code'=>10005,'data'=>null);
+			echo json_encode($array);
+			exit();
+		} */
+		$entity = new WechatRegister();
+		$ser = new WechatRegisterService();
+		foreach ($entity as $key => $value) {
+			if (isset($_REQUEST[$key])) {
+				$entity->$key = $_REQUEST[$key];
+			}
+		}
+		$entity->ischeck=0;
+		$result = $ser->save($entity);
+		echo json_encode($result);
+	}
+
+	
+}
+new Register();

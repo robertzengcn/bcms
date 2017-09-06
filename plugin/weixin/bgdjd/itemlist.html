@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>检查报告单解读_解读项目</title>
+<meta name="keywords" content="检查报告单解读_解读项目" />
+<meta name="description" content="检查报告单解读_解读项目" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0;" name="viewport" />
+<link rel="stylesheet" href="../public/css/base.css?v=20160701">
+<link rel="stylesheet" href="../public/css/jk.css?v=20160701">
+<script type="text/javascript" src="../public/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript">
+$(function(){
+	bgdjd.itemlist();
+})
+</script>
+</head>
+<body>
+<header class="clearfix header">
+  <a href="javascript:history.go(-1)" class="icons head_back"></a>
+  <h2></h2>
+</header>
+<section class="clearfix jclist itembox">
+  <ul class="item_ul"></ul> 
+  <div>
+	<a href="#" onclick="return false;" class="tjbtn" id="sendReport">解读化验单</a>
+	<a href="#" onclick="return false;" id="clear">清空</a>
+  </div>
+</section>
+<section id="body2" class="advisevtbox results" style="display:none;">
+		<p><span>诊断结果：</span></p>
+		<p class="res"></p>
+		<p><span>提醒：</span>上述结果仅供参考，具体请以医生给出的结论为准。</p>
+		<div class="askbuttom">
+			<a href="#" id="swtlink">马上提问</a>
+		</div>
+</section>
+<section class="advisevtbox">
+	<p><span>提醒：</span>检查项目的参考值不同年龄段，不同人群间会有区别，为了得到准确的诊断结果，请仔细选择各检查项目的参考值。</p>
+	<p><span>年龄段说明：</span>成人（18岁以上），新生儿（0-28天），婴儿（4周-48周），儿童（2岁-12岁），少年（13-18岁）</p>
+</section>
+</body>
+</html>

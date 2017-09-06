@@ -1,0 +1,25 @@
+  {{extends file="../common/layout/layout.htpl"}}
+  {{block name=css}}
+  <link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+  {{/block}}
+  {{block name=body}}
+  <div id="breadcrumb">您的位置：<a target="_blank" href="{{$WEBSITE}}">首页</a>><a target="_blank" href="{{$WEBSITE}}/hospital/device/index.html">设备列表</a></div>
+  <div class="clear h4"></div>
+  <!--左-->
+  <div class="main">
+    <div class="par-main">
+      <h2>设备列表</h2>
+      {{devices page="$cur"}}
+      {{foreach $devices as $v}}
+      <div class="device"> <a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$v->id}}.html"><img src="{{$UPLOAD}}{{$v->pic}}" alt="{{$v->subject}}" /></a>
+        <h3><a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$v->id}}.html">{{$v->subject}}</a></h3>
+        <p><span>介绍：</span>{{$v->description|truncate:100}}. <a target="_blank" href="{{$WEBSITE}}/hospital/device/{{$v->id}}.html">[详细]</a></p>
+      </div>
+      {{/foreach}} 
+      <p class="fenye">{{$DeviceTag->getPageHtml($cur)}}</p>
+    </div>
+    <!--right-->
+    {{include file="../common/right/right.htpl"}}
+    <!--right end-->
+  </div>
+  {{/block}}

@@ -1,0 +1,250 @@
+<!doctype html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>全站流量</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp"/>
+  <link rel="icon" type="image/png" href="i/favicon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="i/app-icon72x72@2x.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Amaze UI"/>
+  <link rel="apple-touch-icon-precomposed" href="i/app-icon72x72@2x.png">
+  <meta name="msapplication-TileImage" content="i/app-icon72x72@2x.png">
+  <meta name="msapplication-TileColor" content="#0e90d2">
+  <link rel="stylesheet" href="css/amazeui.min.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="lib/mobiscroll/mobiscroll.css">
+  <link rel="stylesheet" href="lib/mobiscroll/mobiscroll_date.css">
+  <script src="js/jquery-1.8.3.min.js"></script>
+  <script src="js/highcharts.js"></script>
+<!--   滑动跟新加载 -->
+  <script src="./lib/dropload/dropload.min.js"></script>
+  <link rel="stylesheet" href="./lib/dropload/dropload.css">
+  <style>
+    *{
+        margin: 0;
+        padding:0;
+        -webkit-tap-highlight-color:rgba(0,0,0,0);
+        -webkit-text-size-adjust:none;
+    }
+    html{
+        font-size:10px;
+    }
+    body{
+        background-color: #f5f5f5;
+        font-size: 1.2em;
+    }
+    .header{
+        height: 44px;
+        line-height: 44px;
+        border-bottom: 1px solid #ccc;
+        background-color: #eee;
+    }
+    .header h1{
+        text-align: center;
+        font-size: 2rem;
+        font-weight: normal;
+    }
+    .content{
+        background-color: #fff;
+    }
+    .content .item{
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align:center;
+        -webkit-box-align:center;
+        box-align:center;
+        -webkit-align-items:center;
+        align-items:center;
+        padding:3.125%;
+        border-bottom: 1px solid #ddd;
+        color: #333;
+        text-decoration: none;
+    }
+    .content .item img{
+        display: block;
+        width: 40px;
+        height: 40px;
+        border:1px solid #ddd;
+    }
+    .content .item h3{
+        display: block;
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        width: 100%;
+        max-height: 40px;
+        overflow: hidden;
+        line-height: 20px;
+        margin: 0 10px;
+        font-size: 1.2rem;
+    }
+    .content .item .date{
+        display: block;
+        height: 20px;
+        line-height: 20px;
+        color: #999;
+    }
+    .opacity{
+        -webkit-animation: opacity 0.5s linear;
+        animation: opacity 0.5s linear;
+    }
+    @-webkit-keyframes opacity {
+        0% {
+            opacity:0;
+        }
+        100% {
+            opacity:1;
+        }
+    }
+    @keyframes opacity {
+        0% {
+            opacity:0;
+        }
+        100% {
+            opacity:1;
+        }
+    }
+    
+   
+    </style>
+</head>
+<body>
+<div class="am-btn-group am-btn-group-justify main_sta" id="timeField">
+  <a class="am-btn am-round" flag="7">7日</a>
+  <a class="am-btn am-round" flag="15">15日</a>
+  <a class="am-btn am-round am-active" flag="30">30日</a>
+  <a class="am-btn am-round" id="free" data-am-modal="{target: '#doc-modal-1'}">自定义</a>
+</div>
+
+<div style="display: none;" class="am-modal am-modal-no-btn am-modal-out" tabindex="-1" id="doc-modal-1"><div class="am-modal-dialog" style="width:80%;border-radius: 10px;box-shadow: 4px 4px 20px #000;"><div class="am-modal-hd">选择日期<a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close="">&times;</a></div><div class="am-modal-bd">
+<div class="am-alert am-alert-danger" style=" margin-bottom: auto; display:none;">
+  <p>开始日期应小于结束日期！</p>
+</div>
+<div class="am-g">
+  <div class="am-u-sm-12">
+    <!--<button type="button" class="am-btn am-btn-default" id="my-start">开始日期</button><span id="my-startDate">2016-12-20</span>-->
+    <p class="am-margin-xs">开始日期</p>
+    <input type="text" name="start" id="start" readonly class="input am-form-field am-radius" placeholder="开始日期" />
+  </div>
+  <div class="am-u-sm-12 am-margin-bottom-sm">
+    <!--<button type="button" class="am-btn am-btn-default" id="my-end">结束日期</button><span id="my-endDate">2016-12-25</span>-->
+    <p class="am-margin-xs">结束日期</p>
+    <input type="text" name="end" id="end" readonly class="input am-form-field am-radius" placeholder="结束日期" />
+  </div>
+  <button type="button" class="am-btn am-btn-primary" id='confirm'>确定</button>
+</div>
+
+<!-- <script>
+  $(function() {
+    var startDate = new Date(2016, 8, 29);
+    var endDate = new Date(2016, 8, 30);
+    var $alert = $('#my-alert');
+    $('#my-start').datepicker().
+      on('changeDate.datepicker.amui', function(event) {
+        if (event.date.valueOf() > endDate.valueOf()) {
+          $alert.find('p').text('开始日期应小于结束日期！').end().show();
+        } else {
+          $alert.hide();
+          startDate = new Date(event.date);
+          $('#my-startDate').text($('#my-start').data('date'));
+        }
+        $(this).datepicker('close');
+      });
+
+    $('#my-end').datepicker().
+      on('changeDate.datepicker.amui', function(event) {
+        if (event.date.valueOf() < startDate.valueOf()) {
+          $alert.find('p').text('结束日期应大于开始日期！').end().show();
+        } else {
+          $alert.hide();
+          endDate = new Date(event.date);
+          $('#my-endDate').text($('#my-end').data('date'));
+        }
+        $(this).datepicker('close');
+      });
+    $('#confirm').click(function(){
+    	var s = $('#my-startDate').text();
+    	var e = $('#my-endDate').text();
+    	
+    	$("#start_time").val(s);
+    	$("#end_time").val(e);
+    	
+    	$("#doc-modal-1, #my-alert").hide();
+    	
+    	gStat.statData();
+    });
+  });
+</script> -->
+
+</div></div></div>
+
+
+<div id="container" style="width:100%;height:400px; padding-top:20px;"></div>
+<div id="container2" style="width:100%;height:400px; padding-top:20px;"></div>
+
+<div class="am-container main_sta2 main_vie">
+<table id="dataTable" class="am-table am-table-bordered am-table-striped">
+    <thead></thead>
+    <tbody id='lists'></tbody>
+</table>
+<input type="hidden" name="start_time" id="start_time" value="">
+<input type="hidden" name="end_time" id="end_time" value="">
+<input type="hidden" name="page" id="page" value="">
+</div>
+
+
+<script src="js/amazeui.min.js"></script>
+<script type="text/javascript" src="../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../js/boyicms/Highcharts.js"></script>
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="./js/stat.js"></script>
+<script src="lib/mobiscroll/mobiscroll_date.js" charset="gb2312"></script> 
+<script src="lib/mobiscroll/mobiscroll.js"></script> 
+<script type="text/javascript">
+$(function () {
+	var currYear = (new Date()).getFullYear();	
+	var opt={};
+	opt.date = {preset : 'date'};
+	opt.datetime = {preset : 'datetime'};
+	opt.time = {preset : 'time'};
+	opt.default = {
+		theme: 'android-ics light', //皮肤样式
+		display: 'modal', //显示方式 
+		mode: 'scroller', //日期选择模式
+		dateFormat: 'yyyy-mm-dd',
+		lang: 'zh',
+		showNow: true,
+		nowText: "今天",
+		startYear: currYear - 50, //开始年份
+		endYear: currYear + 10 //结束年份
+	};
+
+	$("#start").mobiscroll($.extend(opt['date'], opt['default']));
+	$("#end").mobiscroll($.extend(opt['date'], opt['default']));
+
+
+
+	
+});
+</script>
+<script type="text/javascript">
+var gStat = new Stat();
+gStat.setThisName('gStat');
+gStat.stat();
+
+</script> 
+
+</body>
+</html>

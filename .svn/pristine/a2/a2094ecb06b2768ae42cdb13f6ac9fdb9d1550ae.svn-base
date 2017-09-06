@@ -1,0 +1,57 @@
+@charset "utf-8";
+/* CSS Document */
+/*票数榜*/
+.type_box{border:1px #e51c23 solid;}
+div.selected{background-color:#e51c23;}
+/*投票累积*/
+.num_btn{background-color:#e51c23;border:1px solid #dd191d;}
+/*票数榜*/
+.player_box .vote a{border: 1px solid #e51c23;color: #dd191d;}
+/*奖品*/
+.prize_title .tit{background:url(../../images/red/prize-tit-bg.png) no-repeat center center;background-size: contain;}
+.prize_box{ background-color:#f9bdbb; border:1px solid #f69988; }
+/*活动简介*/
+.info_title .tit{color:#dd191d;}
+.info_title i{border-bottom: #dd191d 1px solid;}
+/*排名*/
+.ranking_btn{border:1px solid #dd191d;color:#e51c23;}
+.ranking_btn:hover{background-color:#e51c23;}
+.ranking_box .ranking_list:nth-child(1) .ranking,.ranking_box .ranking_list:nth-child(2) .ranking,.ranking_box .ranking_list:nth-child(3) .ranking{color:#FC573D;} /*不用改颜色*/
+/*选手详情*/
+.details .details_top a{ background-color:#e51c23;}
+.details .details_top a.details_btn{ background-color:#f69988;}
+.details .details_btn{ background-color:#e51c23;}
+.details_footer a:nth-child(3){ background-image:url(../../images/red/details_footer2.png)}
+.details_footer a:nth-child(2){ border:1px solid #dd191d;color:#e51c23;background:#f69988 url(../../images/red/details_footer4.png) no-repeat;    background-size: 26px 26px;background-position: center 8px;}
+.details_footer a:nth-child(2).active{background-image:url(../../images/red/details_footer3.png)}
+.details_footer a.yes{color:#e51c23;}
+.details_footer a:nth-child(1).yes{ background-image:url(../../images/red/details_footer1.png)}
+.details_footer a:nth-child(3).yes{ background-image:url(../../images/red/details_footer2.png)}
+/*上传内容*/
+.upload_btn{background-color: #e51c23;}
+.upload .upload_img .upload_bg_img{display: inline-block; margin: auto auto 10px; width: 100px;height: 80px;  border-radius:4px; background-image:url(../../images/red/photo_s1.png);}
+/*操作成功*/
+.succeed .weui_icon_success::before{ color:#e51c23;}
+.succeed .weui_btn_warn{ background-color:#e51c23;}
+
+.diamond_number .details_footer_img{background: url(../../images/red/details_footer2.png);}
+/*钻石*/
+.diamond_zf div.active{ border-color:#3cc51f;color:#3cc51f;} /*不用改颜色*/
+.diamond_zf div.active:before{border-bottom: 18px solid #3cc51f;} /*不用改颜色*/
+.diamond_cz li.active a{ background-image:url(../../images/red/details_footer2.png); color:#e51c23; background-color:#ffe5ec;}
+.diamond_cz li.active a span{ border-color:#e51c23;}
+.diamond_cz li.active a small{ color:#e51c23;}
+
+/*图标*/
+.tabbar_icon1{background:url(../../images/red/tabbar_icon1.png) no-repeat 0 -24px;}
+.tabbar_icon2{background:url(../../images/red/tabbar_icon2.png) no-repeat 0 -24px;}
+.tabbar_icon3{background:url(../../images/red/tabbar_icon3.png) no-repeat 0 -24px;}
+.tabbar_icon4{background:url(../../images/red/tabbar_icon4.png) no-repeat 0 -24px;}
+.tabbar_icon5{background:url(../../images/red/tabbar_icon5.png) no-repeat 0 -24px;}
+.pop_up .gz_btn{color: #e51c23;}
+.home_footer .weui_tabbar_item.weui_bar_item_on .weui_tabbar_label{color: #e51c23;}
+
+  /*弹窗*/
+.Prompt s,.goodsList .goodsListR a.add s,.registerCon em,.haveNot s,.z-del,.g-pay-bline,.z-pay-mentsel,.z-pay-tips s,.z-pay-tips i,.z-Transaction s,.z-Transaction i,.pCountdown s,.pCountdown em,.z-limit-tips {background:url(../../images/red/seticon.png);background-size:23px auto;}
+ /*公告 */
+ .weui_cell_hd .icon_tz{display: block;margin-right: 5px;background-image:url(../../images/green/photo_s1.png);background-repeat: no-repeat;background-position: center center;}

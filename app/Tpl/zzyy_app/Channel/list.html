@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+</head>
+<body>
+{{include file="Common/right.html"}}
+{{$doc=$PicManagerTag->getMobilePic(appchannel,app)}}
+<img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+<div id="frame">
+	{{foreach $list as $value}}
+    	<div class="head">
+    	    {{$tub=$PicManagerTag->getMobilePic(apptubiao,app)}}
+        	<img src="{{$tub->src}}" ><h1>{{$value->subject|truncate:8}}...</h1>
+            <a href="{{$MOBILE}}/channel.php?method=get&channel_id={{$value->channel_id}}&id={{$value->id}}"><span>详情</span></a>
+        </div>
+        <img class="img" src="{{$UPLOAD}}/{{$value->pic}}">
+        <p>{{$value->description|truncate:100}}</p>
+        {{/foreach}}
+    </div>
+
+</body>
+</html>

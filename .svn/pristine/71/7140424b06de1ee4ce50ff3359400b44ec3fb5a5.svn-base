@@ -1,0 +1,143 @@
+<?php
+
+class OrderService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new OrderDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $commodityArray = $this->dao->getBatch($ids);
+      
+        return $this->dao->deleteBeans($commodityArray);
+    } 
+
+ 
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+    	
+        $orderArray = $this->dao->query($where);
+        $ordercomser=new OrdercommodityService();
+        foreach ($orderArray as $key => $value) {
+        	$value->detail=$ordercomser->getorderdetail($value->id);
+        	
+            $value->date = date('Y-m-d', $value->date);
+   
+        }
+
+        return $this->success($orderArray);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function save($commodity) {
+    	
+         $commodity->validate();        
+        // 获取class对象并插入数据
+        $rs=$this->dao->save($commodity);
+        
+        if(isset($_REQUEST['descript'])&&$_REQUEST['descript']!=null){
+        $commoditydescript=new CommodityDescriptService();
+        $commoditydesc=new CommodityDescript();
+        $commoditydesc->product_id=$rs->id;
+        $commoditydesc->product_descript=$_REQUEST['descript'];
+        $commoditydescript->save($commoditydesc);
+        }
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($cart) {
+    //    $commodity->updatetime = time();
+    	
+        $cart->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($cart);
+    }
+
+
+    
+    /*
+     *添加到订单表 
+     * */
+    public function addorder($arr){
+    	try{	
+    $this->dao->beginTrans();
+    $order=new Order();
+    $order->member_id=$arr['member_id'];
+    $order->total_score=$arr['total_score'];
+    $order->total_price=$arr['total_price'];
+    $order->date=time();
+    $order->order_num=substr($order->date,-5,-1).'-'.rand(1000,9999).'-'.rand(1000,9999);
+    $order->qrcode=md5($order->order_num.$order->member_id.time());
+    $order->order_stute=0;
+    	
+    $result=$this->dao->save($order);
+    $this->dao->commitTrans();
+    }catch(Exception $e){
+    	
+    	$this->dao->rollbackTrans();
+    }
+    
+    return $this->success($result);
+    }
+    
+    /*
+     * 获取会员订单
+     * param $arr eg: array('member_id'=>1)
+     * */
+    public function getmemberorder($arr){
+    	
+    	$result=$this->dao->getmemberorder($arr);
+    	$ordercommodityse=new OrdercommodityService();
+    	$result['detail']=$ordercommodityse->getorderdetail($result['id']);
+    	$result['date']=date('Y-m-d H:i:s',$result['date']);
+    	return $this->success($result);
+    }
+    
+    /*
+     * 根据订单号以及订单qrcode查询订单详情
+     * param $arr eg: array('order_num'=>'4440-4946-1521','qrcode'=>'df5b3db9cb21c30cf8cc24a6015257c3');
+     * */
+    public function gdetaibyqr($arr){
+    	$result=$this->dao->gdetaibyqr($arr);
+    	$ordercommodityse=new OrdercommodityService();
+    	$result['detail']=$ordercommodityse->getorderdetail($result['id']);
+    	$result['date']=date('Y-m-d H:i:s',$result['date']);
+    	return $this->success($result);
+    }
+    
+    /*
+     * 设置订单为已领取
+     * */
+    public function makeorderhaspay($arr){
+    	$this->dao->setorderpay($arr);
+    	return $this->success();
+    }
+}
+

@@ -1,0 +1,70 @@
+function Udesk() {
+	BaseFunc.call(this);
+	var self = this;
+	var count=60;
+	this.init = function() {//初始化页面
+		$(function(){
+			
+			self.cmd(gHttp,{controller:'Contact',method:'getContacts',flag:'udesk'},function(result1){
+				if(result1.statu){
+					if(result1.data.val!=""){						
+					$('#generate_udesk').attr('href',result1.data.val);
+					$('#generate_udesk').removeClass('hide');
+					}
+				}else{
+					$('#generate_udesk').hide();
+				}				
+			});
+
+			
+			$('div[id^="showmsg"]').on('mouseenter','a',function(){
+				var msg=$(this).attr('info');
+				layer.tips(msg, $(this), {
+					tips: [3, '#78BA32'],
+					time:3000
+				});
+			});
+
+			$('body').on('click','#setting_udesk',function(){
+				
+				var index=layer.open({
+					type: 1,
+					area: ['250px', '150px'],
+					fix: false, //不固定
+					maxmin: true,
+					shade:0.4,
+					title: '配置udesk',
+					content: '<input type="text" id="udeskurl" value="" size="40" style="margin-top: 30px;"/>',
+					btn: ['确定', '取消'],
+					yes:function(){
+						var url=$('#udeskurl').val();
+						if(url==""){
+							layer.msg('url不能为空');
+							return false
+						}
+						$('#generate_udesk').attr('href',url);
+						$('#generate_udesk').show();
+						layer.close(index);
+						self.cmd(gHttp,{controller:'Contact',method:'updatedesk',val:url},function(result1){			
+						});
+						
+					},
+					success:function(){
+						self.cmd(gHttp,{controller:'Contact',method:'getContacts',flag:'udesk'},function(result1){
+							if(result1.statu){
+								if(result1.data.val!=""){						
+								$('#udeskurl').val(result1.data.val);
+								}
+							}			
+						});
+					}
+				});
+			});
+
+			
+			
+			
+			
+		});
+	}	
+}

@@ -1,0 +1,125 @@
+<?php
+class NavgroupController extends Controller {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        $this->service = new NavgroupService();
+    }
+
+    /**
+     * 过滤(non-PHPdoc)
+     *
+     * @see Controller::filter()
+     */
+    function filter() {
+        $filterService = new FilterService();
+        $filterService->addFunc($filterService::$SQLINJECTION);
+        $filterService->addFunc($filterService::$WORKERISLOGIN);
+        $filterService->addFunc($filterService::$WORKERLOGHISTORY);
+
+        return $filterService->execute();
+    }
+    
+    /**
+     * 添加
+     */
+    function save() {
+    	$this->blindParams($navgroup = new Navgroup());
+    	$result = $this->service->save($navgroup);
+    	
+    	echo json_encode($result);
+    }
+    
+    /**
+     * 编辑
+     */
+    public function edit() {
+        $this->blindParams($navgroup = new Navgroup());
+        $result = $this->service->update($navgroup);
+
+        echo json_encode($result);
+    }
+    
+    /**
+     * 查询(导航组)
+     */
+    public function queryGroup() {
+        $result    = $this->service->queryGroup($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+    
+    /**
+     * 查询(组成员)
+     */
+    public function getGroup(){
+        $result    = $this->service->getGroup($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+
+        echo json_encode(array(
+            'rows' => $result->data,
+            'ttl' => $totalRows->data
+        ));
+    }
+    
+    /**
+     * 删除(导航组)
+     */
+    public function delGroup() {
+        if (is_array($_REQUEST['id'])) {
+            $navgroups = $_REQUEST['id'];
+        } else {
+            $navgroups = array(
+                $_REQUEST['id']
+            );
+        }
+        $result = $this->service->deleteBatch($navgroups);
+        echo json_encode($result);
+    }
+    
+    /**
+     * 删除(组成员)
+     */
+    public function delete(){
+        if (is_array($_REQUEST['id'])) {
+            $navgroups = $_REQUEST['id'];
+        } else {
+            $navgroups = array(
+                $_REQUEST['id']
+            );
+        }
+        $result = $this->service->deleteInfo($navgroups);
+        echo json_encode($result);
+    }
+    
+    /**
+     * 通过ID查询记录
+     */
+    public function get(){
+        $this->blindParams($navgroup = new Navgroup());
+        $result = $this->service->get($navgroup);
+		if( $result->data->pic != '' ){
+			$result->data->src  = UPLOAD . $result->data->pic;
+		}
+        echo json_encode($result);
+    }
+    
+    /**
+     * 通过组ID查询该组所有成员
+     */
+    public function getByGroup(){
+        $result = $this->service->getGroup($_REQUEST);
+        echo json_encode($result);
+    }
+    
+
+}
+

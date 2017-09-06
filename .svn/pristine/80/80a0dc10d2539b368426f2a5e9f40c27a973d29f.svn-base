@@ -1,0 +1,46 @@
+<?php
+
+/*
+ * 意见建议模块
+ * */
+if (!defined('Boyiweb')) {
+	die('Illegal Access');
+}
+
+//ini_set("display_errors", true);
+include_once ABSPATH.'/mod/Mod.php';
+
+class Feedbacks extends Mod{
+	
+	public function __construct() {
+		
+		parent::__construct();
+		$this->excute();
+	}
+	
+	public function index() {
+	
+		$this->smarty->display( 'feedback/index'.SUBFIX);
+	}
+	
+	/**
+	 *搜索页
+	 */
+	public function add() {
+		if(isset($_SESSION['user'])&&strlen($_SESSION['user'])>0){
+			$_REQUEST['name']=$_SESSION['user'];
+		}
+		$entity = new Feedback();
+		foreach ($entity as $key => $value) {
+			if (isset($_REQUEST[$key])) {
+				$entity->$key = $_REQUEST[$key];
+			}
+		}
+		$ser = new FeedbackService();
+		$result = $ser->save($entity);
+		echo json_encode($result);
+	}
+	
+	
+}
+new Feedbacks();

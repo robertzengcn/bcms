@@ -1,0 +1,12 @@
+@charset "utf-8";
+/* 你自己的样式 */
+
+
+.portfolio-content a{ text-decoration:none;}
+.portfolio-content .page_attr_T {position: relative;margin: auto;height: 30px;width: 100%;line-height: 30px;font-family: "microsoft yahei" importent;font-size: 14px;text-align:center;margin-top: -28px;border-radius: 3px;background-color:#ccc; color:#666}
+
+.portfolio-content .hover .page_attr_T {background-color:#3bb4f2;color: #FFFFFF;}
+/*H-ui.admin.css 样式*/
+
+.portfolio-area li .portfoliobox{ position: absolute; top: 0; left: 0; width: 152px; height: 152px;/*padding:5px;*/border: solid 2px #ccc; background-color: #fff; border-radius:5px;}
+.portfolio-area li .hover .portfoliobox{ height:auto;/*padding-bottom:10px;*/box-shadow:0 0 3px #3bb4f2;-moz-box-shadow:0 0 3px #3bb4f2;-webkit-box-shadow:0 0 3px #3bb4f2; border-color:#222;}

@@ -1,0 +1,90 @@
+ <!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>申请加号-预约挂号</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" name="adddata" id="saveNewPosition">
+		<div class="row cl">
+			<label class="form-label col-3">所属科室：</label>
+			<div id="departmentName" class="formControls col-5"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-3">姓名：</label>
+			<div id="doctorName" class="formControls col-5"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-3">出诊日期：</label>
+			<div id="visitDate" class="formControls col-5"></div>			
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-3">出诊时间段：</label>
+			<div class="formControls col-3"> <span class="select-box">
+				<select name="visitTime" plugin="jqtransform" id="visitTime" class="select" onchange="AddNewPosition.setSource(this.value);"></select>
+				</span> </div>			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-3"><span class="c-red">*</span>原有号源：</label>
+			<div class="formControls col-3">
+				<input type="text" class="input-text text-c" value="" placeholder="" id="beforeNum" name="beforeNum" disabled="disabled" style="width:30px;"/>
+			</div>			
+		</div>	
+		<div class="row cl">
+			<label class="form-label col-3"><span class="c-red">*</span>追加号源：</label>
+			<div class="formControls col-1">
+				<input type="text" class="input-text text-c" value="" placeholder="0" id="addnum" name="addNum" datatype="INTS" errormsg="限大于0的整数,无需加号直接关闭" nullmsg="新增号源不能为空" info="请输入需要补加的号源个数，限整数"  style="width:30px;"/>
+			</div>
+			<div class="col-4"> </div>
+		</div>
+		<div style="width:100%;height:50px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-1">
+				<button class="btn btn-primary radius bt-normal" type="button" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存</button>	
+			</div>
+		</div>
+		<input type="hidden" id="dataid" name="id" value=""/>
+		<input type="hidden" id="timeType" name="timeType" value=""/>
+		<input type="hidden" id="morning_source" name="morning_source" value=""/>
+		<input type="hidden" id="morning_now" name="morning_now" value=""/>
+		<input type="hidden" id="afternoon_source" name="afternoon_source" value=""/>
+		<input type="hidden" id="afternoon_now" name="afternoon_now" value=""/>
+		<input type="hidden" id="night_source" name="night_source" value=""/>
+		<input type="hidden" id="night_now" name="night_now" value=""/>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation.js"></script>
+<script type="text/javascript">
+var AddNewPosition = new Reservation();
+AddNewPosition.setThisName('AddNewPosition');
+AddNewPosition.addnewposition();
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+{{device id=$id assign="device"}}
+  <div id="breadcrumb"><span>当前位置：<a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> > <a href="{{$WEBSITE}}{{$HTMLURL}}">先进设备</a> >
+    <a>{{$device->subject}}</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+    <div class="par-main">
+      <h2><span>设备内容</span></h2>
+      <div class="device_par">
+        <h3>{{$device->subject}}</h3>
+        <div><img width="200" height="200" src="{{$UPLOAD}}/{{$device->pic}}"></div>
+      </div>   
+      <div class="device_par_content">
+          {{$device->content}}
+      </div>
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

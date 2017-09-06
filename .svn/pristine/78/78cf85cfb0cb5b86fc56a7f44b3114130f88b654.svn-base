@@ -1,0 +1,327 @@
+<?php
+include './HM.php';
+class Submit extends HM {
+	
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	/**
+	 * hm客户端添加医院新闻接口
+	 * @information_title 新闻标题
+	 * @information_picture 新闻二进制图片
+	 * @information_body 新闻内容
+	 */
+	protected function __add_news(){
+		$information_title   = isset($_REQUEST['information_title']) ? $_REQUEST['information_title'] : '';
+		$information_picture = isset($_REQUEST['information_picture']) ? $_REQUEST['information_picture'] : '';
+		$information_body    = isset($_REQUEST['information_body']) ? $_REQUEST['information_body'] : '';
+		if($information_title == '' || $information_body == ''){
+			$this->__msg(1,'新闻标题与新闻内容不能为空!',null);
+		}
+		$news = new News();
+		$news->subject = $information_title;
+		$news->pic     = $this->__get_picurl($information_picture,'news');
+		$news->content = $this->__get_contentpicUrl($information_body,'news');
+		$news->title   = $information_title;
+		$news->keywords     = $information_title;
+		$news->description  = $information_title;
+		$news->plushtime    = time();
+		$news->isbidding    = 0;
+		$news->source       = '';
+		$service = new NewsService();
+		$service->save($news);
+		$this->__msg(0,'医院新闻添加成功!',null);
+	}
+	/**
+	 * hm客户端添加媒体报道接口
+	 * @information_title 媒体报道标题
+	 * @information_picture 媒体报道二进制图片
+	 * @information_body 媒体报道内容
+	 */
+	protected function __add_mediareport(){
+		$information_title   = isset($_REQUEST['information_title']) ? $_REQUEST['information_title'] : '';
+		$information_picture = isset($_REQUEST['information_picture']) ? $_REQUEST['information_picture'] : '';
+		$information_body    = isset($_REQUEST['information_body']) ? $_REQUEST['information_body'] : '';
+		if($information_title == '' || $information_body == ''){
+			$this->__msg(1,'媒体报道标题与媒体报道内容不能为空!',null);
+		}
+		$media = new MediaReport();
+		$media->subject = $information_title;
+		$media->pic     = $this->__get_picurl($information_picture,'media');
+		$media->content = $this->__get_contentpicUrl($information_body,'media');
+		$media->title   = $information_title;
+		$media->keywords     = $information_title;
+		$media->description  = $information_title;
+		$media->plushtime    = time();
+		$media->source       = '';
+		$service = new MediaReportService();
+		$service->save($media);
+		$this->__msg(0,'媒体报道添加成功!',null);
+	}
+	/**
+	 * hm客户端添加医院荣誉接口
+	 * @information_title 医院荣誉标题
+	 * @information_picture 医院荣誉二进制图片
+	 * @information_body 医院荣誉内容
+	 */
+	protected function __add_honor(){
+		$information_title   = isset($_REQUEST['information_title']) ? $_REQUEST['information_title'] : '';
+		$information_picture = isset($_REQUEST['information_picture']) ? $_REQUEST['information_picture'] : '';
+		$information_body    = isset($_REQUEST['information_body']) ? $_REQUEST['information_body'] : '';
+		if($information_title == '' || $information_body == '' || $information_picture == ''){
+			$this->__msg(1,'图片不能为空!',null);
+		}
+		$honor = new Honor();
+		$honor->subject = $information_title;
+		$honor->pic     = $this->__get_picurl($information_picture,'honor');
+		$honor->content = $this->__get_contentpicUrl($information_body,'honor');
+		$honor->title   = $information_title;
+		$honor->keywords     = $information_title;
+		$honor->description  = $information_title;
+		$honor->plushtime    = time();
+		$honor->tag    		 = '';
+		$service = new HonorService();
+		$service->save($honor);
+		$this->__msg(0,'医院荣誉添加成功!',null);
+	}
+	/**
+	 * hm客户端添加医院环境接口
+	 * @information_title 医院荣誉标题
+	 * @information_picture 医院荣誉二进制图片
+	 * @information_body 医院荣誉内容
+	 */
+	protected function __add_environment(){
+		$information_title   = isset($_REQUEST['information_title']) ? $_REQUEST['information_title'] : '';
+		$information_picture = isset($_REQUEST['information_picture']) ? $_REQUEST['information_picture'] : '';
+		$information_body    = isset($_REQUEST['information_body']) ? $_REQUEST['information_body'] : '';
+		if($information_title == '' || $information_body == '' || $information_picture == ''){
+			$this->__msg(1,'图片不能为空!',null);
+		}
+		$environment = new Environment();
+		$environment->subject = $information_title;
+		$environment->pic     = $this->__get_picurl($information_picture,'environment');
+		$environment->content = $this->__get_contentpicUrl($information_body,'environment');
+		$environment->title   = $information_title;
+		$environment->keywords     = $information_title;
+		$environment->description  = $information_title;
+		$environment->plushtime    = time();
+		$environment->tag          = '';
+		$service = new EnvironmentService();
+		$service->save($environment);
+		$this->__msg(0,'医院环境添加成功!',null);
+	}
+	/**
+	 * hm客户端添加医院设备子接口
+	 * @information_title 医院荣誉标题
+	 * @information_picture 医院荣誉二进制图片
+	 * @information_body 医院荣誉内容
+	 */
+	protected function __add_device(){
+		$information_title   = isset($_REQUEST['information_title']) ? $_REQUEST['information_title'] : '';
+		$information_picture = isset($_REQUEST['information_picture']) ? $_REQUEST['information_picture'] : '';
+		$information_body    = isset($_REQUEST['information_body']) ? $_REQUEST['information_body'] : '';
+		if($information_title == '' || $information_body == '' || $information_picture == ''){
+			$this->__msg(1,'图片不能为空!',null);
+		}
+		$device = new Device();
+		$device->subject = $information_title;
+		$device->pic     = $this->__get_picurl($information_picture,'device');
+		$device->content = $this->__get_contentpicUrl($information_body,'device');
+		$device->title   = $information_title;
+		$device->keywords     = $information_title;
+		$device->description  = $information_title;
+		$device->plushtime    = time();
+		$device->tag          = '';
+		$service = new DeviceService();
+		$service->save($device);
+		$this->__msg(0,'医院设备添加成功!',null);
+	}
+	protected function __add_article(){
+		$information_title   = isset($_REQUEST['information_title']) ? $_REQUEST['information_title'] : '';
+		$information_picture = isset($_REQUEST['information_picture']) ? $_REQUEST['information_picture'] : '';
+		$information_body    = isset($_REQUEST['information_body']) ? $_REQUEST['information_body'] : '';
+		if($information_title == '' || $information_body == ''){
+			$this->__msg(1,'资讯标题或资讯内容不能为空!',null);
+		}
+		$article = new Article();
+		$article->subject = $information_title;
+		$article->pic     = $this->__get_picurl($information_picture,'article');
+		$article->source  = '';
+		$article->content = $this->__get_contentpicUrl($information_body,'article');
+		$article->click_count = rand(10,150);
+		$article->title    = $information_title;
+		$article->keywords = $information_title;
+		$article->description = $information_title;
+		$article->plushtime   = time();
+		$article->isbidding     = 0;
+		$article->department_id = 1;
+		$article->disease_id    = 1;
+		$article->is_top        = 0;
+		$article->worker_id     = 0;
+		$article->relation      = 0;
+		$article->doctor_id     = 0;
+		$_REQUEST['tags']       = '';
+		@session_start();
+		$service = new ArticleService();
+		$service->save($article);
+		$this->__msg(0,'资讯文章添加成功!',null);
+	}
+	/**
+	 * hm预留获取科室信息接口
+	 */
+	protected function __get_department(){
+		$services = new DepartmentService();
+		$getDepartments = $services->getDepartments();
+		$diseaseService = new DiseaseService();
+		if( is_array( $getDepartments->data ) ) {
+			$data = array();
+			foreach ( $getDepartments->data as $key => $value ){
+				$result = $diseaseService->getByDepartmentID($value->id);
+				if( count($result->data) >= 1 ){
+					foreach ($result->data as $k => $v){
+						unset($result->data[$k]->url);
+						unset($result->data[$k]->title);
+						unset($result->data[$k]->keywords);
+						unset($result->data[$k]->description);
+						unset($result->data[$k]->tplurl);
+						unset($result->data[$k]->pic);
+						unset($result->data[$k]->department_id);
+						unset($result->data[$k]->layer);
+						unset($result->data[$k]->parentId);
+						unset($result->data[$k]->parent_id);
+					}
+				}
+				$getDepartments->data[$key]->disease = $result->data;
+				unset($getDepartments->data[$key]->url);
+				unset($getDepartments->data[$key]->title);
+				unset($getDepartments->data[$key]->keywords);
+				unset($getDepartments->data[$key]->description);
+				unset($getDepartments->data[$key]->tplurl);
+			}
+			die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$getDepartments->data ) ) );
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'科室列表为空!','data'=>null ) ) );
+		}
+	}
+	
+	public function __add_pic(){
+		//接受文件类型
+		$fileType = $_REQUEST['picType'];
+		switch( strtolower( $fileType ) ){
+			case 'add_news':$dirUrl = 'news';break;
+			case 'add_mediareport':$dirUrl = 'mediareport';break;
+			case 'add_honor':$dirUrl = 'honor';break;
+			case 'add_device':$dirUrl = 'device';break;
+			case 'add_environment':$dirUrl = 'environment';break;
+			case 'add_article':$dirUrl = 'article';break;
+			default:$dirUrl = 'article';break;
+		}
+		//接受文件流
+		if( isset( $_POST['picFile'] ) ){
+			$url = $this->__get_picurl( $_POST['picFile'] , $dirUrl );
+			if( $url != '' ){
+				die( json_encode( array('code'=>0,'msg'=>'success','picUrl'=>UPLOAD . $url) ) );
+			}else{
+				die( json_encode( array('code'=>1,'msg'=>'图片上传失败','picUrl'=>'') ) );
+			}
+		}else{
+			die( json_encode( array('code'=>1,'msg'=>'没有上传任何图片','picUrl'=>'') ) );
+		}
+	}
+	
+	/**
+	 * 二进制图片添加功能
+	 * @param unknown $picData 二进制信息
+	 * @param unknown $dirUrl 图片保存文件夹
+	 * @return string || ''
+	 */
+	private function __get_picurl($picData,$dirUrl){
+		if( mb_substr( strtolower( trim( $picData ) ) , 0, 4) == 'http' ){
+			$dir = GENERATEPATH . 'upload/';
+			$url = $dirUrl.'/'.$dirUrl.'_'.time().'.jpg';
+			@copy($picData, $dir.$url);
+			return $url;
+		}
+		if( $picData != '' ){
+			$deData = base64_decode($picData);
+			$imgHand = imagecreatefromstring($deData);
+			if ($imgHand !== false) {
+				$dir = GENERATEPATH . 'upload/';
+				$url = $dirUrl.'/'.$dirUrl.'_'.time().'.jpg';
+				imagepng($imgHand,$dir.$url);
+				return $url;
+			}else{
+				return '';
+			}
+		}
+		return '';
+	}
+	
+	/**
+	 * 内容图片解析功能
+	 * @param unknown $contentData 信息内容
+	 * @param unknown $dirUrl 图片保存文件夹
+	 * @return string || ''
+	 */
+	private function __get_contentpicUrl($contentData,$dirUrl){
+		$mol = '#face:(.*)-end#iUs';
+		preg_match_all($mol, $contentData,$arrays);
+		if( count( $arrays[1] ) >= 1 ){
+			foreach ( $arrays[1] as $key => $value ){
+				$hand  = base64_decode($value);
+				$im    = imagecreatefromstring($hand);
+				$pic   = $dirUrl . '/'.$dirUrl.'_'.time().rand(1000000,9999999).'.jpg';
+				$img   = GENERATEPATH . 'upload/' . $pic;
+				$img2  = NETADDRESS . '/upload/' . $pic;
+				imagepng($im,$img);
+				$contentData = str_replace('face:'.$value.'-end','<img alt="" src="'.$img2.'" />',$contentData);
+			}
+		}
+		return $contentData;
+	}
+	
+	protected function __get_statistics(){
+		#.取出头尾两条数据,判断出初始时间跟结束时间
+		$statistics = new StatisticsLogService();
+		$firstInfo = R::findOne('statisticslog','order by id asc limit 1');//首条
+		$lastInfo  = R::findOne('statisticslog','order by id desc limit 1');//尾条
+		$firstDate = date('Y-m-d 00:00:00',$firstInfo->visittime);
+		$lastDate  = date('Y-m-d 00:00:00',$lastInfo->visittime);
+		#.取出中间日期差额
+		$days = round((strtotime($lastDate)-strtotime($firstDate))/3600/24);
+		//$days = 20;
+		#.循环日期差额,进行补差工作
+		$data = array();
+		for($i=0;$i<=$days;$i++){
+			$bt = strtotime($firstDate) + $i * 24 * 60 * 60;
+			$et = $bt + 86400 - 1;
+			$dateInfo = R::findAll('statisticslog',"visittime >= '".$bt."' and visittime <= '".$et."'");
+			$data[$i]['date'] = date('Y-m-d',$bt);
+			$data[$i]['nums'] = (int)count($dateInfo);
+		}
+		$data = array_reverse( $data );
+		#.进行分页
+		$page  = isset( $_REQUEST['page'] ) && $_REQUEST['page'] >=1 ? $_REQUEST['page'] : 1;
+		$rows  = isset( $_REQUEST['rows'] ) && $_REQUEST['rows'] >=1 ? $_REQUEST['rows'] : 10;
+		$limit = ( $page - 1 ) * 10 . ',' . $rows;
+		$begin = ( $page - 1 ) * 10;
+		$end   = $begin + $rows;
+		#.进行分页截取
+		foreach ( $data as $key => $value ){
+			if( $key >= $begin && $key < $end ){
+				
+			}else{
+				unset($data[$key]);
+			}
+		}
+		#.输出
+		$ddata = array();
+		foreach ($data as $k => $v){$ddata[] = $v;}
+		//$ddata = array_reverse( $ddata );
+		die( json_encode( array( 'code'=>0,'msg'=>'','data'=>$ddata ) ) );
+	}
+	
+	
+}
+new Submit();

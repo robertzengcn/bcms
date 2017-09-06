@@ -1,0 +1,48 @@
+<meta charset="utf-8">
+<head>
+<title>上传疾病模版</title>
+</head>
+<div class="pageContent pageHeader">
+<form id="disease_edit" class="pageForm required-validate" method="post" enctype="multipart/form-data">
+<input type="hidden" name="flag" value="<?php echo($_GET['flag']) ?>">
+<input type="hidden" name="fileurl" value="<?php echo($_GET['fileurl']) ?>">
+<input type="hidden" name="fileupload" value="<?php echo($_GET['fileupload']) ?>">
+<input type="file" title="文件上传" name="fileupload"/>
+    <input type="submit" name="submit" value="提交"/>
+</form>
+</div>
+<?php
+require '../../web-setting.php';
+if(isset($_POST['submit'])){
+    $flag    = $_POST['flag'];
+    $fileurl = $_POST['fileurl'];
+    $before  = $_POST['fileupload'];
+
+    if(!file_exists(GENERATEPATH.'tpldir')){
+        mkdir(GENERATEPATH.'tpldir');
+    }
+    if(!file_exists(GENERATEPATH.'tpldir/'.$flag.'/')){
+        mkdir(GENERATEPATH.'tpldir/'.$flag);
+    }
+    $filename = explode('.',$_FILES['fileupload']['name']);
+    $suffixes = '.'.end($filename);
+    if($suffixes != SUBFIX ){
+        echo("文件格式不对，请上传".SUBFIX."文件");
+    }else{
+    	$tplUrl     = 'tpldir/'.$flag.'/'.$fileurl.SUBFIX;
+        $uploadfile = GENERATEPATH . $tplUrl;
+        if($before!=$tplUrl){
+            unlink(GENERATEPATH.$before);
+        }
+        if(move_uploaded_file($_FILES['fileupload']['tmp_name'], $uploadfile)){
+        	echo("<script>window.opener.document.getElementById('btn_fileupload').setAttribute('src','./public/img/cxsc.jpg');</script>");
+        	echo("<script>window.opener.document.getElementById('a_filedelete').style.display = 'inline-block';</script>");
+        	echo("<script>window.opener.document.getElementById('span_fileupload').innerHTML = '已上传模版文件,模版路径：".$tplUrl."  ';</script>");
+
+            echo("<script>window.opener.document.getElementById('fileupload').value='$tplUrl';</script>");
+            echo("<script>window.close();</script>");
+        }else{
+            echo("文件上传失败");
+        }
+    }
+}

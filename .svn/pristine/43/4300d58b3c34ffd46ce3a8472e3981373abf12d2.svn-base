@@ -1,0 +1,34 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+class Message extends Entity{
+	var $id;
+	var $fromusername;
+	var $msgid;
+	var $msgtype;
+	var $content;
+	var $picurl;
+	var $mediaid;
+	var $thumbmediaid;
+	var $label;
+	var $format;
+	var $isreply;
+	var $createtime;
+	var $tag;
+	
+	public function validate(){
+		if (strlen($this->fromusername) == 0){
+			throw new Exception('openid不能为空');
+		}
+		if (strlen($this->msgid) == 0){
+			throw new Exception('信息id不能为空');
+		}else{
+			$re = $this->isNum($this->msgid);
+			if(!$re){
+				throw new Exception('信息id格式错误');
+			}
+		}
+		if(strlen($this->msgtype) == 0){
+			throw new Exception('信息类型不能为空');
+		}
+	}
+}

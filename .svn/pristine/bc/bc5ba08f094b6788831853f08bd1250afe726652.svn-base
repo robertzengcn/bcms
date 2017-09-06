@@ -1,0 +1,166 @@
+<?php
+/**
+ * 处理返回值
+ * */
+function formatReturnData($data, $content) {
+    if (empty($data)) {
+        return '';
+    }
+    
+    if (is_string($data)) {
+    	return $data;
+    }
+    
+    if (is_object($data)) {
+        $data = array($data);
+    }
+    
+    if (is_array($data) && !isset($data[0])) {
+    	$data = array($data);
+    }
+    
+    //需要特殊处理的字段
+    preg_match_all("/\[(.*?)\/\]/", $content, $matches);
+    $specialArr = array();
+    if (isset($matches[1]) && !empty($matches[1])) {
+        foreach ($matches[1] as $field) {
+        	$arr = explode('|', $field);
+        	if (count($arr) > 1 && !empty($arr[1])) {
+        	    $key = trim(array_shift($arr));
+        	    foreach ($arr as $f) {
+        	        if (strpos($f, 'function') === false) {
+        	            $specialArr[$key][] = $f;
+        	        } else {
+        	            $fArr = explode("function", $f);
+        	            $specialArr[$key][] = trim(array_shift($fArr));
+        	            foreach ($fArr as $fun) {
+        	                $specialArr[$key][] = 'function' . trim($fun);
+        	            }
+        	        }
+        	    }
+        	} else {
+        	    $arr = explode('function', $field);
+        	    $arr = array_filter($arr);
+        	    if (count($arr) > 1 && !empty($arr[1])) {
+        	        $key = trim(array_shift($arr));
+            	    foreach ($arr as $f) {
+            	        $specialArr[$key][] = 'function' . trim($f);
+            	    }
+        	    }
+        	}
+        } 
+    }
+    
+    //开始处理
+    $str = '';
+    foreach ($data as $row) {
+        $tmp = $content;
+        $row = (array)$row; //将redbean对象转化成数组
+        $fieldName = array_keys($row); //取得字段名
+        foreach ($fieldName as $name) {
+            if ($name == 'plushtime' && is_numeric($name)) {
+                $row[$name] = date('Y-m-d H:i:s', $row[$name]);
+            }
+            
+            if ($name == 'addtime' && is_numeric($name)) {
+                $row[$name] = date('Y-m-d H:i:s', $row[$name]);
+            }
+            
+            if (isset($specialArr["field:{$name}"])) {
+            	//需要特殊处理的字段
+                $row[$name] = formatSpecialField($specialArr["field:{$name}"], $row[$name]);
+            }
+            
+            $tmp = preg_replace("/\[field:" . $name . "(.*?)\/\]/", $row[$name], $tmp);
+        }
+        
+        $str .= $tmp;
+    }
+    
+    return $str;
+}
+
+/**
+ * 格式化由function标签过来的参数集合
+ * */
+function formatFuncParams($params,&$order, &$limit, &$where, &$field) {
+    $tag = array (
+        'field',
+        'order',
+        'limit',
+        'assign'
+    );
+    $where=array();
+    foreach ( $params as $key => $v ) {
+        if (! in_array ( $key, $tag ) && ! empty ( $v ))
+        {
+            $where [$key] = $v;
+        }
+    }
+    
+    $field = empty ( $params ['field'] ) ? "*" : $params ['field'];
+    $order = empty ( $params ['order'] ) ? "id desc" : $params ['order'];
+    $limit = empty ( $params ['limit'] ) ? "10" : $params ['limit'];
+    
+    return true;
+}
+
+/**
+ * 特殊字段的特殊处理
+ * */
+function formatSpecialField($fields = array(), $rowStr) {
+	if (empty($fields)) {
+		return $rowStr;
+	}
+	foreach ($fields as $field) {
+	    $field = str_replace('"', '', $field);
+	    if (strpos($field, 'date_format') !== false) {
+	        //字段中有冒号，所以要特殊处理
+	        $arr = explode('date_format:', $field);
+	        $special = array('date_format', $arr[1]);
+	    } else if (strpos($field, 'function') !== false) {
+	        $arr = explode('function=', $field);
+	        $special = array('function', $arr[1]);
+	    } else {
+	        $special = explode(':', $field);
+	    }
+	    
+	    //日期格式化
+	    if ($special[0] == 'date_format') {
+	        $rowStr = smarty_modifier_date_format($rowStr, $special[1]);
+	    }
+	    
+	    //字段中文截取
+	    if ($special[0] == 'length') {
+	        $rowStr = smarty_modifier_truncate($rowStr, intval($special[1]));
+	    }
+	    
+	    //字段英文截取
+	    if ($special[0] == 'substr') {
+	        $rowStr = substr($rowStr, 0, $special[1]);
+	    }
+	    
+	    //自定义函数
+	    if ($special[0] == 'function') {
+	        $str = str_replace('@me', '$rowStr', $special[1]);
+	        $str = '$rowStr=' . $str;
+	        eval($str . ";");
+	    }
+	}
+	
+	return $rowStr;
+}
+
+function GetDateMk($value, $format = 'Y-m-d') {
+    $date = smarty_modifier_date_format($value, $format);
+    return $date;
+}
+
+function MyDate($format = 'Y-m-d', $value) {
+    $date = smarty_modifier_date_format($value, $format);
+    return $date;
+}
+
+//增加手机推荐位
+//问答是否显示
+?>

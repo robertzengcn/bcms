@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * 专题(Topic)DAO
+ *
+ * @author Administrator
+ *
+ */
+class TopicDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_TOPIC;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::eq('disease_id', $where);
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('subject', $where);
+        DTExpression::page($where);
+        DTOrder::desc('id');
+
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::eq('disease_id', $where);
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('subject', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 根据id数组获取数据
+     *
+     * @return Ambigous <multitype:, Topic>
+     */
+    public function getByIds() {
+        $ids = (isset($_REQUEST['ids']) && $_REQUEST['ids'] != '') ? $_REQUEST['ids'] : array();
+        $result = $this->getBatch($ids);
+
+        $topics = array();
+        foreach ($result as $key => $value) {
+            if ($value->id != 0) {
+                $topic = new Topic();
+                $topic->generateFromRedBean($value);
+                $topics[] = $topic;
+            }
+        }
+        return $topics;
+    }
+
+
+    /**
+     * 获取专题模板列表
+     *
+     */
+    public function getpicList(){
+        $result = R::findAll('topic_list','',array());
+        $res=array();
+        foreach($result as $key =>$value){
+            $topic =new Topic();
+            $topic->generateFromRedBean($value);
+            $res[$key]['id']  = $topic->id;
+            $res[$key]['name']= $topic->name;
+            $res[$key]['url'] = $topic->url;
+        }
+        return $res;
+    }
+
+
+    /**
+     *
+     * 获取模板路径
+     */
+
+    public  function gethtml($topicid){
+        $result =R::findOne('topic_list','id='.$topicid,array());
+        return $result->url;
+    }
+    
+    /**
+     * 删除专题模版
+     */
+    public function deleteHtml($topicid){
+    	$bean = R::load( 'topic_list' , $topicid );
+    	return R::trash($bean);
+    }
+    
+    /**
+     * 保存专题模板
+     */
+
+    public  function uploadTpl($filepath,$filename){
+        $result = R::exec('insert into topic_list(name,url) value("'.$filename[0].'","'.$filepath.'")');
+        if($result){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    /**
+     * 通过url获取id
+	 * @return id
+     */	
+    public function getTopicIdByUrl($url) {
+		$info = R::getRow("SELECT id, link FROM ".$this->tableName." WHERE url='".$url."'");
+		return	$info;
+	}
+}

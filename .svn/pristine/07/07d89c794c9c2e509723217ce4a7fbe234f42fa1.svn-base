@@ -1,0 +1,18 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class VotePrize extends Entity {
+
+  var $id;
+  var $name;
+  var $prize_count;
+  var $prize_position;
+  var $voteid;
+  var $img;
+  var $prize_num1;
+  var $prize_num2;
+  var $takeway;
+  var $type;
+    public function validate() {
+    }
+}

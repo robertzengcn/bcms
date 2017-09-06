@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>专题模板管理</title>
+</head>
+<body>
+<div class="pd-20">	
+	<div id="tab-category" class="HuiTab">
+		<div class="tabBar cl"><span>本地模板</span><span>在线模板</span><span>上传模板</span></div>
+		<div class="tabCon">
+			<div class="template-content">
+				<ul class="cl template-area" id="local_topic_unitBox"></ul>
+			</div>
+		</div>
+		<!--本地模板-->
+		<div class="tabCon">
+			<div class="template-content">
+				<ul class="cl template-area" id="remote_unitBox"></ul>
+			</div>
+		</div>
+		<!--在线模板-->
+		<div class="tabCon">
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="c-red">*</span><b>说明：</b></label>
+				<div class="formControls col-10"></div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">1</span></label>
+				<div class="formControls col-10 ml-5">模版安装包格式为zip后缀格式文件包</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">2</span></label>
+				<div class="formControls col-10 ml-5">安装包内必须存在config.xml配置文件,配置必须项目如下：
+				<br/>
+				<span class="badge badge-secondary  radius">A</span>&nbsp;&nbsp;Name：专题英文名称（拼音也可）
+				<br/>
+				<span class="badge badge-secondary  radius">B</span>&nbsp;&nbsp;config.xml -> Title：专题中文名称
+				<br/>
+				<span class="badge badge-secondary  radius">C</span>&nbsp;&nbsp;Htpl：模版文件名称（如:index.htpl,请放置包内的根目录下）
+				</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">3</span></label>
+				<div class="formControls col-10 ml-5">模版安装包大小不能超过运行环境最大上传限制。</div>
+			</div>
+			<div class="row cl pd-5">
+				<label class="form-label col-2 text-r"><span class="badge badge-primary  radius">4</span></label>
+				<div class="formControls col-10 ml-5">最大上传文件被限制为：<span id="post_max_value"></span>，若模板包大小超过该限制请修改PHP上传限制，重启apache服务</div>
+			</div>
+			<div style="width:100%;height:10px;clear:both;"></div>
+			<div class="row cl pd-5">
+				<div class="col-10 col-offset-1" id="uploaderDiv">
+				    <div id="uploader" class="wu-example">
+					    <!--用来存放文件信息-->
+					    <div id="thelist" class="uploader-list"></div>
+					    <div class="btns">
+					    </div>
+					</div>
+				</div>
+				
+				<div class="col-10 col-offset-1" id="progressDiv" style="display:none;">
+					<input type="hidden" id="template_upload_url">
+					<p class="trip">模版安装包上传完成,是否进行安装操作？</p>
+					<button onClick="gTopic.templateZipInstall();" class="btn btn-success radius" type="button"><i class="Hui-iconfont">&#xe615;</i> 安装</button>	
+					<button onClick="gTopic.templateZipDelete();" class="btn btn-default radius" type="button"><i class="Hui-iconfont">&#xe631;</i> 删除</button>			
+				</div>
+			</div>
+		</div>
+		<!--上传模板-->
+	</div><!--HuiTab over-->	
+</div>
+<div class="pos-f pof-floating">
+    <ul>
+   		<a href="javascript:;" onClick="gTopic.openAdd('数据批量替换','../shortcuts/replacement-data.html','900','500')"><li class="floating1"></li></a>       
+        <a href="javascript:;" onClick="window.scrollTo(0,0);return false"><li class="floating4"></li></a>
+    </ul>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script>
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/topic.js"></script>
+<script type="text/javascript">
+var gTopic = new Topic();
+gTopic.setThisName('gTopic');
+gTopic.init();
+
+</script>
+</body>
+</html>

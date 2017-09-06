@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>体重测试_身体消瘦的原因</title>
+<meta name="keywords" content="体重测试_身体消瘦的原因" />
+<meta name="description" content="体重测试_身体消瘦的原因" />
+<meta name="applicable-device" content="mobile">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0" name="viewport" />
+<link rel="stylesheet" href="../public/css/base.css?v=20160701">
+<link rel="stylesheet" href="../public/css/jk.css?v=20160701">
+<script type="text/javascript" src="../public/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript">
+$(function(){
+	bztz.article();
+});
+</script>
+</head>
+<body>
+<header class="clearfix">
+  <a href="javascript:history.go(-1)" class="icons head_back"></a>
+  <h2>身体消瘦的原因</h2>
+</header>
+		<section>
+			<article class="articlebox">
+				<p> 1、从病理角度上说，消化系统疾病、糖尿病、甲状腺机能亢进、肝炎、肾病等许多疾病都可引起身体消瘦；久病体虚，营养不良也可引起消瘦。</p>
+      <p>2、体质、遗传因素，有些身体消瘦者，到医院检查没有发现任何疾病，平日也能正常工作，身体基本无不适表现。这些人的消瘦可能与体质、遗传因素有关，如父母属消瘦体型，子女大多消瘦。</p>
+      <p>3、生活和饮食习惯的因素：有很大一部分的消瘦者是饮食及生活习惯不科学导致的。饮食摄入不足，饮食调配不合理，进餐不规律，学习工作压力大，焦虑，精神紧张，过度疲劳，睡眠不佳等都会导致消瘦。</p>
+			</article>	
+		</section>
+       <section class="advisevtbox">
+		   <p><span>提醒：</span>有上述类似症状，咨询专家获取专业诊断！</p>
+			<div class="askbuttom">
+				<a href="#" id="swtlink">咨询专家</a>
+			</div>			
+		</section>
+</body>
+</html>

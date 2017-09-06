@@ -1,0 +1,2084 @@
+$.fn.getHtml = function(tpl,fun){
+	var http = './';
+	var me = $(this);
+	$.ajax({
+		url:http+tpl+'.html',
+		type:'get',
+		dateType:'html',
+		cache:false,
+		success:function(re){
+			me.html(re);
+			fun();
+		}
+	});
+};
+
+document.onkeydown=function(event){
+    var e = event || window.event || arguments.callee.caller.arguments[0];
+    if(e && e.keyCode==13){ // enter 键       
+         //弹出页面中的dialog添加
+         if ($(".aui_state_highlight").length>0 ) {
+        	 $(".aui_state_highlight").click();
+         }
+    }
+     return;
+}; 
+
+var getData = function(data,fun){
+	var http = '../controller/index.php';
+	$.ajax({
+		url:http,
+		type:'post',
+		data:data,
+		async : false,
+		dataType:'json',
+		success:function(re){
+			fun(re);
+		}
+	});
+};
+
+var getDataFromDia = function(data,fun){
+	var http = '../../../../controller/index.php';
+	$.ajax({
+		url:http,
+		type:'post',
+		data:data,
+		async : false,
+		dataType:'json',
+		success:function(re){
+			fun(re);
+		}
+	});
+};
+
+var alert_message = function(message){
+	art.dialog({
+    	content: message,
+        icon: 'succeed',
+        height:100,
+        fixed: true,
+        lock: true
+    });
+};
+
+var alert_detail = function(message, height, width){
+	art.dialog({
+    	content: message,
+        height:height,
+        width:width,
+        padding:0,
+        fixed: true,
+        lock: true
+    });
+};
+
+/**
+ * 获取当天日期
+ * */
+var getToday = function() {
+	var timestamp = new Date();
+	var year = timestamp.getFullYear();
+	var month = timestamp.getMonth() + 1;
+	var day = timestamp.getDate();
+	
+	month = month<10 ? '0' + month : month;
+	day = day<10 ? '0' + day : day;
+	
+	return year + '-' + month + '-' + day;
+};
+
+/**
+ * 将时间撮转换成时间串
+ * */
+var getTimeStr = function(timestamp, isAll) {
+	var timestamp = new Date(parseInt(timestamp)*1000);
+	var year = timestamp.getFullYear();
+	var month = timestamp.getMonth() + 1;
+	var day = timestamp.getDate();
+	var hour = timestamp.getHours();
+	var minute = timestamp.getMinutes();
+	var second = timestamp.getSeconds();
+	if (isAll) {
+		return year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+	}
+	return year+'-'+month+'-'+day;
+};
+
+!function($){
+	var grad = function(option){
+		this.size = typeof(option.size) == 'undefined' ? 6 : option.size;
+		this.nowPage = 1;
+		//this.cmd = option.cmd;
+		this.modal = option.modal;
+		this.para = option.para;
+		this.field = option.field;
+		this.showTitle = option.showTitle == undefined ? false : option.showTitle;
+		this.check = option.check = undefined ? false : option.check; //是否复选框
+		this.order = option.order = undefined ? false : option.order; //是否显示序号
+		this.ttl  = '';
+		this.page = option.page == undefined ? false : option.page;
+		this.data = {}; //储存当前grid页当前行的所有数据
+		this.pageSize = 10;//页数最多显示10页
+		this.stat = option.stat == undefined ? false : option.stat;
+		this.checkAll = option.checkAll = undefined ? false : option.checkAll;//是否默认复选框全选
+		
+		this.title = option.title = undefined ? '统计' : option.title; 
+		this.timeField = option.timeField = undefined ? '时间段' : option.timeField; 
+		this.open = option.open == undefined ? true : option.open; //是否显示
+	}
+
+	grad.prototype = {
+		constructor : grad
+		,request : function(){
+			var self = this;
+			var html = '';
+			if (this.showTitle) {
+				html += self.showHeader();
+			}
+			html += '<table class="list" width="100%">';
+			
+			html += '<thead>';
+			html += '<tr>';
+			
+			//是否显示复选框
+			if(this.check){
+				html += '<th style="text-align:center;width:50px;line-height:25px"><input id="check_all" type="checkbox"><label for="check_all">全选</label></th>';
+			}
+			
+			//是否显示序号
+			if(this.order){
+				html += '<th style="width:45px;text-align:center;">序号</th>';
+			}
+				
+			$.each(this.field,function(n,v){
+				var width = '';
+				if(v.width != undefined){
+					width = v.width+'px';
+				}else{
+					width = 'auto';
+				}
+				if(v.px){
+					html += '<th class="px" name="'+v.name+'" flag=1 style="width:'+width+'"><a href="javascript:void(0)">'+v.text+'</a></th>';
+				}else{
+					html += '<th style="width:'+width+'">'+v.text+'</th>';
+				}
+				
+			});
+			html += '</tr>';
+			html += '</thead>';
+			html += '<tbody>';
+
+			this.para.page = this.nowPage;
+			this.para.size = this.size;
+			var ttl = '';
+			var field = this.field;
+			var order = this.order;
+			var check = this.check;
+			var page = this.page;
+			var temp = '';
+			var data = {};
+			var stat = this.stat;
+			
+			$('#loading').addClass('loading');
+			getData(this.para,function(result){
+				if(result.statu != undefined && !result.statu){
+					alert_message(result.msg);
+					$('#loading').removeClass('loading');
+				}
+				$('#loading').removeClass('loading')
+				ttl = result.ttl;
+				data = result.rows;
+				if (data == null) {
+					return;
+				}
+				
+				self.data = data;
+				$.each(result.rows,function(n,v){
+					var jishu = parseInt(n)+1;
+					if(jishu%2 == 0){
+						temp += '<tr class="hover">';
+					}else{
+						temp += '<tr>';
+					}
+
+					if(check){
+						temp += '<td style="text-align:center;"><input index="'+n+'" type="checkbox" class="check_one" tag="check_one"></td>';
+					}
+
+					if(order){
+						temp += '<td style="text-align:center;">'+(n+1)+'</td>';
+					}
+					
+					$.each(field,function(i,va){
+					temp += '<td style="text-align:center;">';
+					//操作
+					if(va.render != undefined){
+								var str = va.render(v[va.name],v,(n+1));
+								temp += str;
+							}else if(va.name == ''){
+								switch(v.msgtype){
+								case 'text':
+									temp += v.content;
+									break;
+								case 'image':
+									temp += '<a target="_blank" href="'+v.picurl+'"><img src="'+v.picurl+'" width="100" height="100" /></a>';
+									break;
+								case 'location':
+									temp += v.label;
+							}
+						}else{
+								if(va.type == 'time'){
+									if (v[va.name] == 0) {
+										temp += '';
+									} else {
+										var timestamp = new Date(parseInt(v[va.name])*1000);
+										var timestr = self.getTimeStr(timestamp);
+										temp += timestr;
+									}
+								} else if (va.type == 'gender') {
+									var gender_arr = ['男','女'];
+									temp += gender_arr[v[va.name]];
+								} else if (va.type == 'is_finished'){
+									if (v[va.name] == 1) {
+										temp += '成交';
+									} else {
+										temp += '未成交';
+									}
+								} else{
+									temp += v[va.name];
+								}
+							}
+							temp += '</td>';
+						});
+						temp += '</tr>';
+					});
+					html += temp;
+					html += '</tbody>';
+					html += '</table>';
+					self.modal.html(html);
+					if(page){
+						var a = self.show(ttl);
+						self.modal.next('div').remove();
+						self.modal.after(a);
+					}
+			
+					if(self.checkAll){
+						$('#check_all').attr('checked','checked');	
+						$('.check_one').attr('checked','checked');
+					}
+					
+					if(stat != false) {
+						if (data) {
+							var statData = [];
+							if (stat.statType == '1') {
+								$.each(data, function(k, v) {
+									var field_flag = stat.flag;
+									if (field_flag == 'detail') {
+										var age_arr = [];
+										age_arr['10'] = '0-10岁';
+										age_arr['20'] = '10-20岁';
+										age_arr['30'] = '20-30岁';
+										age_arr['40'] = '30-40岁';
+										age_arr['50'] = '40-50岁';
+										age_arr['60'] = '50-60岁';
+										age_arr['70'] = '60-70岁';
+										age_arr['80'] = '70-80岁';
+										age_arr['90'] = '80岁以上';
+										var age_str = '';
+										var title = v['disease_name'];
+										var j = 0;
+										for (var i in age_arr) {
+											if (j>8) {
+												continue;
+											}
+											
+											age_str = age_arr[i];
+											var str = v[i];
+											var arr = str.match(/\d/g);
+											var num = parseInt(arr[0]) + parseInt(arr[1]);
+											statData.push({
+												'group':title,
+												'name':age_str,
+												'value':num
+											});
+											j++;
+										}
+									} else {
+										if (stat.type == 'pie') {
+											if (k>0) {
+												statData.push({
+													'name':v['title'],
+													'value':v['num']
+												});
+											}
+										} else {
+											statData.push({
+												'group':'总人数',
+												'name':v['title'],
+												'value':v['num']
+											});
+											
+											statData.push({
+												'group':'男性',
+												'name':v['title'],
+												'value':v['male']
+											});
+											
+											statData.push({
+												'group':'女性',
+												'name':v['title'],
+												'value':v['female']
+											});
+										}
+									}
+								});
+							} else if (stat.statType == '2') {
+								var weeks = [];
+								weeks['Monday'] = '周一';
+								weeks['Tuesday'] = '周二';
+								weeks['Wednesday'] = '周三';
+								weeks['Thursday'] = '周四';
+								weeks['Friday'] = '周五';
+								weeks['Saturday'] = '周六';
+								weeks['Sunday'] = '周日';
+								$.each(data, function(k, v) {
+									var week_str = '';
+									var title = v['title'];
+									var j = 0;
+									for (var i in weeks) {
+										if (stat.type == 'pie') {
+											if (k<3) {
+												continue;
+											}
+										}
+										if (j>6) {
+											continue;
+										}
+										week_str = weeks[i];
+										var str = v[i];
+										var arr = str.match(/\d/g);
+										var num = parseInt(arr[0]) + parseInt(arr[1]);
+										statData.push({
+											'group':title,
+											'name':week_str,
+											'value':num
+										});
+										j++;
+									}
+								});
+							} else if (stat.statType == '3') {
+								if (stat.type == 'pie') {
+									var deal_num = 0;
+									var not_deal_num = 0;
+									$.each(data, function(k, v) {
+										deal_num += v['deal_num'];
+										not_deal_num += v['not_deal_num'];
+									});
+									
+									statData.push({
+										'name':'成交',
+										'value':deal_num
+									});
+									
+									statData.push({
+										'name':'未成交',
+										'value':not_deal_num
+									});
+									
+								} else {
+								$.each(data, function(k, v) {
+									statData.push({
+										'name':v['user_name'],
+										'group':'成交',
+										'value':v['deal_num']
+									});
+									
+									statData.push({
+										'name':v['user_name'],
+										'group':'未成交',
+										'value':v['not_deal_num']
+									});
+								});
+								}
+							} else if (stat.statType == '4') {
+								$.each(data, function(k, v) {
+									statData.push({
+										'name':v['title'],
+										'group':'营收',
+										'value':v['income']
+									});
+								});
+							} else if (stat.statType == '5') {
+								$.each(data, function(k, v) {
+									if (stat.type == 'pie') {
+										var num = v['new_num'] + v['old_num'];
+										statData.push({
+											'name':v['doctor_name'],
+											'value':num
+										});
+									} else {
+										statData.push({
+											'group':'新客户',
+											'name':v['doctor_name'],
+											'value':v['new_num']
+										});
+										statData.push({
+											'group':'老客户',
+											'name':v['doctor_name'],
+											'value':v['old_num']
+										});
+										statData.push({
+											'group':'复诊人数',
+											'name':v['doctor_name'],
+											'value':v['re_visit']
+										});
+									}
+								});
+							} else if (stat.statType == '6') {
+								var field_flag = stat.flag;
+								if (field_flag == 'month') {
+									var months = [];
+									months['January'] = '1月';
+									months['February'] = '2月';
+									months['March'] = '3月';
+									months['April'] = '4月';
+									months['May'] = '5月';
+									months['June'] = '6月';
+									months['July'] = '7月';
+									months['August'] = '8月';
+									months['September'] = '9月';
+									months['October'] = '10月';
+									months['November'] = '11月';
+									months['December'] = '12月';
+									
+									if (stat.type == 'pie') {
+										var numArr = [];
+										numArr['January'] = 0;
+										numArr['February'] = 0;
+										numArr['March'] = 0;
+										numArr['April'] = 0;
+										numArr['May'] = 0;
+										numArr['June'] = 0;
+										numArr['July'] = 0;
+										numArr['August'] = 0;
+										numArr['October'] = 0;
+										numArr['November'] = 0;
+										numArr['December'] = 0;
+										$.each(data, function(k, v) {
+											for(var i in months) {
+												if (i=='contains') {
+													continue;
+												}
+												numArr[i] += v[i];
+											}
+										});
+										
+										for(var i in months) {
+											if (i=='contains') {
+												continue;
+											}
+											statData.push({
+												'name':months[i],
+												'value':numArr[i]
+											});
+										}
+									} else {
+										$.each(data, function(k, v) {
+											for(var i in months) {
+												if (i=='contains') {
+													continue;
+												}
+												statData.push({
+													'group':v['disease_name'],
+													'name':months[i],
+													'value':v[i]
+												});
+											}
+										});
+									}
+									
+									
+								} else {
+									field_flag = field_flag + '_name';
+									if (stat.type == 'pie') {
+										$.each(data, function(k, v) {
+											var num = v['new_num'] + v['old_num'];
+											statData.push({
+												'name':v[field_flag],
+												'value':num
+											});
+										});
+									} else {
+										$.each(data, function(k, v) {
+											statData.push({
+												'group':'新客户',
+												'name':v[field_flag],
+												'value':v['new_num']
+											});
+											statData.push({
+												'group':'老客户',
+												'name':v[field_flag],
+												'value':v['old_num']
+											});
+											statData.push({
+												'group':'复诊人数',
+												'name':v[field_flag],
+												'value':v['re_visit']
+											});
+										});
+									
+									}
+								}
+							} else if (stat.statType == '7') {
+								var field_flag = stat.flag;
+								field_flag = field_flag + '_name';
+								$.each(data, function(k, v) {
+									statData.push({
+										'group':v[field_flag],
+										'name':v[field_flag],
+										'value':v['money']
+									});
+								});
+							} else if (stat.statType == '8') {
+								if (stat.type == 'pie') {
+									$.each(data, function(k, v) {
+										statData.push({
+											'name':v['item_name'],
+											'value':v['num']
+										});
+									});
+								} else {
+									$.each(data, function(k, v) {
+										statData.push({
+											'group':'男性',
+											'name':v['item_name'],
+											'value':v['male']
+										});
+										
+										statData.push({
+											'group':'女性',
+											'name':v['item_name'],
+											'value':v['female']
+										});
+										
+										statData.push({
+											'group':'总计',
+											'name':v['item_name'],
+											'value':v['num']
+										});
+									});
+								}
+							}
+							
+							if (stat.type == 'pie') {
+								var opt = HighChart.ChartOptionTemplates.Pie(statData,stat.des,stat.title);
+							} else if (stat.type == 'line') {
+								var opt = HighChart.ChartOptionTemplates.Line(statData,stat.des,stat.title);
+							} else if (stat.type == 'bar') {
+								if (stat.statType == '1'&&stat.flag != 'detail') {
+									var opt = HighChart.ChartOptionTemplates.Bar(statData,stat.des,stat.title);
+								} else {
+									var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,stat.des,stat.title);
+								}
+								
+							}
+							
+							var container = $("#" + stat.showId);
+						    HighChart.RenderChart(opt, container);
+							
+						}
+					}
+					
+				});
+		},
+		
+		/**
+		 * 将时间撮转换成时间串
+		 * */
+		getTimeStr : function(timestamp) {
+			var year = timestamp.getFullYear();
+			var month = timestamp.getMonth() + 1;
+			var day = timestamp.getDate();
+			var hour = timestamp.getHours();
+			var minute = timestamp.getMinutes();
+			var second = timestamp.getSeconds();
+			var timestr =  year+'-'+month+'-'+day;
+			//timestr += ' '+hour+':'+minute+':'+second;
+			return timestr;
+		},
+		
+		showHeader : function(){
+			var self = this;
+			var isOpen = 'closecss';
+			if(this.open) {
+				isOpen = 'opencss';
+			} 
+			var html = '<div class="titlebox nav">';
+			html += '<a class="' + isOpen + '"></a>';
+			html += '<h1 flag="1">'+ this.title +'</h1>';
+			html += '<span id="timespan" flag="1">'+ this.timeField +'</span>';
+			html += '</div>';
+			return html;
+		},
+
+		//排序 
+		px : function(para){
+			var self = this;
+			temp = '';
+			var length = self.data.length;
+			if(para.flag == 1){
+				for(var i=0;i<length-1;i++){
+					for(var j=i+1;j<length;j++){
+						if(self.data[i][para.name] > self.data[j][para.name]){
+							temp = self.data[i];
+							self.data[i] = self.data[j];
+							self.data[j]= temp;
+						}
+					}
+				}
+			}else{
+				for(var i=0;i<length-1;i++){
+					for(var j=i+1;j<length;j++){
+						if(self.data[i][para.name] < self.data[j][para.name]){
+							temp = self.data[i];
+							self.data[i] = self.data[j];
+							self.data[j]= temp;
+						}
+					}
+				}
+			}
+
+			var temp = '';
+			var check = self.check;
+			var field = self.field;
+			var order = self.order;
+			$.each(self.data,function(n,v){
+				var jishu = n+1;
+				if(jishu%2 == 0){
+					temp += '<tr class="hover">';
+				}else{
+					temp += '<tr>';
+				}
+					
+				if(check){
+					temp += '<td style="text-align:center;"><input index="'+n+'" type="checkbox" class="check_one" tag="check_one"></td>';
+				}
+				if(order){
+					temp += '<td style="text-align:center;">'+(n+1)+'</td>';
+				}
+				$.each(field,function(i,va){
+					temp += '<td style="text-align:center;">';
+						//操作
+					if(va.render != undefined){
+						var str = va.render(v[va.name],v,(n+1));
+						temp += str;
+					}else{
+						if(va.type == 'pic'){
+							temp += '<img width="'+width+'" src="'+v[va.name]+'">';
+						} else if (va.type == 'gender') {
+							var gender_arr = ['男','女'];
+							temp += gender_arr[va.name];
+						} else{
+							temp += v[va.name];
+						}
+					}
+					temp += '</td>';
+				});
+					temp += '</tr>';
+			});
+			self.modal.find('tbody').html(temp);
+		},
+
+		//分页
+		show : function(ttl){
+			var self = this;
+			var html = '<div class="panelBar">';
+			var pageNum = Math.ceil(ttl/this.size);
+			html += '<div class="pages">';
+			html += '<span>显示</span>';
+			html += '<select id="pageNum">';
+			
+			if(this.size == 5){
+				html += '<option selected value=5>5</option>';
+			}else{
+				html += '<option value=5>5</option>';
+			}
+
+			if(this.size == 10){
+                html += '<option selected value=10>10</option>';
+            }else{
+                html += '<option value=10>10</option>';
+            }
+            if(this.size == 50){
+                html += '<option selected value=50>50</option>';
+            }else{
+                html += '<option value=50>50</option>';
+            }
+
+			html += '</select>';
+			html += '<span>条,共'+ttl+'条</span>';
+			html += '</div>';
+			html += '<div class="pagination">';
+			html += '<ul>';
+			if(this.nowPage == 1){
+				html += '<li class="j-first disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="first"><span>首页</span></a>';
+				html += '<span class="first"><span>首页</span></span>';
+			}else{
+				html += '<li  class="j-first">';
+				html += '<a flag="1" class="first" href="javascript:void(0)"><span>首页</span></a>';
+			}
+			
+			html += '</li>';
+			if(this.nowPage == 1){
+				html += '<li class="j-prev disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="previous"><span>上一页</span></a>';
+				html += '<span class="previous"><span>上一页</span></span>';
+			}else{
+				html += '<li  class="j-prev">';
+				html += '<a flag='+(parseInt(this.nowPage)-1)+' class="previous" href="javascript:void(0)"><span>上一页</span></a>';
+			}
+			html += '</li>';
+			
+			var selected = '';
+			//页数的控制
+			var flag = this.nowPage - Math.ceil(self.pageSize/2);
+			if(pageNum > self.pageSize){
+				var pageFlag = self.pageSize;
+			}else{
+				var pageFlag = pageNum;
+			}
+
+			this.nowPage = parseInt(this.nowPage);
+			
+			if(flag <=0){
+				for(var i=1;i<=pageFlag;i++){
+					if(this.nowPage == i){
+						selected = 'selected';
+					}else{
+						selected = '';
+					}
+					html += '<li flag="'+i+'" class="j-num '+selected+'">';
+					html += '<a href="javascript:void(0)">'+i+'</a>';
+					html += '</li>';
+				}
+			}else{
+				var start = this.nowPage-Math.ceil(self.pageSize/2)+1;
+				for(var j=start;j<=this.nowPage;j++){
+					if(this.nowPage == j){
+						selected = 'selected';
+					}else{
+						selected = '';
+					}
+					html += '<li flag="'+j+'" class="j-num '+selected+'">';
+					html += '<a href="javascript:void(0)">'+j+'</a>';
+					html += '</li>';
+				}
+				if(this.nowPage+Math.ceil(self.pageSize/2) > pageNum){
+					var foot = pageNum;
+				}else{
+					var foot = this.nowPage+Math.ceil(self.pageSize/2);
+				}
+				for(var j=this.nowPage+1;j<=foot;j++){
+					html += '<li flag="'+j+'" class="j-num">';
+					html += '<a href="javascript:void(0)">'+j+'</a>';
+					html += '</li>';
+				}	
+			}
+			if(pageNum == 0 || this.nowPage == pageNum){
+				html += '<li class="j-next disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="next"><span>下一页</span></a>';
+				html += '<span class="next"><span>下一页</span></span>';
+			}else{
+				html += '<li  class="j-next">';
+				html += '<a flag="'+(parseInt(this.nowPage)+1)+'" class="next" href="javascript:void(0)"><span>下一页</span></a>';
+			}
+			html += '</li>';
+			
+			if( pageNum == 0 || this.nowPage == pageNum){
+				html += '<li class="j-last disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="last"><span>尾页</span></a>';
+				html += '<span class="last"><span>尾页</span></span>';
+			}else{
+				html += '<li  class="j-last">';
+				html += '<a flag="'+pageNum+'" class="last" href="javascript:void(0)"><span>尾页</span></a>';
+			}
+			html += '</li>';
+			
+			
+			html += '</ul>';
+			html += '</div>';
+		 	html += '</div>';
+
+			return html;
+		}
+	}
+
+	var temp_grad = {}; //用来保存之前grid对象,方便reload以及其他搜索使用
+
+	$.fn.grad = function(option){
+		var _me = this;
+		if(option == 'reload'){
+			temp_grad.nowPage = 1;
+			temp_grad.request();
+			return false;
+		}else if(option.qry_para != undefined){
+			for(var pro in option.qry_para){
+				temp_grad.para[pro] = option.qry_para[pro];
+			}
+			temp_grad.nowPage = 1;
+			temp_grad.request();
+			return false;
+		}else if(option == 'getRows'){
+			var data = [];
+			var i = 0;
+			$('[tag=check_one]').each(function(n,ob){
+				if($(this).attr('checked') != undefined){
+					var order = $(this).attr('index');
+					data[i] = temp_grad.data[order];
+					i++;
+				}
+			});
+			return data;
+		}
+		option.modal = _me;
+	
+		var _grad = new grad(option);
+		temp_grad = _grad;
+		_grad.request();
+		
+		//页数点击
+		_me.parent('div').on('click','.j-num',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+		});
+
+		//下一页点击
+		_me.parent('div').on('click','a.next',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		//上一页点击
+		_me.parent('div').on('click','a.previous',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		//首页点击
+		_me.parent('div').on('click','a.first',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		//末页点击
+		_me.parent('div').on('click','a.last',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		_me.parent().on('change','#pageNum',function(){
+			_grad.cache_con = [];
+			var size = $(this).val();
+			if(size != ''){
+				_grad.size = size;
+				_grad.nowPage = 1;
+				_grad.request();
+			}
+		});
+		
+		//全选
+		_me.on('click','#check_all',function(){
+            if($(this).attr('checked') != undefined){
+                $('.check_one').attr('checked','checked');
+            }else{
+                $('.check_one').removeAttr('checked');
+            }
+        });
+
+		//排序
+		_me.on('click','.px',function(){
+			var name = $(this).attr('name');
+			var flag = $(this).attr('flag');
+			if(flag == 1){
+				$(this).attr('flag',2);
+			}else{
+				$(this).attr('flag',1);
+			}
+			_grad.px({name:name,flag:flag});
+		});
+		
+		_me.on('click','.check_one',function(e){
+			//阻止冒泡事件
+			e.stopPropagation();
+		});
+		
+		_me.on('click','tbody tr',function(){
+			if($(this).find('input').attr('checked') == undefined){
+				$(this).find('input').attr('checked','checked');
+			}else{
+				$(this).find('input').removeAttr('checked');
+			}
+		});
+
+		_me.on('hover','tbody tr',function(){
+			$(this).css('background','#9BE0C2');
+		});
+
+		_me.on('mouseout','tbody tr',function(){
+			$(this).css('background','');
+		});
+
+		_me.unbind('click').on('click', 'div.titlebox a', function(){
+			if($(this).hasClass("opencss")){
+				$(this).parent().next('table').hide(1500);
+				$(this).parent().parent().next().hide(1500);
+				$(this).removeClass("opencss").addClass("closecss");
+			}else{
+				$(this).parent().next('table').show(1500);
+				$(this).parent().parent().next().show(1500);
+				$(this).removeClass("closecss").addClass("opencss");
+			}
+		});
+		return $(this);
+	}
+}(window.jQuery);
+
+!function($){
+	var grad2 = function(option){
+		this.size = typeof(option.size) == 'undefined' ? 6 : option.size;
+		this.nowPage = 1;
+		//this.cmd = option.cmd;
+		this.modal = option.modal;
+		this.para = option.para;
+		this.field = option.field;
+		this.check = option.check = undefined ? false : option.check; //是否复选框
+		this.order = option.order = undefined ? false : option.order; //是否显示序号
+		this.ttl  = '';
+		this.page = option.page == undefined ? false : option.page;
+		this.data = {}; //储存当前grid页当前行的所有数据
+		this.pageSize = 10;//页数最多显示10页
+		this.checkAll = option.checkAll = undefined ? false : option.checkAll;//是否默认复选框全选
+	}
+
+	grad2.prototype = {
+		constructor : grad2
+		,request : function(){
+			var self = this;
+			var html = '';
+			html += '<table class="list" style="width:500px;padding-top:1px;">';
+			
+			html += '<thead>';
+			html += '<tr>';
+			
+			//是否显示复选框
+			if(this.check){
+				html += '<th style="text-align:center;width:50px;line-height:25px"><input id="check_all" type="checkbox"><label for="check_all">全选</label></th>';
+			}
+			
+			//是否显示序号
+			if(this.order){
+				html += '<th style="width:45px;text-align:center;">序号</th>';
+			}
+				
+			$.each(this.field,function(n,v){
+				var width = '';
+				if(v.width != undefined){
+					width = v.width+'px';
+				}else{
+					width = 'auto';
+				}
+				if(v.px){
+					html += '<th class="px" name="'+v.name+'" flag=1 style="width:'+width+'"><a href="javascript:void(0)">'+v.text+'</a></th>';
+				}else{
+					html += '<th style="width:'+width+'">'+v.text+'</th>';
+				}
+				
+			});
+			html += '</tr>';
+			html += '</thead>';
+			html += '<tbody>';
+
+			this.para.page = this.nowPage;
+			this.para.size = this.size;
+			var ttl = '';
+			var field = this.field;
+			var order = this.order;
+			var check = this.check;
+			var page = this.page;
+			var temp = '';
+			var data = {};
+			
+			$('#loading').addClass('loading');
+			getDataFromDia(this.para,function(result){
+				if (result == null) {
+					return;
+				}
+				if(result.statu != undefined && !result.statu){
+					alert_message(result.msg);
+					$('#loading').removeClass('loading');
+				}
+				$('#loading').removeClass('loading')
+				ttl = result.ttl;
+				data = result.rows;
+				if (data == null) {
+					return;
+				}
+				
+				self.data = data;
+				$.each(result.rows,function(n,v){
+					var jishu = n+1;
+					if(jishu%2 == 0){
+						temp += '<tr class="hover">';
+					}else{
+						temp += '<tr>';
+					}
+
+					if(check){
+						temp += '<td style="text-align:center;"><input index="'+n+'" type="checkbox" class="check_one" tag="check_one"></td>';
+					}
+
+					if(order){
+						temp += '<td style="text-align:center;">'+(n+1)+'</td>';
+					}
+					
+					$.each(field,function(i,va){
+					temp += '<td style="text-align:center;">';
+					//操作
+					if(va.render != undefined){
+								var str = va.render(v[va.name],v,(n+1));
+								temp += str;
+							}else if(va.name == ''){
+								switch(v.msgtype){
+								case 'text':
+									temp += v.content;
+									break;
+								case 'image':
+									temp += '<a target="_blank" href="'+v.picurl+'"><img src="'+v.picurl+'" width="100" height="100" /></a>';
+									break;
+								case 'location':
+									temp += v.label;
+							}
+						}else{
+								if(va.type == 'time'){
+									if (v[va.name] == 0) {
+										temp += '';
+									} else {
+										var timestamp = new Date(parseInt(v[va.name])*1000);
+										var timestr = self.getTimeStr(timestamp);
+										temp += timestr;
+									}
+								}else{
+									temp += v[va.name];
+								}
+							}
+							temp += '</td>';
+						});
+						temp += '</tr>';
+					});
+					html += temp;
+					html += '</tbody>';
+					html += '</table>';
+					self.modal.html(html);
+					if(page){
+						var a = self.show(ttl);
+						self.modal.next('div').remove();
+						self.modal.after(a);
+					}
+			
+					if(self.checkAll){
+						$('#check_all').attr('checked','checked');	
+						$('.check_one').attr('checked','checked');
+					}
+					
+				});
+		},
+		
+		/**
+		 * 将时间撮转换成时间串
+		 * */
+		getTimeStr : function(timestamp) {
+			var year = timestamp.getFullYear();
+			var month = timestamp.getMonth() + 1;
+			var day = timestamp.getDate();
+			var hour = timestamp.getHours();
+			var minute = timestamp.getMinutes();
+			var second = timestamp.getSeconds();
+			var timestr =  year+'-'+month+'-'+day;
+			//timestr += ' '+hour+':'+minute+':'+second;
+			return timestr;
+		},
+
+		//排序 
+		px : function(para){
+			var self = this;
+			temp = '';
+			var length = self.data.length;
+			if(para.flag == 1){
+				for(var i=0;i<length-1;i++){
+					for(var j=i+1;j<length;j++){
+						if(self.data[i][para.name] > self.data[j][para.name]){
+							temp = self.data[i];
+							self.data[i] = self.data[j];
+							self.data[j]= temp;
+						}
+					}
+				}
+			}else{
+				for(var i=0;i<length-1;i++){
+					for(var j=i+1;j<length;j++){
+						if(self.data[i][para.name] < self.data[j][para.name]){
+							temp = self.data[i];
+							self.data[i] = self.data[j];
+							self.data[j]= temp;
+						}
+					}
+				}
+			}
+
+			var temp = '';
+			var check = self.check;
+			var field = self.field;
+			var order = self.order;
+			$.each(self.data,function(n,v){
+				var jishu = n+1;
+				if(jishu%2 == 0){
+					temp += '<tr class="hover">';
+				}else{
+					temp += '<tr>';
+				}
+					
+				if(check){
+					temp += '<td style="text-align:center;"><input index="'+n+'" type="checkbox" class="check_one" tag="check_one"></td>';
+				}
+				if(order){
+					temp += '<td style="text-align:center;">'+(n+1)+'</td>';
+				}
+				$.each(field,function(i,va){
+					temp += '<td style="text-align:center;">';
+						//操作
+					if(va.render != undefined){
+						var str = va.render(v[va.name],v,(n+1));
+						temp += str;
+					}else{
+						if(va.type == 'pic'){
+							temp += '<img width="'+width+'" src="'+v[va.name]+'">';
+						}else{
+							temp += v[va.name];
+						}
+					}
+					temp += '</td>';
+				});
+					temp += '</tr>';
+			});
+			self.modal.find('tbody').html(temp);
+		},
+
+		//分页
+		show : function(ttl){
+			var self = this;
+			var html = '<div class="panelBar">';
+			var pageNum = Math.ceil(ttl/this.size);
+			html += '<div class="pages">';
+			html += '<span>显示</span>';
+			html += '<select id="pageNum">';
+			
+			if(this.size == 5){
+				html += '<option selected value=5>5</option>';
+			}else{
+				html += '<option value=5>5</option>';
+			}
+
+			if(this.size == 10){
+                html += '<option selected value=10>10</option>';
+            }else{
+                html += '<option value=10>10</option>';
+            }
+            if(this.size == 50){
+                html += '<option selected value=50>50</option>';
+            }else{
+                html += '<option value=50>50</option>';
+            }
+
+			html += '</select>';
+			html += '<span>条,共'+ttl+'条</span>';
+			html += '</div>';
+			html += '<div class="pagination">';
+			html += '<ul>';
+			if(this.nowPage == 1){
+				html += '<li class="j-first disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="first"><span>首页</span></a>';
+				html += '<span class="first"><span>首页</span></span>';
+			}else{
+				html += '<li  class="j-first">';
+				html += '<a flag="1" class="first" href="javascript:void(0)"><span>首页</span></a>';
+			}
+			
+			html += '</li>';
+			if(this.nowPage == 1){
+				html += '<li class="j-prev disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="previous"><span>上一页</span></a>';
+				html += '<span class="previous"><span>上一页</span></span>';
+			}else{
+				html += '<li  class="j-prev">';
+				html += '<a flag='+(parseInt(this.nowPage)-1)+' class="previous" href="javascript:void(0)"><span>上一页</span></a>';
+			}
+			html += '</li>';
+			
+			var selected = '';
+			//页数的控制
+			var flag = this.nowPage - Math.ceil(self.pageSize/2);
+			if(pageNum > self.pageSize){
+				var pageFlag = self.pageSize;
+			}else{
+				var pageFlag = pageNum;
+			}
+
+			this.nowPage = parseInt(this.nowPage);
+			
+			if(flag <=0){
+				for(var i=1;i<=pageFlag;i++){
+					if(this.nowPage == i){
+						selected = 'selected';
+					}else{
+						selected = '';
+					}
+					html += '<li flag="'+i+'" class="j-num '+selected+'">';
+					html += '<a href="javascript:void(0)">'+i+'</a>';
+					html += '</li>';
+				}
+			}else{
+				var start = this.nowPage-Math.ceil(self.pageSize/2)+1;
+				for(var j=start;j<=this.nowPage;j++){
+					if(this.nowPage == j){
+						selected = 'selected';
+					}else{
+						selected = '';
+					}
+					html += '<li flag="'+j+'" class="j-num '+selected+'">';
+					html += '<a href="javascript:void(0)">'+j+'</a>';
+					html += '</li>';
+				}
+				if(this.nowPage+Math.ceil(self.pageSize/2) > pageNum){
+					var foot = pageNum;
+				}else{
+					var foot = this.nowPage+Math.ceil(self.pageSize/2);
+				}
+				for(var j=this.nowPage+1;j<=foot;j++){
+					html += '<li flag="'+j+'" class="j-num">';
+					html += '<a href="javascript:void(0)">'+j+'</a>';
+					html += '</li>';
+				}	
+			}
+			if(pageNum == 0 || this.nowPage == pageNum){
+				html += '<li class="j-next disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="next"><span>下一页</span></a>';
+				html += '<span class="next"><span>下一页</span></span>';
+			}else{
+				html += '<li  class="j-next">';
+				html += '<a flag="'+(parseInt(this.nowPage)+1)+'" class="next" href="javascript:void(0)"><span>下一页</span></a>';
+			}
+			html += '</li>';
+			
+			if( pageNum == 0 || this.nowPage == pageNum){
+				html += '<li class="j-last disabled">';
+				html += '<a href="javascript:void(0)" style="display:none;" class="last"><span>尾页</span></a>';
+				html += '<span class="last"><span>尾页</span></span>';
+			}else{
+				html += '<li  class="j-last">';
+				html += '<a flag="'+pageNum+'" class="last" href="javascript:void(0)"><span>尾页</span></a>';
+			}
+			html += '</li>';
+			
+			
+			html += '</ul>';
+			html += '</div>';
+		 	html += '</div>';
+
+			return html;
+		}
+	}
+
+	var temp_grad2 = {}; //用来保存之前grid对象,方便reload以及其他搜索使用
+
+	$.fn.grad2 = function(option){
+		var _me = this;
+		if(option == 'reload'){
+			temp_grad2.nowPage = 1;
+			temp_grad2.request();
+			return false;
+		}else if(option.qry_para != undefined){
+			for(var pro in option.qry_para){
+				temp_grad2.para[pro] = option.qry_para[pro];
+			}
+			temp_grad2.nowPage = 1;
+			temp_grad2.request();
+			return false;
+		}else if(option == 'getRows'){
+			var data = [];
+			var i = 0;
+			$('[tag=check_one]').each(function(n,ob){
+				if($(this).attr('checked') != undefined){
+					var order = $(this).attr('index');
+					data[i] = temp_grad2.data[order];
+					i++;
+				}
+			});
+			return data;
+		}
+		option.modal = _me;
+	
+		var _grad = new grad2(option);
+		temp_grad2 = _grad;
+		_grad.request();
+		
+		//页数点击
+		_me.parent('div').on('click','.j-num',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+		});
+
+		//下一页点击
+		_me.parent('div').on('click','a.next',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		//上一页点击
+		_me.parent('div').on('click','a.previous',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		//首页点击
+		_me.parent('div').on('click','a.first',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		//末页点击
+		_me.parent('div').on('click','a.last',function(){
+			var page = $(this).attr('flag');
+			_grad.nowPage = page;
+			_grad.request();
+
+		});
+
+		_me.parent().on('change','#pageNum',function(){
+			_grad.cache_con = [];
+			var size = $(this).val();
+			if(size != ''){
+				_grad.size = size;
+				_grad.nowPage = 1;
+				_grad.request();
+			}
+		});
+		
+		//全选
+		_me.on('click','#check_all',function(){
+            if($(this).attr('checked') != undefined){
+                $('.check_one').attr('checked','checked');
+            }else{
+                $('.check_one').removeAttr('checked');
+            }
+        });
+
+		//排序
+		_me.on('click','.px',function(){
+			var name = $(this).attr('name');
+			var flag = $(this).attr('flag');
+			if(flag == 1){
+				$(this).attr('flag',2);
+			}else{
+				$(this).attr('flag',1);
+			}
+			_grad.px({name:name,flag:flag});
+		});
+		
+		_me.on('click','.check_one',function(e){
+			//阻止冒泡事件
+			e.stopPropagation();
+		});
+		
+		_me.on('click','tbody tr',function(){
+			if($(this).find('input').attr('checked') == undefined){
+				$(this).find('input').attr('checked','checked');
+			}else{
+				$(this).find('input').removeAttr('checked');
+			}
+		});
+
+		_me.on('hover','tbody tr',function(){
+			$(this).css('background','#9BE0C2');
+		});
+
+		_me.on('mouseout','tbody tr',function(){
+			$(this).css('background','');
+		});
+
+		return $(this);
+	}
+}(window.jQuery);
+
+//以下是左右翻页的列表显示
+!function($){
+	var showScrollData = function(option){
+		this.size = typeof(option.size) == 'undefined' ? 5 : option.size;
+		this.nowPage = 1;
+		this.modal = option.modal;
+		this.para = option.para == undefined ? false : option.para;
+		this.field = option.field;
+		this.ttl  = '';
+		this.page = option.page == undefined ? false : option.page;
+		this.data = {}; //储存当前grid页当前行的所有数据
+		this.pageSize = 10;//页数最多显示10页
+		this.title = option.title = undefined ? '统计' : option.title; 
+		this.timeField = option.timeField = undefined ? '时间段' : option.timeField; 
+		this.checkAll = option.checkAll = undefined ? false : option.checkAll;//是否默认复选框全选
+		this.open = option.open == undefined ? true : option.open; //是否显示
+	}
+
+	showScrollData.prototype = {
+		constructor : showScrollData
+		,request : function(){
+			var self = this;
+			if (this.para) {
+			this.para.page = this.nowPage;
+			this.para.size = this.size;
+			this.para.open = this.open;
+			var field = this.field;
+			var page = this.page;
+			var temp = '';
+			var ttl = '';
+			var data = {};
+			var tdsize = this.size;
+			$('#loading').addClass('loading');
+			getDataFromDia(this.para,function(result){
+				if (result == null) {
+					return;
+				}
+				if(result.statu != undefined && !result.statu){
+					alert_message(result.msg);
+					$('#loading').removeClass('loading');
+				}
+				$('#loading').removeClass('loading')
+				ttl = result.ttl;
+				data = result.rows;
+				if (data == null) {
+					return;
+				}
+				
+				self.data = data;
+				var realData = [];
+				var hasData = false;
+				$.each(result.rows,function(n,v){
+					$.each(field,function(i,va){
+						if ( "undefined" === typeof realData[va.name] ) {
+							realData[va.name] = [];
+						} 
+						
+						if (realData[va.name] == '') {
+							realData[va.name].unshift(va.text);
+						}
+						//操作
+						if(va.render != undefined){
+							var str = va.render(v[va.name],v,(n+1));
+							realData[va.name].push(str);
+						} else {
+							realData[va.name].push(v[va.name]);
+						}
+						
+					});
+					hasData = true;
+				});
+				
+				var n = 0;
+				temp += '<table class="list" style="width:823px;margin-left:40px;padding-top:1px;">';
+				temp += '<tbody>';
+				if (hasData) {
+					for(var i in realData){
+						var childData = realData[i];
+						var jishu = n+1;
+						if(jishu%2 == 0){
+							temp += '<tr class="hover">';
+						}else{
+							temp += '<tr>';
+						}
+						
+						var i = 0;
+						var len = childData.length;
+						for(var k in childData){
+							if (k == 'contains') {
+								continue;
+							}
+							
+							var font = i==0 ? "font-weight: bolder;width:138px;" : "width:135px;";
+							temp += '<td style="text-align:center;' + font + '">';
+							temp += childData[k];
+							temp += '</td>';
+							
+							i++;
+						}
+						if (tdsize-len>0) {
+							for(var s=0; s<tdsize-len; s++) {
+								temp += '<td style="text-align:center;width:135px;">&nbsp;</td>';
+							}
+						}
+						
+						temp += '</tr>';
+						n++;
+					}
+				} else {
+					temp += '<tr><td style="text-align:center;">暂无可显示的数据！</td></tr>';
+				}
+				
+				temp += '</tbody>';
+				temp += '</table>';
+				
+				var html = '';
+				var header = self.showHeader();
+				var pre = self.showLeft(ttl);
+				var next = self.showRight(ttl);
+				
+				html += header;
+				html += pre;
+				html += temp;
+				html += '</div>' + next + '</div></div></div>';
+				self.modal.html(html);
+			});
+			} else {
+				var html = '';
+				var header = self.showHeader();
+				html += header;
+				self.modal.html(html);
+			}
+		},
+		
+		/**
+		 * 将时间撮转换成时间串
+		 * */
+		getTimeStr : function(timestamp) {
+			var year = timestamp.getFullYear();
+			var month = timestamp.getMonth() + 1;
+			var day = timestamp.getDate();
+			var hour = timestamp.getHours();
+			var minute = timestamp.getMinutes();
+			var second = timestamp.getSeconds();
+			var timestr =  year+'-'+month+'-'+day;
+			//timestr += ' '+hour+':'+minute+':'+second;
+			return timestr;
+		},
+		
+		//分页
+		showHeader : function(){
+			var self = this;
+			var isOpen = 'closecss';
+			if(this.open) {
+				isOpen = 'opencss';
+			} 
+			var html = '<div class="titlebox nav">';
+			html += '<a class="' + isOpen + '"></a>';
+			html += '<h1 flag="1">'+ this.title +'</h1>';
+			html += '<span id="timespan" flag="1">'+ this.timeField +'</span>';
+			html += '</div>';
+			return html;
+		},
+		
+		showLeft : function(ttl){
+			var self = this;
+			var pageNum = Math.ceil(ttl/this.size);
+			var isOpen = 'closecss';
+			var showCon = 'style="display:none;"';
+			if(this.open) {
+				isOpen = 'opencss';
+				showCon = 'style="display:block;"';
+			} 
+			var html = '';
+			html += '<div ' + showCon + '>';
+		    html += '<div class="con">';
+		    html += '<div class="carousel_container">';
+		    
+		    //上一页
+		    if(this.nowPage == 1){
+		    	html += '<div class="left_scroll" style="opacity:0.3;" flag="false"></div>';
+			}else{
+				html += '<div class="left_scroll" flag="'+ (parseInt(this.nowPage)-1) +'"></div>';
+			}
+		    
+		    html += '<div class="carousel_inner">';
+			return html;
+		},
+		
+		showRight : function(ttl) {
+			var self = this;
+			var pageNum = Math.ceil(ttl/this.size);
+			var html = '';
+			if(pageNum == 0 || this.nowPage == pageNum){
+				html += '<div class="right_scroll" style="opacity:0.3;" flag="false"></div>';
+			}else{
+				html += '<div class="right_scroll" flag="'+(parseInt(this.nowPage)+1)+'"></div>';
+			}
+			return html;
+		}
+	}
+
+	$.fn.showScrollData = function(option){
+		var _me = this;
+		option.modal = _me;
+	
+		var _showScrollData = new showScrollData(option);
+		_showScrollData.request();
+
+		//下一页点击
+		_me.unbind('click').parent('div').unbind('click').on('click','div.right_scroll',function(){
+			var page = $(this).attr('flag');
+			if (page == 'false') {
+				return false;
+			}
+			
+			_showScrollData.nowPage = page;
+			_showScrollData.open = true;
+			_showScrollData.request();
+		});
+	
+		//上一页点击
+		_me.unbind('click').parent('div').on('click','div.left_scroll',function(){
+			var page = $(this).attr('flag');
+			if (page == 'false') {
+				return false;
+			}
+			_showScrollData.nowPage = page;
+			_showScrollData.open = true;
+			_showScrollData.request();
+	
+		});
+	
+		//首页点击
+		_me.unbind('click').parent('div').on('click','div.titlebox h1',function(){
+			var page = $(this).attr('flag');
+            if(_showScrollData.nowPage == 1){ 
+				return false;
+			}
+			_showScrollData.nowPage = page;
+			_showScrollData.request();
+	
+		});
+	
+		//末页点击
+		_me.unbind('click').parent('div').on('click','div.titlebox span',function(){
+			var page = $(this).attr('flag');
+			_showScrollData.nowPage = page;
+			_showScrollData.request();
+	
+		});
+	
+		_me.on('hover','tbody tr',function(){
+			$(this).css('background','#9BE0C2');
+		});
+	
+		_me.on('mouseout','tbody tr',function(){
+			$(this).css('background','');
+		});
+	
+		_me.unbind('click').on('click', 'div.titlebox a', function(){
+			if($(this).hasClass("opencss")){
+				$(this).parent().next().has('div.con').hide(1500);
+				$(this).parent().parent().next().hide(1500);
+				$(this).removeClass("opencss").addClass("closecss");
+			}else{
+				$(this).parent().next().has('div.con').show(1500);
+				$(this).parent().parent().next().show(1500);
+				$(this).removeClass("closecss").addClass("opencss");
+			}
+		});
+		return $(this);
+	}
+}(window.jQuery);
+
+//下以是单独画图
+!function($){
+	var showStatImage = function(option){
+		this.para = option.para;
+		this.field = option.field;
+		this.data = {}; //储存当前grid页当前行的所有数据
+		this.stat = option.stat == undefined ? false : option.stat;
+		this.open = option.open == undefined ? true : option.open; //是否显示
+	}
+
+	showStatImage.prototype = {
+		constructor : showStatImage
+		,request : function(){
+			var self = this;
+			var field = this.field;
+			var data = {};
+			var stat = this.stat;
+			
+			$('#loading').addClass('loading');
+			getData(this.para,function(result){
+				if(result.statu != undefined && !result.statu){
+					alert_message(result.msg);
+					$('#loading').removeClass('loading');
+				}
+				$('#loading').removeClass('loading')
+				data = result.rows;
+				if (data == null) {
+					return;
+				}
+				
+				self.data = data;
+					if(stat != false) {
+						if (data) {
+							var statData = [];
+							if (stat.statType == '1') {
+								$.each(data, function(k, v) {
+									var field_flag = stat.flag;
+									if (field_flag == 'detail') {
+										var age_arr = [];
+										age_arr['10'] = '0-10岁';
+										age_arr['20'] = '10-20岁';
+										age_arr['30'] = '20-30岁';
+										age_arr['40'] = '30-40岁';
+										age_arr['50'] = '40-50岁';
+										age_arr['60'] = '50-60岁';
+										age_arr['70'] = '60-70岁';
+										age_arr['80'] = '70-80岁';
+										age_arr['90'] = '80岁以上';
+										var age_str = '';
+										var title = v['disease_name'];
+										var j = 0;
+										for (var i in age_arr) {
+											if (j>8) {
+												continue;
+											}
+											
+											age_str = age_arr[i];
+											var str = v[i];
+											var arr = str.match(/\d/g);
+											var num = parseInt(arr[0]) + parseInt(arr[1]);
+											statData.push({
+												'group':title,
+												'name':age_str,
+												'value':num
+											});
+											j++;
+										}
+									} else {
+										if (stat.type == 'pie') {
+											if (k>0) {
+												statData.push({
+													'name':v['title'],
+													'value':v['num']
+												});
+											}
+										} else {
+											statData.push({
+												'group':'总人数',
+												'name':v['title'],
+												'value':v['num']
+											});
+											
+											statData.push({
+												'group':'男性',
+												'name':v['title'],
+												'value':v['male']
+											});
+											
+											statData.push({
+												'group':'女性',
+												'name':v['title'],
+												'value':v['female']
+											});
+										}
+									}
+								});
+							} else if (stat.statType == '2') {
+								var weeks = [];
+								weeks['Monday'] = '周一';
+								weeks['Tuesday'] = '周二';
+								weeks['Wednesday'] = '周三';
+								weeks['Thursday'] = '周四';
+								weeks['Friday'] = '周五';
+								weeks['Saturday'] = '周六';
+								weeks['Sunday'] = '周日';
+								$.each(data, function(k, v) {
+									var week_str = '';
+									var title = v['title'];
+									var j = 0;
+									for (var i in weeks) {
+										if (stat.type == 'pie') {
+											if (k<3) {
+												continue;
+											}
+										}
+										if (j>6) {
+											continue;
+										}
+										week_str = weeks[i];
+										var str = v[i];
+										var arr = str.match(/\d/g);
+										var num = parseInt(arr[0]) + parseInt(arr[1]);
+										statData.push({
+											'group':title,
+											'name':week_str,
+											'value':num
+										});
+										j++;
+									}
+								});
+							} else if (stat.statType == '3') {
+								if (stat.type == 'pie') {
+									var deal_num = 0;
+									var not_deal_num = 0;
+									$.each(data, function(k, v) {
+										deal_num += v['deal_num'];
+										not_deal_num += v['not_deal_num'];
+									});
+									
+									statData.push({
+										'name':'成交',
+										'value':deal_num
+									});
+									
+									statData.push({
+										'name':'未成交',
+										'value':not_deal_num
+									});
+									
+								} else {
+								$.each(data, function(k, v) {
+									statData.push({
+										'name':v['user_name'],
+										'group':'成交',
+										'value':v['deal_num']
+									});
+									
+									statData.push({
+										'name':v['user_name'],
+										'group':'未成交',
+										'value':v['not_deal_num']
+									});
+								});
+								}
+							} else if (stat.statType == '4') {
+								$.each(data, function(k, v) {
+									statData.push({
+										'name':v['title'],
+										'group':'营收',
+										'value':v['income']
+									});
+								});
+							} else if (stat.statType == '5') {
+								$.each(data, function(k, v) {
+									if (stat.type == 'pie') {
+										var num = v['new_num'] + v['old_num'];
+										statData.push({
+											'name':v['doctor_name'],
+											'value':num
+										});
+									} else {
+										statData.push({
+											'group':'新客户',
+											'name':v['doctor_name'],
+											'value':v['new_num']
+										});
+										statData.push({
+											'group':'老客户',
+											'name':v['doctor_name'],
+											'value':v['old_num']
+										});
+										statData.push({
+											'group':'复诊人数',
+											'name':v['doctor_name'],
+											'value':v['re_visit']
+										});
+									}
+								});
+							} else if (stat.statType == '6') {
+								var field_flag = stat.flag;
+								if (field_flag == 'month') {
+									var months = [];
+									months['January'] = '1月';
+									months['February'] = '2月';
+									months['March'] = '3月';
+									months['April'] = '4月';
+									months['May'] = '5月';
+									months['June'] = '6月';
+									months['July'] = '7月';
+									months['August'] = '8月';
+									months['September'] = '9月';
+									months['October'] = '10月';
+									months['November'] = '11月';
+									months['December'] = '12月';
+									
+									if (stat.type == 'pie') {
+										var numArr = [];
+										numArr['January'] = 0;
+										numArr['February'] = 0;
+										numArr['March'] = 0;
+										numArr['April'] = 0;
+										numArr['May'] = 0;
+										numArr['June'] = 0;
+										numArr['July'] = 0;
+										numArr['August'] = 0;
+										numArr['October'] = 0;
+										numArr['November'] = 0;
+										numArr['December'] = 0;
+										$.each(data, function(k, v) {
+											for(var i in months) {
+												if (i=='contains') {
+													continue;
+												}
+												numArr[i] += v[i];
+											}
+										});
+										
+										for(var i in months) {
+											if (i=='contains') {
+												continue;
+											}
+											statData.push({
+												'name':months[i],
+												'value':numArr[i]
+											});
+										}
+									} else {
+										$.each(data, function(k, v) {
+											for(var i in months) {
+												if (i=='contains') {
+													continue;
+												}
+												statData.push({
+													'group':v['disease_name'],
+													'name':months[i],
+													'value':v[i]
+												});
+											}
+										});
+									}
+									
+									
+								} else {
+									field_flag = field_flag + '_name';
+									if (stat.type == 'pie') {
+										$.each(data, function(k, v) {
+											var num = v['new_num'] + v['old_num'];
+											statData.push({
+												'name':v[field_flag],
+												'value':num
+											});
+										});
+									} else {
+										$.each(data, function(k, v) {
+											statData.push({
+												'group':'新客户',
+												'name':v[field_flag],
+												'value':v['new_num']
+											});
+											statData.push({
+												'group':'老客户',
+												'name':v[field_flag],
+												'value':v['old_num']
+											});
+											statData.push({
+												'group':'复诊人数',
+												'name':v[field_flag],
+												'value':v['re_visit']
+											});
+										});
+									
+									}
+								}
+							} else if (stat.statType == '7') {
+								var field_flag = stat.flag;
+								field_flag = field_flag + '_name';
+								$.each(data, function(k, v) {
+									statData.push({
+										'group':v[field_flag],
+										'name':v[field_flag],
+										'value':v['money']
+									});
+								});
+							} else if (stat.statType == '8') {
+								if (stat.type == 'pie') {
+									$.each(data, function(k, v) {
+										statData.push({
+											'name':v['item_name'],
+											'value':v['num']
+										});
+									});
+								} else {
+									$.each(data, function(k, v) {
+										statData.push({
+											'group':'男性',
+											'name':v['item_name'],
+											'value':v['male']
+										});
+										
+										statData.push({
+											'group':'女性',
+											'name':v['item_name'],
+											'value':v['female']
+										});
+										
+										statData.push({
+											'group':'总计',
+											'name':v['item_name'],
+											'value':v['num']
+										});
+									});
+								}
+							}
+							
+							if (stat.type == 'pie') {
+								var opt = HighChart.ChartOptionTemplates.Pie(statData,stat.des,stat.title);
+							} else if (stat.type == 'line') {
+								var opt = HighChart.ChartOptionTemplates.Line(statData,stat.des,stat.title);
+							} else if (stat.type == 'bar') {
+								if (stat.statType == '1'&&stat.flag != 'detail') {
+									var opt = HighChart.ChartOptionTemplates.Bar(statData,stat.des,stat.title);
+								} else {
+									var opt = HighChart.ChartOptionTemplates.Bars(statData,true,true,stat.des,stat.title);
+								}
+								
+							}
+							
+							var container = $("#" + stat.showId);
+						    HighChart.RenderChart(opt, container);
+						    
+						}
+					}
+					
+				});
+			
+			if (this.open) {
+		    	$("#" + stat.showId).show();
+		    } else {
+		    	$("#" + stat.showId).hide();
+		    } 
+		},
+	}
+	
+	$.fn.showStatImage = function(option){
+		var _me = this;
+		option.modal = _me;
+		var _showStatImage = new showStatImage(option);
+		_showStatImage.request();
+	}
+}(window.jQuery);

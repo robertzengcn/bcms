@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增医生-预约挂号</title>
+</head>
+<body>
+<div class="pd-5">
+	<form method="post" class="form form-horizontal" id="doctorform">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>医生姓名：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" id="doctorname" name="name" datatype="*2-16" errormsg="限2-16个字" nullmsg="姓名不能为空"/>				
+			</div>
+			<div class="col-2"></div>
+			<label class="form-label col-2"><span class="c-red">*</span>出生日期：</label>
+			<div class="formControls col-91"><input type="text" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" id="birthdate" name="birthday" class="input-text Wdate" datatype="*" nullmsg="日期不能为空"/></div>
+			<div class="col-2"></div>				
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">职称：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" placeholder="主任医师/主治医师..." id="position" name="position">
+			</div><div class="col-2"></div>
+			<label class="form-label col-2"><span class="c-red">*</span>性别：</label>
+			<div class="formControls col-91 skin-minimal"><!--add col-91 css-->
+				<div class="radio-box">
+					<input type="radio" id="sex-1" name="gender" checked="checked"/>
+					<label for="sex-1">男</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="sex-2" name="gender"/>
+					<label for="sex-2">女</label>
+				</div>
+			</div>		
+		</div>
+		<div class="row cl">						
+			<label class="form-label col-2">毕业院校：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" placeholder="" id="university" name="university">
+			</div><div class="col-2"></div>
+			<label class="form-label col-2">学历：</label>
+			<div class="formControls col-91">
+				<input type="text" class="input-text" value="" placeholder="本科/硕士/博士..." id="cultural" name="cultural">
+			</div>
+			
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">医生照片：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius" onClick="editdoctor.uploadImg('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=registerdoc&ipn=thumbnail_doc','720','340')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_doc"  width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+			<div class="formControls col-94"><input class="thumbnail_doc" type="hidden" id="thumbnail_doc_value" value="" name="pic" datatype="*" nullmsg="医生照片不能为空！"/></div><div class="col-3"> </div>
+		</div><!--上传图片-->
+		
+		<div class="row cl">
+			<label class="form-label col-2">行医资质：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius" onClick="editdoctor.uploadImg('上传图片','../js/boyicms/uploadimg.html?method=uploadPic&dir=registerdoc&ipn=thumbnail_prove','720','340')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<img src="../images/boyicms/logo/thumbnail_auto.gif" flag="../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail_prove" width="150px"/><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+		</div><!--上传图片-->
+		<input type="hidden" id="thumbnail_prove_value" value="" name="certificate">		
+		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>所属科室：</label>
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="departmentmanager_id" class="select" id="department_id" nullmsg="请选择科室！" datatype="*"></select>
+				</span> </div><div class="col-2"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">擅长领域：</label>
+			<div class="formControls col-8">
+				<textarea name="specialty" id="specialty" cols="" rows="" class="textarea"  placeholder="请输入该医生擅长的领域..." dragonfly="true" nullmsg="擅长不能为空！" onKeyUp="textarealength(this,400)" datatype="*10-400" errormsg="限10-400个字"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/400</p>
+			</div><div class="col-2"></div>
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">医生简介：</label>
+			<div class="formControls col-8">
+				<textarea name="content" id="content" class="textarea"  placeholder="请输入医生简介..." dragonfly="true" nullmsg="简介不能为空！" onKeyUp="textarealength(this,200)"  errormsg="限10-200字" datatype="*10-200"></textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			</div><div class="col-2"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">详细介绍：</label>
+			<div class="formControls col-8"> 				
+				<textarea nullmsg="介绍不能为空！" style="width:100%;height:400px;" id="editor" name="fulldescript" datatype="*"></textarea> 
+			</div><div class="col-2"></div>
+		</div>
+		<div style="width:100%;height:60px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-2">
+				<button class="btn btn-primary radius" type="button" id="savedoc"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/doctormanager.js"></script>
+<script type="text/javascript">
+var editor = UE.getEditor('editor');
+var editdoctor = new Doctormanager();
+editdoctor.setThisName('editdoctor');
+//doctormanager.doctor_manager();
+
+</script> 
+
+</body>
+</html>

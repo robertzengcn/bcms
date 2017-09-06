@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/ask.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>回访详细内容</title>
+</head>
+<body>
+<div class="pd-20">
+<div class="questions">
+  <div>  
+    <div class="tbox">
+      <div class="t_con">
+        <div class="t_left"> <span class="user_img"><img src="../../../images/boyicms/ask/doctor_pic.png" alt=""/></span> </div>
+        <div class="t_right"> <span class="user_name"><strong><a  href="javascript:void(0)"> 回访方式：电话 </a></strong> <cite id="reply_time">2016-01-26 20:49</cite> </span>
+          <p class="user_p"> <strong>内容：</strong><span id="replyContent">您好，您己离院两天，是否有按照医生指示进行调养，有无不舒服的地方？</span> </p>
+          <ul class="user_talk">
+            <li class="li_user"><img src="../../../images/user.png"  ><span><a href="javascript:void(0)"> 患者</a><i>回复：</i><cite>2016-01-26 20:54</cite></span>
+              <p id="">我做了B超，甲状腺功能七项，常规六项，医生说都正常的</p>
+              
+            </li>
+            <li class=""><img src="../../../images/boyicms/ask/doctor_pic.png"/> <span><a href="javascript:void(0)"> 我院</a><i>回复：</i><cite>2016-01-26 20:50</cite></span>
+              <p id="">你好，性激素正常，月经不规则有一部分是还没有完全发育好，可以观察，也可以调整月经周期。</p>              
+            </li> 
+          </ul>
+		  <div style="width:100%;height:10px;clear:both;"></div>
+			<div class="cl pd-5 mt-20">
+				<label class="form-label col-95"><span class="c-red">*</span>回访方式：</label>	
+					<div class="formControls col-91"> <span class="select-box">
+						<select name="" class="select">
+							<option value="0">请选择</option>
+							<option value="1">电话</option>
+							<option value="2">短信</option>
+							<option value="3">邮件</option>
+							<option value="3">微信</option>
+							<option value="3">QQ</option>
+							<option value="4">APK消息</option>
+						</select>
+						</span> </div>&nbsp;&nbsp;<a class="btn btn-primary radius" onClick="showbox(1);" href="javascript:;"><i class="Hui-iconfont">&#xe68a;</i> 新增回访 </a>	
+						&nbsp;&nbsp;<a class="btn btn-primary radius" onClick="showbox(2);" href="javascript:;"><i class="Hui-iconfont">&#xe6c5;</i> 患者回馈 </a>				
+			</div>
+        <div class="user_box" id="visit_doc" style="display:none;">
+          <form method="post" id="" target="_self">            
+            <div class="row cl">				
+				<div class="formControls col-10">
+					<textarea name="" cols="" rows="" class="textarea"  placeholder="请输入您的回复内容..." datatype="*10-100" dragonfly="true" nullmsg="回复内容不能为空！" onKeyUp="textarealength(this,500)"></textarea>
+					<p class="textarea-numberbar"><em class="textarea-length">0</em>/500</p>
+				</div>
+			</div>
+			<div class="row cl mt-5">
+			<div class="col-10" style="text-align:right;" >
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 发送</button>		
+				<button onClick="hidebox(1);" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+          </form>
+        </div>
+		<div style="width:100%;height:10px;clear:both;"></div>
+		<div class="user_box" id="visit_patient" style="display:none;">
+          <form method="post" id="" target="_self">            
+            <div class="row cl">				
+				<div class="formControls col-10">
+					<textarea name="" cols="" rows="" class="textarea"  placeholder="请输入通过电话、短信或邮件等方式回访的患者反馈给院方的内容..." datatype="*10-100" dragonfly="true" nullmsg="回复内容不能为空！" onKeyUp="textarealength(this,500)"></textarea>
+					<p class="textarea-numberbar"><em class="textarea-length">0</em>/500</p>
+				</div>
+			</div>
+			<div class="row cl mt-5">
+			<div class="col-10" style="text-align:right;" >
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>		
+				<button onClick="hidebox(2);" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+          </form>
+        </div>
+          </div><!--t_right over-->
+      </div><!--t_con over-->
+    </div>
+    <div class="tbox">
+      <div class="t_con">
+        <div class="t_left"> <span class="user_img" ><img src="../../../images/boyicms/ask/doctor_pic.png" alt="匿名"/></span> </div>
+        <div class="t_right"> <span class="user_name"><strong><a href="javascript:void(0)"> 匿名 </a></strong><cite>2016-01-26
+              20:48</cite> </span>
+          <p class="user_p"> <strong>内容：</strong>该情况可以考虑是激素水平低下 </p>        
+          </div><!--t_right over-->
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+/*显示回复框*/
+function showbox(i){
+	switch(i){
+		case 1:$("#visit_doc").show();break;
+		case 2:$("#visit_patient").show();break;
+	}
+
+}
+
+
+/*关闭回复框*/
+function hidebox(i){
+	switch(i){
+		case 1:$("#visit_doc").hide();break;
+		case 2:$("#visit_patient").hide();break;
+	}
+
+}
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-admin-add").Validform({
+		tiptype:2,
+		callback:function(form){
+			form[0].submit();
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.$('.btn-refresh').click();
+			parent.layer.close(index);
+		}
+	});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+/* CSS Document */
+
+body {
+    font-size: 16px;
+    font-family: Microsoft YaHei,宋体;
+    color: #333;
+    text-align: center;
+    line-height: 28px;
+}
+ul{padding:0px;margin:0px;list-style:none;}
+a {text-decoration:none;color:#000000;}
+img {border:none;margin:0px;padding:0px;}
+h1,h2,h3,h4,h5,h6,p{margin:0px;padding:0px;font-weight:normal;}
+section{display:block;margin:0px;padding:0px;}
+div.clearbox{clear:both;width:100%;height:1px;}
+
+
+/*soso css*/
+
+#search,#searchform{width:100%;height:36px;line-height:36px;}
+#search{position:fixed;bottom:3px;left:0px;}
+.searchbox{background:url(../i/search-bg.png) no-repeat;height:36px;line-height:36px;width:304px;margin:0 auto;text-align:left;}
+.searchbox input{background:none;height:32px;font-size:14px;color:#999999;border:none;width:250px;}
+.searchbox a{font-size:14px;color:#ffffff;padding:6px;}

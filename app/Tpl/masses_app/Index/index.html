@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body>
+	<section id="page">
+    	<!--<header>
+			<h1><img src="Image/logo.gif"></h1>
+		</header>-->
+        {{$btlogo=$PicManagerTag->getMobilePic("mobile_daohang","app")}}
+		
+    <section id="body">
+			<article class="banner">
+				
+				
+            <img src="/upload/{{$btlogo->img}}">
+            </article>
+            
+           	<article class="listbox">
+            	<ul>
+            		{{$appnav = $NavigationTag->getMobileGroup("app_nav","app")}}
+					
+					{{foreach $appnav as $key=>$v}}
+                	<a href="{{$v->url}}"><li><span><h1>{{$v->subject}}</h1><h2>专家预约、手机挂<br>号、实时了解情况</h2></span><img src="/upload/{{$v->pic}}"></li></a>
+                   {{/foreach}}
+                   
+                </ul>
+            </article>
+			
+           	
+            
+    </section>
+    </section>
+</body>
+</html>

@@ -1,0 +1,256 @@
+/**
+ * 导航管理-头|尾|疾病
+ * */
+function Navigation() {
+	BaseFunc.call(this);
+	var self = this;
+	
+	// {{{ function initList()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function initEdit()
+	/**
+	 * 初始化编辑
+	 * */
+	this.initEdit = function() {
+		$(function(){					
+			//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.cate != undefined) {$("#cate").val(para.cate);}
+			if (para.id != undefined) {
+				//有id，则是编辑
+				$("#id").val(para.id);	
+				self.cmd(gHttp,{controller:'Navigation',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						//console.log(result1);
+						$('#formEdit').frmFill('',result1.data);
+						$("#hurl").val($('#hurl_link').val());						
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+							picflag = result1.data.flag;
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			}
+			else{
+				if (para.cate != undefined) {$("#cate").val(para.cate)}	
+			}
+			self.onloadCss();
+			//初始化导航父级
+			$("#apid").bindApid(para.cate);
+			var str='';
+			$("#apid").find("option").each(function(){													
+				if($(this).text()==$("#pidname").val()){
+					$(this).attr('selected','selected');
+				}
+				
+			});
+			var slectval=$("#apid").html();
+			
+			
+			//初始化科室链接数据
+			$("#htmlUrl").bindDepartment();
+			
+			$('#htmlUrl').change(function(){
+				var sel = $(this).val();
+				$('#childDiseaseDiv').empty();				
+				$('#hurl_link').val(window.location.origin+'/'+sel);
+				$('#link_box').val(window.location.origin+'/'+sel);
+				if(sel=='departments'||sel=='disease'){					
+					$('#hurl_link').val('');
+					$('#link_box').val(sel);
+					var params = {sel:sel};
+					$('#childUrlDiv').bindDisease(params,'hurl_link');					
+				}else if(sel == "channel"){
+					$('#hurl_link').val('');
+					$('#link_box').val(sel);
+					$('#childUrlDiv').bindChannel('hurl_link');					
+				}else{
+					$('#childUrlDiv').hide();
+					$('#childUrlDiv').html('');
+				}
+				
+			});
+			
+			//childUrlDiv改变时赋值给link_box
+			$("#childUrlDiv").change(function(){
+				var value=window.location.origin+'/'+$(this).find('option:selected').attr('flag');
+				$('#link_box').val(value);
+				$('#hurl_link').val(value);
+				
+			});
+			
+			//childDiseaseDiv改变时赋值给link_box
+			$("#childDiseaseDiv").change(function(){
+				var value=window.location.origin+'/'+$(this).find('option:selected').attr('flag');
+				$('#link_box').val(value);
+				$('#hurl_link').val(value);
+				
+			});
+			
+			//hurl 改变时把值写入hurl_link
+			$('input#hurl').change(function(){
+				$('input#hurl_link').val($(this).val());								
+			});
+			
+			//链接方式切换
+			$('input[name="radio_link"]').click(function(){
+				$(this).attr('checked',true);
+				var value=$("#hurl_link").val();
+				if($(this).val()==1){
+					$("#hurl").val("");	
+					if(value.indexOf('http')!=-1){
+						$("#hurl").val(value);	
+					}
+				}
+				else{
+					$("#link_box").val(value);
+				}
+											
+				$("#childUrlDiv").hide();
+				$("#childUrlDiv").html('');
+				$("#childDiseaseDiv").html('');
+				$('#htmlUrl').val('');
+				
+				var id = $(this).attr('id');
+				$("div[id^='div_link']").hide();
+				$("#div_" + id).show();
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+		});
+	}
+	
+	// }}}
+   
+	// {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Navigation',method:'query',cate:gCate},
+			aoColumnDefs : [
+				{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[1]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]},{sClass:'text-c',aTargets:[6]}
+							],
+			initSort : [[0, "desc"]],
+		    field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+                        { data: 'id' },
+			            { data: 'subject' },
+			            { data: 'url'},
+			            { data: 'pid',render:function(val){var str=val=='无'?'<span class="label label-default radius">无</span>':'<span class="label label-success radius">'+val+'</span>'; return str;}},
+			            { data: 'sort'},
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var str = '';
+				              str += '<a style="text-decoration:none" onClick="gNavigation.WINedit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gNavigation.del(this,'+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+	
+	//单个删除
+	this.del = function(obj, id) {
+		self.openDel(obj,{controller:'Navigation',method:'del',id:id});
+	}
+	
+	//批量删除
+	this.delBatch = function(obj) {
+		var ids = $("#dataTable").getSelectedAll();
+		self.openDel(obj,{controller:'Navigation',method:'del',id:ids});
+	}
+
+	//动态编辑
+	this.edit = function(id){
+		var str='';
+		if(gCate==1){str='头部全站通用导航';}
+		if(gCate==2){str='疾病导航';}
+		if(gCate==3){str='页尾通用导航';}
+		
+		self.openEdit('编辑'+str, 'nav-detail.html?cate='+gCate+'&id=' + id);
+	}
+	
+	this.WINedit = function(id){
+		var str='';
+		if(gCate==1){str='头部全站通用导航';}
+		if(gCate==2){str='疾病导航';}
+		if(gCate==3){str='页尾通用导航';}
+		
+		self.openEditWID('编辑'+str, 'nav-detail.html?cate='+gCate+'&id=' + id,'740','480');
+	}
+	// {{{ function save()
+	
+	/**
+	 * 保存
+	 * */
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Navigation',method:'add'};
+		} else {
+			post = {controller:'Navigation',method:'edit',id:id};
+		}
+		var obj=$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();			
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#formEdit').Validform().unignore('#link_box');
+		$('#formEdit').Validform().unignore('#hurl');		
+		var linkType = $("input[name='radio_link']:checked").val();
+		if (linkType == '1') {
+			obj.ignore('#link_box');
+		} else {
+			obj.ignore('#hurl');
+		}		
+		$('#formEdit').submit();
+	}
+	
+	// }}}
+}

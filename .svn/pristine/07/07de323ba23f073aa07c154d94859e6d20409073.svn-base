@@ -1,0 +1,19 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class CommodityRuleTitle extends Entity {
+
+	var $id;
+
+	var $name;
+
+
+
+
+
+	public function validate() {
+		if (strlen($this->name) == 0) {
+			throw new ValidatorException(6);
+		}
+	}
+}

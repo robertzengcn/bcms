@@ -1,0 +1,710 @@
+var gHttp = '/controller/';
+function BaseFunc() {
+	
+	/**
+     * this对象在外部的名字
+     *
+     * @field
+     * @type String
+     */
+    this.__thisName = "this";
+    
+    var self = this;
+    
+	// {{{ function setThisName
+
+    /**
+     * 设置this对象在外部的名字
+     *
+     * @param {String} thisName 名字
+     *
+     * @returns {Void}
+     */
+    this.setThisName = function (thisName) {
+        this.__thisName = thisName;
+    }
+
+    // }}}
+    // {{{ 
+    
+    /**
+     * 判断是否登录
+     * */
+    this.isLogin = function(){
+    	self.cmd(gHttp,{controller : 'Login',method : 'isLogin'}, function(result) {
+    		if (!result.statu || result.data.group != 1) {
+    			top.window.location.href = '/hcc/login.html';
+    		} else {
+    			top.window.location.href = '/hcc/main.html';
+    		}
+    	});
+    }
+    // }}}
+    // {{{ function cmd()
+    
+    /**
+     * 获取请求数据
+     * */
+	this.cmd = function(http,para,fun) {
+		$.ajax({
+			url : http,
+			data : para,
+			cache : false,
+			type : 'post',
+			dataType : 'json',
+			async : false,
+			error : function(obj,error){
+				alert('error!');
+			},
+			success : function(result){
+				if(result != null && result.code != undefined && result.code==25){
+					top.window.location.href = '/hcc/login.html';
+					return false;
+				}
+				fun(result);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function uploadImg()
+	
+	/**
+	 * 图片上传弹出框
+	 * */
+	this.uploadImg = function (title,url,w,h){
+		layer_show(title,url,w,h);
+	}
+	
+	// }}}
+	// {{{ function getJosnMethod
+	/**
+	 * 获取getJosnMethod数据
+	 * */
+	this.getJosnMethod = function(url,func){
+		self.cmd(gHttp,{controller:'PicManager',method:'getConfigJson',url:url},function(result){
+			func(result);
+		});
+	}
+    // }}}
+	// {{{ function getImgSize
+	/**
+	 * 获取图片大小
+	 * */
+	
+	this.getImgSize = function(para){
+		self.getJosnMethod('/tpl/config.json', function( data ) {
+			var tpl = '';
+			if( data != null ) {
+				$.each( data, function( key, value ) {
+					tpl = value.currentUsed;
+				});
+			}
+            if(tpl=='' || tpl.length == '0'){
+            	self.getJosnMethod('/tpl/imgsize.json', function( imgsize ) {
+                    var imgsizeArr = new Array();
+                    $.each( imgsize, function( key, value ) {
+                        imgsizeArr[value.key] = value;
+                        if(value.key == para){
+                            $("#"+para).html(imgsizeArr[para]['width']+'px * '+imgsizeArr[para]['height']+"px");
+                            return false;
+                        }
+                    });
+                });
+            }else{
+            	self.getJosnMethod('/tpl/'+tpl+'/imgsize.json', function( imgsize ) {
+                    var imgsizeArr = new Array();
+                    $.each( imgsize, function( key, value ) {
+                        imgsizeArr[value.key] = value;
+                        if(value.key == para){
+                            $("#"+para).html(imgsizeArr[para]['width']+'px * '+imgsizeArr[para]['height']+"px");
+                            return false;
+                        }
+                    });
+                });
+            }
+
+		});
+	}
+	
+	// }}}
+	// {{{ function setImgSize()
+	/**
+	 * 设置图片大小
+	 * */
+	
+	this.setImgSize = function(para,id){
+		if(!id){
+			id = "#img";
+		}
+		self.getJosnMethod('/tpl/config.json', function( data ) {
+			var tpl = '';
+            if( data != null ) {
+			$.each( data, function( key, value ) {
+				tpl = value.currentUsed;
+			});
+            }
+            if(tpl=='' || tpl.length == '0'){
+            	self.getJosnMethod('/tpl/imgsize.json', function( imgsize ) {
+                    var imgsizeArr = new Array();
+                    $.each( imgsize, function( key, value ) {
+                        imgsizeArr[value.key] = value;
+                        if(value.key == para){
+                            $(id).attr('width',imgsizeArr[para]['width']);
+                            $(id).attr('height',imgsizeArr[para]['height']);
+                            return false;
+                        }
+                    });
+                });
+            }else{
+            	self.getJosnMethod('/tpl/'+tpl+'/imgsize.json', function( imgsize ) {
+				var imgsizeArr = new Array();
+				$.each( imgsize, function( key, value ) {
+					imgsizeArr[value.key] = value;
+					if(value.key == para){
+						$(id).attr('width',imgsizeArr[para]['width']);
+						$(id).attr('height',imgsizeArr[para]['height']);
+						return false;
+					}
+				});
+			});
+            }
+		});
+	}
+	
+	// }}}
+	// {{{　function getPicScroll()
+	/**
+	 * 获取滚动图片
+	 * */
+	this.getPicScroll = function(para){
+		$.getJSON('/tpl/slide/config.json', function( imgsize ) {
+			var slide = new Array();
+			var install = true;
+			$.each( imgsize, function( key, value ) {
+				if(key == 0){
+					install = value.name;
+					return false;
+				}
+			});
+			if(!install){
+				self.cmd(gHttp,{controller:'PicManager',method:'installSlide'},function(result){
+					if(!result.statu){
+						$('#message').message(result.msg);
+					}else{
+						$('#grid').grid('reload');
+					}
+				});
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function openAdd()
+	
+	/**
+	 * 添加窗口
+	 * */
+	this.openAdd = function (title,url,w,h){
+		if (w == undefined && h == undefined) {
+			var option = {type:2,title:title,content:url};
+			var index = layer.open(option);
+			layer.full(index);
+		} else {
+			if (h == undefined) {
+				var option = {type:2,title:title,content:url,area:w + 'px'};
+			} else {
+				var option = {type:2,title:title,content:url,area:[w + 'px',h + 'px']};
+			}
+			
+			var index = layer.open(option);
+		}
+		
+	}
+	
+	// }}}
+    // {{{ function openEdit()
+	
+	/**
+	 * 编辑窗口
+	 * */
+	this.openEdit = function (title,url){
+		var index = layer.open({type:2,title:title,content:url});
+		layer.full(index);
+	}
+	
+	// }}}
+    // {{{ function openDel()
+	
+	/**
+	 * 删除窗口
+	 * */
+	this.openDel = function (obj,para){
+		layer.confirm('确认要删除吗？',function(index){
+			self.cmd(gHttp,para,function(ret){
+				if(ret.statu){
+					layer.alert('删除成功!',function(index){
+						$(obj).parents("tr").remove();
+						layer.close(index);
+					});
+				}else{
+					layer.alert('删除失败!');
+				}
+				layer.close(index);
+				return false;
+			})
+		});
+	}
+	
+	// }}}
+	/**
+     * 解析url
+     *
+     * @param {String} urlValue url的值
+     *
+     * @returns {Void}
+     */
+    this.parseUrl = function (urlValue) {
+        urlValue = urlValue + "";
+        var urlQuery, urlParams;
+
+        //处理url整体
+        var urlReg = /^([^?#]*)\??([^#]*)(#?.*)$/;
+        var urlMatch = urlValue.match(urlReg);
+        urlQuery = "undefined" === typeof urlMatch[2] ? "" : urlMatch[2];
+
+        //处理params
+        urlParams = {};
+        if ("" !== urlQuery) {
+            var arrayParams = urlQuery.split('&');
+            for (var i = 0; i < arrayParams.length; i++) {
+                var paramStr = arrayParams[i];
+                //忽略空的参数
+                if ("" === paramStr) {
+                    continue;
+                }
+
+                var paramKey, paramValue;
+                var placeEqual = paramStr.indexOf('=');
+
+                if (-1 === placeEqual) {
+                    paramKey = paramStr;
+                    paramValue = "";
+                } else {
+                    paramKey = paramStr.substr(0, placeEqual);
+                    paramValue = paramStr.substr(placeEqual + 1);
+                }
+
+                //忽略key为空的参数
+                if ("" === paramKey) {
+                    continue;
+                }
+
+                urlParams[paramKey] = paramValue;
+            }
+        }
+
+        return urlParams;
+    }
+
+    // }}}
+    
+}
+
+/*******************************滚动效果相关***********************************/
+function slider(s){this.init.apply(this,arguments)}
+slider.prototype={
+	init:function(s){
+	   this.o=this.getByClass(s)[0];
+	   this.l=this.getByClass('slider_pic',this.o)[0].getElementsByTagName('li');
+	   this.b=this.getByClass('slider_btn',this.o)[0];
+	   this.bSpan=this.b.getElementsByTagName('span');
+	   this.len=this.l.length;
+	   this.iNum=0;
+	   this.status();//初始化状态
+	   this.autoPlay();//自动播放
+	   this.clickPlay();//点击按钮播放
+	   this.suspensionPause();//鼠标悬浮暂停
+	},
+	 clickPlay:function()
+	 {
+	 	var This=this;
+	 	for(var i=0;i<this.len;i++)
+	 	{    
+	 		this.bSpan[i].index=i;
+	 		this.bSpan[i].onclick=function()
+	 		{
+	 			clearInterval(This.timer);
+	 			var index=this.index;
+	 			This.iNum=(index+1) == This.len ? 0 : (index+1)  ;
+	 			var o=This.l[index];
+	 			This.setLayout(this,o);
+	 			This.autoPlay();
+	 		}
+	 	}
+	 },
+	 suspensionPause:function()
+	 {  
+	 	var This=this;
+	 	for(var i=0;i<this.len;i++)
+	 	{
+	 		this.l[i].onmouseover=function()
+	 		{
+	 			clearInterval(This.timer);
+	 		}
+	 		this.l[i].onmouseout=function()
+	 		{
+	 			This.autoPlay();
+	 		}
+	 	}
+	 },
+	 setLayout:function(o1,o2){
+	 	for(var j=0;j<this.len;j++)
+		{
+			if(this.bSpan[j]!=o1)
+			{
+				this.bSpan[j].className='';
+				this.l[j].style.zIndex=j;
+			}
+		}
+		o2.style.zIndex=this.len;
+		o2.style.left='600px';
+		this.doMove(o2,0);
+		o1.className='cur';
+	 },
+	 status:function(){
+	 	for(var i=this.len;i--;i>0)
+	 	{
+	 		this.l[i].style.zIndex=i;
+	 		this.bSpan[i].className='';
+	 	}
+	 	this.l[0].style.zIndex=this.len;
+	 	this.bSpan[0].className='cur';
+	 	this.b.style.zIndex=(this.len+1);
+	 },
+	 autoPlay:function(){
+	 	this.timer=null;
+	 	var This=this;
+	 	this.timer=setInterval(function(){
+	 		This.setLayout(This.bSpan[This.iNum],This.l[This.iNum])
+	 		This.iNum++;
+	 		if(This.iNum==This.len)
+	 		{
+	 			This.iNum=0;
+	 		}
+	 	},6000)
+	 },
+	 getByClass:function(s,p){
+	 	var reg=new RegExp('(\\b)'+s+'(\\b)');
+	 	var aResult=[];
+	 	var aElement=(p || document).getElementsByTagName('*');
+	 	for(var i=0;i<aElement.length;i++)
+	 	{
+	 		reg.test(aElement[i].className) && aResult.push(aElement[i])
+	 	}
+	 	return aResult;
+	 },
+	 doMove:function(o,t)
+	 {
+	 	clearInterval(o.timer);
+	 	o.timer=setInterval(function(){
+	 		var iS=(t-o.offsetLeft)/8;
+	 		iS=iS>0?Math.ceil(iS):Math.floor(iS);
+
+	 		if(o.offsetLeft==t)
+	 		{
+	 			clearInterval(o.timer);
+	 		}
+	 		else
+	 		{
+	 			o.style.left=o.offsetLeft+iS+"px";
+	 		}
+
+	 	},30)
+	 }
+
+}
+
+/**********************************表单相关******************************************/
+$(function(){
+	//表单的验证
+	$.fn.frmVal = function(data){
+		var _me = $(this);
+		var check = true;
+		_me.find(':input[type!=button]').each(function(){
+			$(this).next('.error').remove();
+			var ck = $(this).attr('check');
+			var val = $.trim($(this).val());
+			var title = $(this).attr('title');
+			if(ck != undefined){
+				var arr = ck.split(' ');
+				var len = arr.length;
+				if(len == 1){
+					if(arr[0] == 'must'){
+						if(val == ''){
+							var html = '<div id="error_info"></div>';
+							$('body').append(html);
+							$('#error_info').message(title);
+							check = false;
+							return false; 
+
+						}
+					}else{
+						var str = arr[0].split('-');
+						//当有值时才进行判断
+						if(val.length > 0){
+							switch(str[0]){
+								case 'str' : 
+									if (str[1] > val.length || str[2] < val.length) {
+										var html = '<div id="error_info"></div>';
+										$('body').append(html);
+										$('#error_info').message(title);
+										check =  false;
+										return false;
+									}
+									break;
+								case 'num' : 
+									if(isNaN(val) || (!isNaN(val) && val < parseInt(str[1])) || (!isNaN(val) && val > parseInt(str[2])) ){
+										var html = '<div id="error_info"></div>';
+										$('body').append(html);
+										$('#error_info').message(title);
+										check =  false;
+										return false;
+									}
+									break;			
+							}
+						}
+						
+					}
+				}else{
+					var str = arr[1].split('-');
+					switch(str[0]){
+						case 'str' : 
+							if(str[1] > val.length || str[2] < val.length){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'num' : 
+							if(isNaN(val) || (!isNaN(val) && val < parseInt(str[1])) || (!isNaN(val) && val > parseInt(str[2])) ){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'compare' : 
+							var id = str[1];
+							var one = $.trim($('#'+id).val());
+							if(one != val){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'url' :
+							var strRegex = "^((https|http|ftp|rtsp|mms)?://)"  
+								  + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?"
+								        + "(([0-9]{1,3}\.){3}[0-9]{1,3}"
+								        + "|"
+								        + "([0-9a-z_!~*'()-]+\.)*"
+								        + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\."
+								        + "[a-z]{2,6})"
+								        + "(:[0-9]{1,4})?"
+								        + "((/?)|"
+								        + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
+							var re = new RegExp(strRegex);
+							if (!re.test(val)){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+						case 'movie' :
+							var pattern = /(.*?)\.(swf)$/i;
+							if(val.length == 0 || val.search(pattern) == -1){
+								var html = '<div id="error_info"></div>';
+								$('body').append(html);
+								$('#error_info').message(title);
+								check =  false;
+								return false;
+							}
+							break;
+					}
+				}
+			}
+		});
+		
+		if(check){
+			//密码进行md5加密
+			_me.find(':input[type=password]').each(function(){
+				$(this).val($.md5($(this).val()));
+			});
+			var str = _me.serializeArray();
+			var s = data;
+			$.each(str,function(i,obj){
+				s[obj.name] = obj.value;
+			});
+			return s;
+		}else{
+			return false;
+		}
+	}
+	
+	//表单赋值
+	$.fn.frmFill = function(name, data) {
+		var _me = $(this);
+		var new_name = '';
+		_me.find('input[type="text"],:password,textarea,:hidden').each(function() {
+			for (pro in data) {
+				if (name == '') {
+					new_name = pro;
+				} else {
+					new_name = name + '[' + pro + ']';
+				}
+				if ($(this).attr('name') == new_name) {
+					$(this).val(data[pro]);
+					break;
+				}
+			}
+		});
+
+
+        _me.find('img').each(function(){
+            for(pro in data){
+                if(name == ''){
+                    new_name = pro;
+                }else{
+                    new_name = name + '['+pro+']';
+                }
+
+                if($(this).attr('name') == new_name){
+                    $(this).attr('src',data[pro]);
+                    break;
+                }
+            }
+        });
+		
+		_me.find(':radio').each(function(){
+			for(pro in data){
+				if(name == ''){
+					new_name = pro;
+				}else{
+					new_name = name + '['+pro+']';
+				}
+
+				if($(this).attr('name') == new_name && $(this).val() == data[pro]){
+					$(this).attr('checked','checked');
+				}
+			}
+		});
+
+		_me.find('select').each(function() {
+			for (pro in data) {
+				if (name == '') {
+					new_name = pro;
+				} else {
+					new_name = name + '[' + pro + ']';
+				}
+				if ($(this).attr('name') == new_name) {
+					$(this).children('[value="' + data[pro] + '"]').attr('selected', 'selected');
+					break;
+				}
+
+			}
+		});
+
+		var title_seo = $('#seo_title').val();
+		if(title_seo != undefined){
+			var l = 50-title_seo.length;
+			$('#seo_title').next('font').html('您还可以输入<font color="#111111">'+l+'</font>字');
+		}
+
+		var desc_seo = $('#seo_desc').val();
+		if(desc_seo != undefined){
+			var l = 240-desc_seo.length;
+			$('#seo_desc').next('font').html('您还可以输入<font color="#111111">'+l+'</font>字');
+		}
+
+		return _me;
+	}
+
+	//表单的提交
+	$.fn.frmPost = function(data,fun){
+		var base = new BaseFunc();
+		var _me = $(this);
+		var data = _me.frmVal(data);
+		if(data){
+			base.cmd(gHttp,data,fun);
+		}
+	}
+	
+    /**
+     * 获取所有选中项
+     * */
+    $.fn.getSelectedAll = function() {
+    	var data = '';
+		var tbodyObj = $(this).find('tbody');
+		tbodyObj.find('input[type="checkbox"]:checked').each(function(){
+			data += $(this).val() + ',';
+		});
+		if (data != '') {
+			var len = data.length;
+			data = data.substr(0,len-1);
+		}
+		return data;
+    }
+    
+});
+
+/**************************提前加载项******************************/
+function selectAll(){
+		var tableObj = $(this).parent().parent().parent();
+		var tbodyObj = tableObj.find('tbody');
+		tbodyObj.find('input[type="checkbox"]').each(function(){
+			if ($("#selectAll").attr('checked') == true) {
+				tbodyObj.find('input[type="checkbox"]').attr('checked', true);
+			} else {
+				tbodyObj.find('input[type="checkbox"]').attr('checked', false);
+			}
+		});
+}
+
+/*****************datetable******************************/
+
+/*
+ * 表格中的批量选中 返回id
+ * 
+ * */
+function chooseall(id){
+	var check_val=[];
+    var obj=$(id);
+    var tbody=obj.find('tbody');
+  
+    var  checks=tbody.find('input[type="checkbox"]');
+    for(var i=0; i<checks.length;i++){
+    	if(checks[i].checked){
+    	check_val.push(checks[i]);
+    	}
+    }
+ 
+    return check_val;	
+}
+/*
+ * 
+ * 刷新表格，注意需要服务端支持
+ * 
+ * 
+ */
+function troad(id){
+	var table=$(id).dataTable();
+	table.api().ajax.reload();
+}

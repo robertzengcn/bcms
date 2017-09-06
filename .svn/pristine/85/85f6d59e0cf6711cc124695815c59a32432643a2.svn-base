@@ -1,0 +1,618 @@
+function Schedule(){
+	BaseFunc.call(this);
+	var self = this;
+	//科室管理
+    this.resertemp_manager = function(para){
+		var self = this;
+		var resertemp=$("#resertemp").DataTable({			
+			bStateSave:false,
+			serverSide: false,
+			processing: true,
+			searching: true,			
+			ajax:{
+				'url':'/controller/?controller=	ReserTemplate&method=query',				
+				'type':'POST',				
+				'dataType':'json',
+				'dataSrc': function(json){					
+					return json.data;					
+				}
+				
+			},
+			order: [[ 1, "desc" ]],
+			aoColumnDefs : [
+				{sClass:'text-l',aTargets:[3]}
+							],
+			columns: [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	},
+			            	name: 'xuanze',
+			            	orderable:false
+			            },
+			            { data: 'id'	
+			            	},
+			            { data: 'department',name:'department'},
+			            { data: 'title',name:'title'},
+			            { data: 'plushtime',name:'plushtime'},
+			            {						  
+						  render : function(data, type, row){
+							  var str = '';
+							  str += '<a style="text-decoration:none" dataid="'+row.id+'" class="depedit" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5 delitem" dataid="'+row.id+'" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  },
+						  orderable:false
+						 }
+			        ]		
+		});
+		
+		$('body').on('click','.depedit', function () {
+			var id=$(this).attr('dataid');
+			layer.open({
+				type:2,	
+				area: ['940px', '500px'],
+			    content: 'scheduling-temp.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 					
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			        iframeWin.resertemppage.add_resertemp({method:'edit',id:id});//这里
+			    }
+			});
+			
+		});
+		
+		$('body').on('click','.reflash',function(){
+			troad('#resertemp');				
+		});
+		
+		$('body').on('click','.delitem',function(){
+			var id=$(this).attr('dataid');
+			layer.open({
+				type:1,					
+			    content: '<p>确定要删除吗?</p>',
+			    btn: ['确定', '取消'],
+			    yes:function(index,layero){
+			    	self.cmd(gHttp,{controller:'ReserTemplate',method:'delete',id:id},function(result1){
+						if(result1.statu){
+							layer.msg('删除成功!');
+							troad('#resertemp');	
+						    layer.close(index);
+
+						}else{
+							layer.msg(result1.msg);
+							
+						}
+						return false;
+					});
+			    	
+			    	
+			    },
+			    cancel:function(index,layero){
+			    	layer.close(index);
+			    }
+
+			});
+			
+		});
+		
+		$('body').on('click','.docman', function () {
+			var id=$(this).attr('dataid');	
+			layer.open({
+				type:2,	
+				area: ['900px', '400px'],
+			    content: 'doctor-to-department.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			        iframeWin.doctortodepart.doctortodepartment({department_id:id});//这里
+			    }
+			});
+			
+		});
+		
+		
+		$('body').on('click','#addtemp', function () {
+			layer.open({
+				type:2,	
+				area: ['940px', '500px'],
+			    content: 'scheduling-temp.html',
+			    success: function(layero,index){
+			        layer.setTop(layero); 
+			        var body = layer.getChildFrame('body', index);
+			        var iframeWin = window[layero.find('iframe')[0]['name']];
+			      
+			      iframeWin.resertemppage.add_resertemp({method:'add'});//这里
+			    },
+				cancel:function(index){ 
+				troad('#resertemp');
+				layer.close(index);
+            }				
+			});			
+		});
+		
+		
+	
+		$('body').on('click','#submitbutton', function () {		
+			var table = $('#resertemp').DataTable();
+			var name=$.trim($('#searchkey').val());
+			 table.columns(3).search(name).draw();			
+		});
+		
+		
+		$('#searchkey').on( 'keyup click', function () {   // for text boxes
+			var table = $('#resertemp').DataTable();
+		    var v =$(this).val();  // getting search input value
+		    table.columns(3).search(v).draw();
+		});
+		
+		
+		$('body').on('click', '#datadel',function() {			
+			var data = chooseall('#resertemp');
+			var ids = [];		
+			if(data.length <= 0){
+				layer.msg('请选择需要删除的选项!', function(){					
+				}); 
+			}else{				
+				layer.confirm('真的要删除么？', {icon: 3, title:'提示'}, function(index){				  
+					$.each(data,function(i,obj){
+						ids[i] = obj.value;
+					});	
+				    layer.close(index);	
+					self.cmd(gHttp,{controller:'ReserTemplate',method:'delete',id:ids},function(ret){
+						if(ret.statu){
+							
+							layer.msg('删除成功!', function(){					
+							}); 
+							troad('#resertemp');
+							$('.firstone').attr('checked', false);
+
+						}else{
+							
+							layer.msg(ret.msg, function(){					
+							}); 
+							
+						}
+					});
+				});			
+			}
+			return false; 
+		});
+		
+
+	}//resertemp_manager over
+		
+	this.getRDepartments=function(){
+		self.cmd(gHttp,{controller:'DepartmentManager',method:'getDepartments'},function(re){			
+			if (re.statu) {
+				console.log(re);
+				var depararr=re.data;
+				var html = '<option value="">-请选择-</option>';
+				$.each(depararr, function(i, obj){
+					html += '<option value="' + obj.id + '">' + obj.name + '</option>';
+				});
+				$('#department_id').html(html);
+			}
+		});			
+	}
+
+	this.add_resertemp=function(para){
+		self.getRDepartments();		
+		if(para.method == 'add'){
+				
+		}else{
+			$('#savetemps').hide();
+			self.cmd(gHttp,{controller:'ReserTemplate',method:'gettemple',id:para.id},function(re){
+				if(re.statu){
+					console.log(re);
+					setSelectChecked("department_id",re.data.department_id);
+					$('#templatename').val(re.data.title);
+					$('#templatename').attr("readonly","readonly");
+					$("#department_id").attr("disabled","disabled"); 
+					$(".radiotypes").iCheck('disable');
+					$("#resr_"+re.data.type).iCheck('enable'); 
+					$("#resr_"+re.data.type).iCheck('check');
+					$('#temid').val(re.data.id);
+					$('#temtype').val(re.data.type);
+					$('#departmentid').val(re.data.department_id);
+					maketable(re.data.type);
+					self.cmd(gHttp,{controller:'ReserTemplate',method:'gettemdetail',tem_id:re.data.id,type:re.data.type},function(ress){
+						if(ress.stute){
+							$.each(ress.date,function(i,val){
+								var tdid=val.date+val.kind+'name';
+								//console.log(tdid);
+								var showhtml='<ul class="doctorlists">';
+								$.each(val.doctor_num,function(k,v){
+									showhtml+='<li><span>'+v.name+'</span>&nbsp;<span>（'+v.num+'）</span></li>';
+								});
+								showhtml+='</ul>';									
+								$('#'+tdid).html(showhtml);								
+							});							
+						}
+					});
+					if(re.data.morning!=null){
+						var morningarr=new Array();
+						morningarr=re.data.morning.split("-");
+						
+						$('#mStart').val(morningarr[0]);
+						$('#mEnd').val(morningarr[1]);
+					}
+					if(re.data.afternoon!=null){
+						var afternoonarr=new Array();
+						afternoonarr=re.data.afternoon.split("-");
+						$('#aStart').val(afternoonarr[0]);
+						$('#aEnd').val(afternoonarr[1]);
+					}
+					if(re.data.night!=null){
+						var nightarr=new Array();
+						nightarr=re.data.night.split("-");
+						$('#nStart').val(nightarr[0]);
+						$('#nEnd').val(nightarr[1]);
+					}
+				}else{
+					layer.msg(re.msg);
+				}
+				
+			});
+		}		
+	}
+	
+	
+	
+}
+
+$(function (){			
+	$('body').on('mouseenter','td.show-control',function(){		
+		//var content=getAbsPoint($(this).get(0));
+		var content=$(this).find('ul.doctorlists').html();
+		$.each($(this).find('li'),function(){
+			$(this).addClass('chooselist');
+			
+		});
+		if (content != undefined&&content.length!=''){
+			layer.tips(content,$(this),{
+				tips: [1,'#78BA32'],
+				area: ['400px', '150px'],
+				time:9000
+			});
+		}
+		
+	});
+
+	
+	$('body').on('change','#mStart,#mEnd',function(){
+		var mstartval=$('#mStart').val();
+		var mendval=$('#mEnd').val();
+		if(mstartval==""){	
+			$('#mStart').val('08:00');
+			mstartval='08:00';
+		}
+		if(mendval==""){
+			$('#mEnd').val('12:00');
+			mendval='12:00';
+		}		
+		var timeval=mstartval+"-"+mendval;
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'updatetime',time:timeval,tem_id:temid,type:type,timein:"mon"},function(ret){
+			
+		});
+	});
+	
+	
+	$('body').on('change','#aStart,#aEnd',function(){
+		var mstartval=$('#aStart').val();
+		var mendval=$('#aEnd').val();
+		if(mstartval==""){	
+			$('#aStart').val('14:00');
+			mstartval='14:00';
+		}
+		if(mendval==""){
+			$('#aEnd').val('18:00');
+			mendval='18:00';
+		}		
+		var timeval=mstartval+"-"+mendval;
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'updatetime',time:timeval,tem_id:temid,type:type,timein:"aft"},function(ret){
+			
+		});
+	});
+	
+	
+	$('body').on('change','#nStart,#nEnd',function(){
+		var mstartval=$('#nStart').val();
+		var mendval=$('#nEnd').val();
+		if(mstartval==""){
+			$('#nStart').val('19:00');
+			mstartval='19:00';
+		}
+		if(mendval==""){
+			$('#nEnd').val('22:00');
+			mendval='22:00';
+		}		
+		var timeval=mstartval+"-"+mendval;
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'updatetime',time:timeval,tem_id:temid,type:type,timein:"nig"},function(ret){
+			
+		});
+	});
+});//$(function (){}) over
+	
+	function closedivtip(){
+		$('#divtip').hide();
+	}
+	
+	function setSelectChecked(selectId, checkValue){  
+		var select = document.getElementById(selectId);  
+		for(var i=0; i<select.options.length; i++){  
+			if(select.options[i].value == checkValue){  
+				select.options[i].selected = true;  
+				break;  
+			}  
+		}  
+	}
+	
+	
+function getAbsPoint(e){	
+	var str = e.id;
+    var substr = str.match(/(\S*)(?=more)/);
+	if(substr!=null){
+	var thechange='#'+substr[0]+'name';
+	if ($(thechange + ' .doctorlists').length > 0) {
+		var htmls=$(thechange + ' .doctorlists').html();
+		return htmls;
+
+	}
+	}
+}
+
+	function getweeknum(num){
+		var weeknum="";
+			switch (num) {
+				case 1:weeknum = "一";break;
+				case 2:weeknum = "二";break;
+				case 3:weeknum = "三";break;
+				case 4:weeknum = "四";break;
+				case 5:weeknum = "五";break;
+			   default:weeknum = "一";break;	
+			}
+		return weeknum;
+	}
+	
+	function editdate(id){		
+		var did=$('#departmentid').val();
+		var reg=/[1-9][0-9]*/g;
+		var lang=/[A-Za-z]+$/;
+		var arr=id.match(reg);
+		var lan=id.match(lang);
+		var mstart=$('#mStart').val();
+		var mend=$('#mEnd').val();
+		var timerang=mstart+'-'+mend;
+		var depid=$('#departmentid').val();
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		var doctorstr="";
+		doctorstr+='<div class="pd-5"><table class="table table-border table-bordered table-bg table-hover table-sort">';
+		doctorstr+='<thead><tr class="text-c"><th width="35">选取</th><th width="80">姓名</th><th>简介</th><th width="60">号源（个）</th></tr></thead>';
+		doctorstr+='<tbody class="doctorlist" id="doctorlist"></tbody></table></div>';
+		layer.open({	
+			type: 1,
+			title:'添加医生至排班模板',
+			area: ['800px', '400px'],
+			content:doctorstr,
+			btn: ['确定', '取消','重置'],  												        
+			yes:function(index, layero){										
+				var thedate=new Array();
+				var dobox = document.getElementsByName("doctor");
+				for(var i = 0; i < dobox.length; i++){
+					if(dobox[i].checked){
+						var documentnum	=document.getElementById(dobox[i].value+'text').value;						
+						thedate[dobox[i].value]=documentnum;
+					}
+				}				
+				var jsonval=JSON.stringify(thedate);
+				self.cmd(gHttp,{controller:'ReserTemplate',method:'savetemitem',doctor:jsonval,department_id:depid,tem_id:temid,type:type,date:arr[0],time:lan[0],timerang:timerang},function(ret){
+					if(ret.statu){
+						var nametd='#'+id+'name';
+						//console.log('姓名的id:',nametd);
+						var html='<ul class="doctorlists">';
+						$.each(ret.date,function(i,val){							
+							html+='<li><span>'+val.name+'</span><span>('+val.num+')</span></li>';														
+						});
+						html+='</ul>';
+						$(nametd).html(html);
+						layer.msg('数据添加成功',{icon:1});
+						layer.close(index);
+						}else{
+							layer.alert(ret.msg,{icon:2});
+						}						
+				});	//self.cmd over			
+			}, //yes over
+			btn3: function(index){				
+				var dobox = document.getElementsByName("doctor");
+				for(var i = 0; i < dobox.length; i++){
+					dobox[i].checked = false;
+				}
+				$('.doctorlist input[type=text]').val(''); 
+				return false;
+			},
+			success: function(layero, index){
+				self.cmd(gHttp,{controller:'DoctorManager',method:'getByDepartmentID',department_id:did},function(ret){
+					if (ret.statu) {
+						self.cmd(gHttp,{controller: 'ReserTemplate',method: 'tditem',department_id: did,tem_id: temid,type: type,date: arr[0],time: lan[0],timerang: timerang}, 
+						function(ret1){
+							var data = null;
+							if (ret1.statu) {
+								data = ret1.date;
+							}										
+							var html = '';
+							if (data == false||data==null) {
+								$.each(ret.data, function(i, val){									
+									html+='<tr class="text-c doctor"><td><input type="checkbox" value="'+val.id +'" name="doctor"></td><td class="doctorname">' + val.name + '</td><td class="text-l">' + val.specialty + '</td><td><input id="' + val.id + 'text" type="text" class="input-text" style="width:30px;" value="10"/></td></tr>';
+								});
+							}else{								
+								var reformattedArray=$.map(data,function(item,index){
+									var rObj = [];
+									 rObj[item] = index;
+									 return rObj;
+								});								
+								$.each(ret.data, function(i, val){									
+									var ss=$.inArray(val.id, reformattedArray);
+									if (ss == -1) {
+										html+='<tr class="text-c doctor"><td><input type="checkbox" value="'+val.id +'" name="doctor"></td><td class="doctorname">' + val.name + '</td><td class="text-l">' + val.specialty.substr(0,20) + '...</td><td><input id="' + val.id + 'text" type="text" class="input-text" style="width:30px;" value="10"/></td></tr>';
+										}else{											
+											html+='<tr class="text-c doctor"><td><input type="checkbox" value="'+val.id +'" name="doctor" checked="checked"></td><td class="doctorname">' + val.name + '</td><td class="text-l">' + val.specialty + '</td><td><input id="' + val.id + 'text" type="text" class="input-text" style="width:30px;" value="10"/>人</td></tr>';
+										}
+									
+									
+								});
+							}						
+							
+							$('#doctorlist').append(html);
+							
+						});
+					}else{
+						layer.alert(ret.msg,{icon:2});					
+					}
+				});	//self.cmd over		
+			}//	success over	
+		});	
+	}//editdate over
+
+	
+	function savetemplate(){
+		BaseFunc.call(this);		
+		var deval=$('#department_id  option:selected').val();
+		$('#departmentid').val(deval);
+		var templatename=$('#templatename').val();
+		var fump = document.getElementsByName("resertype");
+		var num="1";
+		for(var i=0;i<fump.length;i++){
+			if(fump[i].checked){var shipval = fump[i].value;}	
+		}	
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'savetem',type:shipval,title:templatename,department_id:deval},function(ret){
+			if(ret.statu){			
+				$('#temtype').val(ret.data.type);
+				$('#temid').val(ret.data.id);
+				var pbtype=ret.data.type;
+				var pbid=ret.data.id;
+				maketable(shipval);
+			}else{
+				layer.alert(ret.msg,{icon:2});						
+			}
+		});		
+	}
+	
+	
+	function maketable(shipval){
+		BaseFunc.call(this);
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'getloop',type:shipval},function(ret){
+		var wnum=getweeknum(num);
+		var html = '<div><div id="divtip"><ul id="tipul"></ul></div><table class="viewbox ml-20 table-border table-bordered" border="0" cellspacing="0" cellpadding="0"><tbody><tr><td width="120px" height="286px"><div style="width:100%;height:100%"><table border="0" cellspacing="0" cellpadding="0" class="beginbox"><tbody><tr><td class="viewtitle h-60"><a href="#" class="leftbotton prew scroll-bt prew"><i class="Hui-iconfont" style="font-size:20px;"></i></a></td></tr><tr><td class="btd datebox h-60">上午<br /><input type="text" class="timein" id="mStart" value="8:00" />-<input type="text" class="timein" id="mEnd" value="12:00"/></td></tr><tr><td class="btd datebox" height="60px">下午<br /><input type="text" class="timein" id="aStart" value="14:00"/>-<input type="text" class="timein" id="aEnd" value="18:00"/></td></tr><tr><td height="60px" class="datebox bt-none h-60">晚上<br /><input type="text" class="timein" id="nStart" value="19:00"/>-<input type="text" class="timein" id="nEnd" value="22:00"/></td></tr></tbody></table></div></td><td height="286px" valign="top"><div class="itembox"><div class="listbox">';
+		var week = '';
+		var weekE = '';
+		$.each(ret.date,function(i,val){
+			if(ret.week[i] == 7){
+				week = '周日';
+				weekE = 'sunday';
+			}else if(ret.week[i] == 1){
+				week = '周一';
+				weekE = 'monday';
+			}else if(ret.week[i] == 2){
+				week = '周二';
+				weekE = 'tuesday';
+			}else if(ret.week[i] == 3){
+				week = '周三';
+				weekE = 'wednesday';
+			}else if(ret.week[i] == 4){
+				week = '周四';
+				weekE = 'thursday';
+			}else if(ret.week[i] == 5){
+				week = '周五';
+				weekE = 'friday';
+			}else{
+				week = '周六';
+				weekE = 'saturday';
+			}
+					
+			html += '<table class="everydaybox" border="0" cellspacing="0" cellpadding="0"><tbody><tr><td class="viewtitle h-61">'+week+'</td></tr><tr><td class="btd datebox h-61 show-control" id="'+val+'monmore"><span id="'+val+'monname"></span><span class="showmore">...</span></br><span id="'+val+'mon" onclick="editdate(this.id)"><span class="label label-success radius"><i style="font-size:14px;" class="Hui-iconfont"></i>&nbsp;添加</span></span><input id="'+val+'mon_inp" name="" type="hidden" value=""></br></td></tr><tr><td class="btd datebox h-59 show-control" id="'+val+'aftmore"><span id="'+val+'aftname"></span><span class="showmore">...</span></br><span id="'+val+'aft" onclick="editdate(this.id)" class="addmore"><span class="label label-success radius"><i style="font-size:14px;" class="Hui-iconfont"></i>&nbsp;添加</span></span><input id="'+val+'aft_inp" type="hidden" name="" value=""></br></td></tr><tr><td class="datebox bt-none  h-61 show-control" id="'+val+'nigmore"><span id="'+val+'nigname"></span><span class="showmore">...</span></br><span id="'+val+'nig" onclick="editdate(this.id)" class="addmore"><span class="label label-success radius"><i style="font-size:14px;" class="Hui-iconfont"></i>&nbsp;添加</span></span><input id="'+val+'nig_inp" name="" value="" type="hidden"></br></td></tr></tbody></table>';
+		});//each over
+		
+		html += '</div></div></td><td width="120px" height="286px"><div style="width:100%;height:100%"><table border="0" cellspacing="0" cellpadding="0" class="beginbox"><tbody><tr><td class="viewtitle h-61"><a href="#"  class="rightbotton next scroll-bt"><i style="font-size:20px;" class="Hui-iconfont"></i></a></td></tr><tr><td class="btd datebox h-61"></td></tr><tr><td class="btd datebox h-59"></td></tr><tr><td class="datebox bt-none  h-61" style="border-bottom:1px solid #ddd;height:71px;"></td></tr></tbody></table></div></td></tr><tbody></table></div>';			
+		$('#tab').html(html);			
+			//左右滚动
+		var page=1;
+		var listhtml=$("div.itembox").html();
+		var num=$("div.itembox table").length;
+		var table_count=Math.ceil($("div.itembox table").length/7);
+		var showbox=$("div.listbox");
+		$("a.leftbotton").click(function(){
+			page--;
+		 if(page>1){
+			$(this).removeClass("prew").addClass("pret");
+			$("a.rightbotton").removeClass("nexf").addClass("next");
+			if(!showbox.is(":animated")){
+				showbox.animate({left:'+='+665},"slow");
+			}
+			$('#weeknum').html('第'+page+'周');
+		 }else{
+			 if(page == 1){
+				 showbox.animate({left:'+='+665},"slow");
+				 $(this).removeClass("pret").addClass("prew");
+				 $("a.rightbotton").removeClass("nexf").addClass("next");
+				 
+			 }else{
+				layer.msg('已经是第一页了');							
+				$(this).removeClass("pret").addClass("prew");
+				$("a.rightbotton").removeClass("nexf").addClass("next");
+				page = 1;
+				
+			 }
+			$('#weeknum').html('第'+page+'周');
+		 }
+		});
+		$("a.rightbotton").click(function(){
+		page++;
+		if(page>=table_count){
+			if(page == table_count){
+				showbox.animate({left:'-='+665},"slow");
+				$(this).removeClass("next").addClass("nexf");
+			}else{
+				page = table_count;
+				layer.msg('已经是最后一页了');		
+				
+			}
+			$('#weeknum').html('第'+page+'周');
+		}else{
+			$("a.leftbotton").removeClass("prew").addClass("pret");
+			if(!showbox.is(":animated")){
+				showbox.animate({left:'-='+665},"slow");
+			}
+			$('#weeknum').html('第'+page+'周');
+		}
+		});
+			
+		});
+	}
+	
+$('body').on('click','#sure',function(){		
+	var start=$('#start').val();
+	var end=$('#end').val();
+	var tempid=$('#temid').val();
+	var temtype=$('#temtype').val();
+	var departid=$('#departmentid').val();
+	var arr={};
+	arr.start=start;
+	arr.end=end;
+	self.cmd(gHttp,{controller:'ReserTemplate',method:'process',data:arr,type:temtype,temp_id:tempid,department_id:departid},function(ret){
+		if(ret.statu){			
+			layer.msg('排班表已被成功运用于'+start+'到'+end);			
+		}else{			
+			layer.alert(ret.msg,{icon:2});			
+		}
+	});
+});

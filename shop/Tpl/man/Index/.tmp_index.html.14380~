@@ -1,0 +1,93 @@
+{{include file="Common/header.html"}}
+</div>
+
+<div class="banner">
+<div class="ad">
+    <div style="overflow: hidden;" class="adImg" id="wrapper">
+        <div style="width: 320px;height: 160px;overflow:hidden;position:relative;" class="scroller">
+            <ul style="width:9999px;height: 160px;overflow:hidden;position:absolute;top:0;left:0" id="thelist">
+                {{foreach from=$pic item=value name=name}}
+                <li><a  target="_blank"><img src="{{$value->pic}}" height="160" width="320"></a></li>
+               {{/foreach}}
+            </ul>
+        </div>
+    </div>
+    <div class="adTip"> <a class="" href="/mobile/index.php">1</a><a class="active" href="/mobile/index.php">2</a><a href="/mobile/index.php">3</a></div>
+</div>
+<div id="container">
+    <div class="tel1" style="position: relative"> <a href="tel:{{$contact.tel}}"><span style="font-size: 20px;font-family:'microsoft yahei' importent;z-index: 999;position: absolute;top: 15px;left: 30px">{{$contact.tel}}</span><img src="{{$RESOURCE}}/images/tel.jpg" height="37" width="230"></a>
+        <div class="tel11"><a href="">手机预约省钱省心</a></div>
+    </div>
+    <div class="hot1">
+        <ul>
+            <!-- {{foreach from=$depNav['ParNav'] item=value  name=name}}
+            {{if $smarty.foreach.name.iteration lt 7}}
+            <li><a href="{{$value->url}}"><img src="/upload/{{$value->pic}}" height="76" width="105">{{$value->subject}}</a></li>
+            {{/if}}
+            {{/foreach}} -->
+            {{$navse = $NavigationTag->getMobileGroup("dep_dao","app")}}
+            {{foreach $navse as $key=>$value}}
+             <li><a href="{{$value->url}}"><img src="/upload/{{$value->pic}}" height="76" width="105">{{$value->subject}}</a></li>
+            {{/foreach}}
+        </ul>
+        <div class="hoti"><img src="{{$RESOURCE}}/images/hot.gif" height="35" width="33"></div>
+    </div>
+    <div class="hot2">
+        <div class="ht1"><font style="color:#535353">热点问题</font></div>
+        <div class="ht2"></div>
+        <div class="ht3"></div>
+        <!-- {{foreach from=$mobileNav['ParNav'] item=value  name=name}}
+        {{if $smarty.foreach.name.iteration lt 16}}
+        <div class="hots{{$smarty.foreach.name.iteration}}"><a href="{{$value->pic}}" target="_self">{{$value->subject}}</a></div>
+        {{/if}}
+        {{/foreach}} -->
+        {{$navs = $NavigationTag->getMobileGroup("app_dao","app")}}
+            {{foreach from=$navs item=value name=name}}
+            {{if $smarty.foreach.name.iteration lt 16}}
+              <div class="hots{{$smarty.foreach.name.iteration}}"><a href="{{$value->pic}}" target="_self">{{$value->subject}}</a></div>
+            {{/if}}
+            {{/foreach}}
+       </div>
+    <div class="tsyl">
+        <div class="ht1"><font style="color:#535353">特色医疗</font></div>
+        <div class="ht2"></div>
+        <div class="ht3"></div>
+        <div class="js"><img src="{{$RESOURCE}}/images/zl.png" height="102" width="102"></div>
+        <div class="fh"><img src="{{$RESOURCE}}/images/fh.jpg" height="102" width="24"></div>
+        <!-- {{foreach from=$techNav['ParNav']  item=value  name=name}}
+        {{if $smarty.foreach.name.iteration lt 5}}
+        <div class="js{{$smarty.foreach.name.iteration}}"><a href="{{$MOBILE}}/technology.php" style="color:#FFF;">{{$value->subject}}</a></div>
+        {{/if}}
+        {{/foreach}} -->
+        {{$nawecond = $NavigationTag->getMobileGroup("tech_dao","app")}}
+            {{foreach from=$nawecond item=value name=name}}
+             <div class="js{{$smarty.foreach.name.iteration}}"><a href="{{$MOBILE}}/technology.php" style="color:#FFF;">{{$value->subject}}</a></div>
+            {{/foreach}}
+    </div>
+    <div class="nkzj">
+        <div class="ht1"><font style="color:#535353">在线专家</font></div>
+        <div class="ht2"></div>
+        <div class="ht3"></div>
+        <a hidden="hidden" class="prev1"></a><a hidden="hidden" class="next1"></a>
+        <div class="prev"><img src="{{$RESOURCE}}/images/pre.jpg" height="18" width="20"></div>
+        <div class="next"><img src="{{$RESOURCE}}/images/next.jpg" height="18" width="20"></div>
+        <div class="zjbox">
+            <div class="scoll" style="width: 260px;height: 116px;overflow:hidden;position:relative;">
+                <ul style="height: 116px;width:9999px;overflow:hidden;position:absolute;top:0;left:0">
+                    {{foreach $doctor as $v}}
+                    <li>
+                        <div style="float:left"><a href="{{$MOBILE}}/doctor.php?method=get&id={{$v->id}}">
+                            <img src="{{$smarty.const.UPLOAD}}{{$v->pic}}" height="116" width="90"></a></div>
+                        <div style="float:left; margin-top:20px; margin-left:10px; line-height:24px; font-size:12px;width:150px;"> <a href="{{$MOBILE}}/doctor.php?method=get&id={{$v->id}}">
+                            <h4>{{$v->name}}</h4>
+                        </a>{{$v->description|truncate:30}}...</div>
+                    </li>
+                    {{/foreach}}
+                </ul>
+            </div>
+        </div>
+        <div class="an1"><a href="" style="color:#FFF;">{{$contact.tel}}</a></div>
+        <div class="an2"><a href="{{$contact.swt_link}}"  target="_self" style="color:#FFF;">咨询专家</a></div>
+    </div>
+</div>
+    {{include file="Common/index_footer.html"}}

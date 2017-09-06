@@ -1,0 +1,24 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class CommodityOrder extends Entity {
+	var $id;
+	
+	var $uid;
+	
+ 	var $orders;
+	
+	var $qrcode;
+	
+ 	public function validate() {
+		if (strlen($this->uid) == ''|| strlen($this->uid) == 0) {
+			throw new ValidatorException(6);
+		}
+		if (strlen($this->orders) == ''|| strlen($this->order) == 0) {
+			throw new ValidatorException(172);
+		}
+		if (strlen($this->qrcode) == ''|| strlen($this->qrcode) == 0) {
+			throw new ValidatorException(5);
+		}
+	}
+}

@@ -1,0 +1,25 @@
+@charset "utf-8";
+/* CSS Document */
+.doctor_list{height:150px;margin:0px 5px 8px 5px;padding:8px 0px 0px 12px;border-bottom:1px dashed #ddd;zoom:1;overflow:hidden;}
+.doctor_list .doctor_img{float:left;margin-right:12px;width:100px;height:125px;border:1px solid #ddd;padding:1px;}
+.doctor_list .doctor_img img{width:100px;height:125px;}
+.doctor_list .doctor_content{float:left;width:580px;line-height:22px;color:#666;}
+.doctor_list .doctor_content h4{height:24px;line-height:20px;}
+.doctor_list .doctor_content h4 a{color:#333;}
+.doctor_list .doctor_content h4 strong{margin-right:10px;}
+.doctor_list .doctor_content p{height:75px;line-height:24px;}
+.doctor_list .doctor_content div{font-size:14px;color:#760342;padding-top:3px;}
+.doctor_list .doctor_content div img{vertical-align:middle;}
+.doctor_list .doctor_content div a{margin-right:8px;}
+.doctor_list .doctor_content p a{color:#ff41ab;}
+
+.doctor_par{padding-left:180px;padding-top:20px;}
+.doctor_par div{float:left;background:#d8d8d8;padding:3px;margin:0px auto;overflow:hidden;}
+.doctor_par div img{border:1px solid #fff;}
+.doctor_par h4{clear:both;font-weight:normal;line-height:30px;padding-top:5px;font-size:14px;}
+.doctor_par h4 span,.doctor_par_content span{color:#ff41ab;}
+.doctor_par_content{font-size:14px;margin:20px 20px 0px 20px;line-height:24px;}
+.doctor_par_content p{text-indent:2em;margin-top:20px;}
+
+.par-ask{text-align:center;padding-top:10px;}
+.par-ask a{margin-right:10px;}

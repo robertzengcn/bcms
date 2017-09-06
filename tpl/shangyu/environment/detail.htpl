@@ -1,0 +1,45 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_news1 container">
+	<ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a href="/yiyuangaikuang">医院概况</a></li>
+      <li><a href="/hospital/environment">精彩图集</a></li>
+      <li class="active">详细</li>
+    </ol>
+	<div class="row">
+    	<div class="mnews_l2 col-xs-12 col-sm-12 col-md-8">
+        	<div class="white_bg">
+        	    {{henvinfo}}
+            	<h1>[field:subject/]</h1>
+                <div class="mnewsl2_info">
+                  <div class="pull-left"><span>发布时间：[field:plushtime|date_format:"Y-m-d"/]</span></div>
+                  <div class="pull-right"><span>分享到：</span>
+                  <a href="javascript:void(0);" class="jiathis_button_qzone new2_qzone"><i class="icon icon-star"></i></a>
+                  <a href="javascript:void(0);" class="jiathis_button_tsina new2_sina"><i class="icon icon-weibo"></i></a>
+                  <a href="javascript:void(0);" class="jiathis_button_weixin new2_weixin"><i class="icon icon-wechat"></i></a></div>
+                </div>
+                <div class="new_cont">
+                    [field:pic/]
+                	[field:content/]                </div>
+                {{/henvinfo}}
+                <div class="mnewsl2_info">
+                  <div class="pull-right"><span>分享到：</span>
+                  <a href="javascript:void(0);" class="jiathis_button_qzone new2_qzone"><i class="icon icon-star"></i></a>
+                  <a href="javascript:void(0);" class="jiathis_button_tsina new2_sina"><i class="icon icon-weibo"></i></a>
+                  <a href="javascript:void(0);" class="jiathis_button_weixin new2_weixin"><i class="icon icon-wechat"></i></a></div>
+                </div>
+                <div class="mnewsl2_Readings">
+                	<h3>相关阅读：</h3>
+                    <ul>
+                        {{relatednews limit="4"}}
+                    	<li><a href="[field:url]">[field:subject/]</a><span>[field:plushtime|date_format:"Y-m-d"/]</span></li>
+                        {{/relatednews}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{{/block}}

@@ -1,0 +1,106 @@
+ <!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>申请加号-预约挂号</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="saveNewPosition">
+		<div class="row cl">
+			<label class="form-label col-2">所属科室：</label>
+			<div id="departmentName" class="formControls col-5"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">姓名：</label>
+			<div id="doctorName" class="formControls col-5"></div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">出诊日期：</label>
+			<div id="visitDate" class="formControls col-5"></div>			
+		</div>		
+		<div class="row cl morning" style="display:none;">
+			<label class="form-label col-2">出诊时间：</label>
+			<div class="formControls col-95"><span class="label label-success radius" id="morning"></span></div>
+			<label class="form-label col-85">原号源：</label>
+			<div class="formControls col-94"><span class="badge badge-success radius"  id="morningSource"></span></div>
+			<label class="form-label col-95"><span class="c-red">*</span>追加号源：</label>
+			<div class="formControls col-80">
+				<input type="number" class="input-text text-c addNum" value="" placeholder="0" id="morningNum" flag="morning" datatype="INTS" errormsg="限大于0的整数" ignore="ignore" style="width:50px;"/>
+			</div>
+			<div class="col-2"></div>			
+		</div>
+		<div class="row cl afternoon" style="display:none;">
+			<label class="form-label col-2">出诊时间：</label>
+			<div class="formControls col-95"><span class="label label-success radius" id="afternoon"></span></div>
+			<label class="form-label col-85">原号源：</label>
+			<div class="formControls col-94"><span class="badge badge-success radius"  id="afternoonSource"></span></div>
+			<label class="form-label col-95"><span class="c-red">*</span>追加号源：</label>
+			<div class="formControls col-80">
+				<input type="number" class="input-text text-c addNum" value="" placeholder="0" id="afternoonNum" flag="afternoon" datatype="INTS" errormsg="限大于0的整数" ignore="ignore" style="width:50px;"/>
+			</div>
+			<div class="col-2"></div>			
+		</div>
+		<div class="row cl night" style="display:none;">
+			<label class="form-label col-2">出诊时间：</label>
+			<div class="formControls col-95"><span class="label label-success radius" id="night"></span></div>
+			<label class="form-label col-85">原号源：</label>
+			<div class="formControls col-94"><span class="badge badge-success radius"  id="nightSource"></span></div>
+			<label class="form-label col-95"><span class="c-red">*</span>追加号源：</label>
+			<div class="formControls col-80">
+				<input type="number" class="input-text text-c addNum" value="" placeholder="0" id="nightNum" flag="night" datatype="INTS" errormsg="限大于0的整数" ignore="ignore" style="width:50px;"/>
+			</div>
+			<div class="col-2"></div>			
+		</div>		
+		<div style="width:100%;height:50px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-10 col-offset-1">
+				<button class="btn btn-primary radius bt-normal" type="button" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存</button>	
+			</div>
+		</div>
+		<input type="hidden" id="dataid" name="id" value=""/>		
+		<input type="hidden" id="morning_source" name="morning_source" value=""/>
+		<input type="hidden" id="morning_now" name="morning_now" value=""/>	
+		<input type="hidden" name="morning" value=""/>			
+		<input type="hidden" id="afternoon_source" name="afternoon_source" value=""/>
+		<input type="hidden" id="afternoon_now" name="afternoon_now" value=""/>
+		<input type="hidden" name="afternoon" value=""/>		
+		<input type="hidden" id="night_source" name="night_source" value=""/>
+		<input type="hidden" id="night_now" name="night_now" value=""/>	
+		<input type="hidden" name="night" value=""/>	
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation2.js"></script>
+<script type="text/javascript">
+var AddNewPosition = new Reservation();
+AddNewPosition.setThisName('AddNewPosition');
+AddNewPosition.addnewposition();
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<?php
+
+class WorkerService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new WorkerDAO();
+    }
+
+    public function __destruct() {}
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        return $this->dao->deleteBatch($ids);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $link
+     * @return Result
+     */
+    public function get($worker) {
+        $this->dao->get($worker->id, $worker);
+        /*
+         * $qx = $GLOBALS['config_qx']; $worker->config = $qx; $qx = explode(',',$worker->purview); $worker->purview = $qx;
+         */
+        $worker->acls = json_decode($worker->acls, true);
+        fb($worker->acls, 'acls');
+        return new Result(true, 0, '', $worker);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $workers = $this->dao->query($where);
+        foreach ($workers as $value) {
+            $value->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+        }
+
+        return new Result(true, 0, '', $workers);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $link
+     * @return Result
+     */
+    public function save($worker) {
+        $worker->validate();
+        // 获取class对象并插入数据
+        $worker->password = md5($worker->password);
+        $this->dao->save($worker);
+
+        return new Result(true, 0, '', NULL);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $link
+     * @return Result
+     */
+    public function update($worker) {
+        $worker->validate();
+        // 获取class对象并修改数据
+        $worker->password = md5($worker->password);
+        if (isset($_REQUEST['qx'])) {
+            $qx = implode(',', $_REQUEST['qx']);
+            $worker->purview = $qx;
+        }
+
+        return $this->dao->update($worker);
+    }
+
+    /**
+     * 登陆
+     */
+    public function login() {
+        $result = $this->dao->login();
+        if ($result) {
+            $worker = new Worker();
+            $worker->generateFromRedBean($result);
+            setCookie('is_login', true, time() + 86400, '/');
+            setCookie('login_id', $worker->id, time() + 86400, '/');
+            $_SESSION['id'] = $worker->id;
+            $_SESSION['name'] = $worker->name;
+            $_SESSION['is_login'] = true;
+            $_SESSION['group'] = $worker->group;
+        } else {
+            $worker = '';
+        }
+
+        return new Result(true, 0, '', $worker);
+    }
+
+    /**
+     * 注册
+     */
+    public function reg($worker) {
+        $worker->validate();
+
+        $result = $this->dao->reg();
+        if ($result) {
+            $array = false;
+        } else {
+            if (isset($_REQUEST['qx'])) {
+                $qx = implode(',', $_REQUEST['qx']);
+                $worker->purview = $qx;
+            } else {
+                $worker->purview = '';
+            }
+
+            $worker->password = md5($worker->password);
+            $worker->plushtime = time();
+            $worker->group = 2;
+            $this->dao->save($worker);
+            $array = true;
+        }
+
+        return new Result(true, 0, '', $array);
+    }
+
+    /**
+     * 管理员修改密码
+     */
+    public function mdfAdmin() {
+        $result = $this->dao->reg();
+        if ($result) {
+            $worker = new Worker();
+            $worker->generateFromRedBean($result);
+            $worker->password = md5($_REQUEST['new1']);
+            $this->dao->update($worker);
+            $array = true;
+        } else {
+            $array = false;
+        }
+
+        return new Result(true, 0, '', $array);
+    }
+
+    /**
+     * 修改密码
+     */
+    public function mdfPwd() {
+        $_REQUEST['password'] = $_REQUEST['old_password'];
+        $result = $this->dao->login();
+
+        $array = array();
+        if ($result) {
+            $worker = new Worker();
+            $worker->generateFromRedBean($result);
+            if ($result->group == 2) {
+                $worker->password = md5($_REQUEST['new1']);
+                $this->dao->update($worker);
+                $array['code'] = 0;
+            } else {
+                $array['code'] = 1;
+            }
+        } else {
+            $array['code'] = 2;
+        }
+
+        return new Result(true, 0, '', $array);
+    }
+}

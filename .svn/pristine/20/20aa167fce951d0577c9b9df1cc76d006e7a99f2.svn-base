@@ -1,0 +1,307 @@
+<?php
+ require_once './AutoMakeHtml.php';
+class ArticleController extends AutoMakeHtml {
+
+    private $service;
+
+    /**
+     * 构造函数 初始化service
+     */
+    function __construct() {
+        $this->service = new ArticleService();
+/* 		$configFile = ABSPATH . '/config.json';
+		if (file_exists($configFile)) {
+			$content = file_get_contents($configFile);
+            $config = json_decode($content);
+			$this->automake = $config->openType;			
+		} */
+    }
+
+    /**
+     * 删除数据
+     */
+    public function del() {
+        // 是否单笔删除还是批量删除
+        if (is_array($_REQUEST['id'])) {
+            $articles = $_REQUEST['id'];
+        } else {
+            $articles = array(
+                $_REQUEST['id']
+            );
+        }
+        $result = $this->service->deleteBatch($articles);
+        echo json_encode($result);
+    }
+
+    /**
+     * 根据ids获取对象数据
+     */
+    public function getByIds() {
+        $article = $this->service->getByIds();
+        
+        foreach ($article->data as $key => $value) {
+        	$value->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+        }
+        echo json_encode(array(
+            'rows' => $article->data,
+            'ttl' => ''
+        ));
+    }
+
+    /**
+     * 获得查询的grid数据
+     */
+    public function query() {
+        $article = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+        echo json_encode(array(
+            'rows' => $article->data,
+            'ttl' => $totalRows->data
+        ));
+       
+    }
+
+
+
+    /**
+     * 获得员工的统计数据
+     */
+    public function totalRows() {
+        $_REQUEST['department_id'] = ($_REQUEST['department_id'] == '0') ? '' : $_REQUEST['department_id'];
+        $_REQUEST['disease_id'] = ($_REQUEST['disease_id'] == '0') ? '' : $_REQUEST['disease_id'];
+        $_REQUEST['doctor_id'] = ($_REQUEST['doctor_id'] == '0') ? '' : $_REQUEST['doctor_id'];
+        $totalRows = $this->service->totalRows($_REQUEST);
+
+        echo json_encode(array(
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得图表数据
+     */
+    public function getStat() {
+        $totalRows = $this->service->getStat($_REQUEST);
+
+        echo json_encode(array(
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得其他日期的数据
+     */
+    public function otherRows() {
+        $totalRows = $this->service->otherRows();
+
+        echo json_encode(array(
+            'ttl' => $totalRows->data
+        ));
+    }
+
+    /**
+     * 获得单笔
+     */
+    public function get() {
+        $this->blindParams($article = new Article());
+        $result = $this->service->get($article);
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取select与checkbox 相关数据
+     */
+    public function getAssociatedData() {
+        $result = $this->service->getAssociatedData();
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 获取select相关数据
+     */
+    public function getByDepartmentID() {
+        $departmentId = $_REQUEST['department_id'];
+
+        $diseaseService = new DiseaseService();
+        $disease = $diseaseService->getByDepartmentID($departmentId);
+
+        $doctorService = new DoctorService();
+        $doctors = $doctorService->getByDepartmentID($departmentId);
+		
+        $array['disease'] = $disease;
+        $array['doctors'] = $doctors;
+        echo json_encode(new Result(true, 0, '', $array));
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit() {
+        $this->blindParams($article = new Article());
+        if (empty($article->show_position)) {
+            $article->show_position = '0';
+        } else {
+            $article->show_position = implode(',', $article->show_position);
+        }
+        $result = $this->service->update($article);
+        if(isset($_REQUEST['weibo'])&&strlen($_REQUEST['weibo'])>0){//如果用户设置了同步微博
+        	$weiboser=new WeiboService();
+        	$link=NETADDRESS.'/controller/?controller=ViewHtml&method=article&op=article&id='.$article->id;
+        	$weiboser->updatepost($article->description,$link);//发布微博
+        }
+/* 		if($this->automake != "dynamic"){
+			//删除旧页面		
+			$departmentService = new DepartmentService();
+			$department_url = $departmentService->getUrlById($_POST['department_id']);
+			$diseaseService = new DiseaseService();
+			$disease_url = $diseaseService->getUrlById($_POST['disease_id']);
+			$fileurl = GENERATEPATH . $department_url . '/' . $disease_url . '/' . $_POST['id'] . $this->htmlSuffix;
+			@unlink($fileurl);
+			//重新生成静态页面
+			parent::__construct('article');
+			$this->autoMakeArticleHtmlById( new ArticleService(),  $this->dirMakeArticle( $department_url,$disease_url ), $_POST['id'], false);			
+		} */
+
+		
+        echo json_encode($result);
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+        $this->blindParams($article = new Article());
+        if (empty($article->show_position)) {
+        	$article->show_position = '0';
+        } else {
+        	$article->show_position = implode(',', $article->show_position);
+        }
+		if(empty($article->is_top)){
+			$article->is_top = '0';
+		}
+        $result = $this->service->save($article);
+        
+       if(isset($_REQUEST['weibo'])&&strlen($_REQUEST['weibo'])>0){//如果用户设置了同步微博
+       	$weiboser=new WeiboService();
+       	$link=NETADDRESS.'/controller/?controller=ViewHtml&method=article&op=article&id='.$result->data->id;
+       	$weiboser->updatepost($article->description,$link);//发布微博
+       }
+/* 		if($this->automake != "dynamic"){
+			//生成静态页面
+			$departmentService = new DepartmentService();
+			$department_url = $departmentService->getUrlById($result->data->department_id);
+			$diseaseService = new DiseaseService();
+			$disease_url = $diseaseService->getUrlById($result->data->disease_id);
+			parent::__construct('article');			
+			$this->autoMakeArticleHtmlById( new ArticleService(),  $this->dirMakeArticle( $department_url,$disease_url ), $result->data->id, false);
+        } */
+		echo json_encode($result);
+    }
+
+    /**
+     * 选择相关文章
+     */
+    public function selectArticle() {
+        include ABSPATH . '/tpl/related/index.php';
+    }
+    
+    /**  
+     * 模板端， 站内资讯搜索
+     * */
+    public function templateSearch(){
+        if(!isset($_REQUEST['page'])){
+            $_REQUEST['page']   = 1;
+        }
+        if(!isset($_REQUEST['search'])) {
+        	$_REQUEST['search'] = 'true';
+        }
+        $article = $this->service->query($_REQUEST);
+        $totalRows = $this->service->totalRows($_REQUEST);
+        $depService = new DepartmentService();
+        $diseaseService = new DiseaseService();
+        $dep = new Department();
+        $dis = new Disease();
+        foreach ($article->data as $k=>$v){
+            //添加科室，疾病的url
+            $dep->id = $v->department_id;
+            $dis->id = $v->disease_id;
+            $article->data[$k]->depUrl= $depService->get($dep)->data->url;
+            $article->data[$k]->disUrl= $diseaseService->get($dis)->data->url;
+            //对数据subject 搜索字段加亮，content进行输出处理
+            $subject = $article->data[$k]->subject;
+            $subject = str_replace($_REQUEST['subject'],'<font color="ff7900">'.$_REQUEST['subject'].'</font>', $subject);
+            $content = $article->data[$k]->content;
+            $article->data[$k]->content =strip_tags($content);
+            $article->data[$k]->subject = $subject;            
+        }
+        //分页
+        $totalPage = ceil($totalRows->data/$_REQUEST['size']); //计算总页数
+        $pageNow = $_REQUEST['page'];
+        $start = 1;
+        $step = 5;
+        $end = 1;
+        //判断是否为第一页或者最后一页
+        $is_first = (1 == $pageNow) ? 1 : 0;
+        $is_last = ($pageNow == $totalPage) ? 1 : 0;        
+        
+        if($step >= $totalPage){
+            $start = 1;
+            $end = $totalPage;
+        }else{
+            $start = $pageNow - $step;
+            $end = $start + $step-1;
+
+            if($start <= 1){
+                $start = 1;
+                $end = $pageNow +1 -$start;
+
+                if($end - $start<$step){
+                    $end = $step;
+                }
+            }           
+            if($pageNow >= $end){
+                $start = $pageNow-2;
+                $end = $start + $step -1;
+            }
+            if($end>$totalPage){
+                $start = $totalPage - $step + 1;
+                $end = $totalPage;
+            }
+        }
+        $moreRow = "";  //循环页码
+
+        for($i=$start;$i<=$end;$i++){
+            
+            if($i==$pageNow){
+                $moreRow .= '<a href="javascript:void(0)" class="current" onclick="searchKey('.($i).')">'.$i.'</a>';
+            }else{
+                $moreRow .= '<a href="javascript:void(0)" onclick="searchKey('.($i).')">'.$i.'</a>';
+            }
+        }
+        
+        $pre = '';   //上一页
+        $next = '';  //下一页
+        if(!$is_first){
+             $pre = '<a href="javascript:void(0)" onclick="searchKey('.($pageNow-1).')" >上一页</a>';
+        }
+        if(!$is_last){
+            $next = '<a href="javascript:void(0)" onclick="searchKey('.($pageNow+1).')" >下一页</a>';
+        }        
+        $pHtml = '
+    	        <a href="javascript:void(0)"  onclick="searchKey(1)" >首页</a> '.$pre.$moreRow.$next.' <a href="javascript:void(0)"  onclick="searchKey('.$totalPage.')">末页</a>
+    		   <a href="#" onclick="return false;">共<span id="pageNum">'.$totalPage.'</span>页,
+                <span id="countNum">'.$totalRows->data.'</span>条</a>
+    	    ';
+        echo json_encode(array(
+            'rows' => $article->data,
+            'ttl' => $totalRows->data,
+            'pHtml' =>$pHtml
+    
+        ));
+    }
+
+    
+}
+

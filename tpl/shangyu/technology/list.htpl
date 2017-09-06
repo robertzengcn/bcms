@@ -1,0 +1,25 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_psfea container">
+    <ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a>为您服务</a></li>
+      <li class="active">特色专科</li>
+    </ol>
+	<ul class="mpsfae_list">
+	    {{technologylist pagesize="10" sort="id desc"}}
+    	<li>
+        	<a class="col-xs-12 col-sm-3 col-md-2 pad_none" href="[field:url/]"><img src="[field:pic/]"></a>
+            <div class="col-xs-12 col-sm-9 col-md-10">
+            	<h2><a href="[field:url/]">[field:subject/]</a></h2>
+                <p>[field:description|length:250/]</p>
+            </div>
+        </li>
+        {{/technologylist}}
+         <footer style="text-align:right;">
+                      {{technologypagehtml}}
+          </footer>
+    </ul>
+</div>
+{{/block}}
+

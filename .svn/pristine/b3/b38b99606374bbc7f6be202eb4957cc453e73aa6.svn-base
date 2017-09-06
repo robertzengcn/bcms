@@ -1,0 +1,36 @@
+(function(){
+	CKEDITOR.dialog.add('helloworld',
+		function(a){
+
+			return {
+					title : '相册选择',
+					minWidth : '500px',
+					minHeight: '500px',
+					contents : [{
+						id : 'tab1',
+						label : '',
+						title : '',
+						expand : true,
+						width: '600px',
+						height : '600px',
+						padding : 0,
+						items : [
+							['hah','url'],
+							['s','anchor'],
+							['dd','email']	
+						],
+						elements : [{
+							type : 'select',
+							style : 'width:500px;height:500px',
+							onChange : function(){
+								alert(1);
+							}
+						}]
+					}],
+					onOk : function(){
+						alert(1);
+					}
+				}
+			
+		})
+})();

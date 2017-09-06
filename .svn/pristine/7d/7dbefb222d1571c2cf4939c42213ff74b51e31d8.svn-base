@@ -1,0 +1,108 @@
+<?php
+
+class ScoreRuleService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new ScoreRuleDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $scoreruleArray = $this->dao->getBatch($ids);
+
+        return $this->dao->deleteBeans($scoreruleArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function get($commodity) {
+        $this->dao->get($commodity->id, $commodity);
+        
+            
+            
+            $commoditydescservice=new CommodityDescriptService();
+            $result=$commoditydescservice->getdesc($commodity->id);
+            $commodity->descript=$result->product_descript;
+            
+        
+        if($commodity->start_time){
+        	$commodity->start_time=date('Y-m-d',$commodity->start_time);
+        }
+        if($commodity->end_time){
+        	$commodity->end_time=date('Y-m-d',$commodity->end_time);
+        }
+        
+ //       $commodity->tags = $tagsService->getTags($commodity->plushtime);
+//         $recommend = new RecommendListService();
+//         $result = $recommend->getById('commodity_id', $commodity->id);
+//         $commodity->recommend = $result; 
+        return $this->success($commodity);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $scoreruleArray = $this->dao->query($where);
+
+        return $this->success($scoreruleArray);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function save($scorerule) {
+    	
+         $scorerule->validate();        
+        // 获取class对象并插入数据
+        $this->dao->save($scorerule);
+      
+        return $this->success();
+    }
+    
+    /*
+     * 根据type取值
+     * @param int $type
+     * */
+    public function getbytype($type){
+    	$arr=array('type'=>$type);
+    	$rs=$this->dao->getbytype($arr);
+    	return $this->success($rs);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($commodity) {
+    //    $commodity->updatetime = time();
+    	
+        $commodity->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($commodity);
+    }
+}
+

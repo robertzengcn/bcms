@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>商品详细信息-积分商城</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="">
+		<div class="row cl">
+			<label class="form-label col-2">商品名称：</label>
+			<div class="formControls col-5">
+				288元妇科检查优惠券
+			</div>
+			<div class="col-4"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">商品图片：</label>						
+			<div class="formControls col-91" style="1px solid gray;padding:2px;">
+				<img src="../../../images/boyicms/temp/53eb06a2N4d295a29.jpg" width="150px"/>
+			</div>	
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">电子识别码：</label>
+			<div class="formControls col-6"><img src="../../../images/boyicms/temp/ecode.jpg" width="120px"/></div>
+		</div>	
+		<div class="row cl">			
+			<label class="form-label col-2">商城上架：</label>
+			<div class="formControls col-92 skin-minimal">
+			 是
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">商品总数：</label>
+			<div class="formControls col-93">
+				1000
+			</div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">兑换模式：</label>
+			<div class="formControls col-2">积分+现金</div>
+		</div>
+		<div class="row cl" id="c-fee">			
+			<label class="form-label col-2">实际售价：</label>
+			<div class="formControls col-95">
+				255
+			</div>
+			<label class="form-label col-2">兑换积分：</label>
+			<div class="formControls col-95">
+				150
+			</div>
+			<label class="form-label col-2">折扣金额：</label>
+			<div class="formControls col-95">
+				25
+			</div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">领取商品：</label>
+			<div class="formControls col-93">到院领取</div>
+		</div>
+		
+		
+		<div class="row cl">
+			<label class="form-label col-2">活动有效期：</label>
+			<div class="formControls col-5">				
+				2016-03-05
+				-
+				2016-03-25
+			</div>	
+			<div class="col-2"> </div>
+		</div>	
+
+	</form>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script> 
+
+</body>
+</html>

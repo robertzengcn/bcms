@@ -1,0 +1,117 @@
+<?php
+/**
+ * 
+ * cms预约接口
+ * @author Administrator
+ * @version v1.0
+ * @example 该接口在进行预约后,由总控中心发起预约接口
+ */
+include './common.class.php';
+//ini_set("display_errors", "On");
+
+class ShareappHwibsc extends common {
+	
+	public $posts = array();
+	
+
+	
+	private $params = array(
+		'domain'      	   => array('check'=>true,'info'=>'通信域名'),
+		'sign'        	   => array('check'=>true,'info'=>'通信加密字符串'),//false要修改
+		'time'        	   => array('check'=>true,'info'=>'通信加密时间戳'),//false要修改
+		'username' 	       => array('check'=>true,'info'=>'用户名'),	
+		'telephone' 	       => array('check'=>false,'info'=>'电话号码'),
+	);
+	
+	//构造函数
+	public function __construct() {
+		parent::__construct();
+		$this->voluation();
+		parent::signCheck();    
+		//这里暂时注释，上线时开启
+		$this->queryRes();
+		parent::msgPut(true, '登记成功!' , null );
+	}
+	
+	//查询time_id值是否正确
+	private function queryRes() {
+
+// 		$filename=time();
+// 		$apk_url = dirname(__FILE__) . "/oldfile_".$filename.".txt";
+			
+			
+// 		$myfile = fopen( $apk_url, "w") or die("Unable to open file!");
+// 		$txt = date('Y-m-d H:i:s',time());
+			
+// 		fwrite($myfile, $txt);
+// 		$s = print_r($_REQUEST, true);
+// 		fwrite($myfile, $s);
+// 		fclose($myfile);
+				
+		$memberser=new MemberService();
+		
+	    $memberarr=array('username'=>$this->posts['username']);
+	    $memberarray=$memberser->getmembyname($memberarr)->data;//获取会员信息
+	    
+	    $member=new Member();
+	    $member->id=$memberarray['id'];
+	    $member->username=$memberarray['username'];
+	    $member->telephone=$memberarray['telephone'];
+	    $member->ownscore=$memberarray['ownscore'];
+	   
+       if(empty($memberarray)){//如果会员不存在则添加会员
+       	$newmember=array('username'=>$this->posts['username'],'telephone'=>$this->posts['telephone']);
+       	$mresult=$memberser->addmember($newmember);
+       	$member=$mresult->data;
+	
+       }
+      
+		$memberlogser=new MemberLogService();//准备写入用户日志				
+		
+		$scoreruleser=new ScoreRuleService();
+		$scoarry=array('order'=>'order by id desc');
+		$result=$scoreruleser->query($scoarry);//查询现有的积分规则
+		
+		$nows=time();
+		foreach ($result->data as $key=>$val){//规则处理位置
+		
+			if($val->type==2){//每日登陆添加积分
+				
+				$num=$memberlogser->summember(array('uid'=>$member->id,'type'=>$val->type));//获取用户今日获得的积分数	
+				
+				if($num->data->total<$val->limit){//如果没有超过该用户每日登录上限则执行操作
+					$memberser->addscoretomember(array('id'=>$member->id,'score'=>$val->score));
+				}
+				$logarr=array('uid'=>$member->id,'last_log'=>$nows,'type'=>$val->type,'score'=>$val->score);//保存用户登录信息,写入日子好
+				$memberlogser->savelog($logarr);
+			}
+
+			
+		}
+		
+		
+		
+		
+
+	}
+	
+
+	
+	private function voluation() {
+
+		
+		foreach ( $this->params as $key => $value ) {
+			if( isset( $_REQUEST[$key] ) && $_REQUEST[$key] != '' ) {
+				$this->posts[$key] = trim( $_REQUEST[$key] );
+			}else{
+				if( $value['check'] === true ) {
+					parent::msgPut(0, '参数缺失：'.$value['info'].':'.$key, null);
+				}else{
+					$this->posts[$key] = '';
+				}
+			}
+		}
+	}
+	
+}
+new ShareappHwibsc();

@@ -1,0 +1,65 @@
+<?php
+/**
+ *
+ * HMA专用预约数据处理接口
+ * @author Administrator
+ * @version v1.0
+ */
+include_once '../hwibsc/common.class.php';
+class Reservations extends common {
+	private $part = null;
+	
+	public function __construct() {
+		parent::__construct();
+		$this->getuser();
+	
+		if( isset( $_REQUEST['part'] ) &&  $_REQUEST['part'] != '' ) {
+			$this->part = trim( $_REQUEST['part'] );
+			$method = 'get_'.$this->part;
+			if ( method_exists( $this , $method ) ) {
+				$this->$method();
+			}else{
+				die( json_encode( array( 'code'=>1,'msg'=>'part参数错误,不存在该调用接口!','departments'=>null ) ) );
+			}
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'part参数为空!','departments'=>null ) ) );
+		}
+	}
+	
+	/*
+	 * 
+	 * */
+	private function get_cancel_reservation(){
+		session_start();
+		if(!isset($_SESSION['member_id'])&&strlen($_SESSION['member_id'])<1){
+			echo json_encode(array('statu'=>false,'msg'=>'用户未登陆','code'=>1,'data'=>null));
+			exit();
+		}
+		 
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$reservationdetailser = new ReservationDetailService();
+			$reservationdetail=new ReservationDetail();
+			$reservationdetail->id=(int)$_REQUEST['id'];
+		
+			$reser=$reservationdetailser->get($reservationdetail);
+		
+			$arr=array('id'=>(int)$_REQUEST['id'],'member_id'=>$_SESSION['member_id']);
+			$reservationdetailser->deletereser($arr);
+			$reservationser=new ReservationService();
+		
+		
+			if($reser->data){
+				$reservationser->reducemarknum(array('id'=>$reser->data->reserver_id));
+			}
+		
+			echo json_encode(array('statu'=>true,'msg'=>null,'code'=>0,'data'=>null));
+		}else{
+			echo json_encode(array('statu'=>false,'msg'=>'缺少id','code'=>2,'data'=>null));
+		}
+	}
+	
+
+	
+
+	
+}

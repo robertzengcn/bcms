@@ -1,0 +1,449 @@
+<?php
+
+class MemberService extends BaseService {
+	private $boyiuserurl="http://www.boyicms.com/interface/hma/UserInterface.php";
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new MemberDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+     public function deleteBatch($ids) {
+        Entity::isIds($ids);   // 验证ids是否合法
+        $scoreruleArray = $this->dao->getBatch($ids);
+
+        return $this->dao->deleteBeans($scoreruleArray);
+    } 
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function get($member) {
+        $this->dao->get($member->id, $member);
+ 
+        return $this->success($member);
+    }
+
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+		$info['page'] = $where['page'];
+		$info['size'] = $where['size'];
+		$info['end_time'] = $where['end_time'];
+		$info['start_time'] = $where['start_time'];
+		$commoditylogdao = new CommodityLogDAO();
+		$commoditylog = $commoditylogdao->query($info);
+		$array_u =array();
+        foreach($commoditylog as $key=>$val){
+		        $scoreruleArray = $this->dao->getbyid(array('id'=>$val->uid));
+			$val->username = $scoreruleArray->username;
+			$val->telephone = $scoreruleArray->telephone;
+			$val->ownscore = $scoreruleArray->ownscore;
+			$val->buytime = date('Y-m-d H:i',$val->buytime);
+			if($where['username'] && $where['username'] == $val->username){
+				$array_u[] = $val;
+			}
+        }
+			if($where['username']){	
+				return $this->success($array_u);				
+			}else{
+				return $this->success($commoditylog);
+			}
+
+    }
+    public function totalRows($where){
+			$commoditylogdao = new CommodityLogDAO();
+			$count = $commoditylogdao->totalRows();	
+			return $this->success($count);
+	}
+    public function getmemberbyname($username){
+    	
+    	
+    	if(is_string($username)){
+    		$arr=array('username'=>$username);
+    		return $this->dao->getmemberbyname($arr);
+    	}elseif(is_array($username)){
+    		
+    		return $this->dao->getmemberbyname($username);
+    	}else{
+    		throw new ValidatorException(140);
+    	}
+    }
+ 
+    public function getmemberbymobile($username){
+    	
+    	
+    	if(is_string($username)){
+    		$arr=array('telephone'=>$username);
+    		return $this->dao->getmemberbymobile($arr);
+    	}elseif(is_array($username)){
+    		
+    		return $this->dao->getmemberbymobile($username);
+    	}else{
+    		throw new ValidatorException(140);
+    	}
+    } 
+    /*
+     * 获取用户积分数
+     * */
+    public function getscore($memberid){
+
+    	if(is_int($memberid)){
+    		$arr=array('id'=>$memberid);
+    		return $this->dao->getscoreamount($arr);
+    	}elseif(is_array($memberid)){
+    	
+    		return $this->dao->getscoreamount($memberid);
+    	}else{
+    		throw new ValidatorException(140);
+    	}
+    	//return $this->dao->getscoreamount();
+    }
+    
+    /**
+     * 发送post请求
+     * @param string $url 请求地址
+     * @param array $post_data post键值对数据
+     * @return string
+     */
+    public function send_post($url, $post_data) {
+    
+    	$ch = curl_init();
+    	$timeout = 60000*10;
+    	curl_setopt($ch, CURLOPT_URL, $url);
+    	curl_setopt($ch, CURLOPT_POST, true);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    	$result = curl_exec($ch);
+    	curl_close($ch);
+    	return $result;
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $scorerule
+     * @return Result
+     */
+    public function save($member) {
+    	
+         $member->validate();        
+        // 获取class对象并插入数据
+        $this->dao->save($member);
+      
+        return $this->success();
+    }
+    
+    /*
+     *添加数据 
+     * */
+    public function addmember($arr){
+    	$member=new Member();
+    	
+    	$mresult=$this->getmembyname(array('username'=>$arr['username']));
+    	
+    	if(empty($mresult->data)){//用户表里无此用户时添加
+    		
+    	$member->username=$arr['username'];
+    	if(isset($arr['telephone'])){
+    	$member->telephone=$arr['telephone'];
+    	$member->ownscore=0;
+    	}
+    	$result=$this->dao->save($member);
+        
+    	}
+    	return $this->success($result);
+    }
+    
+    
+    
+    /*
+     * 检查是否有数据存在，有的话返回所有数据
+     * */
+    
+    public function checkdate(){
+    	return $this->dao->getdate();
+    }
+    /*
+     * 删除所有数据
+     * */
+    
+    public function delall(){
+    	
+    	$rs=$this->dao->delall();
+    	return $this->success($rs);
+    }
+    
+    /*
+     * 根据type取值
+     * @param int $type
+     * */
+    public function getbytype($type){
+    	$arr=array('type'=>$type);
+    	$rs=$this->dao->getbytype($arr);
+    	return $this->success($rs);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $commodity
+     * @return Result
+     */
+    public function update($scorerule) {
+    //    $commodity->updatetime = time();
+    	
+        $scorerule->validate();
+        $this->dao->beginTrans();
+        return $this->dao->update($scorerule);
+    }
+    
+    /*
+     * 积分商城前台获取用户所拥有积分数
+     * */
+    public function getmemberscore($arr){
+    	$member=new Member();
+    	$member->id=$arr['id'];
+    	$this->dao->get($member->id, $member);
+    	
+    	return $this->success($member);
+    	
+    }
+    
+    /*
+     *扣减用户积分数量 
+     * 
+     * */
+    public function reducescore($arr){
+    	$this->dao->reducescore($arr);
+    		    	
+    }
+    
+    /*
+     *根据用户名查找用户 
+     *@param array('username'=>username);
+     * */
+    public function getmembyname($arr){
+    	$result=$this->dao->getmembyname($arr);
+    	
+
+    	return $this->success($result);
+    }
+    
+    /*
+     * 
+     * 给用户添加积分
+     * @param array('id'=>$member_id,'score'=>$score)
+     * */
+    public function addscoretomember($arr){
+    	$member=new Member();
+    	$member->id=$arr['id'];
+    	$this->dao->get($member->id, $member);
+    	$member->ownscore=$member->ownscore+$arr['score'];
+    	$this->dao->update($member);
+    	
+    }
+    
+    /*
+     * 获取所有用户
+     * 
+     * */
+    public function getallmember(){
+    	$result=$this->dao->getallmember();
+    	return $this->success($result);
+    }
+    
+    /*
+     * 注册用户到总控
+     * */
+    public function registmember($where){
+		$nickname = '';
+		if(isset($where['source']) && $where['source']=='commodity'){ //微信端商城注册
+			$username = 	$where['mobile'];
+			$nickname = $where['username'];
+		}else{
+			$username = $where['username'];
+		}
+		$password = $where['password'];
+    	if(strlen($username)<1){
+    		echo json_encode(array('stute'=>false,'msg'=>'用户名为空','code'=>10001,'data'=>null));
+    		exit();
+    	}
+    	if(strlen($password)<1){
+    		echo json_encode(array('stute'=>false,'msg'=>'密码为空','code'=>10002,'data'=>null));
+    		exit();
+    	}
+    	$url=$this->boyiuserurl;
+    	$post_data=array(
+    			'type'=>'register',
+    			'website'=>NETADDRESS,
+    			'account'=>$username,
+    			'nickname'=>$nickname,
+    			'mobile'=>$where['mobile'] ? $where['mobile'] : '',
+    			'password'=>$password
+    	);
+    	$jsresult=$this->send_post($url,$post_data);
+    	
+    	$result=json_decode($jsresult);		
+    	if($result->register=="yes"){
+    		//注册成功后的后续逻辑
+    		$mresult=$this->addmember(array('username'=>$username,'telephone'=>$username));//在注册时用手机号时启用这个方法
+    		$_SESSION['user']=$username;
+    		$_SESSION['member_id']=$mresult->data->id;
+    		
+    		return $this->success();
+    	}else{
+    		
+    		return $this->fail(10003, $result->msg);
+    	}
+    	
+    	
+    }
+    
+    /*
+     * 检查用户名密码是否正确
+     * */
+    public function docheck($where){
+		$username = $where['username'];		
+		$password = $where['password'];		
+    	if(strlen($username)<1){
+    		echo json_encode(array('stute'=>false,'msg'=>'用户名为空','code'=>10001,'data'=>null));
+    		exit();
+    	}
+    	if(strlen($password)<1){
+    		echo json_encode(array('stute'=>false,'msg'=>'密码为空','code'=>10002,'data'=>null));
+    		exit();
+    	}
+    	$url=$this->boyiuserurl;
+    	$post_data=array(
+    			 'type'=>'login',
+    			'website'=>NETADDRESS,
+    			'account'=>$username,
+    			'password'=>$password
+    	);
+    	$jsresult=$this->send_post($url,$post_data);
+    	$result=json_decode($jsresult);
+    	if($result->login=="yes"){
+    		//登录成功后的后续逻辑
+    		session_start();
+    		$this->addmember(array('username'=>$result->data->account,'telephone'=>$result->data->account));
+			if(isset($where['source']) && $where['source']=='commodity'){
+				$tmresult=$this->getmemberbymobile($username);
+			}else{
+				$tmresult=$this->getmemberbyname($username);					
+			}
+			$_SESSION['user']=$tmresult['username'];
+			$_SESSION['member_id']=$tmresult['id'];
+    	
+    		return $this->success();
+    	}else{
+   	
+    		return $this->fail(10004, $result->msg);
+    	}
+    }
+    
+    /*
+     * 验证用户名密码
+     * */
+    public function checkaccount($arr){
+    	
+    	if(strlen($arr['username'])<1){
+    		return $this->fail(10001, '用户名为空');
+    	}
+    	if(strlen($arr['password'])<1){
+    		return $this->fail(10002, '密码为空');
+    	}
+    	$url=$this->boyiuserurl;
+    	$post_data=array( 
+    			'type'=>'login',   	
+    			'website'=>NETADDRESS,
+    			'account'=>$arr['username'],
+    			'password'=>$arr['password']
+    	);
+    	$jsresult=$this->send_post($url,$post_data);
+    	$result=json_decode($jsresult);
+    	
+    	if($result->login=="yes"){
+    		//登录成功后的后续逻辑
+    		 
+    		return $this->success($result->data);
+    	}else{
+    	
+    		 
+    		return $this->fail(10004, $result->msg);
+    	}
+    	
+    }
+    
+    /*
+     * 修改总控上网站所属用户的密码
+     * @param $userid, $password
+     * */
+    public function resetpass($userid,$oldpassword,$newpassword){
+    	if(strlen($userid)<1){
+    		return $this->fail(10001, '用户id为空');
+    	}
+    	$url=$this->boyiuserurl;
+    	$post_data=array(
+    			'type'=>'password_alter',
+    			'website'=>NETADDRESS,
+    			'user_id'=>$userid,
+    			'old_password'=>$oldpassword,
+    			'new_password'=>$newpassword
+    	);
+    	
+    	$chresult=$this->send_post($url,$post_data);
+    	$result=json_decode($chresult);
+    	if($result->password_alter=='yes'){
+    		return $this->success();
+    	}else{
+    		return $this->fail(10004, $result->msg);
+    	}
+    	
+    }
+    
+     /*
+     * 验证手机号/用户名
+     * */
+    
+    public function checkUserExist($arr){
+    	$url=$this->boyiuserurl;
+		if($arr['mobile']){
+			$post_data=array(
+					'type'=>'checkmobileoracctname',
+					'acct_name'=>$arr['mobile']
+			);
+		}else{
+			$post_data=array(
+					'type'=>'checkmobileoracctname',
+					'nickname'=>$arr['nickname']
+			);		
+		} 		
+    	$chresult=$this->send_post($url,$post_data);
+    	$result=json_decode($chresult);
+		if($result->statue){
+			return false;
+		}else{
+			return true;			
+		}
+	}    
+    
+}
+

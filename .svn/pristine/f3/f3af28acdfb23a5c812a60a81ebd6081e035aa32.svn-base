@@ -1,0 +1,233 @@
+<?php
+//载入入口文件
+include_once 'init.php';
+
+/**
+ * 
+ * 医院动态
+ * @author Administrator
+ *
+ */
+class orderShop extends Shop {
+	
+	/**
+	 * 
+	 * 构造方法,通过method方法,调取对应的输出函数
+	 * @param unknown_type $method
+	 */
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 * 
+	 * 医院新闻动态列表
+	 */
+	public function query() {
+		
+		
+ 		
+if(isset($_REQUEST['page'])&&strlen($_REQUEST['page'])>0){
+	$page=(int)$_REQUEST['page'];
+}
+if(isset($_REQUEST['size'])&&strlen($_REQUEST['size'])>0){
+	$size=(int)$_REQUEST['size'];
+}
+	if(isset($_REQUEST['page'])&&isset($_REQUEST['size'])){
+		$param=array('member_id'=>$_SESSION['member_id'],'page'=>$page,'size'=>$size,'order'=>'date desc');
+	}else{
+		$param=array('member_id'=>$_SESSION['member_id'],'order'=>'date desc');
+	}
+	
+
+	
+	$list = $this->getServiceMethod('order','query',$param);
+
+		//$categories_id=isset($_REQUEST['categories_id'])?(int)$_REQUEST['categories_id']:"";
+		$this->smarty->assign('list',$list->data);
+		
+// 		$this->pageSetting( 10 ,'commodity','commodity');//分页式列表		
+// 		$seo = $this->getServiceMethod('Seo','query',array("flag" => "news"));
+// 		$this->smarty->assign('seo',$seo->data[0]);
+		$this->smarty->display( 'Order/list' . TPLSUFFIX );
+	}
+	
+	/*
+	 * 获取我的订单
+	 * */
+	
+	public function getorderjson(){
+if(isset($_REQUEST['page'])&&strlen($_REQUEST['page'])>0){
+	$page=(int)$_REQUEST['page'];
+}
+if(isset($_REQUEST['size'])&&strlen($_REQUEST['size'])>0){
+	$size=(int)$_REQUEST['size'];
+}
+if(isset($_REQUEST['order'])&&strlen($_REQUEST['order'])>0){
+	$order=$_REQUEST['order'];
+}else{
+	$order='';
+}
+if(isset($_REQUEST['order_stute'])&&strlen($_REQUEST['order_stute'])>0){
+	if(isset($_REQUEST['page'])&&isset($_REQUEST['size'])){
+		$param=array('uid'=>$_SESSION['member_id'],'page'=>$page,'size'=>$size,'order_stute'=>$_REQUEST['order_stute'],'orders'=>$order);
+	}else{
+		$param=array('uid'=>$_SESSION['member_id'],'order_stute'=>$_REQUEST['order_stute'],'orders'=>$order);
+	}
+}else{
+	if(isset($_REQUEST['page'])&&isset($_REQUEST['size'])){
+		$param=array('uid'=>$_SESSION['member_id'],'page'=>$page,'size'=>$size,'orders'=>$order);
+	}else{
+		$param=array('uid'=>$_SESSION['member_id'],'orders'=>$order);
+	}
+}	
+	$list = $this->getServiceMethod('CommodityOrder','getOrderList',$param);	
+	//$list = $this->getServiceMethod('order','query',$param);
+		echo json_encode($list);
+		
+	}
+	
+	/*
+	 * 订单结算控制器
+	 * */
+	
+	public function checkout(){
+		//$cartser=new CartService();
+		if(!isset($_REQUEST['cart_id'])&&strlen($_REQUEST['cart_id'])<=0){
+			echo json_encode(array('statu'=>false, 'code'=>9958,'msg'=>'缺少参数 cart_id','data'=>null));
+			exit();
+		}
+		
+		$data=json_decode(stripslashes($_REQUEST['cart_id']));
+		
+
+		if(!empty($data)){
+			$msgflag=false;
+			$msg='';
+			$cnum=0;
+			$score=0;
+			$pricetotal=0;
+			foreach ($data as $k=>$v){
+				$num=$this->getServiceMethod('CommodityCart','count_score',array('member_id'=>$_SESSION['member_id'],'id'=>$v));
+				$price=$this->getServiceMethod('CommodityCart','count_price',array('member_id'=>$_SESSION['member_id'],'id'=>$v));				
+				$score=$score+$num->data;
+				$pricetotal=$pricetotal+$price->data;
+			}
+			
+
+			
+			$scoreamount=$this->getServiceMethod('member','getmemberscore',array('id'=>$_SESSION['member_id']));
+			
+		
+			if($score>$scoreamount->data->ownscore){
+				echo json_encode(array('statu'=>false, 'code'=>182,'msg'=>'用户积分不足','data'=>null));
+				exit();
+			}
+			
+			
+			$order=$this->getServiceMethod('order','addorder',array('member_id'=>$_SESSION['member_id'],'total_score'=>$score,'total_price'=>$pricetotal));
+			$orderid=$order->data->id;
+				//$this->dao->beginTrans();
+				
+			foreach ($data as $key=>$val){
+				
+				$cart = $this->getServiceMethod('CommodityCart','getmebercart',array('member_id'=>$_SESSION['member_id'],'id'=>$val));
+				
+				$result=$this->getServiceMethod('commodity','getcombyid',array('id'=>$cart->data['commodity_id']));
+				
+				if(!empty($result->data)){
+					
+				if($result->data->status){
+					
+				//if($result->data->quantity>0&&$cart->data['quantity']<=$result->data->quantity){
+					
+					$orderdetail=$this->getServiceMethod('ordercommodity','addorder',array('member_id'=>$_SESSION['member_id'],'order_id'=>$orderid,'commodity_id'=>$cart->data['commodity_id'],'commodity_name'=>$result->data->subject,'final_price'=>$cart->data['final_price']*$cart->data['quantity'],'commodity_price'=>$result->data->price,'commodity_quantity'=>$cart->data['quantity'],'final_score'=>$cart->data['final_score'],'commodity_score'=>$result->data->score));
+					if($orderdetail->statu){
+						
+						$this->getServiceMethod('member','reducescore',array('id'=>$_SESSION['member_id'],'score'=>$cart->data['final_score']));
+						$this->getServiceMethod('CommodityCart','deleteBatch',array('id'=>$val));
+						$cnum++;
+						
+					}
+				//}
+				}else{
+					$msgflag=true;
+					$msg.=' '.$result->data->subject.'已被下架，无法结算';
+				}
+				}else{
+					$msgflag=true;
+					$msg.=' 没有找到  '.$result->data->subject;
+				}
+			}
+			//$this->dao->commitTrans();
+			
+			if($msgflag){
+				echo json_encode(array('statu'=>true, 'code'=>$cnum,'msg'=>$msg,'data'=>null));
+				exit();
+				
+			}else{
+				echo json_encode(array('statu'=>true, 'code'=>$cnum,'msg'=>null,'data'=>null));
+				exit();
+			}
+			
+				
+				//$this->dao->rollbackTrans();
+			
+		}else{
+			echo json_encode(array('statu'=>false, 'code'=>183,'msg'=>'该商品不存在，可能已经被下架','data'=>null));
+			exit();
+		}
+		
+	}
+	
+	/*
+	 * 获取单个订单详情
+	 * $param $_Request['order_id'];
+	 * */
+	
+	public function getorder(){
+		if(isset($_REQUEST['order_id'])&&strlen($_REQUEST['order_id'])>0){
+			$order_id=(int)$_REQUEST['order_id'];
+		}else{
+			echo json_encode(array('statu'=>false, 'code'=>115,'msg'=>'订单id不存在','data'=>null));
+			exit();
+		}
+		
+		$param=array('id'=>$order_id,'member_id'=>$_SESSION['member_id']);
+		$detail = $this->getServiceMethod('order','getmemberorder',$param);
+		
+		$this->smarty->assign('detail',$detail->data);
+		
+		$this->smarty->display( 'Order/detail' . TPLSUFFIX );
+	
+		
+		
+	}
+	/*
+	 * 获取单个订单详情
+	* $param $_Request['order_id'];
+	* 返回json格式数据
+	* */
+	public function getorderdetailjson(){
+		if(isset($_REQUEST['order_id'])&&strlen($_REQUEST['order_id'])>0){
+			$order_id=(int)$_REQUEST['order_id'];
+		}else{
+			echo json_encode(array('statu'=>false, 'code'=>115,'msg'=>'订单id不存在','data'=>null));
+			exit();
+		}
+
+			$param=array('id'=>$order_id,'uid'=>$_SESSION['member_id']);
+				$detail = $this->getServiceMethod('CommodityOrder','getOrderDetail',$param);
+			//$detail = $this->getServiceMethod('order','getmemberorder',$param);
+	
+		echo json_encode($detail);
+
+		
+	}
+
+	
+}
+
+new orderShop();
+?>

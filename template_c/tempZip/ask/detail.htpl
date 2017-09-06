@@ -1,0 +1,43 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/ask.css">
+{{/block}}
+{{block name=body}}
+  <div id="breadcrumb"><span>您现在的位置：<a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a>>
+            <a href='{{$WEBSITE}}/ask/'>专家答疑</a>>
+            <a>文章详情</a></span></div>
+  <div class="clear h8"></div>
+  <!--��-->
+  <div class="main">
+   {{$askInfo = $AskTag->get($id)}}
+    <div class="par-main">
+      <h2><span>专家答疑</span></h2>
+      <div class="ask-par">
+        <h3 class="bg1"><span>提问于：{{date('Y-m-d',$askInfo->plushtime)}}</span>{{$askInfo->department_name}}</h3>
+        <div>{{$askInfo->description}}</div>
+          {{if $askInfo->isanswer != 0}}
+          {{doctor name=$askInfo->doctor_name}}
+        <h3 class="bg2"><span>解答于：{{date('Y-m-d',$askInfo->plushtime)}}</span><a href="{{$WEBSITE}}/doctor/{{$doctor->id}}.html">{{$doctor->name}}</a></h3>
+        <div> {{$askInfo->content}}</div>
+          {{/if}}
+      </div>
+      <div class="femind">若您仍有疑问，请与在线医生进行<a href="{{$ContactTag->get('swt')}}">即时沟通 >></a></div>
+        <div class="ask-tab"><div></div><p>
+            您好，这里是{{$ContactTag->get('name')}}在线专家答疑，留下您的问题，我们的专家会对您的问题尽快进行回复，感谢您对
+            {{$ContactTag->get('name')}}的信任！<strong>健康热线：{{$ContactTag->get('tel')}}
+            </strong>
+            </p>
+        </div>
+
+        <!--���ʱ?begin-->
+        {{include file="../common/public/tiwen.htpl"}}
+        <!--���ʱ?end-->
+    </div>
+    <!--right-->
+      {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+  </div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+{{/block}}

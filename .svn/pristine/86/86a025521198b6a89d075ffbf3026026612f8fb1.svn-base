@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../../css/H-ui.min.css">
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<style type="text/css">
+	.static-progress,.static-progress-bar,.sr-only{height:10px; font-size:0;line-height:0}
+    .static-progress{overflow:hidden; -khtml-border-radius:6px;-ms-border-radius:6px;-o-border-radius:6px;-moz-border-radius:6px;-webkit-border-radius:6px;border-radius:6px}
+    .static-progress-bar{width:100%;background-color:#efefef}
+    .sr-only{display:inline-block; background-color:#58b957}
+	
+	 div.addweixin-btbox{width:360px;height:120px;margin:20px auto;padding:0;}
+	 div.bt-box{width:120px;height:120px; cursor:pointer;margin:0px 30px;}
+	 div.rp-bt{width:120px;height:120px; cursor:pointer;margin:0px auto;}
+	 div.bt-box div{width:116px;height:116px;padding:0;text-align:center;}
+	 div.rp-bt div{width:116px;height:116px;padding:0;text-align:center;}
+</style>
+<title>生成手机应用</title>
+</head>
+<body>
+<div class="pd-5">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>下载管理</span></div>
+			
+			<!--APK生成-->
+			<div class="tabCon">
+				<div class="row cl mt-10">
+					<label class="form-label col-2" style="text-align:right;">上传APK文件：</label>
+					<div class="formControls col-2">
+					    <!--用来存放文件信息-->
+					    <div class="btns"></div>
+					</div>
+					<label class="form-label col-8" id="apkUrl"></label>
+					<input type="hidden" id="apk_upload_url">
+				</div>
+				<div class="row cl  mt-10">
+					<label class="form-label col-2 text-r">中间图标：</label>						
+					<div class="formControls col-91">
+					    <!--用来存放文件信息-->
+					    <div class="btns_logo" info="../../images/boyicms/apk/apkexam_i.png"></div>
+					</div>
+					<div class="thumbnailbox" style="width:104px;height:104px;">
+						<img id="logo_img" src="../../images/boyicms/logo/thumbnail_mobile.png" flag="../../images/boyicms/logo/thumbnail_mobile.gif" id="center_img" width="100px" style="padding:2px;"/> <div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+					</div> 
+				</div><!--上传图片-->
+				<div class="row cl mt-20" id="explan_qr_div">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6" id="explan_qr"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2" style="text-align:right;"><span class="c-red">*</span>医院营销APK：</label>
+					<div class="formControls col-6" id="ex1"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6">下载地址：<span id="url1"></span></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6" id="step1"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2" style="text-align:right;"><span class="c-red">*</span>医院管理APK：</label>
+					<div class="formControls col-6" id="ex2"></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6">下载地址：<span id="url2"></span></div>
+				</div>
+				<div class="row cl mt-20">
+					<label class="form-label col-2"></label>
+					<div class="formControls col-6" id="step2"></div>
+				</div>
+			</div>
+			<!--下载管理-->
+
+		</div><!--HuiTab over-->
+		<div class="row cl"></div>
+		<div class="row cl"></div>
+
+</div>
+
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script>
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../js/boyicms/apk.js"></script>
+<script type="text/javascript">
+var intervalID;
+var makeStop= false;
+var c = 0;
+var t;
+var gApk = new Apk();
+gApk.setThisName('gApk');
+gApk.initApk();
+
+</script>
+</body>
+</html>

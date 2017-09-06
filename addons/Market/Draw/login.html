@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录</title>
+<link href="{{$COMMON}}Draw/public/login/css/login.css" rel="stylesheet" type="text/css" />
+<script src="{{$COMMON}}Draw/public/login/js/jquery-1.7.min.js"></script>
+<script src="{{$COMMON}}Draw/public/login/js/login.js?time={{$smarty.now}}"></script>
+</head>
+<body>
+<div class="heght10"></div>
+  <h3 class="title">登录</h3>
+  <div class="reg"><a href="{{$METHOD}}register" >注册</a></div>
+<div class="zc">
+ <div class="zc_con1">
+	   <div class="zc_list">
+	   <span class="zc_bt">手<b class="kg04">机</b>号</span><input type="text" value="请输入11位手机号"  class="text03" id="mobile" value="">
+	    <span style="display:none;" id="mobile_err"></span>
+	   </div>
+   <div class="zc_list">
+   <span class="zc_bt">密<b class="kg05"></b>码</span><input type="password" placeholder="6-16个字符或字母" class="text03" id="paw" value="">
+  	<span style="display:none;" id="paw_err"></span>  
+  </div>
+     <div class="remember"><input id="remember-me" type="checkbox" checked="checked" value="1">一周内自动登录</div>
+  <a href="#" class="zcbut" id="sub" style="margin-left:10px;">登录</a>
+</div>
+</div>
+ <div id="pageDialogBG" class="pageDialogBG"><div class="Prompt"></div> </div>
+</body>
+</html>

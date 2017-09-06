@@ -1,0 +1,161 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+body{font-family: 'Microsoft YaHei';}
+/*首页*/
+	/*头部*/
+.header .head_logo .input-group-addon button{font-size:16px;}
+.header .head_logo .form-control::-webkit-input-placeholder,.header .head_logo .form-control:-moz-placeholder,.header .head_logo .form-control::-moz-placeholder,.header .head_logo .form-control:-ms-input-placeholder{font-size:14px;}
+	/*导航*/
+#nav .navbar-nav > li a{font-size: 16px;font-weight: bold;}
+#nav .sub_menu li a{ font-size: 14px;font-weight: normal;}
+@media (max-width: 991px) {#nav .navbar-nav>li a {font-size:13px;}}
+	/*banner+导航2*/
+.home_banner .nav_two ul li p{ font-weight: bold;font-size: 14px;}
+	/*标题*/
+.main_tit strong{ font-size:18px;}
+	/*主要1*/
+.main_top .maint_l .news_tit li a{ font-size:16px; font-weight:bold;}
+.main_top .maint_l .news_box h2{ font-size:18px;}
+.main_top .maint_l .news_box dl{ font-family:"宋体"; font-size:12px;}
+
+.main_top .maint_r .notice_tit li a{ font-size:16px; font-weight:bold;}
+.main_top .maint_r .notice_box dl{ font-family:"宋体"; font-size:12px;}
+	/*主要2*/
+.main_two .mtwo_tit span a i{ font-size:16px;}
+.main_two .mtwo_r .control-label{ font-family:"宋体"; font-weight:normal;}
+.main_two .mtwo_r .form-group .btn{font-weight:bold; font-size:16px;}
+.main_two .mtwo_l #myNiceCarousel1 .carousel-inner ul li span{font-size:16px;}
+	/*主要3*/
+.main_three .mthree_keshi ul{font-family:"宋体";}
+.main_three .mthree_keshi ul li{font-size: 12px;}
+.main_three .mthree_keshi ul li a:hover{ font-weight:bold;}
+
+	/*主要4*/
+.main_four .mfour_zt li p{ font-size:18px;}
+	/*尾页*/
+.footer .foor_m #jumpMenu{ font-size: 14px;}
+.footer .foor_m ul li a i{ font-size:32px;}
+.footer .foor_m ul li a i.icon-star::after{content: 'z'; font-size: 24px;}
+/*患者服务*/
+.main_pat h5,.main_pat h4{font-weight:normal;}
+.main_pat2 .mpat2 li h4{font-size:20px; font-weight:normal;}
+.main_pat2 .mpat2 li h5{font-size:15px;font-weight:normal;}
+.main_pat2 .table > tbody > tr > td a{font-family:"宋体"; font-size:16px; font-weight:bold;}
+
+/*科室介绍*/
+.main_dep .mdep_one h4{font-weight: normal;}
+
+/*三院护理*/
+.main_hos h3{font-size:18px;}
+.main_hos ul,.main_hos2 ul{font-family:"宋体";}
+
+/*新闻中心*/
+.main_news .mnew_l .news_box h2{font-size: 18px;}
+.main_news .mnew_l .news_box dl {font-family: "宋体";font-size: 12px;}
+.main_news .mnew_r dl {font-family: "宋体";font-size: 12px;}
+.main_news-2 dl {font-family: "宋体";font-size: 12px;}
+
+
+/*医疗联合体*/
+.main_med p{ text-indent:2em; font-family:"宋体"; font-size:14px;}
+
+/*医院概况*/
+.main_abo .mabo_l p, .main_abo .mabo_r p{font-family: "宋体";font-size: 12px;text-indent:2em;}
+.main_abo3 h3{font-size:24px;}
+.main_abo3 b{ font-size:18px;}
+.main_abo .mabo_l p::after,.main_abo .mabo_r p::after {font-weight:bold; font-family:'Microsoft Yahei';}
+
+/*专题专栏*/
+.main_spe ul li p{ font-size:18px;}
+
+/*专家内页*/
+.main_exp .mexp_l h4,.main_exp2 .mexp2_r h4{font-size:20px; font-weight:normal;}
+.main_exp .mexp_l h5,.main_exp2 .mexp2_r h5{font-size:15px;font-weight:normal;}
+.main_exp2 .mexp2_l .control-label{ font-family:"宋体"; font-weight:normal; font-size:14px;}
+.main_exp2 .mexp2_l .form-group .btn{font-weight:bold; font-size:16px;}
+
+/*患者服务——预约挂号*/
+.main_psapp .mpsapp_title li{ font-size:14px; font-weight:bold;}
+.main_psapp .mpsapp_box .mpsappbox_img .img2 p{ font-size:18px;}
+.main_psapp .mpsapp_box h3{ font-size:26px; font-weight:normal;}
+.main_psapp .mpsapp_box .mpsappbox_txt{ text-indent:2em; font-size:18px;}
+.main_psapp .mpsapp_box .mpsappbox_txt2{font-size:18px;}
+@media (max-width:767px) {.main_psapp .mpsapp_title li span{font-size:13px;}}
+
+/*患者服务1*/
+.main_ps1 .main_ps1_box .mpsbox_txt{font-size:18px;}
+.main_ps1 .breadcrumb{font-size:14px;}
+.main_ps1 .main_ps1_box h1{font-weight:normal;}
+
+/*患者服务——特色*/
+.main_psfea li h2{font-weight: normal;}
+.main_psfea li p{ font-size:14px;}
+.main_psfea li p::after{font-weight: bold;}
+
+/*医患交流*/
+.main_dpc .mdpc_l .mdpcl_tit li{font-weight: bold;font-size: 16px;}
+.main_dpc .mdpc_l .mdpcl_list li .completed::before{content: '\e653';font-family:ZenIcon;font-size: 16px;}
+.main_dpc .mdpc_l .mdpcl_list li .incomplete::before{content: '\e652';font-family:ZenIcon;font-size: 16px;}
+
+.main_dpc .mdpc_r .mdpcr_ask .mdpcrask_btn a{font-weight: bold;font-size: 16px;}
+.main_dpc .mdpc_r .mdpcrask_tit h2{font-weight: normal;font-size: 16px;}
+.main_dpc .mdpc_r .mdpcrask_tit h2 span{font-weight: bold;}
+.main_dpc .mdpc_r .mdpcr_doc ul li h4,.main_dpc .mdpc_r .mdpcr_doc ul li h5{ font-weight:normal; }
+.main_dpc .mdpc_r .mdpcr_doc ul li h4 a{ font-size:18px;}
+
+/*新闻中心1*/
+.main_news1 .mnews1_l .mnews1l_tit a.active{font-weight: bold;}
+.main_news1 .mnews1_l .mnews1l_tit a i{font-size: 12px;}
+.main_news1 .mnews1_l .mnews1l_list li h2{font-size: 20px;font-weight: normal;}
+.main_news1 .mnews1_l .mnews1l_list li .list_info{font-size: 12px;font-family:"宋体";}
+.main_news1 .mnews1_l .mnews1l_list li .list_info a i.icon-star::after {font-size:12px;}
+.main_news1 .mnews1_l .mnews1l_list li .list_info a i{font-size: 16px;}
+.main_news1 .mnews1_l .mnews1l_list li .list_summary p{font-family:"宋体"; font-size:14px;}
+
+.main_news1 .mnews1_r .mnews1r_tit h2{font-weight: normal;font-size: 16px;}
+.main_news1 .mnews1_r .mnews1r_tit h2 span{font-weight: bold;}
+
+/*新闻中心2*/
+.main_news1 .breadcrumb{font-size: 14px;}
+.mnews_l2 h1{font-size: 24px;font-weight: normal;}
+.mnews_l2 .mnewsl2_info{ font-family:"宋体";font-size: 14px;}
+.mnews_l2 .mnewsl2_info a i{font-size: 16px;}
+.mnews_l2 .mnewsl2_info a i.icon-star::after{font-size:12px;}
+.mnews_l2 .new_cont{font-size: 14px;font-family:"宋体";}
+.mnews_l2 .mnewsl2_Readings ul{ font-size:14px;}
+.mnews_l2 .mnewsl2_Readings ul li a::before {font-weight: bold;}
+.mnews_l2 .mnewsl2_Readings ul li span{font-size: 12px;}
+
+/*妇科科室*/
+.mian_wd1 .mwd1_r p{font-size:14px;}
+.mian_wd2 .mwd2_img p{font-size:16px;}
+
+/*医患交流2*/
+.main_dpc2 form .form-group label{font-size:16px; }
+.main_dpc2 form .form-group .pdc2_required::before{font-size: 17px;}
+.main_dpc2 form .dpc2_btn input{font-size:16px; font-weight:bold;}
+@media (max-width:767px) {.main_dpc2 form .form-group label{ font-size:14px;}}
+
+/*医患交流3*/
+.main_dpc3 .main_tit span{font-size: 16px;}
+.main_dpc3 .mpdc3_l form label{ font-size:14px; font-weight:normal;}
+.main_dpc3 .mpdc3_l form .form-group #submit{font-size:16px;}
+.main_dpc3 .mpdc3_r p{font-size: 16px;}
+.main_icl .micl_r form input#submit{font-size:16px;}
+
+/*检查单查询*/
+.main_icl .micl_l p{ font-size:14px;}
+
+/*健康体检*/
+.main_hcup .mhcup_tit1 li.active a{ font-weight:bold;}
+.int_main .int_menu_list li a{font-size:14px;}
+.int_main .int_menu_list li.nav-parent > a:nth-child(1){font-size:16px;}
+.int_main .int_cont .int_cont_tit{ font-size:16px;}
+.int_main .int_cont .int_cont_tit:before{content: '\e6e4';font-family: ZenIcon; font-style: normal;font-weight: 400;font-variant: normal;}
+.int_main .int_cont .int_cont_tit .int_index1 li.active{ font-weight:bold;}
+.int_main .int_cont .int_cont_tjyd ul li:before{content: '\e6bb';font-family: ZenIcon;}
+
+/*网站地图*/
+.main_webmap .mwmap_list dt{font-size: 16px;}

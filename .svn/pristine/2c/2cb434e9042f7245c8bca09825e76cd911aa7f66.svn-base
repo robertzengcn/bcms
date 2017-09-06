@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class DrawDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_DRAW;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+    	
+    	
+    	
+        DTExpression::ge('start_time', $where, 'start_time');
+        DTExpression::lt('end_time', $where, 'end_time');
+//         DTExpression::eq('isbidding', $where);
+        DTExpression::like('name', $where,'d');
+        
+        DTExpression::eq('statu', $where,'d');
+//         DTExpression::eq('exchange', $where);
+        DTExpression::page($where);
+        if (isset($where['order']) &&  $where['order']) {
+            DTOrder::$sql = $where['order'];
+        } else {
+            DTOrder::desc('plushtime');
+        }
+        
+        $sql=ORMMap::$sqlMap['drawactivity']. ' where '.DTEXPRESSION::$sql . DTOrder::$sql . DTExpression::$limit;
+        
+ 
+        
+        return $this->getjoin($sql);
+        
+        //return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('start_time', $where, 'start_time');
+        DTExpression::lt('end_time', $where, 'end_time');
+//         DTExpression::eq('isbidding', $where);
+        DTExpression::like('name', $where,'d');
+        
+        DTExpression::eq('statu', $where,'d');
+//         DTExpression::eq('exchange', $where);
+        DTExpression::page($where);
+//         DTOrder::desc('plushtime');
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+       
+        
+        $sql=ORMMap::$sqlMap['drawactivitynum']. ' where '.DTEXPRESSION::$sql ;
+        //DTExpression::eq('pattern', $where);
+        
+
+       return $this->getjoin($sql);
+    }
+    
+    /*
+     * 设置活动为关闭
+     * 
+     * */
+    
+    public function setstute($arr){
+    	R::exec('update '.$this->tableName.' set statu =0 where id=:id',$arr);
+    	R::close();
+    	
+    }
+    
+    public function getname(){
+//     	$result=R::findAll($this->tableName);
+//     	R::close();
+//     	return $result;
+    	
+$sql=ORMMap::$sqlMap['drawname'];
+
+return $this->getjoin($sql);
+    }
+}
+

@@ -1,0 +1,429 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/common.css">
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>添加用户</title>
+
+</head>
+<body>
+<div class="pd-10">
+ <form action="" method="post" class="form form-horizontal" id="formEdit">
+	<div id="tab-category" class="HuiTab">
+    	<div class="tabBar cl"><span>基础信息</span><span>密码修改</span><span>权限控制</span></div>
+        <!--用户信息-->
+        <div class="tabCon">
+       
+        <div class="row cl">
+		  <label class="form-label col-2"><span class="c-red">*</span>账号：</label>
+		  <div class="formControls col-7">
+			<input type="hidden" id="id" name="id" value="">
+			<input type="hidden" name="purview" id="purview" value="">
+			<input type="hidden" name="acls" id="acls" value="">
+			<input type="hidden" name="plushtime" id="plushtime" value="">
+			<input type="text" class="input-text" value="" placeholder="请输入6-12个数字/字母" id="name" name="name" datatype="LimitNumLetter" nullmsg="账号不能为空" errormsg="限6-12个数字或字母"/>
+		  </div>
+		  <div class="col-3"></div>
+		</div>
+        <div class="row cl">
+                  <label class="form-label col-2"><span class="c-red">*</span>手机号：</label>
+                  <div class="formControls col-7">
+                    <input type="text" placeholder="请填写手机号，手机号也可登陆，并收取院内重要短信通知" autocomplete="off" value="" class="input-text" datatype="m" nullmsg="手机号不能为空" id="telephone" name="telephone" errormsg="请填入正确的手机号"/>
+                  </div>
+                  <div class="col-3"></div>
+                </div>
+              <div class="row cl">
+                  <label class="form-label col-2"><span class="c-red">*</span>姓名：</label>
+                  <div class="formControls col-7">
+                    <input type="text" placeholder="填写用户真实姓名" autocomplete="off" value="" class="input-text" datatype="*" nullmsg="用户姓名不能为空" id="nick_name" name="nick_name" />
+                  </div>
+                  <div class="col-3"></div>
+                </div>
+                
+
+        </div>
+        <div class="tabCon">
+                    <div class="row cl">
+              <label class="form-label col-2"><span class="c-red">*</span>密码：</label>
+              <div class="formControls col-7">
+                <input type="password" placeholder="密码" autocomplete="off" value="" class="input-text" datatype="LimitNumLetter" nullmsg="密码不能为空" id="pwd" name="password" errormsg="请输入6-12个数字或字母"/>
+              </div>
+              <div class="col-3"></div>
+            </div>
+            <div class="row cl">
+              <label class="form-label col-2"><span class="c-red">*</span>重复密码：</label>
+              <div class="formControls col-7">
+                <input type="password" placeholder="确认新密码" autocomplete="off" class="input-text" errormsg="两次输入的密码不一致！" datatype="*" nullmsg="请再输入一次新密码！" recheck="password" id="pass" name="pass"/>
+              </div>
+              <div class="col-3"></div>
+            </div>
+        </div>
+        <!--权限管理-->
+        <div class="tabCon">
+        	<div class="row cl">
+              <label class="form-label col-2">用户组：</label>
+              <div class="formControls col-8 skin-minimal" id="grouplist"></div>
+               <a class="btn btn-success radius" id="manageGrouping" onClick="gUser.openAdd('用户组管理','manage/grouping.html','700','400')" href="javascript:;"><i class="Hui-iconfont">&#xe611;</i> 管理</a>
+            </div>
+        	<div class="row cl" id="div_ac2">
+			  <label class="form-label col-2">权限控制：</label>
+			  <div class="formControls col-10">
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-information" type="checkbox">
+						  医院信息管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="introduce" type="checkbox">
+							  医院简介</label>
+							<label class="">
+							  <input value="news" type="checkbox">
+							  医院新闻</label>
+							<label class="">
+							  <input value="media" type="checkbox">
+							  媒体报道</label>
+							<label class="">
+							  <input value="honor" type="checkbox">
+							  医院荣誉</label>
+							<label class="">
+							  <input value="environment" type="checkbox">
+							  医院环境</label>
+							<label class="">
+							  <input value="device" type="checkbox">
+							  医疗设备</label>
+							<label class="">
+							  <input value="concat" type="checkbox">
+							  联系方式</label>
+							<label class="">
+							  <input value="channel" type="checkbox">
+							  个性频道</label>								
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--医院信息管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-article" type="checkbox">
+						  医疗资讯管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="department" type="checkbox">
+							  科室设置</label>
+							<label class="">
+							  <input value="disease" type="checkbox">
+							  疾病设置</label>
+							<label class="">
+							  <input value="doctor" type="checkbox">
+							  医生管理</label>
+							<label class="">
+							  <input value="information" type="checkbox">
+							  疾病资讯</label>
+							<label class="">
+							  <input value="successCase" type="checkbox">
+							  案例管理</label>
+							<label class="">
+							  <input value="technology" type="checkbox">
+							  医院技术</label>
+							<label class="">
+							  <input value="movie" type="checkbox">
+							  视频管理</label>
+							<label class="">
+							  <input value="html" type="checkbox">
+							  生成页面</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--医疗资讯管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-pictures" type="checkbox">
+						  网站图片管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="picList" type="checkbox">
+							  单张图片管理</label>
+							<label class="">
+							  <input value="picScroll" type="checkbox">
+							  轮播图片管理</label>
+							<label class="">
+							  <input value="picEffect" type="checkbox">
+							  网页弹窗管理</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--网站图片管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-nav" type="checkbox">
+						  网站导航管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="nav_header" type="checkbox">
+							  头部导航</label>
+							<label class="">
+							  <input value="nav_disease" type="checkbox">
+							  疾病导航</label>
+							<label class="">
+							  <input value="nav_footer" type="checkbox">
+							  页尾导航</label>
+							<label class="">
+							  <input value="nav_diy" type="checkbox">
+							  自定义导航</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--网站导航管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-seo" type="checkbox">
+						  网站SEO管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="pageSet" type="checkbox">
+							  404页面设置</label>
+							<label class="">
+							  <input value="seoSet" type="checkbox">
+							  SEO标签设置</label>
+							<label class="">
+							  <input value="flow" type="checkbox">
+							  全站流量统计</label>
+							<label class="">
+							  <input value="third" type="checkbox">
+							  添加其它代码</label>
+							<label class="">
+							  <input value="link" type="checkbox">
+							  友情链接设置</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--网站SEO管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-webgeneration" type="checkbox">
+						  网站生成管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="html" type="checkbox">
+							  生成页面</label>									
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--网站生成管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-market" type="checkbox">
+						  营销渠道管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">	
+							<label class="">
+							  <input value="template" type="checkbox">
+							  模版管理</label>
+							<label class="">
+							  <input value="mobile" type="checkbox">
+							  手机营销</label>
+							<label class="">
+							  <input value="cloudsync" type="checkbox">
+							  "云"同步</label>
+							<label class="">
+							  <input value="wechatplugin" type="checkbox">
+							  微信插件</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--营销渠道管理-->
+					
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-activity" type="checkbox">
+						  营销活动策划</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="pointsmall" type="checkbox">
+							  积分商城</label>
+							<label class="">
+							  <input value="lottery" type="checkbox">
+							  每日抽奖</label>
+							<label class="">
+							  <input value="wechatvote" type="checkbox">
+							  微信投票</label>
+							<label class="">
+							  <input value="topic" type="checkbox">
+							  专题制作</label>									
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--营销活动策划-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-medicalservice" type="checkbox">
+						  医疗服务管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="ask" type="checkbox">
+							  在线问答</label>
+							<label class="">
+							  <input value="reservation" type="checkbox">
+							  预约挂号</label>
+							<label class="">
+							  <input value="feedback" type="checkbox">
+							  病患建议</label>
+							<label class="">
+							  <input value="customerservice" type="checkbox">
+							  客服管理</label>
+							<label class="">
+							  <input value="patient" type="checkbox">
+							  患者管理</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--医疗服务管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-system" type="checkbox">
+						  系统功能管理</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">
+							<label class="">
+							  <input value="filemanager" type="checkbox">
+							  文件管理</label>
+							<label class="">
+							  <input value="backups" type="checkbox">
+							  全站备份</label>									
+							<label class="">
+							  <input value="SMS" type="checkbox">
+							  短信接口</label>
+							<label class="">
+							  <input value="sensitivewords" type="checkbox">
+							  敏感词库</label>
+							  <label class="">
+							  <input value="user" type="checkbox">
+							  账号管理</label>
+							  <label class="">
+							  <input value="systemLog" type="checkbox">
+							  操作日志</label>
+							  <label class="">
+							  <input value="optimize" type="checkbox">
+							  系统优化</label>
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+					<!--系统功能管理-->
+					<dl class="permission-list">
+					  <dt>
+						<label>
+						  <input value="menu-help" type="checkbox">
+						  用户帮助中心</label>
+					  </dt>
+					  <dd>
+						<dl class="cl permission-list2">
+						  <dd style="margin-left:0px;">	
+							<label class="">
+							  <input value="school" type="checkbox">
+							  营销学院</label>
+							<label class="">
+							  <input value="questions" type="checkbox">
+							  常见问题</label>
+							<label class="">
+							  <input value="online" type="checkbox">
+							  在线教程</label>									
+						  </dd>
+						</dl>
+					  </dd>
+					</dl>
+			  </div>
+			</div>
+        </div>
+    </div>
+     
+	<div style="width:100%;height:50px;clear:both;"></div>
+  <div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+    <div class="col-10 col-offset-1">
+      <button class="btn btn-primary radius bt-normal" type="button" id="save">&nbsp;&nbsp;确定&nbsp;&nbsp;</button>
+      <button class="btn btn-default radius bt-normal" type="button" id="back">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+    </div>
+  </div>
+</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="/hcc/js/boyicms/jquery.md5.js"></script>
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/user.js"></script>
+<script type="text/javascript">
+var gUser = new User();
+gUser.setThisName('gUser');
+gUser.initEdit();
+</script>
+</body>
+</html>

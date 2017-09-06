@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+		<File>
+		    <item><source>/upload/logo.png</source><whither>/upload/picmanager/Logo.png</whither></item>
+		    <item><source>/upload/logo1.png</source><whither>/upload/picmanager/logo3.png</whither></item>
+			<item><source>/upload/favicon.png</source><whither>/upload/picmanager/Logo2.png</whither></item>
+			<item><source>/upload/banner1.jpg</source><whither>/upload/picmanager/lunbo1_1.jpg</whither></item>
+			<item><source>/upload/banner2.jpg</source><whither>/upload/picmanager/lunbo2_2.jpg</whither></item>
+			<item><source>/upload/banner3.jpg</source><whither>/upload/picmanager/lunbo3_3.jpg</whither></item>
+			<item><source>/upload/mbg.jpg</source><whither>/upload/picmanager/tupian1.jpg</whither></item>
+			<item><source>/upload/mc1.jpg</source><whither>/upload/picmanager/tupian2.jpg</whither></item>
+			<item><source>/upload/mc2.jpg</source><whither>/upload/picmanager/tupian3.jpg</whither></item>
+			<item><source>/upload/mc3.jpg</source><whither>/upload/picmanager/tupian4.jpg</whither></item>
+			<item><source>/upload/blue_error.png</source><whither>/upload/picmanager/tupian5.png</whither></item>
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	<Insert>
+	    <item>INSERT INTO `contact` (`name`,`val`,`is_retain`,`flag`) VALUES
+	    ('邮编','123456',1,'postcode'),
+	    ('商标','Copyright(C)2004-2016',1,'cop'),
+	    ('邮箱','123456@qq.com',1,'email');</item>
+		<item>INSERT INTO `picmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`) VALUES
+		('PC_LOGO', 'logo', 'picmanager/Logo.png', '', 1, 1, NULL),
+		('MOBILE_LOGO', 'logo3', 'picmanager/Logo3.png', '', 1, 1, NULL),
+		('TITLE_LOGO2', 'logo2', 'picmanager/Logo2.png', '', 1, 1, NULL),
+		('首页背景图', 'background', 'picmanager/tupian1.jpg', '', 1, 1, NULL),
+		('通知公告', 'notice', 'picmanager/tupian2.jpg', '', 1, 1, NULL),
+		('健康科普', 'health', 'picmanager/tupian3.jpg', '', 1, 1, NULL),
+		('医疗集团', 'yiliao', 'picmanager/tupian4.jpg', '', 1, 1, NULL),
+		('底部图片', 'bottom', 'picmanager/tupian5.png', '', 1, 1, NULL),
+		('轮播图','index','','',1,2,NULL);
+		</item>
+		<item>INSERT INTO `pic` (`pid`, `sort`, `url`, `pic`, `text`) VALUES
+		('', 1, '', 'picmanager/lunbo1_1.jpg', 'index01'),
+		('', 2, '', 'picmanager/lunbo2_2.jpg', 'index01'),
+		('', 3, '', 'picmanager/lunbo3_3.jpg', 'index01');
+		</item>	
+		<item>INSERT INTO `channel` (`name`,`shortname`,`is_use_tpl`)VALUES
+	    ('通知公告','notice',1),('健康科普','health',1),('医疗集团','yiliao',1),
+	    ('领导班子','leader',1),('发展历程','history',1);
+	    </item>
+	    <item>INSERT INTO `channelarticle` (`subject`,`channel_id`,`content`)VALUES
+	    ('通知公告1','','content'),('通知公告2','','content'),('通知公告3','','content'),('通知公告4','','content'),
+	    ('健康科普1','','content2'),('健康科普2','','content2'),('健康科普3','','content2'),('健康科普4','','content2'),
+	    ('医疗集团1','','content3'),('医疗集团2','','content3'),('医疗集团3','','content3'),('医疗集团4','','content3'),
+	    ('专家出诊','','content4');
+	    </item>
+	    <item>INSERT INTO `channel` (`name`,`shortname`,`is_use_tpl`,`tplurl`)VALUES
+	    ('专家出诊','schedulings',0,'tpl/czrmyy/channel/Schedulings.htpl');
+	    </item>
+		<item>INSERT INTO `navigation` (`subject`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		('医院概况', '', 0, 0, 1, 1, 1, 'Nav1', ''),		
+		('医院简介', '', 1, '', 1, 1, 1, 'nav01', ''),
+		('领导班子', '', 1, '', 2, 1, 1, 'nav01', ''),
+		('医院荣誉', '', 1, '', 3, 1, 1, 'nav01', ''),
+		('发展历程', '', 1, '', 4, 1, 1, 'nav01', ''),
+		('联系我们', '', 1, '', 5, 1, 1, 'nav01', ''),
+		('乘车路线', '', 1, '', 6, 1, 1, 'nav01', ''),
+		('通知公告', '', 1, '', 7, 1, 1, 'nav01', ''),
+		('医疗集团', '', 1, '', 8, 1, 1, 'nav01', ''),
+		('院刊院报', '', 1, '', 9, 1, 1, 'nav01', ''),
+		('科室介绍', '', 0, 0, 2, 1, 1, 'Nav2', ''),
+		('专家介绍', '', 0, 0, 3, 1, 1, 'Nav3', ''),
+		('特色医疗', '', 0, 0, 4, 1, 1, 'Nav4', ''),
+		('新技术项目', '', 1, '', 1, 1, 1, 'nav04', ''),
+		('特色门诊', '', 1, '', 2, 1, 1, 'nav04', ''),
+		('先进设备', '', 1, '', 3, 1, 1, 'nav04', ''),
+		('就医指南', '', 0, 0, 5, 1, 1, 'Nav5', ''),
+		('健康大课堂', '', 1, '', 1, 1, 1, 'nav05', ''),
+		('健康知识', '', 1, '', 2, 1, 1, 'nav05', ''),
+		('健康自测', '', 1, '', 3, 1, 1, 'nav05', ''),
+		('疾病专题', '', 1, '', 4, 1, 1, 'nav05', ''),
+		('健康科普', '', 0, 0, 6, 1, 1, 'Nav6', ''),
+		('医患交流', '', 1, '', 1, 1, 1, 'nav06', ''),
+		('出诊查询', '', 1, '', 2, 1, 1, 'nav06', ''),
+		('预约挂号', '', 1, '', 3, 1, 1, 'nav06', ''),
+		('满意度查询', '', 1, '', 4, 1, 1, 'nav06', ''),
+		('院长信箱', '', 1, '', 5, 1, 1, 'nav06', ''),
+		('患者服务', '', 0, 0, 7, 1, 1, 'Nav7', ''),
+		('医院荣誉', '', 1, '', 1, 1, 1, 'nav07', ''),
+		('发展历程', '', 1, '', 2, 1, 1, 'nav07', ''),
+		('联系我们', '', 1, '', 3, 1, 1, 'nav07', ''),
+		('乘车路线', '', 1, '', 4, 1, 1, 'nav07', ''),
+		('通知公告', '', 1, '', 5, 1, 1, 'nav07', ''),
+		('医疗集团', '', 1, '', 6, 1, 1, 'nav07', ''),
+		('院刊院报', '', 1, '', 7, 1, 1, 'nav07', '');
+		</item>	
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`) VALUES 
+		(1, '', '首页导航', 'mynav', NULL, NULL, NULL, NULL, NULL, 1,'mynav1'),
+		(0, '', '预约挂号', 'mynav01', '', 0, 0, 1, 0, 1, 'mynav'),
+		(0, '', '就诊指南','mynav02', '', 0, 0, 2, 0, 1, 'mynav'),
+		(0, '', '专家介绍','mynav03', '', 0, 0, 3, 0, 1, 'mynav'),
+		(0, '', '出停诊查询','mynav04', '', 0, 0, 4, 0, 1, 'mynav'),
+		(0, '', '科室介绍','mynav05', '', 0, 0, 5, 0, 1, 'mynav'),
+		(0, '', '医患交流','mynav05', '', 0, 0, 6, 0, 1, 'mynav'),
+		(0, '', '特色医疗','mynav06', '', 0, 0, 7, 0, 1, 'mynav');
+		</item>	
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`) VALUES 
+		(1, '', '详情页左侧导航', 'left', NULL, NULL, NULL, NULL, NULL, 1,'left1'),
+		(0, '', '预约挂号','left01', '', 0, 0, 1, 0, 1, 'left'),
+		(0, '', '就诊指南','left02', '', 0, 0, 2, 0, 1, 'left'),
+		(0, '', '专家介绍','left03', '', 0, 0, 3, 0, 1, 'left'),
+		(0, '', '出停诊查询','left04', '', 0, 0, 4, 0, 1, 'left'),
+		(0, '', '科室介绍','left05', '', 0, 0, 5, 0, 1, 'left'),
+		(0, '', '医患交流','left05', '', 0, 0, 6, 0, 1, 'left'),
+		(0, '', '特色医疗','left06', '', 0, 0, 7, 0, 1, 'left');
+		</item>
+		<item>INSERT INTO `navgroup` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`) VALUES 
+		(1, '', '底部导航链接', 'bottom', NULL, NULL, NULL, NULL, NULL, 1,'bottom1'),
+		(0, '', '在线咨询','bottom01', '', 0, 0, 1, 0, 1, 'bottom'),
+		(0, '', '就诊指南','bottom02', '', 0, 0, 2, 0, 1, 'bottom'),
+		(0, '', '帮助信息','bottom03', '', 0, 0, 3, 0, 1, 'bottom'),
+		(0, '', '版权声明','bottom04', '', 0, 0, 4, 0, 1, 'bottom'),
+		(0, '', '关于我们','bottom05', '', 0, 0, 5, 0, 1, 'bottom'),
+		(0, '', '联系我们','bottom05', '', 0, 0, 6, 0, 1, 'bottom'),
+		(0, '', '友情链接','bottom05', '', 0, 0, 6, 0, 1, 'bottom'),
+		(0, '', '特色医疗','bottom06', '', 0, 0, 7, 0, 1, 'bottom');
+		</item>				
+    </Insert>
+	<Delete>
+	    <item>{t:contact,f:flag,v:{"postcode"|"cop"|"email"}}</item>
+	    <item>{t:channel,f:shortname,v:{"notice"|"health"|"yiliao"|"schedulings"|"leader"|"history"}}</item>
+	    <item>{t:channelarticle,f:content,v:{"content"|"content2"|"content3"|"content4"}}</item>
+		<item>{t:picmanager,f:flag,v:{"index"|"logo"|"logo2"|"logo3"|"background"|"notice"|"health"|"yiliao"|"bottom"}}</item>
+		<item>{t:pic,f:text,v:{"index01"}}</item>
+		<item>{t:navigation,f:name,v:{"Nav1"|"Nav2"|"Nav3"|"Nav4"|"Nav5"|"Nav6"|"Nav7"}}</item>
+		<item>{t:navigation,f:name,v:{"nav01"|"nav04"|"nav05"|"nav06"|"nav07"}}</item>
+		<item>{t:navgroup,f:name,v:{"mynav"|"mynav1"|"left"|"left1"|"bottom"|"bottom1"}}</item>
+	</Delete>		
+	<Parent>
+	    <item>
+			<get>{t:channel,f:shortname,g:id,v:schedulings}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content4"}}</set>
+		</item>
+	    <item>
+			<get>{t:channel,f:shortname,g:id,v:notice}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:health}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content2"}}</set>
+		</item>
+		<item>
+			<get>{t:channel,f:shortname,g:id,v:yiliao}</get>
+			<set>{t:channelarticle,f:content,s:channel_id,v:{"content3"}}</set>
+		</item>
+		<item>
+			<get>{t:picmanager,f:flag,g:id,v:index}</get>
+			<set>{t:pic,f:text,s:pid,v:{"index01"}}</set>
+		</item>
+	    <item>
+			<get>{t:navigation,f:name,g:id,v:Nav1}</get>
+			<set>{t:navigation,f:name,s:pid,v:{"nav01"}}</set>
+		</item>	
+		 <item>
+			<get>{t:navigation,f:name,g:id,v:Nav4}</get>
+			<set>{t:navigation,f:name,s:pid,v:{"nav04"}}</set>
+		</item>	
+		<item>
+			<get>{t:navigation,f:name,g:id,v:Nav5}</get>
+			<set>{t:navigation,f:name,s:pid,v:{"nav05"}}</set>
+		</item>	
+		<item>
+			<get>{t:navigation,f:name,g:id,v:Nav6}</get>
+			<set>{t:navigation,f:name,s:pid,v:{"nav06"}}</set>
+		</item>
+		<item>
+			<get>{t:navigation,f:name,g:id,v:Nav7}</get>
+			<set>{t:navigation,f:name,s:pid,v:{"nav07"}}</set>
+		</item>
+		<item>
+			<get>{t:navgroup,f:flag,g:id,v:mynav}</get>
+			<set>{t:navgroup,f:name,s:group_id,v:{"mynav"}}</set>
+		</item>
+		<item>
+			<get>{t:navgroup,f:flag,g:id,v:left}</get>
+			<set>{t:navgroup,f:name,s:group_id,v:{"left"}}</set>
+		</item>
+		<item>
+			<get>{t:navgroup,f:flag,g:id,v:bottom}</get>
+			<set>{t:navgroup,f:name,s:group_id,v:{"bottom"}}</set>
+		</item>
+	</Parent>			
+</body>

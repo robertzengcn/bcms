@@ -1,0 +1,60 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Success extends Entity {
+
+    var $id;
+
+    var $subject;
+
+    var $pic1;
+
+    var $pic2;
+
+    var $source;
+
+    var $content;
+
+    var $click_count;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $updatetime;
+
+    var $isbidding;
+
+    var $worker_id;
+
+    var $disease_id;
+
+    var $department_id;
+
+    var $is_top;
+
+    public function validate() {
+        if (strlen($this->subject) == 0) {
+            throw new ValidatorException(75);
+        }
+
+        if (strlen($this->content) == 0) {
+            throw new ValidatorException(5);
+        }
+
+        if (strlen($this->isbidding) == 0) {
+            throw new ValidatorException(8);
+        }
+        if ($this->plushtime == '' || strlen($this->plushtime) == 0) {
+            $this->plushtime = time();
+        }
+        if ($this->updatetime == '' || strlen($this->updatetime) == 0) {
+            $this->updatetime = time();
+        }
+    }
+}
+

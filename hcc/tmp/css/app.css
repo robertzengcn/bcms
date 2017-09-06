@@ -1,0 +1,64 @@
+/* Write your styles */
+
+/* 覆盖 */
+ul, li {
+  list-style: none;
+  padding: 0;
+  margin: 0
+}
+/*增加*/
+.am-strong{ font-weight:bold;}
+
+/*统计*/
+.main_sta{ padding:10px;}
+.main_sta a{ color:#fff; background-color:#71c8e8; border-right:1px solid #fff;}
+.main_sta a:hover{color:#fff;}
+.main_sta a.am-active{ background-color:#12a3d8; }
+
+.main_sta2 table{ border:none;}
+.main_sta2 table thead tr th{ text-align:center;border-left: 1px solid #fff; background-color:#808080; color:#fff; font-weight:normal;}
+.main_sta2 table tbody tr td{text-align:center;border-left: 1px solid #fff;border-top: 2px solid #fff; }
+.main_sta2 .am-table-bordered > thead + tbody > tr:first-child > td{ border-top:none;}
+.main_sta2 table tbody tr > td:first-child{ font-size:1.4rem;}
+.main_sta2 tbody tr > td:first-child{ color:#333;}
+.main_sta2 .am-table>tbody>tr>td,.main_sta2  .am-table>tbody>tr>th,.main_sta2  .am-table>tfoot>tr>td,.main_sta2  .am-table>tfoot>tr>th,.main_sta2  .am-table>thead>tr>td,.main_sta2  .am-table>thead>tr>th{padding: .7rem 0;}
+
+/*统计选择*/
+.main_stacho{border-bottom:1px solid #e6e6e6;}
+.main_stacho li{ width:25%; float:left; padding:5px;border-right:1px solid #e6e6e6; border-bottom:1px solid #e6e6e6; text-align:center;}
+.main_stacho li:hover{ background-color:#f0f0f0;}
+.main_stacho li a{ display:block;}
+.main_stacho li a img{ width:100%; max-width:100px; padding:28px 12px;}
+.main_stacho li a span{ display:block; width:100%; color:#333; font-size:1.4rem;white-space: nowrap;}
+
+@media only screen and (max-width:640px) {.main_stacho li a img{ width:100%; max-width:50px; padding:16px 8px;}}
+
+/*病患详细信息*/
+.main_pdet input{ width:50%; display:inline-block; margin-right:5px;}
+
+/*病患管理*/
+.header_pat thead tr th{ text-align:center; background-color:#f6f6f6;}
+.header_pat tbody tr td{ font-size:1.4rem;border-bottom: 1px solid #ddd; border-top:none;}
+.header_pat2{position: fixed;bottom: 0;width: 100%;padding-right:1rem;padding-left:1rem;background: #fff;}
+.header_pat2 p{background-color: #fff9f3 !important;padding: 2rem 1.5rem;color: #333 !important;width: 100%;max-width: 70rem;border:1px solid #f1a325 !important; display:block; margin:10px auto;}
+
+/*回访记录*/
+.header_rv li{ border-left:none;border-right:none;}
+.header_rv li a{ color:#333; font-size:1.4rem;}
+.header_rv li span{margin-top: 12px; color:#999; background-color:transparent;}
+
+/*全站流量*/
+.main_vie table tbody {display:block;overflow-y:scroll;}
+.main_vie table thead,.main_vie tbody tr {display:table;width:100%;table-layout:fixed;}
+.main_vie table thead th{ background:#ccc;}
+
+/*全站流量统计*/
+/*统计选择*/
+.main_stacho2{border-bottom:1px solid #e6e6e6;}
+.main_stacho2 li{ width:33.3%; float:left; padding:5px;border-right:1px solid #e6e6e6; border-bottom:1px solid #e6e6e6; text-align:center;}
+.main_stacho2 li:hover{ background-color:#f0f0f0;}
+.main_stacho2 li a{ display:block;}
+.main_stacho2 li a img{ width:100%; max-width:100px; padding:28px 12px;}
+.main_stacho2 li a span{ display:block; width:100%; color:#333; font-size:1.4rem;}
+
+@media only screen and (max-width:640px) {.main_stacho2 li a img{ width:100%; max-width:66px; padding:16px 8px;}}

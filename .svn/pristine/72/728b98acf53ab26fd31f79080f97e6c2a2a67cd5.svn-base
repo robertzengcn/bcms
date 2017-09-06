@@ -1,0 +1,515 @@
+/**
+ * 专题制作
+ * */
+var maxsize='';
+function Topic() {
+	BaseFunc.call(this);
+	var self = this;
+	// {{{ function init()
+	
+	/**
+	 * 初始化列表
+	 * */
+	this.init = function() {
+		$(function(){
+			$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+			
+			//默认本地专题模板
+			self.getLocalRemoteTopicList();
+			
+			$(".tabBar span").click(function(){
+				var index = $(this).index();
+				switch(index) {
+					case 0:
+						//本地模板
+						self.getLocalRemoteTopicList();
+						break;
+					case 1:
+						//在线模板
+						self.getRemoteTopicList();
+						break;
+					case 2:
+						//上传模板
+						self.readPostMaxValue();
+						self.initUploader();
+						break;
+				}
+			});
+		});
+	}
+
+	// }}}
+	// {{{ function refreshTopic()
+	
+	/**
+	 * 刷新专题列表
+	 * */
+	this.refreshTopic = function(){
+		$("#topiclistid").bindTopicList()
+	}
+	
+	// }}}
+    // {{{ function initUploader()
+	
+	/**
+	 * 出事化上传插件
+	 * */
+	this.initUploader = function() {
+		uploader = null;
+		
+		$(".btns").html('<div id="picker">上传专题</div>');
+		
+		uploader = WebUploader.create({
+			auto:true,
+			swf:'lib/webuploader/0.1.5/Uploader.swf',
+			server:'/controller/?controller=Template&method=uploadTpl',
+			pick:'#picker',
+			fileVal: 'Filedata',
+			fileSingleSizeLimit:maxsize*1024*1024,
+			resize:false,
+			accept: {
+				title: '压缩包',
+				extensions: 'zip',
+				mimeTypes: 'application/*'
+			}
+		});
+		
+		$("#picker").unbind('click').bind('click',function(){
+			$("#uploaderDiv").show();
+	        $("#progressDiv").hide();
+			self.uploadTopic();
+		});
+	}
+	
+	// }}}
+	// {{{ function initList()
+	
+	/**
+	 * 初始化专题列表
+	 * */
+	this.initList = function() {
+		$(function(){
+			//table加载数据
+			self.fillDataTable();
+			
+			//查询
+			$("#qry").click(function(){
+				self.fillDataTable();
+			});
+		});
+	}
+	
+	// }}}
+    // {{{ function fillDataTable()
+	
+	/**
+	 * 加载数据表
+	 * */
+	this.fillDataTable = function() {
+		$("#dataTable").grid({
+			para:{controller:'Topic',method:'query'},
+			order : false,
+			aoColumnDefs : [
+							{sClass:'text-c',aTargets:[0]},{sClass:'text-c',aTargets:[4]},{sClass:'text-c',aTargets:[5]}
+							],
+			field : [
+			            {
+			            	data : 'id',
+			            	render : function (id, type, row) {
+			            		return '<input type="checkbox" name="tr_'+id+'" id="tr_'+id+'" value="'+id+'">';
+			            	}
+			            },
+			            { data: 'subject' },
+			            { data: 'description',render:function(value){return value.substr(0,60)+'...';}},
+			            { data: 'link' },
+			            { data: 'plushtime' },
+			            {
+						  data : 'id',
+						  render : function(id, type, row){
+							  var viewUrl = "/controller/?controller=ViewHtml&method=topic&op=topic&id="+row['topiclistid']+"&html="+row['url']+"|"+row['link']+"|"+row['id'];
+							  var str = '';
+							  str += '<a style="text-decoration:none" target="_blank" href="'+viewUrl+'" title="预览"><i class="Hui-iconfont">&#xe695;</i></a>'; 
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gTopic.edit('+id+');" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+				              str += '<a style="text-decoration:none" class="ml-5" onClick="gTopic.del('+id+');" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+					    	  return str;
+						  }
+						 }
+			        ]
+		});
+	}
+	
+	// }}}
+	// {{{ function del()
+	
+	/**
+	 * 单个删除
+	 * */
+	this.del = function(id) {
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Topic',method:'del',id:id});
+	}
+	
+	// }}}
+	// {{{ function delBatch()
+	
+	/**
+	 * 批量删除
+	 * */
+	this.delBatch = function() {
+		var ids = $("#dataTable").getSelectedAll();
+		var obj=$("#dataTable").dataTable();
+		self.openDel(obj,{controller:'Topic',method:'del',id:ids});
+	}
+
+	// }}}
+	// {{{ function edit()
+	
+	/**
+	 * 动态编辑
+	 * */
+	this.edit = function(id){
+		self.openEdit('编辑专题','topic-edit.html?id=' + id);
+	}
+	
+	// }}}
+	// {{{ function initEdit()
+	
+	/**
+	 * 初始化编辑专题
+	 * */
+	this.initEdit = function() {
+        $(function(){
+        	self.onloadCss();
+        	
+        	//填充专题模板选择项
+        	$("#topiclistid").bindTopicList();
+        	
+        	//模版被选择
+			self.topicSelectedEvent();
+			
+        	//获取参数
+			var para = self.parseUrl(window.location.href);
+			if (para.id != undefined) {
+				self.cmd(gHttp, {controller:'Topic',method:'get',id:para.id},function(result1){
+					if(result1.statu){
+						$('#formEdit').frmFill('',result1.data);
+                        
+						self.fillShowPosition(result1.data.show_position);
+						
+                        editor.ready(function(){
+    						editor.setContent(result1.data.content);
+    					});
+                        
+						if(result1.data.pic != ''){
+							$('#thumbnail').attr('src',result1.data.src);
+						}
+					}else{
+						layer.alert(result1.msg);
+					}
+				});
+			} else {
+				self.fillShowPosition();
+			} 
+			
+			self.change();
+			$('input[name="link"]').keyup(function(){
+				self.change();
+			});
+			$('input[name="url"]').keyup(function(){
+				self.change();
+			});
+			
+			//保存
+			$('#save').click(function(){
+				self.save();
+			});
+			
+			//返回
+			$('#back').click(function(){
+				layer_close();
+			});
+			
+        });
+	}
+	
+	// }}}
+	// {{{ function change()
+	
+	/**
+	 * 访问路径改变
+	 * */
+	this.change = function (){
+		var url = 'http://' + document.domain + '/topic/' + $('input[name="url"]').val() + '/' + $('input[name="link"]').val();
+		$('#demo_url').html( url );
+		$('#demo_url').attr('href',url);
+	}
+	
+	// }}}
+	// {{{ function topicSelectedEvent()
+	
+	/**
+	 * 模版被选择
+	 * */
+	this.topicSelectedEvent = function() {
+		$("#topiclistid").change(function(){
+			var val = $(this).val();
+			if( val != '' && val != null ){
+				self.cmd(gHttp, {controller:'Topic',method:'gethtml',from:"select",topicid:val},function(result){
+					editor.ready(function(){
+						editor.setContent(result.data);
+					});
+				});
+			}else{
+				editor.ready(function(){
+					editor.setContent('');
+				});
+			}
+		});
+	}
+	
+	
+	// {{{ function save()
+	
+	/**
+	 * 保存
+	 * */
+	this.save = function(){
+		var post = {};
+		var id = $("#id").val();
+		if (id == '') {
+			post = {controller:'Topic',method:'add'};
+		} else {
+			post = {controller:'Topic',method:'edit',id:id};
+		}
+		$('#formEdit').checkAndSubmit('save',post,function(result1){
+			if(result1.statu){				
+				var url=parent.location.href;
+				parent.location.replace(url);
+				parent.layer.msg('操作成功!',{icon: 1});	
+				layer_close();
+				
+				
+			}else{
+				parent.layer.alert(result1.msg,{icon:2});
+			}
+		});
+		$('#formEdit').submit();
+	}
+	
+	// }}}
+	// {{{ function bindItemEvent()
+	
+	this.bindItemEvent = function() {
+		$('li.item').on('mouseenter',function(){
+			$(this).find('div.temp-title').stop().animate({height:"30px"});
+		}).on('mouseleave', function() {
+			$(this).find('div.temp-title').stop().animate({height:"0px"});
+		});
+	}
+	
+	// }}}
+	// {{{ function getLocalRemoteTopicList()
+	
+	/**
+	 * 获取本地专题模版
+	 */
+	this.getLocalRemoteTopicList = function (){
+		var index = layer.msg('正在加载本地专题模版,请稍后...');
+		self.cmd(gHttp,{controller:'Topic',method:'getLocalRemoteTopicList'},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';
+				for(var i = 0 ; i < len ; i++){
+					html += '<li class="item">';
+					html += '<div class="Tdetial">';
+					html += '<div class="temp-title text-l">'+ result.data[i].Title +'</div>';							
+					html += '<div class="picbox">';									
+					html += '<img src="'+ result.data[i].Face +'"/>';								
+					html += '</div>';
+					html += '<div class="bt-area">';
+					html += '<a href="javascript:;" onclick="gTopic.localTopicDelete(\'' + result.data[i].ID + '\');">删除</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTopic.viewImg(\'图片预览\',\''+ result.data[i].Face + '\');">预览</a>';
+					html += '</div>';							
+					html += '</div>';
+					html += '</li>';
+				}
+				$('#local_topic_unitBox').empty().append( html );
+				self.bindItemEvent();
+				layer.close(index);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function localTopicDelete()
+	
+	/**
+	 * 本地专题模版删除
+	 */
+	this.localTopicDelete = function (id){
+		layer.confirm('确定删除该模版吗？', function(index) {
+			self.cmd(gHttp,{controller:'Topic',method:'deleteLocalRemoteTopicList',id:id},function(result){
+				layer.close(index);
+				layer.alert('专题模版删除成功!');
+				$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+				//默认本地专题模板
+				self.getLocalRemoteTopicList();
+				window.parent.gTopic.refreshTopic();
+			});
+		});
+	}
+	
+	// }}}
+	// {{{ function getRemoteTopicList()
+	
+	/**
+	 * 获取在线专题模版
+	 */
+	this.getRemoteTopicList = function (){
+	    var index = layer.msg('正在加载在线专题模版,请稍后...');
+		self.cmd(gHttp,{controller:'Template',method:'getRemoteTopicList'},function(result){
+			if(result.data){
+				var len = result.data.length;
+				var html = '';var cls = '';var acls = '';var atxt = '';
+				for(var i = 0 ; i < len ; i++){
+					html += '<li class="item">';
+					html += '<div class="Tdetial">';
+					html += '<div class="temp-title text-l">'+result.data[i].pro_name+'</div>';								
+					html += '<div class="picbox">';									
+					html += '<img src="'+ result.data[i].cover +'"/>';								
+					html += '</div>';
+					html += '<div class="bt-area">';
+					html += '<a href="javascript:;" onclick="gTopic.viewImg(\'图片预览\',\''+result.data[i].view+'\');">预览</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTopic.getRemoteProductAuth('+result.data[i].id+',\'在线安装\',5);">安装</a>&nbsp;|&nbsp;';
+					html += '<a href="javascript:;" onclick="gTopic.getRemoteProductAuth('+result.data[i].id+',\'下载\',2);">下载</a>';
+					html += '</div>';
+					html += '</div>';
+					html += '</li>';
+				}
+				$('#remote_unitBox').empty().append( html );
+				self.bindItemEvent();
+				layer.close(index);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function templateZipInstall()
+	
+	/**
+	 * 安装模版包
+	 */
+	this.templateZipInstall = function (){
+		var thisResult = result;
+		var url = $('#template_upload_url').val();
+		if(url != ''){
+			self.cmd(gHttp,{controller:'Template',method:'templateInstall',zipFile:url},function(result){
+				switch(result.statu){
+					case true:
+						$('#template_upload_url').val('');
+						$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+						//默认本地模板
+						self.getLocalRemoteTopicList();
+						break;
+					case false:
+						layer.alert('安装失败：' + result.msg);
+						break;
+					default:
+						break;
+				}
+				$('#progressDiv').hide(1500);
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function templateZipDelete()
+	
+	/**
+	 * 上传了但不需要进行安装，所以进行删除临时存放包
+	 */
+	this.templateZipDelete = function (){
+		var url = $('#template_upload_url').val();
+		if(url != ''){
+			self.cmd(gHttp,{controller:'Template',method:'templateZipDelete',zipFile:url},function(result){
+				switch(result.statu){
+					case true:
+						layer.alert('删除成功');
+						$('#template_upload_url').val('');
+						break;
+					case false:
+						layer.alert(result.msg);
+						break;
+					default:
+						break;
+				}
+				$('#progressDiv').hide(1500);
+			});
+		}
+	}
+	
+	// }}}
+	// {{{ function readPostMaxValue()
+	
+	/**
+	 * 读取最大post上传限制
+	 */
+	this.readPostMaxValue = function () {
+		self.cmd(gHttp,{controller:'Template',method:'readPostMaxValue'},function(result){
+			if(result.statu){
+				$('#post_max_value').html(result.data);
+				var size=result.data.length-1;
+				maxsize=result.data.substring(0,size);
+			}
+		});
+	}
+	
+	// }}}
+	// {{{ function uploadTopic()
+	
+	/**
+	 * 上传专题
+	 * */
+	this.uploadTopic = function() {
+		// 文件上传过程中创建进度条实时显示。
+		uploader.on( 'uploadProgress', function( file, percentage ) {
+		    layer.msg('正在努力上传，请等待...', {icon: 16});
+			
+		    uploader.on( 'uploadSuccess', function( file, response ) {		        
+		        
+		        if(response.result == false){
+					layer.alert('专题模版上传失败,请重试!');
+				}else if(response.code == 1 ){
+					layer.alert( '专题模版已存在,请删除后重试!' );
+				}else{
+					layer.alert('专题模版上传成功!', function(index){
+						$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+						//默认本地模板
+						self.getLocalRemoteTopicList();
+						layer.close(index);
+					});
+					
+				}
+		    });
+
+		    uploader.on( 'uploadError', function( file ) {
+		        layer.alert('当前网络状况不佳，上传失败，请重试',{icon:2}); 
+		    });
+
+		    uploader.on( 'uploadComplete', function( file ) {
+		        //layer.msg('专题模版上传成功!');
+		    });
+		});
+		uploader.on( 'error', function(type) {
+			 if (type=="Q_TYPE_DENIED"){
+		        layer.alert('请上传正确的模板包，模板包必须是zip格式',{icon:2});
+		     }else if(type=="F_EXCEED_SIZE"){
+		    	 layer.alert('上传文件大小超过了PHP的限制：'+maxsize+'M，请参考上面的规则最后一条修改php.ini配置文件',{icon:2});
+		        }
+
+			});
+		
+	}
+	
+	// }}}
+}

@@ -1,0 +1,18 @@
+2017-02-08 17:48:50 JPUSH error:cannot find user by this audience
+2017-02-09 14:52:56 JPUSH error:cannot find user by this audience
+2017-02-09 14:54:39 JPUSH error:cannot find user by this audience
+
+zhan894954@163.com
+
+
+fR7eP5Xqe8Av
+
+
+select a.id as case_id, a.*,b.id as patient_id, b.*,c.id as detail_id, c.*,d.title as source_name,d.id as source,f.department_name as department_name,e.* from patientcase as a inner join patient as b inner join patientdiagnosisdetail as c inner join patientdatasource as d inner join patientdiagnosisfee as e on a.patient_id=b.id and a.id=c.case_id and b.source=d.id and e.detail_id=c.id left join patientdepartment as f on c.department=f.id where 1=1 and a.case_number='643448' and c.type=1 order by a.add_time desc limit 0,10
+
+select a.id as case_id, a.*,b.id as patient_id, b.*,c.id as detail_id, c.*,d.title as source_name,d.id as source,f.department_name as department_name,e.* from patientcase as a inner join patient as b inner join patientdiagnosisdetail as c inner join patientdatasource as d inner join patientdiagnosisfee as e on a.patient_id=b.id and a.id=c.case_id and b.source=d.id and e.detail_id=c.id left join patientdepartment as f on c.department=f.id where 1=1 and c.type=1 and c.visit_time between 1484236800 and 1486915200 order by a.add_time desc limit 0,10
+
+select a.id as case_id, a.*,b.id as patient_id, b.*,c.id as detail_id, c.*,d.title as source_name,d.id as source,f.department_name as department_name,e.* from patientcase as a inner join patient as b inner join patientdiagnosisdetail as c inner join patientdatasource as d inner join patientdiagnosisfee as e on a.patient_id=b.id and a.id=c.case_id and b.source=d.id and e.detail_id=c.id left join patientdepartment as f on c.department=f.id where 1=1 and a.id='12' and c.type=2 order by a.add_time desc limit 0,10
+
+
+ select a.id as detail_id, a.*, d.patient_id from patientdiagnosisdetail as a inner join patientcase as d on (d.case_number=a.case_number and d.id=a.case_id) where 1=1 and a.case_number="643448" and a.pid="12" and visit_time between 1484236800 and 1486915200 and a.type=2 order by a.visit_time desc limit 0,10

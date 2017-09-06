@@ -1,0 +1,949 @@
+<?php
+/**
+ *
+ * 静态页面预览控制器
+ * @author Administrator
+ *
+ */
+require_once './HtmlBase.php';
+
+class ViewHtmlController extends Html {
+
+    /**
+     * 构造方法
+     */
+    public function __construct() {
+        parent::__construct();
+        // 如果来源为非debug(预览),则需要重新生成公共部分
+		$method = $_REQUEST['method'];
+		$array = array('openHtmlType','getOpenState','renameHtaccess');
+        if (! isset($_REQUEST['debug']) && ! in_array($method, $array)) {
+        	if( ! in_array( $this->option , $this->noMake) ) {
+            	$this->makeOnce();
+        	}
+        }
+    }
+
+    /**
+     *
+     *
+     * list->detail;文章预览共用功能
+     * @info 只适用于首页为list，子页为detail的形式页面
+     *
+     * @param object $service
+     *            服务层
+     * @param object $tag
+     *            tag对象
+     * @param string $htmlDir
+     *            需要生成的静态文件路径(进度条生成时有效)
+     */
+    private function publicDetailView($Services, $htmlDir = '') {
+        // .是否为生成list还是生成detail？
+        if (isset($_REQUEST['list'])) {
+            $i = $_REQUEST['i'];
+            $count = $_REQUEST['count'];
+            $pageCount = $_REQUEST['pageCount'];
+            $pageSize = $_REQUEST['pageSize'] ? $_REQUEST['pageSize'] : 6;	
+			//注入分页
+			$this->setPageHtml($i,$pageSize,$count,str_replace(ABSPATH . '/', '', $htmlDir));
+	
+			//注入位置导航
+			$params = array();
+			$params['key'] = $this->config['key'];
+			$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];	
+			$this->smarty->assign('POSITION',$this->position($params));
+			//注入SEO信息
+			$this->setSinglePageSeo($this->config['key']);
+            if (isset($this->config['detail_tpl'])) {
+                $content = $this->tagFetch($this->config['list_tpl']);
+                $listHtml = $htmlDir . 'list_' . $i . $this->htmlSuffix;
+                $indexHtml = $htmlDir . 'index' . $this->htmlSuffix;
+                file_put_contents($htmlDir . 'list_' . $i . $this->htmlSuffix, $content);
+                if ($i == 1) {
+                    copy($listHtml, $indexHtml);
+                }
+                die(json_encode(new Result(true, 0, '', NULL)));
+            }
+        } else {
+            $id = intval($_REQUEST['id']);
+			$params = array( "id" => $id );
+			$sql = $this->getInfoSql($this->config['key'],$params);
+			$info = $Services->getRowTag($sql);
+			if($info->pic) $info->pic = UPLOAD . $info->pic;
+			// 注入文章id与文章信息
+			$this->smarty->assign($this->config['key'], $info);
+			$this->smarty->assign("id", $info->id);
+				//注入位置导航
+				$params = array();
+				$params['key'] = $this->config['key'];
+				$params['id'] = $info->id;
+				$params['listurl'] = str_replace(ABSPATH, '', $htmlDir);
+				$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+				$params['detailname'] = $this->config['detail_name'] ? $this->config['detail_name'] : ($info->subject ? $info->subject :$info->name);	
+				$this->smarty->assign('POSITION',$this->position($params));
+
+			// 注入SEO信息
+			$title = isset($info->subject) ? $info->subject : $info->title;
+			$keywords = isset($info->keywords) ? $info->keywords : '';
+			$description = isset($info->description) ? $info->description : '';
+			if ($title == '') {
+				if (isset($info->name)) {
+					$title = $info->name;
+				}
+			}
+		//上一篇、下一篇
+			if($id == 1){
+				$sql = $this->getInfoSql($this->config['key'],array( "ids" => 2 ));
+				$updown[0] = '';
+				$updown[1] = $Services->getRowTag($sql);
+				if((array)$updown[1]==''){
+					$updown[1] = '';				
+				}
+			}else{
+				$ids = ($id-1).','.($id+1);
+				$sql = $this->getInfoSql($this->config['key'],array( "ids" => $ids ));
+				$updown = $Services->getAllTag($sql);
+				if((array)$updown[0]==''){
+					$updown[0] = '';			
+				}
+				if((array)$updown[1]==''){
+					$updown[1] = '';				
+				}
+			}	
+			$this->smarty->assign('updown', $updown);        // 上下页
+			if($info->content){
+				$info->content = stripslashes($info->content);
+			} 	
+			$this->assignSeoInfo( $title, $keywords, $description );
+            $content = $this->tagFetch($this->config['detail_tpl']);
+            // .判断是否为进度条
+            if (isset($_REQUEST['debug'])) {
+                $detailHtml = $htmlDir . $id . $this->htmlSuffix;
+                file_put_contents($detailHtml, $content);
+                die(json_encode(new Result(true, 0, '', NULL)));
+            } else {
+                die($content);
+            }
+        }
+    }
+
+    /**
+     * *************************************************************************************************
+     */
+
+    /**
+     * 在线问答
+     */
+    public function ask() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new AskService(), $this->dirMake('askDir'));
+    }
+
+    /**
+     * 特色技术
+     */
+    public function technology() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new TechnologyService(),  $this->dirMake('technologyDir'));
+    }
+
+    /**
+     * 视频
+     */
+    public function movie() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new MovieService(), $this->dirMake('movieDir'));
+    }
+
+    /**
+     * 成功案例
+     */
+    public function success() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new SuccessService(),  $this->dirMake('successDir'));
+    }
+
+    /**
+     * 医生
+     */
+    public function doctor() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new DoctorService(), $this->dirMake('doctorDir'));
+    }
+    
+    /**
+     * 在线预约
+     */
+    public function reservation() {
+        $this->dirMake($this->option);
+        //在线预约详细页为单页形式
+        $this->publicDetailView(new ReservationService(), $this->dirMake('reservationDir'));
+    }
+
+    /**
+     * 设备
+     */
+    public function device() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new DeviceService(), $this->dirMake('deviceDir'));
+    }
+
+    /**
+     * 医院环境
+     */
+    public function environment() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new EnvironmentService(),  $this->dirMake('environmentDir'));
+    }
+
+    /**
+     * 荣誉预览
+     */
+    public function honor() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new HonorService(), $this->dirMake('honorDir'));
+    }
+
+    /**
+     * 医院新闻预览
+     */
+    public function news() {
+        $this->dirMake($this->option);
+        $this->publicDetailView(new NewsService(), $this->dirMake('newsDir'));
+    }
+
+    /**
+     * 媒体报道预览
+     */
+    public function mediaReport() {
+			
+        $this->dirMake(strtolower($this->option));
+        $this->publicDetailView(new MediaReportService(),  $this->dirMake('mediareportDir'));
+    }
+
+    /**
+     * 生成异常
+     */
+    public function error() {
+        $errorID = (int) trim($_REQUEST['id']);
+        $errorServices = new ErrorPageService();
+        $where = array(
+            "id" => $errorID
+        );
+        $info = $errorServices->findOne($where, '*');
+		$params['key'] = 'error';
+		$params['listname'] = $this->config['list_name'] ? $this->config['list_name'] : $this->config['name'];
+		$this->smarty->assign('POSITION',$this->position($params));
+        $this->smarty->assign("id", $info->id);
+		$this->smarty->assign('error', $info);
+		$this->assignSeoInfo('404页面错误', '', '');
+        $content = $this->tagFetch($this->config['tpl']);
+        // 判断是否为进度条
+        if (isset($_REQUEST['debug'])) {
+            file_put_contents($_REQUEST['html'], $content);
+            die(json_encode(new Result(true, 0, '', NULL)));
+        } else {
+            die($content);
+        }
+    }
+
+    /**
+     * 生成科室首页
+     */
+    public function department() {
+	
+        $departmentID = intval($_REQUEST['id']);
+		$department = new Department();
+		$departmentService = new DepartmentService();
+		$department->id = $departmentID;	
+		 $info = $departmentService->get($department)->data;
+		$info->department_url = $info->url;
+		//$info->disease_url = $info->url;
+		 if($info->pic) $info->pic = UPLOAD . $info->pic;			
+            $dirDepartName = GENERATEPATH . $info->url;
+            if (! is_dir($dirDepartName)) {
+               @mkdir($dirDepartName, 0777 , true);
+            }
+			// 数据注入
+
+			$this->smarty->assign('id', $info->id); // id
+			$this->smarty->assign("department", $info);
+		//注入位置导航
+		$params = array();
+		$params['key'] = $this->config['key'];
+		$params['listname'] = $info->name;	
+		$this->smarty->assign('POSITION',$this->position($params));
+			 // 注入seo
+			$this->assignSeoInfo($info->name, $info->keywords, $info->description);
+			// 检查是否存在上传模版,如果不存在上传模版则使用默认模版
+			$tplName = GENERATEPATH . $info->tplurl;
+			if (! file_exists($tplName) || $info->tplurl == '') {
+				$tplName = $this->config['tpl'];
+				$content = $this->tagFetch2($tplName);
+			} else {
+				try {				//发生错误换模版继续执行
+					//自定义模版
+					$htplFile = TEMPDIR . $this->tag->templateName . '/' . $this->config['tpl'] . SUBFIX;
+					$htpldir = dirname($htplFile);
+					$tplUrl = $htpldir . '/' . basename($tplName);
+					copy($tplName, $tplUrl);
+					$content = $this->tagFetch2($tplUrl, true);
+				}catch (Exception $e) {   
+					$tplName = $this->config['tpl'];
+					$content = $this->tagFetch2($tplName);  
+				}
+			}
+			// 判断是否为进度条
+			if (isset($_REQUEST['debug'])) {
+				$departHtml = GENERATEPATH . $info->url . '/index' . $this->htmlSuffix;
+				file_put_contents($departHtml, $content);        
+			} else {
+				die($content);
+			}
+        die(json_encode(new Result(true, 0, '', NULL)));
+    }
+
+    /**
+     * 生成疾病列表
+     */
+    public function disease() {
+        $diseaseID = intval($_REQUEST['id']);
+        $i = intval($_REQUEST['i']);		
+		$condition = array( "id" => $diseaseID);
+		$sql = $this->getInfoSql($this->config['key'],$condition);
+		$diseaseService = new DiseaseService();
+		$info = $diseaseService->getRowTag($sql);
+		if($info->pic) $info->pic = UPLOAD . $info->pic;
+		$info->disease_url = $info->url;
+		if($info->parent_id != 0){
+			$condition = array( "id" => $info->parent_id);
+			$sql = $this->getInfoSql($this->config['key'],$condition);
+			$in = $diseaseService->getRowTag($sql);
+			$info->purl = $in->url;
+			$info->pname = $in->name;
+			unset($in);
+		}		
+		// 注入文章id与文章信息
+		$this->smarty->assign("disease", $info);
+		$this->smarty->assign("id", $info->id);
+		$this->smarty->assign("disease_id", $info->id);
+		$this->smarty->assign("department_id", $info->department_id);
+		//注入位置导航
+		$params = array();
+		$params['id'] = $info->id;
+		$params['departmentname'] = $info->department_name;
+		$params['departmenturl'] = $info->department_url;	
+        if($info->parent_id == 0){
+			$params['key'] = $this->config['key'];
+			$params['diseasename'] = $info->name;
+			$params['diseaseurl'] = $info->url;			
+		}else{
+			$params['key'] = '';
+			$params['diseasename'] = $info->name;
+			$params['diseaseurl'] = $info->url;	
+			$params['diseaseurl'] = $info->purl;
+			$params['detailname'] = $info->pname;		
+		}
+			$this->smarty->assign('POSITION',$this->position($params));	
+		
+		// 注入SEO信息
+		$title = isset($info->name) ? $info->name : $info->title;
+		$keywords = isset($info->keywords) ? $info->keywords : '';
+		$description = isset($info->description) ? $info->description : '';	
+		$this->assignSeoInfo( $title, $keywords, $description );
+		
+ 
+		 $pageSize = empty($this->config['pageSize']) ?  6 : $this->config['pageSize'];		
+            if($info->parent_id == 0){
+				$dir =  $info->department_url . '/' . $info->url . '/';
+			}else{
+				$dir =  $info->department_url . '/' . $info->purl. '/'. $info->url . '/';							
+			}
+			$htmlDir = ABSPATH . '/' . $dir . '/';
+			if (! is_dir( $htmlDir )) {
+				$this->createdir($htmlDir);
+			}
+
+			$listHtmlUrl = $htmlDir . 'list_' . $i . '' . $this->htmlSuffix; // 疾病目录下列表页html路径
+			$articleCount = intval($_REQUEST['articleCount']);
+			//注入分页
+			$this->setPageHtml($i,$pageSize,$articleCount,$dir);
+			// 检查是否存在上传模版,如果不存在上传模版则使用默认模版
+			$tplName = GENERATEPATH . $info->tplurl;
+			if (! file_exists($tplName) || $info->tplurl == '') {
+				$tplName = $this->config['tpl'];
+				$content = $this->tagFetch($tplName);
+			} else {
+				$tplName = GENERATEPATH . $info->tplurl;
+				$content = $this->tagFetch($tplName, true);
+			}
+
+			// 判断是否为进度条
+			if (isset($_REQUEST['debug'])) {
+				file_put_contents($listHtmlUrl, $content);
+				if ($i == 1) {
+					$indexHtmlUrl = $htmlDir . 'index' . $this->htmlSuffix; // 疾病目录下首页html路径
+					@copy($htmlDir. 'list_1' . $this->htmlSuffix, $indexHtmlUrl);
+				}
+			} else {
+				die($content);
+			}
+        die(json_encode(new Result(true, 0, '', NULL)));
+    }
+
+    /**
+     * 资讯预览
+     * @info get或者post传入资讯文章id
+     */
+    public function article() {
+        //$this->publicData();
+        // 获取文章id
+        $articleID   = (int) trim($_REQUEST['id']);
+
+ 		$condition = array( "id" => $articleID );
+		$sql = $this->getInfoSql($this->config['key'],$condition);
+		$articleService = new ArticleService();
+		$articleInfo = $articleService->getRowTag($sql); 
+		if($articleInfo->pic) $articleInfo->pic = UPLOAD . $articleInfo->pic;
+		if($articleInfo->content){
+			$articleInfo->content = stripslashes($articleInfo->content);
+		}		
+		//注入位置导航
+		$params = array();
+		$params['key'] = $this->config['key'];
+		$params['departmentname'] = $articleInfo->department_name;
+		$params['diseasename'] = $articleInfo->disease_name;
+		$params['departmenturl'] = $articleInfo->department_url;
+		$params['diseaseurl'] = $articleInfo->disease_url;
+		$params['detailname'] =	$articleInfo->subject;
+		$this->smarty->assign('POSITION',$this->position($params));
+		 // 数据注入
+        $this->smarty->assign('id', $articleID); // 文章id
+        $this->smarty->assign('department_id', $articleInfo->department_id); // 科室id
+        $this->smarty->assign('disease_id', $articleInfo->disease_id); // 疾病id
+        $this->smarty->assign('doctor_id', $articleInfo->doctor_id); // 医生id
+        $this->smarty->assign('article', $articleInfo); // 文章信息
+		// 数据seo
+		$title = $articleInfo->title ? $articleInfo->title : $articleInfo->subject;
+        $this->assignSeoInfo($title, $articleInfo->keywords, $articleInfo->description); // seo信息
+		//上一篇、下一篇
+		if($articleID == 1){
+			$sql = $this->getInfoSql($this->config['key'],array( "ids" => 2 ));
+			$updown[0] = '';
+			$updown[1] = $articleService->getRowTag($sql);
+			if((array)$updown[1]==''){
+				$updown[1] = '';				
+			}
+		}else{
+			$ids = ($articleID-1).','.($articleID+1);
+			$sql = $this->getInfoSql($this->config['key'],array( "ids" => $ids ));
+			$updown = $articleService->getAllTag($sql);
+			if((array)$updown[0]==''){
+				$updown[0] = '';				
+			}
+			if((array)$updown[1]==''){
+				$updown[1] = '';				
+			}
+		}
+        $this->smarty->assign('updown', $updown); // 上下页
+        // 如果没有疾病,则调取没有疾病的模版
+        if ($isnotDisease) {
+            $content = $this->tagFetch($this->config['depart_tpl']);
+        } else {
+            $content = $this->tagFetch($this->config['tpl']);
+        }
+        // 判断是否为进度条
+        if (isset($_REQUEST['debug'])) {
+            $artcleHtml = ABSPATH . '/' . $articleInfo->department_url . '/' . $articleInfo->disease_url . '/' . $articleInfo->id . '.html';
+            file_put_contents($artcleHtml, $content);
+            // 记录生成位置,以便后续进行断点生成的工作
+	        $_SESSION['article_count']  = $_SESSION['article_count'] - 1;
+	        $_SESSION['article_id']     = $_REQUEST['id'];
+            die(json_encode(new Result(true, 0, '', NULL)));
+        } else {
+            die($content);
+        }
+    }
+    
+    /**
+     * 生成自定义频道列表...
+     */
+    public function channel() {
+        $channelId =  intval($_REQUEST['id']);
+        $i =  intval($_REQUEST['i']);
+			// 获取所需初始化数据
+		$condition = array( "id" => $channelId );
+		$sql = $this->getInfoSql($this->config['key'],$condition);
+		
+		$channelService = new ChannelService();
+		$info = $channelService->getRowTag($sql);
+
+		$info->channel_id = $channelId;
+		// 注入文章id与文章信息
+		$this->smarty->assign("channel", $info);
+		$this->smarty->assign("id", $info->id);
+		
+		//注入位置导航
+		$params = array();
+		$params['key'] = $this->config['key'];
+		$params['listname'] = $info->name;	
+		$this->smarty->assign('POSITION',$this->position($params));
+		// 注入SEO信息
+		$title = isset($info->name) ? $info->name : $info->title;
+		$keywords = isset($info->keywords) ? $info->keywords : '';
+		$description = isset($info->description) ? $info->description : '';
+ 	
+		$this->assignSeoInfo( $title, $keywords, $description );
+
+		$htmlDir = ABSPATH . '/' . $info->shortname . '/';
+		
+		if (! is_dir( $htmlDir )) {
+			$this->createdir($htmlDir);
+		}
+		
+		 $pageSize = empty($this->config['pageSize']) ?  6 : $this->config['pageSize'];	
+		 $channelarticleCount = intval($_REQUEST['channelarticleCount']);
+			//注入分页
+			$this->setPageHtml($i,$pageSize,$count,$info->shortname . '/');
+			// 疾病目录下列表页html路径		
+			$listHtmlUrl = $htmlDir . 'list_' . $i . '' . $this->htmlSuffix;
+			// 检查是否存在上传模版,如果不存在上传模版则使用默认模版
+			if ($info->tplurl && $info->is_use_tpl==0) {
+				$tplName = GENERATEPATH . $info->tplurl;
+				$content = $this->tagFetch($tplName, true);
+			} else {
+				$tplName = $this->config['tpl'];
+				$content = $this->tagFetch($tplName);
+			}
+
+			// 判断是否为进度条
+			if (isset($_REQUEST['debug'])) {
+				file_put_contents($listHtmlUrl, $content);
+				if ($i == 1) {
+					$indexHtmlUrl = $htmlDir . 'index' . $this->htmlSuffix; // 个性频道下首页html路径
+					@copy($htmlDir. 'list_1' . $this->htmlSuffix, $indexHtmlUrl);
+				}
+			} else {
+				die($content);
+			}
+			// 输出执行
+			die(json_encode(new Result(true, 0, '', NULL)));
+    }
+
+    /**
+     * 生成自定义频道文章...
+     */
+    public function channelArticle() {
+        $id = intval($_REQUEST['id']);
+		
+		$key = strtolower($this->config['key']);
+		$params = array( "id" => $id );
+		$sql = $this->getInfoSql($key,$params);	
+		$channelArticle = new ChannelService();
+		$info = $channelArticle->getRowTag($sql);
+		if($info->pic) $info->pic = UPLOAD . $info->pic;
+		if($info->content){
+			$info->content = stripslashes($info->content);
+		}
+
+		$htmlDir = $this->dirMakeDepartment( $info->channel_shortname );	
+		//注入位置导航
+		$params = array();
+		$params['id'] = $id;
+		$params['key'] = $key;
+		$params['listurl'] = str_replace(ABSPATH, '', $htmlDir);
+		$params['listname'] = $info->channel_name;
+		$params['detailname'] = $info->subject;	
+		$this->smarty->assign('POSITION',$this->position($params));
+		// 注入文章id与文章信息
+		$this->smarty->assign($key, $info);
+		$this->smarty->assign("id", $info->id);
+		$this->smarty->assign("channelId", $info->channel_id);
+        $this->assignSeoInfo($info->title?$info->title:$info->subject, $info->keywords, $info->description);
+		
+		//上一篇、下一篇(取标题、id)
+		if($id == 1){
+			$sql = $this->getInfoSql($key,array( "ids" => 2 ));
+			$updown[0] = '';
+			$updown[1] = $channelArticle->getRowTag($sql);    
+			if((array)$updown[1]==''){
+				$updown[1] = '';			
+			}
+		}else{
+			$ids = ($id-1).','.($id+1);
+			$sql = $this->getInfoSql($key,array( "ids" => $ids ));
+			$updown = $channelArticle->getAllTag($sql);
+			if((array)$updown[0]==''){
+				$updown[0] = '';				
+			}
+			if((array)$updown[1]==''){
+				$updown[1] = '';				
+			}
+		}
+        $this->smarty->assign('updown', $updown);        // 上下页      
+			//读取配置文件模板
+ 		$HtmlUrl = $htmlDir . $id. $this->htmlSuffix; 
+		if ( $info->channel_detailtplurl && $info->channel_is_use_tpl==0) {
+			$tplName = GENERATEPATH . $info->channel_detailtplurl;
+			$content = $this->tagFetch($tplName,true);		
+		}elseif( isset($this->config['tpl']) ){
+			$content = $this->tagFetch($this->config['tpl']);		
+		}else{
+			die(json_encode(new Result(false, 192, ErrorMsgs::get(192), Null)));			
+		}
+		// 判断是否为进度条
+		if (isset($_REQUEST['debug'])) {
+			file_put_contents($HtmlUrl, $content);
+		} else {
+			die($content);
+		}
+    	die(json_encode(new Result(true, 0, '', NULL)));
+    }
+    
+    /**
+     * 专题生成
+     */
+    public function topic() {
+    	$topicID = (int)$_REQUEST['id'];
+    	$topService = new TopicService();
+    	$topicHtpl  = $topService->gethtml( $topicID );
+    	require_once GENERATEPATH . 'lib/io.php';
+    	if( $topicHtpl != '' ){
+    		$relvaPath =  basename( $topicHtpl );
+    		//生成
+    		$html = explode("|",$_REQUEST['html']);
+    		//查找数据
+    		$_REQUEST['id'] = $topicID;
+			$info = $topService->getOne(array(),'*');
+			if( $info->id == $topicID ){
+				$this->assignSeoInfo($info->title, $info->keywords, $info->description);
+			}
+    		//注入样式路径
+    		$this->smarty->assign('TOPIC_STYLE',NETADDRESS . '/topic/' . $html[0] . '/');
+    		$content = $this->tagFetch( GENERATEPATH . 'topic/' . $html[0] . '/' . $relvaPath , true );
+    		if (isset($_REQUEST['debug'])) {
+    			file_put_contents( GENERATEPATH . 'topic/' . $html[0] . '/' . $html[1] , $content);
+    		}else{
+    			die($content);
+    		}
+    	}
+    	die(json_encode(new Result(true, 0, '', NULL)));
+    }
+    /*验证文件夹是否存在
+     * @param $path 文件夹地址
+     * return 0表示文件夹已经存在,1表示创建成功，2表示创建失败
+     * **/
+   private function createdir($path){
+        if (file_exists($path)){			//判断目录存在否，存在不创建
+            return 0;
+        }else{ 							//不存在创建
+            $re=mkdir($path,0755,true); //第三个参数为true即可以创建多极目录
+            if ($re){
+                chmod($path,0755);
+                return 1;
+            }else{
+                return 2;
+            }
+        }
+    }
+	/**
+	 * 
+	 * 根据分页信息获取分页html
+	 * @param int $current 当前页
+	 * @param int $pageSize 每页条数
+	 * @param int $count 总条数
+	 * @param string $dir html存放文件夹
+	 * @param string $pageHtml 分页模版文件(默认采取index模版分页模式)
+	 */
+	public function setPageHtml($current,$pageSize,$count,$dir = '',$pageHtml = 'index') {
+		#.分页导航允许条数
+		$pageMaxNav = 7;
+		#.总页数
+		$pageCount = ceil($count / $pageSize);
+		#.上一页
+		$pre     = $current > 1 ? ($current-1) : 1;
+		#.下一页
+		$next    = ( $current + 1 < $pageCount ) ? ($current+1) : $pageCount;
+		#.计算开始&结束页码
+		if( $pageCount <= $pageMaxNav ){
+			$start = 1;$end   = $pageCount;
+		}else{
+			#.计算开始
+			if( $current <= 4 ){
+				$start = 1;$end   = $pageMaxNav;
+			}else{
+				$start = $current - 3;$end   = $current + 3;
+				if( $end >= $pageCount ) {
+					$start = $pageCount - $pageMaxNav + 1;$end   = $pageCount+1;	
+				}
+			}
+		}
+		#.注入数据并返回解析后的html
+		$this->smarty->assign ( 'count', $count );          //总条数
+		$this->smarty->assign ( 'pageCount', $pageCount ); //总页数
+		$this->smarty->assign ( 'current', $current );    //当前页码
+        $this->smarty->assign ( 'pageSize', $pageSize);  //每页条数
+		$this->smarty->assign ( 'pre', $pre );			//上一页
+		$this->smarty->assign ( 'next', $next );		//下一页
+		$this->smarty->assign ( 'end', $end );			
+		$this->smarty->assign ( 'start', $start );
+		$this->smarty->assign ( 'dir' , NETADDRESS . '/'. $dir  );  		//存放文件夹
+		if($pageCount ==1){ return; }
+	}
+   /**
+     * sql信息 tabs
+     * @dep 关联department
+     * @dis 关联disease
+	 * @cha 关联channel
+	 * @as  缩简表
+     */
+    public function getInfoSql($flag,$params)
+    {
+		 $tabs = array(
+			'introduce'=> array('as'=>'i'),
+			'news'  => array('as'=>'new'),
+			'article'=>array('as'=>'art','dep'=>1,'dis'=>1),
+			'doctor'  => array('as'=>'doc','dep'=>1),
+			'topic'  => array('as'=>'top'),
+			'success'  => array('as'=>'suc','dep'=>1),
+			'technology'  => array('as'=>'tec','dep'=>1),
+			'channelarticle'  => array('as'=>'chan','cha'=>1),
+			'channel'  => array('as'=>'cha','chan'=>1),
+			'ask'  => array('as'=>'ask','dep'=>1),
+			'honor'  => array('as'=>'hon'),
+			'environment'=>array('as'=>'env'),
+			'device'=>array('as'=>'dev'),
+			'movie'=>array('as'=>'mov'),
+			'mediareport'=>array('as'=>'med'),
+			'department'=>array('as'=>'dep'),
+			'disease'=>array('as'=>'dis','dep'=>1),
+		);
+		$tab = $tabs[$flag];
+		$as = $tab['as'];
+			
+		if($params['id'] || $params['ids']){
+			if($params['ids']){
+			  $select = 'SELECT '.$as.'.id,'.$as.'.subject';		
+			}else{
+			  $select = 'SELECT '.$as.'.*';				
+			}
+		}
+		$join = '';
+		if(isset($tab['cha']) && $tab['cha']==1){
+			$cha = new ChannelTag();
+			$field_cha = $cha->getChaFields();
+			$select .= ','.$field_cha;
+			$join .=' LEFT JOIN `channel` as cha ON chan.channel_id = cha.id ';
+		}
+		if(isset($tab['chan']) && $tab['chan']==1){
+		  $cha = new ChannelArticleTag();
+		  $field_cha = $cha->getChanFields();
+		  $select .= ','.$field_cha;
+		  $join .=' LEFT JOIN `channelarticle` as chan ON chan.channel_id = cha.id ';
+		}
+		$where = ' WHERE 1=1';
+		if(isset($tab['dep']) && $tab['dep']==1 && empty($params['ids'])){
+			$join .= ' LEFT JOIN `department` AS dep ON dep.id = '.$as.'.department_id ';
+			$select .= ',dep.name AS department_name,dep.url AS department_url';		
+		}
+		if(isset($tab['dis']) && $tab['dis']==1 && empty($params['ids'])){
+			$join .= ' LEFT JOIN `disease` AS dis ON dis.id = '.$as.'.disease_id ';	
+			$select .= ',dis.name AS disease_name,dis.url AS disease_url';
+		}
+		if($params['id'])
+		{
+			$where .= ' AND '.$as.'.id='.$params['id'];
+		}
+		if($params['ids'])
+		{
+			$where .= ' AND '.$as.'.id IN('.$params['ids'].')';
+		}
+		$select .= ' FROM `'.$flag.'` AS '.$as.' ';
+		if($params['id']){
+			$where .=' LIMIT 1';
+		}
+	
+		return $select.$join.$where; 
+			
+	}
+	//位置导航 
+    public function position($params)
+    {
+		$website = NETADDRESS;
+		$key = isset($params['key']) ? $params['key'] : '';
+		$id = isset($params['id']) ? intval($params['id']) : '';
+		$departmentname = $params['departmentname'] ? $params['departmentname'] : '';
+		$diseasename = $params['diseasename'] ? $params['diseasename'] : '';
+		$departmenturl = $params['departmenturl'] ? $website . '/' . $params['departmenturl'] . '/' : '';
+		$diseaseurl = $params['diseaseurl'] ? $departmenturl . $params['diseaseurl'] . '/' : '';
+		$detailname = $params['detailname'] ? $params['detailname'] : '';
+		$listurl = $params['listurl'] ? $website  . $params['listurl']  : '';
+		$listname = $params['listname'] ? $params['listname'] : '';
+		switch($key){
+			case 'disease' : $sign = 1; break;
+			case 'article' : $sign = 2; break;
+			default : $sign = 3; break;
+		}
+
+		$str = '';
+		if($sign == 3){
+			if(empty($id)){
+				$str = '<ol class="breadcrumb">您的位置：<li><a href="'.$website.'"><i class="icon icon-home"></i> 首页</a></li><li>'.$listname.'</li></ol>';
+			}else{
+				$str = '<ol class="breadcrumb">您的位置：<li><a href="'.$website.'"><i class="icon icon-home"></i> 首页</a></li><li><a href="'.$listurl.'">'.$listname.'</a></li><li class="active">'.$detailname.'</li></ol>';				
+			}
+		}elseif($sign == 1){
+				$str = '<ol class="breadcrumb">您的位置：<li><a href="'.$website.'"><i class="icon icon-home"></i> 首页</a></li><li><a href="'.$departmenturl.'">'.$departmentname.'</a></li><li class="active">'.$diseasename.'</li></ol>';
+		}elseif($sign == 2){
+				$str = '<ol class="breadcrumb">您的位置：<li><a href="'.$website.'"><i class="icon icon-home"></i> 首页</a></li><li><a href="'.$departmenturl.'">'.$departmentname.'</a></li><li><a href="'.$diseaseurl.'">'.$diseasename.'</a></li><li class="active">'.$detailname.'</li></ol>';
+		}
+		return $str;
+	}
+     /**
+     * 开启网站状态(手动/自动/动态)
+     */
+    public function openHtmlType() {
+		$typename = $_POST['typename'];
+		switch($typename){
+			case 'manualupdate' : $i=0; $num1=185;$num2=186; break;
+			case 'autoupdate' :   $i=1; $num1=187;$num2=188; break;
+			case 'dynamic' :      $i=2; $num1=189;$num2=190; break;
+			default: break;
+		}
+        $configFile = ABSPATH . '/config.json';
+        if (file_exists($configFile)) {
+			$res = $this->renameHtaccess($i);
+			if(!$res){
+				$result = new Result(false, 191, ErrorMsgs::get(191), NULL);
+				echo json_encode($result);exit;				
+			}
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+            if (isset($config->openType) && ($config->openType != $typename)) {
+                $config->openType = $typename;
+                $data = json_encode($config);
+                file_put_contents($configFile, $data);
+                $result = new Result(true, $num1, ErrorMsgs::get($num1), $i);
+            } else {
+                $data = array("hccDir"=>$config->hccDir,"openLog"=>$config->openLog,"openType"=>$typename,"mtime"=>time());
+                $data = json_encode($data);
+                file_put_contents($configFile, $data);
+                $result = new Result(true, $num1, ErrorMsgs::get($num1), $i);
+            }
+        } else {
+            $result = new Result(false, 191, ErrorMsgs::get(191), NULL);
+        }
+
+        echo json_encode($result);
+    }
+     /**
+     * 判断服务器使用apache还是nginx的方法 
+     */	
+    public function getServerSoftware() {
+		$software = '';
+		switch (PHP_SAPI) {
+			case 'cgi-fcgi':    // 使用nginx + php-fpm  
+			case 'fpm-fcgi':  $software='nginx';break;  // 使用nginx + fastcgi 
+			case 'apache2handler': //使用apache
+			case 'cgi':    //直接使用终端的php命令解析
+			default : $software='apache'; break;
+		}
+		return $software;
+	}	
+     /**
+     * 获得开启状态
+     */
+    public function getOpenState() {
+		$typename = $_POST['typename'];
+		$i = $_POST['i'];
+        $configFile = ABSPATH . '/config.json';
+        if (file_exists($configFile)) {	
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+			$result['statu'] = ( $config->openType == $typename ) ?  true : false;
+			$result['msg'] = $typename;
+			$result['data'] = $i;
+			//$result = new Result(( $config->openType == $typename ) ?  true : false, '', $typename, $i);						
+		} else {
+			$result['statu'] = false;
+			$result['msg'] = $typename;
+			$result['data'] = $i;
+            //$result = new Result( false, $typename,  $i );
+        }
+        echo json_encode($result);		
+	}
+     /**
+     * 处理.htaccess文件
+     */
+	public function renameHtaccess($i){
+		$hturl1 = ABSPATH.'/data/apache_rewrite.conf';   //apache
+		$hturl2 = ABSPATH.'/data/nginx_rewrite.conf';	 //nginx
+		$software = $this->getServerSoftware();
+		if($i==0){						
+			if($software=='apache' && file_exists(ABSPATH.'/.htaccess')){
+				@unlink(ABSPATH.'/.htaccess');
+				@unlink($hturl1);
+			}
+			if($software=='nginx' && file_exists(ABSPATH.'/n_rewrite.conf')){
+				file_put_contents(ABSPATH.'/n_rewrite.conf','');
+				@unlink($hturl2);				
+			}			
+		}else{
+			if($software=='apache'){
+				$this->apacheRewrite();
+				@copy($hturl1,ABSPATH.'/.htaccess');
+			}
+			if($software=='nginx'){
+				$this->nginxRewrite();
+				@copy($hturl2,ABSPATH.'/n_rewrite.conf');			
+			}			
+		}
+		return true;	
+	}
+
+     /**
+     * 初始化rewrite
+     */	
+	public function nginxRewrite(){
+		$str ='# nginx rewrite  rule
+	rewrite ^/hcc\/$ /hcc/login.html last;
+	rewrite ^/(mobile|app|wechat)\/$ /$1/index.php last;
+if ($uri ~ "/hcc/"){
+	set $rule_0 1$rule_0;
+}
+if ($rule_0 = "1"){
+	rewrite /(.*) /$1 last;
+}
+	rewrite ^/(|index\.html)$ /controller/?controller=AutoMakeHtml&method=index last;
+	rewrite ^/sitemap\.html$ /controller/?controller=AutoMakeHtml&method=sitemap last;
+	rewrite ^/contact\.html$ /controller/?controller=AutoMakeHtml&method=contact last;
+	rewrite ^/reservation\.html$ /controller/?controller=AutoMakeHtml&method=reservation last;
+	rewrite ^/hospital\/introduce\.html$ /controller/?controller=AutoMakeHtml&method=introduce last;
+	rewrite ^/topic\/([a-zA-Z_]+)\/([a-zA-Z]+)\.html$ /controller/?controller=AutoMakeHtml&method=topic&type=$1&type1=$2 last;
+	rewrite ^/search\.html?(.*)$ /controller/?controller=AutoMakeHtml&method=search last;
+	rewrite ^/([a-zA-Z]+)\/(|index|list_\d+|\d+)(|\.html)$ /controller/?controller=AutoMakeHtml&method=control&type=$1&id=$2 last;
+	rewrite ^/([a-zA-Z]+)\/([a-z]+)\/(|index|list_\d+|\d+)(|\.html)$ /controller/?controller=AutoMakeHtml&method=method&type=$1&type1=$2&id=$3 last;
+# end nginx rewrite rule';
+		file_put_contents(ABSPATH.'/data/nginx_rewrite.conf',$str);	
+	}
+	public function apacheRewrite(){
+		$str ='Options -Indexes
+<IfModule rewrite_module>
+RewriteEngine On
+RewriteCond %{REQUEST_URI} "/hcc/"
+RewriteRule (.*) $1 [L]
+RewriteRule ^(|index\.html)$ /controller/?controller=AutoMakeHtml&method=index [NC]
+RewriteRule ^sitemap\.html$  /controller/?controller=AutoMakeHtml&method=sitemap [NC]
+RewriteRule ^contact\.html$  /controller/?controller=AutoMakeHtml&method=contact [NC]
+RewriteRule ^reservation\.html$  /controller/?controller=AutoMakeHtml&method=reservation [NC]
+RewriteRule ^hospital\/introduce\.html$  /controller/?controller=AutoMakeHtml&method=introduce [NC]
+RewriteRule ^topic\/([a-zA-Z_]+)\/([a-zA-Z]+)\.html$  /controller/?controller=AutoMakeHtml&method=topic&type=$1&type1=$2 [NC]
+RewriteRule ^search\.html?(.*)$ /controller/?controller=AutoMakeHtml&method=search [NC]
+RewriteRule ^hcc\/$   /hcc\/login.html [NC]
+RewriteRule ^(mobile|app|wechat)\/$   /$1\/index.php [L]
+RewriteRule ^([a-zA-Z]+)\/(|index|list_\d+|\d+)\.html$  /controller/?controller=AutoMakeHtml&method=control&type=$1&id=$2 [NC]
+RewriteRule ^([a-zA-Z]+)\/([a-z]+)\/(|index|list_\d+|\d+)(|\.html)$  /controller/?controller=AutoMakeHtml&method=method&type=$1&type1=$2&id=$3 [NC]
+</IfModule>';
+		file_put_contents(ABSPATH.'/data/apache_rewrite.conf',$str);	
+	}
+}

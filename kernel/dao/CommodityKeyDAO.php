@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * 商城购物订单记录DAO
+ *
+ * @author Administrator
+ *
+ */
+class CommodityKeyDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_COMMODITYKEY;
+    }
+    //是否失效
+     public function isLose($where){
+        DTExpression::eq('user_id', $where);	
+        DTExpression::eq('remember_key', $where);
+        $result =  $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTExpression::$limit);			
+		if($result[0]){
+			$con['user_id'] = $where['user_id'];
+			if(isset($result[0]->lost_time) && $result[0]->lost_time<time()){
+				$res = R::findOne($this->tableName,'user_id=:user_id',$con);
+				if($res){
+					$remember_key = md5(time().rand(100, 999).$con['user_id']);
+					$losetime = time()+604800;
+					$res->remember_key = $remember_key;
+					$res->lose_time = $losetime;
+					R::store($res);					
+					R::close();
+					$this->_setcookie('INIT_LOGIN',NULL);
+					$arr = array('user_id'=>$where['user_id'],'remember_key'=>$remember_key);
+					$arr_str = serialize($arr);
+					$this->_setcookie('INIT_LOGIN',$arr_str,$losetime);
+				}
+			}
+			return true;
+		}else{
+			return false;			
+		}
+	 }
+
+    public function getUserId($arr){
+    	$member = R::findOne($this->tableName,'user_id=:user_id',$arr);
+    	R::close();
+    	$memberArray = array();
+    	if($member){
+			foreach ($member as $key => $value) {
+				$memberArray[$key]=$value;
+			}
+    	}
+    	return $memberArray;
+    }
+
+    /**
+     * 修改数据
+     *
+     * @param object $entity
+     * @return boolean
+     */
+    public function updateInfo($entity) {
+        $bean = R::load($this->tableName, $entity->id);
+
+        if ($bean->id == 0) {
+            return new Result(false, 78, ErrorMsgs::get(78), NULL);
+        }
+        $entity->generateRedBean($bean);
+        $entity->id= R::store($bean);
+        return new Result(true, 0, '', NULL);
+    }
+	private function _setcookie($name,$value,$time=0,$path='/',$domain=''){		
+		if(empty($name)){return false;}
+		$_COOKIE[$name]=$value;				//及时生效
+		$s = $_SERVER['SERVER_PORT'] == '443' ? 1 : 0;
+		if(!$time){
+			return setcookie($name,$value,0,$path,$domain,$s);
+		}else{
+			return setcookie($name,$value,time()+$time,$path,$domain,$s);
+		}
+	}	
+}
+

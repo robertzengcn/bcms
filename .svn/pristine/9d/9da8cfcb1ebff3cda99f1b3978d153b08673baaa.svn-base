@@ -1,0 +1,53 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Technology extends Entity {
+
+    var $id;
+
+    var $subject;
+
+    var $pic;
+
+    var $content;
+
+    var $click_count;
+
+    var $title;
+
+    var $keywords;
+
+    var $description;
+
+    var $plushtime;
+
+    var $updatetime;
+
+    var $isbidding;
+
+    var $department_id;
+
+    var $kind;
+
+    var $is_top;
+
+    public function validate() {
+        if (strlen($this->content) == 0) {
+            throw new ValidatorException(5);
+        }
+
+        if (strlen($this->subject) == 0) {
+            throw new ValidatorException(76);
+        }
+
+        if (strlen($this->isbidding) == 0) {
+            throw new ValidatorException(8);
+        }
+        if ($this->plushtime == '' || strlen($this->plushtime) == 0) {
+            $this->plushtime = time();
+        }
+        if ($this->updatetime == '' || strlen($this->updatetime) == 0) {
+            $this->updatetime = time();
+        }
+    }
+}

@@ -1,0 +1,22 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<ol class="breadcrumb">您的位置：
+      <li><a href="/"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a href="/yiyuangaikuang">医院概况</a></li>
+      <li class="active">精彩图集</li>
+ </ol>
+
+
+<div class="main_spe container">
+	<ul class="row">
+	    {{henvlist pagesize='8'}}
+    	<li class="col-xs-12 col-sm-6 col-md-3"><a href="[field:url/]" target="_blank"><img src="[field:pic/]"><p>[field:subject/]</p></a></li>
+        {{/henvlist}}
+        
+                    <footer style="text-align:center">
+                      {{henvpagehtml}}
+                      </footer>
+    </ul>
+</div>
+{{/block}}
+

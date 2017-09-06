@@ -1,0 +1,17 @@
+<?php
+
+class CommodityOrderService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new CommodityOrderDAO();
+    }
+		//查询用户订单记录
+	public function query($where){
+		$orders = $this->dao->query($where);
+		return $this->success($orders);		
+	}
+}
+

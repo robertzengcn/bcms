@@ -1,0 +1,48 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*首页*/
+	/*头部*/
+.header .head_logo .form-control{ background:url(../images/logo/search.jpg) no-repeat center left 10px;}
+	/*banner+导航2*/
+#nav{ background:#c6b936 url(../images/content/nav_bg.png) repeat-y;background-size: contain;}
+.home_banner .nav_two{background:url(../images/content/nav_bg.png) repeat-y;background-size: contain;}
+.home_banner .nav_two ul li{background:url(../images/content/nav_bj.png) no-repeat center right;}
+	/*主要1*/
+.main_top .maint_l .news_tit li{ background: url(../images/content/news_bg.png) no-repeat center right;}
+.main_top .maint_l .news_box dl dd{ background: url(../images/content/wens_dl.png) no-repeat center left;}
+.main_top .maint_r .notice_tit li{ background: url(../images/content/news_bg.png) no-repeat center right;}
+.main_top .maint_r .notice_box dl dd{ background: url(../images/content/wens_dl.png) no-repeat center left;}
+
+/*三院护理*/
+.main_hos ul li,.main_hos2 ul li{background: url(../images/content/wens_dl.png) no-repeat center left;}
+
+/*新闻中心*/
+.main_news .mnew_l .news_box dl dd {background: url(../images/content/wens_dl.png) no-repeat center left;}
+.main_news .mnew_r dl dd {background: url(../images/content/wens_dl.png) no-repeat center left;}
+.main_news-2 dl dd {background: url(../images/content/wens_dl.png) no-repeat center left;}
+
+/*医师介绍*/
+.main_doc .input-group form .form-control{ background:url(../images/logo/search2.jpg) no-repeat center left 5px;}
+
+/*医院概况*/
+.main_abo .mabo_l p::after,.main_abo .mabo_r p::after{background: url(../images/content/ellipsis_bg.png) repeat-y;}
+
+/*患者服务——预约挂号*/
+.main_psapp .mpsapp_title li.active{ background:url(../images/content/mpsapp_title_libg.png) no-repeat center bottom;}
+
+/*患者服务——特色*/
+.main_psfea li p::after{background: url(../images/content/ellipsis_bg.png) repeat-y;}
+
+/*新闻中心*/
+.main_news1 .mnews1_l .mnews1l_list li .list_summary p::after {background: url(../images/content/ellipsis_bg.png) repeat-y;}
+
+/*妇科科室*/
+.main_wd3 .main_hos2_l ul li,.main_wd3 .main_hos2_r ul li{ background: url(../images/content/wd_dl.png) no-repeat center left;}
+.main_wd5 ul li{ background: url(../images/content/wd_dl.png) no-repeat center left;}
+
+/*健康体检*/
+.main_hcup .mhcup_tit1 li{ background:url(../images/content/jktj_bg.png) no-repeat center right; }
+
+/*患者服务5*/
+.main_ps5 .ps5_list li{background: url(../images/content/wens_dl.png) no-repeat center left;}

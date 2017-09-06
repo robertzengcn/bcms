@@ -1,0 +1,447 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>查看详细复诊记录</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="form-article-add">
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>基本资料</span><span>诊疗信息</span><span>费用结算</span></div>
+			<div class="tabCon">
+				<div class="row cl">
+				  <label class="form-label col-2"><span class="c-red">*</span>患者姓名：</label>
+				  <div class="formControls col-5">
+					<div class="formControls col-6 mt-3">曾先生</div>
+				  </div>
+				  <div class="col-4"> <span class="Validform_checktip"></span></div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2 mt-3">病历号：</label>
+					<div class="formControls col-6 mt-3">11230</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">电子识别码：</label>
+					<div class="formControls col-6"><img src="../../../images/boyicms/temp/tiaoxinma.jpg" width="200px"/></div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>性别：</label>
+					<div class="formControls col-5 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" id="sex-1" name="sex" datatype="*" nullmsg="" checked="checked"/>
+							<label for="sex-1">男</label>
+						</div>
+					</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>出生日期：</label>
+					<div class="formControls col-95 mt-3">2001-10-25</div>
+					<label class="form-label col-1"><span class="c-red">*</span>年龄：</label>
+					<div class="formControls col-94 mt-3">25</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>手机：</label>
+					<div class="formControls col-6 mt-3">15080026246</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">邮箱：</label>
+					<div class="formControls col-6 mt-3">39203431@qq.com</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">QQ号码：</label>
+					<div class="formControls col-6 mt-3">39203431</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">会员：</label>
+					<div class="formControls col-6 mt-3">VIP6</div>
+				</div>
+			</div>
+			<!--基本资料-->
+			<div class="tabCon">
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>就诊日期：</label>
+					<div class="formControls col-91 skin-minimal">
+						<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time" value="2015-05-29">	
+					</div>
+					<label class="form-label col-95"><span class="c-red">*</span>时间段：</label>
+					<div class="formControls col-96 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" id="sex-1" name="sex" datatype="*" nullmsg="请选择时间段！"  checked="checked">
+							<label for="sex-1">上午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="sex-2" name="sex">
+							<label for="sex-2">下午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="sex-2" name="sex">
+							<label for="sex-2">晚上</label>
+						</div>
+					</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">前台接待：</label>
+					<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" name="admin-role" size="1">
+							<option value="0">请选择</option>
+							<option value="1" selected="selected">人员一</option>
+							<option value="2">人员二</option>
+							<option value="3">人员三</option>
+						</select>
+						</span> </div><a class="btn btn-success radius" onClick="open_newindow('前台接诊人员管理','manage/receptionist.html','640','450')" href="javascript:;"><i class="Hui-iconfont">&#xe63c;</i> 管理</a>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">前台记录：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="前台记录..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,300)">前台记录信息</textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+
+				<div class="row cl">
+					<label class="form-label col-2">主治医生：</label>
+					<div class="formControls col-10">
+						<div class="col-98  form-label" style="text-align:left;display:block;" id="doctor_choise">黄淑婷</div>
+						<a class="btn btn-primary radius addpatient_bt" onClick="clinicitem_manage('医生管理','manage/doctors.html','640','450')" href="javascript:;"><i class="Hui-iconfont">&#xe62b;</i> 医生管理</a>
+					</div>
+				</div>
+				
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>成交：</label>
+					<div class="formControls col-5 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" id="sex-1" name="sex" datatype="*" nullmsg="" checked="checked">
+							<label for="sex-1">是</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="sex-2" name="sex">
+							<label for="sex-2">否</label>
+						</div>
+					</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">原因：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="请写明未成交原因便于统计分析..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">诊疗项目：</label>
+					<div class="formControls col-10">
+						<div class="col-98  form-label" style="text-align:left;display:block;" id="clinicitem_choise">烤瓷牙</div>
+						<a class="btn btn-primary radius addpatient_bt" onClick="clinicitem_manage('选择诊疗项目','clinicitem.html','640','450')" href="javascript:;"><i class="Hui-iconfont">&#xe6b6;</i> 项目管理</a>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">承接科室：</label>
+					<div class="formControls col-97"> <span class="select-box" style="width:150px;">
+						<select class="select" name="admin-role" size="1">
+							<option value="0">请选择</option>
+							<option value="1" selected="selected">科室一</option>
+							<option value="2">科室二</option>
+							<option value="3">科室三</option>
+						</select>
+						</span> </div><a class="btn btn-success radius" onClick="open_newindow('科室管理','manage/department.html','640','450')" href="javascript:;"><i class="Hui-iconfont">&#xe63c;</i> 管理</a>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">病症分类：</label>
+					<div class="formControls col-10">
+						<div class="col-98  form-label" style="text-align:left;display:block;" id="diseases_choise">前牙缺失</div>
+						<a class="btn btn-primary radius addpatient_bt" onClick="clinicitem_manage('病症管理','manage/diseases.html','640','450')" href="javascript:;"><i class="Hui-iconfont">&#xe6c0;</i> 病症管理</a>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">诊疗方案：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="请写明该患者的诊疗方案..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,300)">治疗方案</textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">检验化验：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="若有检查，请输入检查结果，在下面的“上传报告单”中用医院管理APK拍照上传或直接上传..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,700)">无</textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/700</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">上传报告单：</label>						
+					<div class="formControls col-91">
+						<a class="btn btn-primary radius" onClick="upload_img('上传报告单','../js/boyicms/uploadimg.html','700','540')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传报告单</a>
+					</div>
+					<img src="../../../images/boyicms/logo/thumbnail_auto.gif" width="150px" height="100px" id="thumbnail" style="float:left;"/> 
+				</div><!--上传图片-->
+				<div class="row cl">
+					<label class="form-label col-2">医嘱：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="医嘱..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,300)">医嘱信息</textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">处方：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="处方..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,500)">处方信息</textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/500</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2"><span class="c-red">*</span>约定复诊：</label>
+					<div class="formControls col-91 skin-minimal">
+						<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time" value="2015-06-02">	
+					</div>
+					<label class="form-label col-95"><span class="c-red">*</span>时间段：</label>
+					<div class="formControls col-96 skin-minimal">
+						<div class="radio-box">
+							<input type="radio" id="sex-1" name="sex" datatype="*" nullmsg="">
+							<label for="sex-1">上午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="sex-2" name="sex">
+							<label for="sex-2">下午</label>
+						</div>
+						<div class="radio-box">
+							<input type="radio" id="sex-2" name="sex" checked="checked">
+							<label for="sex-2">晚上</label>
+						</div>
+					</div>
+					<div class="col-4"> </div>
+				</div>
+				
+				<div class="row cl">
+					<label class="form-label col-2">不良反应：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="详述用户治疗后有可能出现的不良反应，便于作为离院回访的参考..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">备注：</label>
+					<div class="formControls col-10">
+						<textarea name="" cols="" rows="" class="textarea"  placeholder="备注其他必要信息..." datatype="*10-100" dragonfly="true" nullmsg="" onKeyUp="textarealength(this,300)"></textarea>
+						<p class="textarea-numberbar"><em class="textarea-length">0</em>/300</p>
+					</div>
+				</div>
+			</div>
+			<!--就诊资料-->
+			<div class="tabCon">
+				<div class="row cl">
+					<label class="form-label col-2">本次缴费：</label>
+					<div class="formControls col-6">
+						<input type="text" class="input-text" placeholder="￥请输入本次患者缴纳费用，单位元" name="" id="" datatype="" nullmsg="请输入费用！" value="100">
+					</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">本次费用：</label>
+					<div class="formControls col-6">
+						<input type="text" class="input-text" placeholder="￥请输入该患者本次治疗实际产生费用，单位元" name="" id="" datatype="" nullmsg="请输入费用！"  value="100">
+					</div>
+					<div class="col-4"> </div>
+				</div>
+				<div class="row cl">
+					<label class="form-label col-2">余额：</label>
+					<div class="formControls col-6 mt-3" id="balance">0</div>
+					<div class="col-4"> </div>
+				</div>
+			</div>
+			<!--费用结算-->
+		</div><!--HuiTab over-->
+		<div class="row cl"></div>
+		<div class="row cl"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">			
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+		</div>		
+		
+	</form>
+
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+/*上传图片*/
+function upload_img(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+/*打开新窗口*/
+function open_newindow(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+/*选择诊疗项目*/
+function clinicitem_manage(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$list = $("#fileList"),
+	$btn = $("#btn-star"),
+	state = "pending",
+	uploader;
+
+	var uploader = WebUploader.create({
+		auto: true,
+		swf: 'lib/webuploader/0.1.5/Uploader.swf',
+	
+		// 文件接收服务端。
+		server: 'http://lib.h-ui.net/webuploader/0.1.5/server/fileupload.php',
+	
+		// 选择文件的按钮。可选。
+		// 内部根据当前运行是创建，可能是input元素，也可能是flash.
+		pick: '#filePicker',
+	
+		// 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+		resize: false,
+		// 只允许选择图片文件。
+		accept: {
+			title: 'Images',
+			extensions: 'gif,jpg,jpeg,bmp,png',
+			mimeTypes: 'image/*'
+		}
+	});
+	uploader.on( 'fileQueued', function( file ) {
+		var $li = $(
+			'<div id="' + file.id + '" class="item">' +
+				'<div class="pic-box"><img></div>'+
+				'<div class="info">' + file.name + '</div>' +
+				'<p class="state">等待上传...</p>'+
+			'</div>'
+		),
+		$img = $li.find('img');
+		$list.append( $li );
+	
+		// 创建缩略图
+		// 如果为非图片文件，可以不用调用此方法。
+		// thumbnailWidth x thumbnailHeight 为 100 x 100
+		uploader.makeThumb( file, function( error, src ) {
+			if ( error ) {
+				$img.replaceWith('<span>不能预览</span>');
+				return;
+			}
+	
+			$img.attr( 'src', src );
+		}, thumbnailWidth, thumbnailHeight );
+	});
+	// 文件上传过程中创建进度条实时显示。
+	uploader.on( 'uploadProgress', function( file, percentage ) {
+		var $li = $( '#'+file.id ),
+			$percent = $li.find('.progress-box .sr-only');
+	
+		// 避免重复创建
+		if ( !$percent.length ) {
+			$percent = $('<div class="progress-box"><span class="progress-bar radius"><span class="sr-only" style="width:0%"></span></span></div>').appendTo( $li ).find('.sr-only');
+		}
+		$li.find(".state").text("上传中");
+		$percent.css( 'width', percentage * 100 + '%' );
+	});
+	
+	// 文件上传成功，给item添加成功class, 用样式标记上传成功。
+	uploader.on( 'uploadSuccess', function( file ) {
+		$( '#'+file.id ).addClass('upload-state-success').find(".state").text("已上传");
+	});
+	
+	// 文件上传失败，显示上传出错。
+	uploader.on( 'uploadError', function( file ) {
+		$( '#'+file.id ).addClass('upload-state-error').find(".state").text("上传出错");
+	});
+	
+	// 完成上传完了，成功或者失败，先删除进度条。
+	uploader.on( 'uploadComplete', function( file ) {
+		$( '#'+file.id ).find('.progress-box').fadeOut();
+	});
+	uploader.on('all', function (type) {
+        if (type === 'startUpload') {
+            state = 'uploading';
+        } else if (type === 'stopUpload') {
+            state = 'paused';
+        } else if (type === 'uploadFinished') {
+            state = 'done';
+        }
+
+        if (state === 'uploading') {
+            $btn.text('暂停上传');
+        } else {
+            $btn.text('开始上传');
+        }
+    });
+
+    $btn.on('click', function () {
+        if (state === 'uploading') {
+            uploader.stop();
+        } else {
+            uploader.upload();
+        }
+    });
+
+	
+	
+	var ue = UE.getEditor('editor');
+	
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-article-category-add").Validform({
+		tiptype:2,
+		callback:function(form){
+			form[0].submit();
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.$('.btn-refresh').click();
+			parent.layer.close(index);
+		}
+	});
+	$.Huitab("#tab-category .tabBar span","#tab-category .tabCon","current","click","0");
+});
+
+function mobanxuanze(){
+	
+}
+</script>
+</body>
+</html>

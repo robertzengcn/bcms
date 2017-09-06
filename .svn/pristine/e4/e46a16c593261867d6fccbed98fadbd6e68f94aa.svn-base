@@ -1,0 +1,340 @@
+<?php
+//载入入口文件
+//ini_set("display_errors", "On");
+include_once 'init.php';
+
+
+/**
+ * 
+ * 医院动态
+ * @author Administrator
+ *
+ */
+class DrawMobile extends Mobile {
+
+	public $action  = 'mobile';	//模块名称
+	/**
+	 * 
+	 * 构造方法,通过method方法,调取对应的输出函数
+	 * @param unknown_type $method
+	 */
+	public function __construct() {
+		parent::__construct();
+		
+		$this->getuserid();
+		$this->excute();
+	}
+	public function getuserid(){
+		if(!$_SESSION['member_id']){
+			$this->error("用户未登陆...");			
+		}
+	}
+	/**
+	 * 
+	 * 医院新闻动态列表
+	 */
+	public function query() {
+		
+		$datetime=time();
+$result=$this->getServiceMethod('Draw','getdrawcount',array('statu' => 1,'datetime'=>$datetime));//根据活动id，取活动奖品
+
+$activity=array();
+foreach ($result->data as $key =>$val){
+	$activity[$key]['name']=$val->name;
+	$activity[$key]['start_time']=$val->start_time;
+	$activity[$key]['end_time']=$val->end_time;
+	$activity[$key]['link']=NETADDRESS.'/mobile/draw.php?method=get&drawid='.$val->id;
+	
+}
+echo json_encode(array('statu'=>true,'msg'=>null,'code'=>0,'data'=>$activity));
+
+	}
+	
+	
+	/*
+	 *
+	 *活动抽奖逻辑
+	 *
+	 *@param $id 活动id
+	 **/
+	
+	public function drawprize($id){		
+		if($id==''){
+			$this->error("呣，未找到相关活动...");			
+		}
+		$prizeall=$this->getServiceMethod('Prize','getprizedraw',array("drawid" =>$id));
+		$prize_arr = array();
+		$arr = array();
+
+		foreach($prizeall->data as $key=>$value){
+			//$thank_percent += ($value->prize_percent)/100;
+			$prize_arr[$key] = array('id'=>$key+1,'pid'=>$value->id,'name'=>$value->name,'v'=>($value->prize_percent)/100,);	
+		}
+		//计算谢谢参与概率		
+		//$prize_arr[0] = array('id'=>1,'pid'=>0,'name'=>'谢谢参与','v'=>100-$thank_percent);	
+		foreach ($prize_arr as  $val) { 
+			$arr[$val['id']] = $val['v']; 
+		}		
+		$rid = $this->getRand($arr); //根据概率获取奖项id 	
+		$res = $prize_arr[$rid-1]; //中奖项
+		return $res;
+	}
+
+	protected function getRand($proArr) { 
+			$result = ''; 		 
+			//概率数组的总概率精度 
+			$proSum = array_sum($proArr);
+			//概率数组循环
+		try{			
+			foreach ($proArr as $key => $proCur) { 
+				$randNum = mt_rand(1, $proSum); 
+				if ($randNum <= $proCur) { 
+					$result = $key; 
+					break; 
+				} else { 
+					$proSum -= $proCur; 
+				} 
+			} 
+			unset ($proArr); 
+		}catch(Exception $e){
+			$recordfile=ABSPATH.'log/draw_getRand_'.time().'_'.rand(1000,9999).'.log';
+			$myfile = @fopen( $recordfile, "w");
+			$txt = $e->getMessage();
+			fwrite($myfile, $txt);
+			fclose($myfile);
+		}			
+			return $result; 
+	}
+	
+	/**
+	 * 
+	 * 医院动态详情
+	 */
+	public function get() {
+		if(isset($_REQUEST['drawid'])&&strlen($_REQUEST['drawid'])!=0){
+			$id=(int)$_REQUEST['drawid'];
+			
+		//取推荐阅读
+		$result = $this->getServiceMethod('Draw','mobileget',array("id" =>$id));
+		if(empty($result->data)){
+			$this->error("呣，未找到相关活动...");
+		}
+		if($result->data->statu==0){
+			$this->error("呣，活动已关闭...");
+		}
+		
+		$thetime=time();
+		if($thetime<$result->data->start_time){
+			$this->error("呣，活动还未开始...");
+		}
+		
+		if($thetime>$result->data->end_time){
+			$this->error("呣，活动已经结束...");
+		}
+		if($result->data->type==1){//转盘
+		
+			$this->smarty->assign('draw_id', $id);
+			$this->smarty->display( 'Drawtemp/zadan/index' . TPLSUFFIX );
+			
+		}elseif($result->data->type==2){//刮刮卡
+			$prizeall=$this->getServiceMethod('Prize','getprizedraw',array("drawid" =>$id));
+			
+			$member=$this->getServiceMethod('Member','getscore',array("id" => $_SESSION['member_id']));//获取用户积分数
+			$drawtime=floor($member['ownscore']/$result->data->bonus);
+			$this->smarty->assign('drawtime', $drawtime);
+         
+			$this->smarty->assign('prizeall', $prizeall->data);
+			
+			$this->smarty->assign('draw_id', $id);
+			$this->smarty->display( 'Drawtemp/guaguaka/index' . TPLSUFFIX );
+			
+		}else{//转盘
+			$ruletime = date('Y-m-d' , $result->data->start_time).'一'.date('Y-m-d' , $result->data->end_time);
+			$prizeall=$this->getServiceMethod('Prize','getprizedraw',array("drawid" =>$id));
+			$prizenum=count($prizeall->data);
+			$color = array('#6688DF','#FFAF2F','#F46CBC','#9751F7','#F7C429','#F5647E','#F82045','#01FFC1','#90B7AA','#DA70D6','#C0C0C0','#5FCEC0','#F78585');
+			$random_color=array_rand($color,$prizenum);
+			$strname = '';
+			$strid = '';
+			$r_color = '';
+			$prize_percent = 0;
+			foreach ($prizeall->data as $key=>$value) {
+				$strname .= '"' . $value->name . '",';	
+				$strid .=$value->id . ',';
+				$prize_percent +=$value->prize_percent;
+			}
+			if($prize_percent != 10000){
+				$this->error("呣，活动未开始...");			
+			}
+			for($i=0;$i<$prizenum;$i++){
+				$r_color .='"' . $color[$random_color[$i]] . '",';
+			}	
+			$strname = substr($strname, 0, strlen($strname) - 1);
+			$strid = substr($strid, 0, strlen($strid) - 1);
+			$r_color = substr($r_color, 0, strlen($r_color) - 1);
+			$this->smarty->assign('drawtime', $drawtime);
+			$this->smarty->assign('prizeall', $prizeall->data);			
+			$this->smarty->assign('strid', $strid);	
+			$this->smarty->assign('strname', $strname);			 
+			$this->smarty->assign('random_color', $r_color);
+			$this->smarty->assign('rulecontent', $result->data->descript);
+			$this->smarty->assign('ruletime', $ruletime);			
+			$this->smarty->assign('prizenum', $prizenum);				
+			$this->smarty->assign('draw_id', $id);
+			$this->smarty->display( 'Drawtemp/zhuanpan/index' . TPLSUFFIX );
+			
+		}
+		//注入上一条与下一条
+
+		}else{
+			$this->error("呣，未找到相关活动...");	
+		}
+	}
+	
+	public function drawdan(){		
+		$UserName = isset($_SESSION['user'])?trim($_SESSION['user']):null;
+		if(isset($_REQUEST['drawid'])&&strlen($_REQUEST['drawid'])!=0){
+			$id=(int)$_REQUEST['drawid'];
+		}else{
+			echo json_encode(array('stute'=>false, 'code'=>2,'msg'=>'drawid不能为空','data'=>null));
+			exit();
+		}
+		$member=$this->getServiceMethod('Member','getscore',array("id" => $_SESSION['member_id']));//获取用户积分数
+		
+		$result = $this->getServiceMethod('Draw','mobileget',array("id" =>$id));
+		
+		$memberdrawcount = $this->getServiceMethod('Drawlog','getdrawcount',array("member_id" =>$_SESSION['member_id']));
+		
+		if($result->data->limit!=0&&$memberdrawcount->data>=$result->data->limit){
+			echo json_encode(array('stute'=>false, 'code'=>9,'msg'=>'会员已达到每日抽奖限制','data'=>null));
+			exit();
+		}
+		if(empty($result->data)){
+			echo json_encode(array('stute'=>false, 'code'=>4,'msg'=>'未找到相关活动','data'=>null));
+			exit();
+		}
+		if($result->data->statu==0){
+			echo json_encode(array('stute'=>false, 'code'=>5,'msg'=>'活动已关闭','data'=>null));
+			exit();
+		}
+		
+		$thetime=time();
+		if($thetime<$result->data->start_time){
+			echo json_encode(array('stute'=>false, 'code'=>2,'msg'=>'活动还未开始','data'=>null));
+			exit();
+		}
+		
+		if($thetime>$result->data->end_time){
+			echo json_encode(array('stute'=>false, 'code'=>3,'msg'=>'活动已经结束','data'=>null));
+			exit();
+		}
+		
+		if($member['ownscore']<$result->data->bonus){
+			echo json_encode(array('stute'=>false, 'code'=>7,'msg'=>'积分不足','data'=>null));
+			exit();
+		}
+		
+		
+		try{
+			
+		$prizeobj=$this->drawprize($id);//抽奖逻辑位置
+			$this->getServiceMethod('Prize','reducecount',array("id" => $prizeobj['pid']));//奖品数量减一		
+			$this->getServiceMethod('Member','reducescore',array("id" => $_SESSION['member_id'],'score'=>$result->data->bonus));//扣除用户积分		
+		
+		}catch(Exception $e){//如果抽奖过程中出现异常则中断改次抽奖,并且记录错误
+
+			$recordfile=ABSPATH.'log/draw_'.time().'_'.rand(1000,9999).'.log';
+			$myfile = @fopen( $recordfile, "w");
+			$txt = $e->getMessage();
+			fwrite($myfile, $txt);
+			fclose($myfile);
+			$this->error("系统异常请稍后再试...");	
+		}		
+		//if($prizeobj['pid']!=0){
+			$resultprize=$this->getServiceMethod('winlog','writeowner',array('member_id' => $_SESSION['member_id'],'prize_id'=>$prizeobj['pid'],'draw_id'=>$id));
+			$this->getServiceMethod('drawlog','adddrawlog',array("member_id" => $_SESSION['member_id'],'draw_id'=>$id,'result'=>$prizeobj['name']));//写入抽奖记录
+			echo json_encode(array('statu'=>true,'msg'=>$prizeobj->name,'code'=>1,'data'=>array('id'=>$prizeobj['pid'],'position'=>$prizeobj['v']*10000)));
+		//}else{
+		//	$this->getServiceMethod('drawlog','adddrawlog',array("member_id" => $_SESSION['member_id'],'draw_id'=>$id,'result'=>'没有抽中'));//写入抽奖记录
+		//	echo json_encode(array('statu'=>true,'msg'=>'谢谢惠顾','code'=>0,'data'=>0));
+		//}				
+		
+	}
+	
+	/*
+	 * 用户获取自己的中奖列表
+	 * */
+	public function drawlist(){
+
+
+		$size=10;
+
+		if(isset($_REQUEST['page'])&&$_REQUEST['page']!=null){
+			$page=(int)$_REQUEST['page'];
+			
+			$winlist=$this->getServiceMethod('winlog','query',array("member_id" =>$_SESSION['member_id'],'page'=>$page,'size'=>$size));
+		}else{
+			$winlist=$this->getServiceMethod('winlog','query',array("member_id" =>$_SESSION['member_id'],'page'=>1,'size'=>$size));
+		}
+					
+		$wincount=$this->getServiceMethod('winlog','totalRows',array("member_id" =>$_SESSION['member_id']));
+
+		//$this->pageSetting( 10 ,'draw','winlog',array("member_id" =>$_SESSION['member_id']));//分页式列表
+		$this->smarty->assign('winlist', $winlist->data);
+
+		$pagenum=ceil($wincount->data[0]->num/$size);
+		$this->smarty->assign('pagenum', $pagenum);
+		
+		
+	    
+		$this->smarty->display( 'Drawtemp/draw/list' . TPLSUFFIX );
+	}
+	
+	/*
+	 * ajax返回分页信息
+	 * 
+	 * */
+	public function ajaxdrawlist(){
+		$size=10;
+		if(isset($_REQUEST['page'])&&$_REQUEST['page']!=null){
+			$page=(int)$_REQUEST['page'];
+				
+			$winlist=$this->getServiceMethod('winlog','query',array("member_id" =>$_SESSION['member_id'],'page'=>$page,'size'=>$size));
+		}else{
+			$winlist=$this->getServiceMethod('winlog','query',array("member_id" =>$_SESSION['member_id'],'page'=>1,'size'=>$size));
+		}
+		echo json_encode(array('stute'=>true,'code'=>0,'msg'=>null,'data'=>$winlist->data));
+		exit();
+		
+		
+	}
+	
+	/*
+	 * 用户的中奖详情
+	 * */
+	public function getmydraw(){
+		if(isset($_REQUEST['id'])&&$_REQUEST['id']!=null){
+			
+			$id=(int)$_REQUEST['id'];
+			$result=$this->getServiceMethod('winlog','getmemdraw',array('member_id' =>$_SESSION['member_id'],'id'=>$id));	
+			$prize=$this->getServiceMethod('prize','getprizedetail',array('id'=>$id));
+			
+			$this->smarty->assign('prize', $prize->data);
+			$this->smarty->assign('detail', $result->data);
+									 
+			$this->smarty->display('Drawtemp/draw/detail' . TPLSUFFIX );
+		}
+		
+	}
+	public function error($msg){
+		$index = NETADDRESS . '/'. $this->action .'/';
+		$this->smarty->assign('INDEX',$index);
+		$this->smarty->assign('errormsg', $msg);
+		$this->smarty->display('Drawtemp/error/index' . TPLSUFFIX );
+		exit;
+	}	
+	
+}
+
+new DrawMobile();
+?>

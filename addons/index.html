@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <title>博医</title>
+</head>
+<body>
+</body>
+<script language="javascript">
+function FileExist(FileURL)
+{
+	var xmlhttp;
+		if(window.ActiveXObject)//ActiveXObject对象到找到的时候返回的是真，否则是假
+		 {
+			 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");//这个是使用IE的方法创建XmlHttp
+		 }
+		 else if(window.XMLHttpRequest)
+		 {
+			 xmlhttp=new XMLHttpRequest();//这个是使用非IE的方法创建XmlHttp
+		 }
+	xmlhttp.open("GET",FileURL,false);
+	xmlhttp.send();
+	if(xmlhttp.readyState==4)
+	{
+		if(xmlhttp.status!=200) window.location.href="./login.php?method=login" 		
+	}
+ }
+FileExist('./addons/login.php')
+</script>
+</html>

@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /controller/
+Disallow: /hcc/
+Disallow: /install/
+Disallow: /interface/
+Disallow: /kernel/
+Disallow: /lib/
+Disallow: /log/
+Disallow: /plugin/
+Disallow: /tagobj/
+Disallow: /shop/
+Disallow: /template_c/
+Disallow: /tpl/

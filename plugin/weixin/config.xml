@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<Name>微信管理</Name>
+	<ByName>weixin</ByName>
+	<Discription>将微信公众号的管理直接接入网站后台，满足日常的微信公众号自动回复设置，自定义菜单设置，群发等功能，并支持同时接入多个公众号，实现单站点后台多账号管理。是您管理微信公众号的好帮手。</Discription>
+	<Author>全球医院网</Author>
+	<ByVersion>v1.0</ByVersion>
+	<HccinletHtml>index</HccinletHtml>
+	<SqlFile>run.sql</SqlFile>
+	<UnInstall>WeixinService:uninstall</UnInstall>
+	<Kernel>
+		<Controller>WeixinController.php:controller/WeixinController.php</Controller>
+		<Service>WeixinService.php:kernel/WeixinService.php</Service>
+		<Dao>WeixinDAO.php:kernel/dao/WeixinDAO.php</Dao>
+		<Entity1>Access_token.php:kernel/entity/Access_token.php</Entity1>
+		<Entity2>Weixin.php:kernel/entity/Weixin.php</Entity2>
+		<Entity3>MediaId.php:kernel/entity/MediaId.php</Entity3>
+		<Entity4>Message.php:kernel/entity/Message.php</Entity4>
+		<Entity5>Attention.php:kernel/entity/Attention.php</Entity5>
+	</Kernel>
+</plugin>

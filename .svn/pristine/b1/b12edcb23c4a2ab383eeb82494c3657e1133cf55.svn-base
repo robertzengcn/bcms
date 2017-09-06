@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * 数据库文件备份service服务层
+ * @author Administrator
+ *
+ */
+class BackupsService extends BaseService {
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化dao数据表处理层,并将其赋值给dao属性
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->dao = new BackupsDAO();
+    }
+
+    /**
+     *            数据实体对象
+     */
+    public function backups() {
+    	$sql = $this->dao->backups();
+    	return $sql;
+    }
+ 
+    public function backupsrestore($content,$times) {
+    	$meg = $this->dao->restore($content,$times);
+    	return $meg;
+    }
+    
+}

@@ -1,0 +1,55 @@
+﻿{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main">
+    <div class=" container">
+    <ol class="breadcrumb">
+        <i class="icon icon-home"></i>您所在的位置：&nbsp;
+        <li><a href="{{$WEBSITE}}">首页</a></li>
+ <!--<li><a href="#">医院概况</a></li> -->
+        <li class="active">医院视频</li>
+      </ol>    
+    <div class="nav_segment">
+        <nav class="menu col-md-2 hidden-xs hidden-sm" data-toggle='menu'>
+        {{$name=$NavigationTag->getNavgroupName(left)}}
+        <button class="btn btn-primary">{{$name.subject}}</button>
+        <ul class="nav nav-primary">
+            {{$nav=$NavigationTag->getNavgroup(left)}}
+            {{foreach from=$nav item=v name=name}} 
+            {{if '医院视频' eq $v.subject}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+            <li class="{{$active}}"><a href="{{$v.url}}"></i> {{$v.subject}}<i class="icon-chevron-right pull-right line_h22"></i></a></li>
+            {{/foreach}}
+          </ul>
+      </nav>
+ 
+  
+<div class="Navigation" style=" padding:0;">
+        <div class="col-md-12 col-sm-12" data-id='1'>
+            <div class="panel" data-url=''>
+            <div class="panel-heading" style="overflow:hidden"><b class="pull-left"><a>医院视频</a></b><a class="pull-right" style="color: #c80025;" href="#"></a></div>
+            
+
+            <div class="panel-body Nav_liebiao" id="zoom">
+                <ul>
+                {{foreach $MovieTag->getList(1,20) as $v}}
+                    <!-- <li><h2><a href="{{$v->id}}.html" target="_blank">{{$v->subject}}</a> -->
+                    <span></span></h2><!--<p>{{$v->description|truncate:"60"}}...</p>--></li>
+                <li><i class="icon icon-circle"></i><a href="{{$WEBSITE}}/hospital/movie/{{$v->id}}.html" target="_blank" title="">&nbsp;&nbsp;{{$v->subject}}</a></li>
+                {{/foreach}}
+              </ul>
+              </div>
+          </div>
+          </div>
+      </div>
+      </div>
+  </div>
+  </div>
+<script>
+function changeSize(size) {
+	var canSize = parseInt($("#zoom").css("fontSize"));
+	if(size=="larger")$("#zoom").css({"fontSize":canSize+1,"line-height":(canSize+1)*1.5+"px"});
+	if(size=="smaller")$("#zoom").css({"fontSize":canSize>10?(canSize-1):10,"line-height":(canSize>10?(canSize-1):10)*1.5+"px"});
+	if(typeof(size)=="number")$("#zoom").css({"fontSize":size,"line-height":""});
+	
+}
+</script> 
+{{/block}}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="keywords" content="{{$sys.web_keywords}}" />
+<meta name="description" content="{{$sys.web_description}}" />
+<META HTTP-EQUIV="pragma" CONTENT="no-cache"> 
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
+<META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
+<META HTTP-EQUIV="expires" CONTENT="0">
+<meta id="eqMobileViewport" name="viewport" content="width=320, initial-scale=1, maximum-scale=1, user-scalable=no" servergenerated="true">
+<link rel="shortcut icon" href="" type="image/x-icon" />
+<title>{{$sys.web_title}}</title>
+<link rel="stylesheet" href="{{$COMMON}}Show/public/css/show-view.css?v=1"/>	
+</head>
+<body>
+<div id="ppitest" style="width:1in;visible:hidden;padding:0px"></div>
+<div class="p-index main phoneBox" id="con" style="display: none;">
+	<!--上下滚动 start-->
+	<div class="top"></div>
+	<div class="phone_menubar"></div>
+	<div class="scene_title_baner" style="display: none">
+		<div class="scene_title"></div>
+	</div>
+	<div class="nr">
+		<div id="audio_btn" class="off">
+			<div id="yinfu"></div>
+			<audio loop src="" id="media" autoplay="" preload></audio>
+		</div>
+		<div id="loading" class="loading">
+			<div class="loadbox">
+				<div class="loadlogo">
+				</div>
+			<div class="loadbg"></div>
+			</div>
+		</div>
+	</div>
+	<div class="bottom"></div> 
+</div>
+</body>
+<script>
+var IS_SHOW	= "1";
+var PREFIX_URL =  "http://"+window.location.host+"/";
+var PREFIX_FILE_HOST ="http://"+window.location.host+"/upload/";
+var PUBLIC_URL = "{{$COMMON}}Show/public/"; 
+var clientWidth = document.documentElement.clientWidth;
+var INTERVAL_OBJ = {}; // 用于图集使用的定时器对象
+
+
+
+</script>
+    <script src="{{$COMMON}}Show/public/js/jquery.min.js"></script>
+<script type="text/javascript" src="{{$COMMON}}Show/public/js/show-view.js"></script>
+ <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script>
+wx.config({
+	debug: false,
+	appId: '{{$confinfo["appId"]}}',
+	timestamp: '{{$confinfo["timestamp"]}}',
+	nonceStr: '{{$confinfo["nonceStr"]}}',
+	signature: '{{$confinfo["signature"]}}',
+	jsApiList: [
+	'checkJsApi',
+	'onMenuShareTimeline',
+	'onMenuShareAppMessage',
+	'onMenuShareQQ',
+	'onMenuShareWeibo'
+	]
+});             
+wx.ready(function () {
+	var media = document.getElementById("media");
+	media.play();
+	wx.checkJsApi({
+		jsApiList: [
+		'getNetworkType',
+		'previewImage',
+		'onMenuShareTimeline',
+		'onMenuShareAppMessage',
+		'onMenuShareQQ',
+		'onMenuShareWeibo',
+		'onMenuShareQZone'
+		],            
+	});
+	var title = '{{$confinfo2["title"]}}';
+	var desc  = '{{$confinfo2["desc"]}}';
+	var link  = PREFIX_URL+'{{$confinfo2["url"]}}';
+	var imgUrl= PREFIX_FILE_HOST  +'{{$confinfo2["imgsrc"]}}';
+	var a = new Date;
+	var shareUrl= PREFIX_URL + "?controller=Show&method=share&time=" + a.getTime();
+	var sceneid='{{$confinfo2["id"]}}';
+	wx.onMenuShareTimeline({
+	    title: title,
+	    link: link,
+	    imgUrl: imgUrl,
+	    success: function () { 
+	        $.ajax({
+				type: "POST",
+				url: shareUrl,
+				data: {sceneid:sceneid,channel:"timeline"}
+			});
+	    },
+	    cancel: function () { 
+	        // 用户取消分享后执行的回调函数
+	    }
+	});
+
+	wx.onMenuShareAppMessage({
+	    title: title,
+	    desc: desc,
+	    link: link,
+	    imgUrl: imgUrl,
+	    success: function () { 
+	        $.ajax({
+				type: "POST",
+				url: shareUrl,
+				data: {sceneid:sceneid,channel:"appmessage"}
+			});
+	    },
+	    cancel: function () { 
+	        // 用户取消分享后执行的回调函数
+	    }
+	});
+	wx.onMenuShareQQ({
+	    title: title,
+	    desc: desc,
+	    link: link,
+	    imgUrl: imgUrl,
+	    success: function () { 
+	       $.ajax({
+				type: "POST",
+				url: shareUrl,
+				data: {sceneid:sceneid,channel:"qq"}
+			});
+	    },
+	    cancel: function () { 
+	       // 用户取消分享后执行的回调函数
+	    }
+	});
+
+	wx.onMenuShareWeibo({
+	    title: title,
+	    desc: desc,
+	    link: link,
+	    imgUrl: imgUrl,
+	    success: function () { 
+	       $.ajax({
+				type: "POST",
+				url: shareUrl,
+				data: {sceneid:sceneid,channel:"weibo"}
+			});
+	    },
+	    cancel: function () { 
+	        // 用户取消分享后执行的回调函数
+	    }
+	});
+
+	wx.onMenuShareQZone({
+	    title: title,
+	    desc: desc,
+	    link: link,
+	    imgUrl: imgUrl,
+	    success: function () { 
+	       $.ajax({
+				type: "POST",
+				url: shareUrl,
+				data: {sceneid:sceneid,channel:"qzone"}
+			});
+	    },
+	    cancel: function () { 
+	        // 用户取消分享后执行的回调函数
+	    }
+	});
+});
+</script>
+</html>

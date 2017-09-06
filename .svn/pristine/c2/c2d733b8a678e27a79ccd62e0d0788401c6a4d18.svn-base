@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>钻石</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="description" content="">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/jquery-weui.min.css">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/style.css?time={{$smarty.now}}">
+<link rel="stylesheet" href="{{$COMMON}}Vote/Public/css/color/{{$color}}.css?time={{$smarty.now}}">
+</head>
+<body class="bg-f0f0f0">
+<div class="diamond">
+	<div class="diamond_number pt-20 pb-20"><div class="details_footer_img"></div><span>100</span></div>
+	<div class="diamond_tit">支付方式：</div>
+    <div class="weui-row diamond_zf pd-15">
+      <div class="weui-col-50 active">微信支付</div>
+      <div class="weui-col-50">支付宝</div>
+    </div>
+    <div class="diamond_tit">充值：</div>
+    <ul class="diamond_cz">
+    	<li><a href="#"><strong>20<small>(新人专属，仅一次机会)</small></strong><span>￥1</span></a></li>
+        <li class="active"><a href="#"><strong>60</strong><span>￥6</span></a></li>
+        <li><a href="#"><strong>300</strong><span>￥30</span></a></li>
+        <li><a href="#"><strong>980</strong><span>￥98</span></a></li>
+        <li><a href="#"><strong>2880</strong><span>￥288</span></a></li>
+        <li><a href="#"><strong>5880</strong><span>￥588</span></a></li>
+    </ul>
+</div>
+
+
+
+<script src="{{$COMMON}}Vote/Public/js/jquery-2.1.4.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/fastclick.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/jquery-weui.min.js"></script>
+<script src="{{$COMMON}}Vote/Public/js/vote.js"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+</body>
+</html>

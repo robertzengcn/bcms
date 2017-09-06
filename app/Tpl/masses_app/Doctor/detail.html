@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body>   
+    <section id="body">
+    	<a href=""><article class="dmenu">
+        <img src="{{$UPLOAD}}{{$data->pic}}">
+		
+        <b><h1><a>{{$data->name}}</a>&nbsp;&nbsp;&nbsp;{{$data->position}}</h1><h2>擅长：{{$data->specialty|truncate:20}}。。。 </h2></b>	
+        </article></a>
+        <p class="Title">医生介绍</p>
+        <article class="xiangqing">
+        <p>  {{$data->content|strip_tags:false}}</p>
+        </article>
+        
+           
+    </section>
+    
+
+    
+</body>
+</html>

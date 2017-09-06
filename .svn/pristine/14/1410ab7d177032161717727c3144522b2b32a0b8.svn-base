@@ -1,0 +1,20 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class DoctorToDisease extends Entity {
+
+    var $id;
+
+    var $doctor_id;
+
+    var $disease_id;
+
+    public function validate() {
+        if (! $this->isNum($this->doctor_id) || strlen($this->doctor_id) == 0) {
+            throw new ValidatorException(127);
+        }
+        if (! $this->isNum($this->disease_id) || strlen($this->disease_id) == 0) {
+            throw new ValidatorException(59);
+        }
+    }
+}

@@ -1,0 +1,166 @@
+<?php
+/**
+ * 
+ * 成功案例tag标签
+ * @author Administrator
+ *
+ */
+class SuccessTag extends CommonTag {
+	
+	/**
+	 * 
+	 * 构造方法
+	 */
+	function __construct() {
+		$this->service = new SuccessService ();
+		parent::__construct( get_class() );
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取对应的数据
+	 * {{foreach $tagOb->getList($cur) as $v}}
+	 * {{/foreach}}
+	 * @param  int $current  当前页
+	 * @param  boolean $sort 排序规则,true为时间降序
+	 * @return array list
+	 */
+	public function getList($current,$sort = true) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.分页数
+		$pageCount = ceil( $count / $this->tagConfig['pageSize']);
+		#.组合条件进行数据查询
+		$limit = array ("page" => $current, "size" => $this->tagConfig['pageSize'] );
+		$field = '*';
+		$where = array ('1' => 1 );
+		$order = $sort === true ? "plushtime desc" : "plushtime asc";
+		$data = $this->getPage ( $field, $where, $limit, $order );
+		return $data;
+	}
+	
+	/**
+	 * 
+	 * 根据页码获取分页html
+	 * {{$tagOb->getPageHtml($cur)}}
+	 * @param int $current 当前页
+	 */
+	public function getPageHtml($current) {
+		#.第几页
+		$current   = (int)$current <= 0 ? 0 : (int)$current - 1;
+		#.查询总条数
+		$count  = $this->service->totalRows ( array ('1' => 1 ) )->data;
+		#.生成html信息
+		return $this->setPageHtml($current, $this->tagConfig['pageSize'] , $count , 'success' );
+	}
+	
+	/**
+	 * 
+	 * 根据唯一id获取该id的详细信息
+	 * {{$news = $tagOb->get($id)}}
+	 * @param int $id 唯一id
+	 */
+	public function get($value) {
+		$id = (int)$value <= 0 ? 0 : (int)$value;
+		$where = array( "id" => $id );
+		$result = $this->service->findOne( $where , '*' );
+		$success = new Success();
+		$success->generateFromRedBean($result);
+		return $success;
+	}
+	
+	/**
+	 * 根据推荐位置获取案例列表 ...
+	 * @param unknown_type $recommend_id
+	 */
+	public function getByRecommend($recommend,$name='success_id'){
+		if (!is_numeric($recommend)){
+			$position = new RecommendPositionService();
+			$result = $position->getByName($recommend);
+			$recommend_id = $result->id;
+		}else{
+			$recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+		}
+		$recommendObj = new RecommendListService();
+		$successIds = $recommendObj->getByRecommendID($recommend_id,$name);
+		$_REQUEST['ids'] = array();
+		foreach ($successIds as $val){
+			$_REQUEST['ids'][] = $val->$name;
+		}
+		$result = $this->service->getByIds();
+		return $result->data;
+	}
+	
+	/**
+	 * 根据推荐位置 和科室 获取案例列表 ...
+	 * @param unknown_type $recommend_id
+	 */
+	public function getByRecommendDep($recommend,$dep_id,$name='success_id'){
+	    if (!is_numeric($recommend)){
+	        $position = new RecommendPositionService();
+	        $result = $position->getByName($recommend);
+	        $recommend_id = $result->id;
+	    }else{
+	        $recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+	    }
+	    $recommendObj = new RecommendListService();
+	    $successIds = $recommendObj->getByRecommendID($recommend_id,$name);
+	    $_REQUEST['ids'] = array();
+	    foreach ($successIds as $val){
+	        $_REQUEST['ids'][] = $val->$name;
+	    }
+	    $result = $this->service->getByIds();	    
+        foreach ($result->data as $ret){
+            if($ret->department_id != $dep_id){
+                unset($ret);
+            } 
+            $rets[]=$ret;
+        }
+        $rets = array_filter($rets);
+		sort($rets);
+	    return $rets;
+	}	
+	
+	
+	/**
+	 * 获取置顶资讯
+	 * @param unknown_type $recommend_id
+	 * @param unknown_type $disease_id
+	 * @param unknown_type $is_top
+	 * @param unknown_type $name
+	 * @return Ambigous <multitype:, unknown>
+	 */
+	public function getByTop($recommend,$is_top=1,$name='success_id'){
+		if (!is_numeric($recommend)){
+			$position = new RecommendPositionService();
+			$result = $position->getByName($recommend);
+			$recommend_id = $result->id;
+		}else{
+			$recommend_id = (int)$recommend <=0 ? 0 : (int)$recommend;
+		}
+		$recommendObj = new RecommendListService();
+		$successIds = $recommendObj->getByTop($recommend_id,$is_top,$name);
+		$_REQUEST['ids'] = array();
+	    foreach ($successIds as $val){
+			$_REQUEST['ids'][] = $val->$name;
+		}
+		$result = $this->service->getByIds()->data;
+        foreach ($result as $v){
+        	$obj = $v;
+        }
+		return $obj;
+	}
+	
+	/** 根据科室 获取案例
+	 * @param unknown_type $department
+	 * */
+	public function getByDepartment($department=''){
+	    $where = array();
+	    $where['department_id'] =$department;
+	    $result = $this->service->query($where)->data;
+	    return $result;
+	}
+	
+}

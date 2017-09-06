@@ -1,0 +1,11 @@
+<?php
+require_once '../web-setting.php';
+session_start();
+if ('http://' . trim($_SERVER['HTTP_HOST']) == NETADDRESS){
+	$time = time();
+	$_SESSION['token'] = $time;
+	$array = array('statu'=>true,'time'=>$time);
+	echo json_encode($array);
+}else{
+	echo '非法域名请求';
+}

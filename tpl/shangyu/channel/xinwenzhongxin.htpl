@@ -1,0 +1,81 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+<div class="main_news container">
+	<div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-8 mnew_l">
+          <div class="white_bg">
+          	<div class="main_tit"><strong class="pull-left"><a href="#" target="_blank">三院新闻</a></strong></div>
+              <div class="col-xs-12 col-sm-6" style="padding:0;">
+                  <div id="myNiceCarousel3" class="carousel slide " data-ride="carousel"> 
+                  {{scrollpicbyflag flag="scroll" assign="pic"}}{{/scrollpicbyflag}}
+                    <!-- 圆点指示器 -->
+                    <ol class="carousel-indicators">
+                      {{foreach from=$pic item=v name=nava}}
+			          {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+                      <li data-target="#myNiceCarousel" data-slide-to="{{$smarty.foreach.nava.iteration-1}}" class="{{$active}}"></li>
+                      {{/foreach}}
+                    </ol>
+                    <!-- 轮播项目 -->
+                    <div class="carousel-inner">
+                        {{foreach from=$pic item=v name=nava}}
+			            {{if $smarty.foreach.nava.iteration eq 1}} {{$active="active"}} {{else}} {{$active=""}} {{/if}}
+			            <div class="item {{$active}}"><img src="{{$v->pic}}"></div>
+			            {{/foreach}}
+                    </div>
+                  </div>
+              </div>
+              <div class="col-xs-12 col-sm-6">
+                  <ul class="news_box">
+                    <li>
+			            {{newsbyrecommend recommend_name="首页头版头条"  limit="1"}}
+			            <h2><a href="{{newsurl}}[field:id/].html">[field:subject/]</a></h2>
+			            <p>[field:description|length:35/]</p>
+			            {{/newsbyrecommend}}
+			            <dl>
+			              {{newslist pagesize="4" }}
+			              <dd><a href="{{newsurl}}[field:id/].html" target="_blank">[field:subject|length:30/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+			              {{/newslist}}
+			            </dl>
+			        </li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+      <div class="col-xs-12 col-sm-12 col-md-4 mnew_r">
+      	<div class="white_bg">
+        	<div class="main_tit"><strong class="pull-left"><a href="/yiyuangonggao" target="_blank">医院公告</a></strong></div>
+            <dl>
+              {{channelarcsbyname name="医院公告" size="6" }}
+              <dd><a href="/yiyuangonggao/[field:id/].html" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+              {{/channelarcsbyname}}
+            </dl>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="main_news-2 container">
+	<div class="row">
+    	 <div class="col-xs-12 col-sm-12 col-md-6 mnew-2_l">
+         	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="{{mediaurl}}" target="_blank">媒体报道</a></strong></div>
+                <dl>
+                  {{medialist pagesize="4" }}
+                   <dd><a href="[field:url/]" target="_blank">[field:subject|length:30/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+                   {{/medialist}}
+                </dl>
+            </div>
+         </div>
+         <div class="col-xs-12 col-sm-12 col-md-6 mnew-2_r">
+         	<div class="white_bg">
+            	<div class="main_tit"><strong class="pull-left"><a href="/xueshuhuiyi" target="_blank">学术会议</a></strong></div>
+                <dl>
+                   {{channelarcsbyname name="学术会议" size="6" }}
+		            <dd><a href="[field:url/]" target="_blank">[field:subject/]</a><span>[field:plushtime|date_format:"m-d"/]</span></dd>
+		           {{/channelarcsbyname}}
+                </dl>
+            </div>
+         </div>
+    </div>
+</div>
+{{/block}}

@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class DepartmentDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_DEPARTMENT;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+        DTExpression::like('name', $where);
+        DTExpression::like('url', $where);
+        DTExpression::page($where);
+        //DTOrder::asc('id');
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('name', $where);
+        DTExpression::like('url', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 获取科室数据
+     *
+     * @return multitype:Departments
+     */
+    public function getDepartments() {
+        $departments = R::findAll($this->tableName);
+
+        $departmentArray = array();
+        foreach ($departments as $key => $value) {
+            $department = new Department();
+            $department->generateFromRedBean($value);
+            $departmentArray[] = $department;
+        }
+
+        return $departmentArray;
+    }
+
+    /**
+     * 获取科室
+     *
+     * @param Departments() $department
+     *            $channel->id
+     * @return bean
+     */
+    public function getDepartmentByID($department) {
+        $departmentBean = R::load($this->tableName, $department->id);
+        $department->generateFromRedBean($departmentBean);
+
+        return $departmentBean;
+    }
+}

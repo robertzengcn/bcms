@@ -1,0 +1,9 @@
+﻿alter table department add pic varchar(200);
+alter table department add content text;
+alter table disease add content text;
+INSERT INTO `contact` (`name`,`val`,`is_retain`,`flag`) VALUES ('商务通(仅超链接)',  '', '1', 'swt_link');
+alter table recommendlist add news_id int(11);
+alter table recommendlist add media_id int(11);
+ALTER TABLE channel MODIFY COLUMN shortname VARCHAR(100);
+ALTER TABLE doctor MODIFY COLUMN specialty VARCHAR(200);
+ALTER TABLE channel MODIFY COLUMN detailtplurl VARCHAR(255);

@@ -1,0 +1,242 @@
+<?php
+
+class TechnologyService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new TechnologyDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        // 删除变量
+        $userVarDao = new UserVarDAO();
+
+        $technologys = $this->dao->getBatch($ids);
+
+        $files = array();
+        $this->dao->beginTrans();
+        try {
+            $recommendListDAO = new RecommendListDAO();
+            foreach ($technologys as $technology) {
+                $filename = GENERATEPATH . 'technology/' . $technology->id . '.html';
+                if ($technology->id == 0) {
+                    throw new ValidatorException(78);
+                }
+                $files[] = array(
+                    'file' => $filename,
+                    'id' => $technology->id
+                );
+                $recommendListDAO->deleteById('technology_id', $technology->id);
+            }
+
+            foreach ($files as $file) {
+                if (file_exists($file['file'])) {
+                    unlink($file['file']);
+                }
+                $result = $userVarDao->getByPid($file['id'], 1);
+                if ($result) {
+                    R::trashAll($result);
+                }
+            }
+            $this->dao->commitTrans();
+        } catch (Exception $e) {
+            $this->dao->rollbackTrans();
+            return $this->fail(0, $e->getMessage);
+        }
+
+        return $this->dao->deleteBeans($technologys);
+    }
+
+    /**
+     * 获取一条数据
+     *
+     * @param Entity $technology
+     * @return Result
+     */
+    public function get($technology) {
+        $this->dao->get($technology->id, $technology);
+        if ($technology->pic) {
+            $technology->src = UPLOAD . $technology->pic;
+        }
+        $recommend = new RecommendListService();
+        $result = $recommend->getById('technology_id', $technology->id);
+        $technology->recommend = $result;
+        return $this->success($technology);
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $technologys = $this->dao->query($where);
+        $departmentsDao = new DepartmentDAO();
+        $departmentService = new DepartmentService();
+
+        foreach ($technologys as $key => $value) {
+            $value->plushtime = date('Y-m-d', $value->plushtime);
+			$value->department_name = $departmentsDao->getName($value->department_id);			
+        }
+
+        return $this->success($technologys);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $technology
+     * @return Result
+     */
+    public function save($technology) {
+        $technology->plushtime = time();
+        $technology->updatetime = time();
+        $technology->validate();
+
+        $technology->click_count = rand(30, 1000);
+        // 获取class对象并插入数据
+        $result = $this->dao->save($technology);
+        // $ob=new RecommendListService();
+        if (! empty($_REQUEST['recommendposition'])) {
+            $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+            $recommendList = new RecommendListService();
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->is_top = $technology->is_top;
+                $recommend->recommendposition_id = $value;
+                $recommend->technology_id = $result->id;
+                $recommend->is_tomobile = $is_tomobile;
+                $recommendList->save($recommend);
+            }
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param Entity $technology
+     * @return Result
+     */
+    public function update($technology) {
+        $technology->updatetime = time();
+        $technology->validate();
+
+        if (! empty($_REQUEST['recommendposition'])) {
+            $is_tomobile = isset($_REQUEST['is_tomobile']) ? $_REQUEST['is_tomobile'] : '1';
+            $recommendList = new RecommendListService();
+            $recommendList->deleteById('technology_id', $technology->id);
+            foreach ($_REQUEST['recommendposition'] as $value) {
+                $recommend = new RecommendList();
+                $recommend->is_top = $technology->is_top;
+                $recommend->recommendposition_id = $value;
+                $recommend->technology_id = $technology->id;
+                $recommend->is_tomobile = $is_tomobile;
+                $recommendList->save($recommend);
+            }
+        }
+        return $this->dao->update($technology);
+    }
+
+    /**
+     * 添加特制技术
+     */
+    public function addSpecial($technology) {
+        $technology->content = '模板定制';
+        $technology->plushtime = time();
+        $technology->kind = 1;
+        $technology->click_count = rand(30, 1000);
+
+        $technology->validate();
+
+        $result = $this->dao->save($technology);
+
+        $id = $result->id;
+        $userVarService = new UserVarService();
+        foreach ($_REQUEST['special'] as $key => $value) {
+            $userVar = new UserVar();
+            $userVar->tid = $id;
+            $userVar->name = $value[0];
+            $userVar->var_name = $key;
+            $userVar->val = $value[1];
+            $userVar->kind = 1;
+            $userVar->type = $value[2];
+            $userVarService->save($userVar);
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 修改定制技术
+     */
+    public function mdfSpecial($technology) {
+
+        // 获取class对象并修改数据
+        $tempTechnology = new Technology();
+        $this->dao->get($technology->id, $tempTechnology);
+        if ($tempTechnology->id == 0) {
+            throw new ValidatorException(9);
+        }
+
+        $technology->plushtime = $tempTechnology->plushtime;
+        $technology->content = $tempTechnology->content;
+        $technology->kind = $tempTechnology->kind;
+        $this->dao->update($technology);
+
+        // 修改变量配置
+        $userVarService = new UserVarService();
+        foreach ($_REQUEST['special'] as $value) {
+            $userVarService->mdfVar($value);
+        }
+
+        return $this->success();
+    }
+
+    /**
+     * 获取所有科室和所有推荐位置
+     *
+     * @return Result
+     */
+    function getAll() {
+        $departmentService = new DepartmentService();
+        $departmentArray = $departmentService->getDepartments();
+        $recommendPositionService = new RecommendPositionService();
+        $positionArray = $recommendPositionService->getList();
+        $arrayAll['de'] = $departmentArray;
+        $arrayAll['re'] = $positionArray;
+        return $this->success($arrayAll);
+    }
+
+    /**
+     * 根据id数组获取数据...
+     *
+     * @return Result
+     */
+    public function getByIds() {
+        $technologys = $this->dao->getByIds();
+
+        $departmentsDao = new DepartmentDAO();
+        foreach ($technologys as $key => $value) {
+            $value->plushtime = date('Y-m-d H:i:s', $value->plushtime);
+            $departments = new Department();
+            $departments->id = $value->department_id;
+            $departmentsDao->getDepartmentByID($departments);
+            $value->department = $departments->name;
+        }
+        return $this->success($technologys);
+    }
+}

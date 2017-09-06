@@ -1,0 +1,81 @@
+<?php
+	if( isset( $_REQUEST['id'] ) && $_REQUEST['id'] >= 1 ){
+		$id = $_REQUEST['id'];
+		$remoteTemplateAuthUrl = 'http://www.boyicms.com/interface/hwibs/product/index.php?product=template&method=productAuth';
+		$content = file_get_contents($remoteTemplateAuthUrl . '&product_id=' . $id . '&domain=' . $_SERVER['SERVER_NAME']);
+		$product = json_decode($content);
+		$url     = 'http://www.boyicms.com' . $product->data->zip_address;
+	}else{
+		exit;
+	}
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type="text/css">
+            h1{font-size:12px;height:25px;line-height:25px;text-align:left;}
+            div#load{width:0%;height:20px;line-height:20px;background:#B8D0D6;}
+        </style>
+        <script src="/hcc/public/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            function setDownloaded(fileSize, downlen, newFile) {
+                var c = Math.round((downlen / fileSize) * 100);
+                window.parent.LoadingStatusTemplate( c , (Math.round(downlen / 1024)) + "kb / " + (Math.round(fileSize / 1024)) + "kb" );
+                //下载完成
+                if (fileSize == downlen) {
+                	download_success();
+                }
+            }
+            function download_success(){
+                window.parent.TemplateDownloadSuccess( <?php echo $id;?> );
+            }
+            function zipFile(flag){
+				switch( flag ){
+					case 'urlError':
+						window.parent.ShowMsg('产品路径错误');
+					break;
+				}
+            }
+        </script>
+    </head>
+    <body>
+        <div id="load">&nbsp;</div>
+    </body>
+</html>
+<?php
+$newfname = '../template_c/' . $id . '.zip';
+if( file_exists( $newfname ) ) {
+	echo "<script>download_success();</script>";exit;
+	return true;
+}
+$file = @fopen($url, "rb");
+if ($file) {
+    $filesize = -1;
+    $headers = get_headers($url, 1);
+    if ((!array_key_exists("Content-Length", $headers))) {
+        $filesize = 0;
+    }
+    $filesize = $headers["Content-Length"];
+    if ($filesize != -1)
+        $newf = fopen($newfname, "wb");
+    $downlen = 0;
+    if ($newf)
+        while (!feof($file)) {
+            $data = fread($file, 1024 * 8);
+            $downlen+=strlen($data);
+            fwrite($newf, $data, 1024 * 8);
+            echo "<script>setDownloaded($filesize,$downlen,'" . $newfname . "');</script>";
+            ob_flush();
+            flush();
+        }
+}else{
+	echo "<script>zipFile('urlError');</script>";exit;
+}
+if ($file) {
+    fclose($file);
+}
+if ($newf) {
+    fclose($newf);
+}
+?>

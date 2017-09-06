@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * 在线问答模块流程控制器
+ * @author Administrator
+ *
+ */
+class BoyiManagerController extends Controller {
+
+    private $service = null;
+
+    /**
+     * 构造方法
+     * 实例化基类并实例化service层,并将其赋值给service属性
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->service = new BoyiManagerService();
+    }
+    /**
+     * 数据安全验证、登录检测
+     *
+     * @see controller/Controller::filter()
+     */
+    public function filter() {
+    	$filterService = new FilterService();
+    	$filterService->addFunc($filterService::$SQLINJECTION);
+    	$filterService->addFunc($filterService::$FILERPLUSHTIME);
+    	return $filterService->execute();
+    }
+    
+    /*
+     * 
+     *获取手机验证码 
+     * 
+     * */
+    
+    public function getmsg(){
+    	$phonenum=$_REQUEST['mobile'];
+    	if(preg_match("/^13[0-9]{1}[0-9]{8}$|15[0-9]{1}[0-9]{8}$|18[0-9]{1}[0-9]{8}$|17[0-9]{1}[0-9]{8}/",$phonenum)){ //验证通过   		
+    		$HMAKEY='Vb4!PLCzCW';
+    		$url="http://www.hwibsc.com/interface/hma/HmaAccountInterface.php?type=sendcode";//请求总控发送验证码
+    		$post_data=array(
+    				'mobile'=>$phonenum,
+    				'hmkey'=>md5( $HMAKEY . date('Y-m-d') ),
+    				'website'=>NETADDRESS,
+    				   				    				   		
+    		);
+    		$fresult=$this->send_post($url,$post_data);
+    		print_r($fresult);exit();
+    		$result=json_decode($fresult);
+    		if($result->res==0){
+    			echo json_encode(array('stute'=>true,'msg'=>null,'code'=>0,'data'=>null));    			
+    		}else{
+    			echo json_encode(array('stute'=>false,'msg'=>$result->message,'code'=>0,'data'=>null));
+    		}    		    		
+    	}else{
+    		//手机号码格式不对
+    	     
+    	}
+    }
+    
+ 
+    
+    /**
+     * 发送post请求
+     * @param string $url 请求地址
+     * @param array $post_data post键值对数据
+     * @return string
+     */
+    function send_post($url, $post_data) {
+    
+    	$ch = curl_init();
+    	$timeout = 60000*10;
+    	curl_setopt($ch, CURLOPT_URL, $url);
+    	curl_setopt($ch, CURLOPT_POST, true);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    	$result = curl_exec($ch);
+    	curl_close($ch);
+    	return $result;
+    }
+    
+
+   
+}

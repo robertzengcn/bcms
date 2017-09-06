@@ -1,0 +1,90 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/reservationlist.css">
+{{/block}}
+{{block name=js}}
+<script type="text/javascript" src="{{$RESOURCE}}/js/jquery.SuperSlide.2.1.1.js"></script>
+<script type="text/javascript" src="{{$RESOURCE}}/js/reservation.js"></script>
+{{/block}}
+{{block name=body}}
+<div id="MyDiv" class="white_content">
+<div class="closeDiv" onclick="CloseDiv('MyDiv')"></div>
+<div id="mycontent">
+</div>
+</div>
+<div class="clear"></div>
+<div class="main">
+    <div class="par_main" style="width: 740px;margin: auto;padding: 0;float: left">
+        <h2>预约挂号</h2>
+      {{doctors page="$cur"}}
+      {{foreach $doctors as $v}}
+       <div id='tr_{{$v->id}}' class="doctorbox">
+      	<table width="95%" border="1" cellspacing="0" cellpadding="0" align="center">
+          <tr>
+            <td width="344px" valign="top">
+                <table width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td  align="center" class="doctorpic"><img src="{{$UPLOAD}}{{$v->pic}}" /></td>
+                    <td valign="top" width="240px">
+                    	<h4>{{$v->name}}  {{$v->position}} </h4>
+                        <p style="padding-left:5px;">擅长: {{$v->description|truncate:"26"}}...<a href="{{$WEBSITE}}/doctor/{{$v->id}}.html" style="color:red;">[详细]</a></p>
+                    </td>                  
+                  </tr>
+                </table>
+            </td>
+            
+            <td width="300px">
+            	
+            	<div class="yuyuelist">
+                	<div class="clickbottom">
+                	<a class="prev" href="javascript:void(0)" onclick="return false;"></a>
+                    <a class="next" href="javascript:void(0)" onclick='return false;'></a>
+                    </div>
+    
+                    <div class="listall">
+                    
+                    	<ul class="mainbox">
+                    	{{$result=$ReservationTag->getDocReservation({{$v->department_id}},{{$v->name}})}} 
+						   
+						   {{if $result|@count eq 0}}
+						   <script>
+						   $(function(){
+							   $("#tr_{{$v->id}}").remove();
+						   })
+						   </script>
+						   {{/if}}
+						    {{foreach $result as $r}}						   
+							<li class="datelist" id="li_{{$r->id}}" onclick="ShowDiv(this.id,{{$v->department_id}},{{$v->id}},'{{$r->department}}','{{$r->doctor}}','{{$r->date}}')"> 						   
+						   {{$r->date}}<br/>
+						   {{if {{$r->morning}} != '-'}}上午
+						   {{/if}}
+						   {{if {{$r->afternoon}} != '-'}}下午
+						   {{/if}}
+						   {{if {{$r->night}} != '-'}}晚上
+						   {{/if}}						   						   
+							<br/>预约总数:{{$r->count}}	    
+						    </li>
+						    {{/foreach}}                                         
+                        </ul>
+                    </div>
+
+                </div>
+                <script type="text/javascript">       	
+                jQuery(".yuyuelist").slide({titCell:".clickbottom ul",mainCell:".listall ul",autoPage:true,effect:"left",vis:3,delayTime:1000,pnLoop:false,trigger:"click"});
+              </script>
+              
+            </td>
+          </tr>
+
+        </table>
+
+      </div>  		
+
+      {{/foreach}}
+     <div class="fenye" style="padding-bottom:50px;clear:both;">{{$DoctorTag->getPageHtml($cur)}}</div>
+    </div>
+    <!--right-->
+    {{include file="../common/right/doctor_right.htpl"}}
+    <!--right end-->
+</div>
+{{/block}}

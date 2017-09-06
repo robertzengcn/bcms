@@ -1,0 +1,821 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../css/boyicms/rs-temp.css">
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>排班模板管理</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="">		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择科室：</label>	
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="" class="select" id="department_id">
+					
+				</select>
+				</span> </div>							
+			<label class="form-label col-2"><span class="c-red">*</span>排班模式：</label>
+			<div class="formControls col-4 skin-minimal"><!--add col-91 css-->
+				<div class="radio-box">
+					<input type="radio" id="" name="resertype" datatype="*" checked="checked" nullmsg="">
+					<label>每周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="" name="resertype">
+					<label>两周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="" name="resertype">
+					<label>每月循环</label>
+				</div>
+			</div>		
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">模板名称：</label>
+			<div class="formControls col-4">
+				<input type="text" class="input-text keywords" placeholder="请给该模板一个名称，便于以后使用时识别及管理" id="templatename" name="">
+			</div><button class="btn btn-success radius" id="savetemps" onclick="savetemplate()" type="button"><i class="Hui-iconfont">&#xe623;</i> 生成模板</button>	
+		</div>
+		<div id="network_pic" style="display:none"></div>
+		
+		<div class="row cl" style="display:none;">		
+			<table class="viewbox ml-30 table-border table-bordered">
+			  <tbody>
+				<tr>
+				  <td width="120px" height="286px"><div style="width:100%;height:100%">
+					  <table cellspacing="0" cellpadding="0" border="0" class="beginbox">
+						<tbody>
+						  <tr>
+							<td class="viewtitle  h-60"><a class="scroll-bt prew" href="#"><i class="Hui-iconfont" style="font-size:20px;">&#xe69b;</i></a></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60">上午<br>
+							  <input type="text" value="8:00" id="mStart" class="timein">
+							  -
+							  <input type="text" value="12:00" id="mEnd" class="timein"></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60">下午<br>
+							  <input type="text" value="14:00" id="aStart" class="timein">
+							  -
+							  <input type="text" value="18:00" id="aEnd" class="timein"></td>
+						  </tr>
+						  <tr>
+							<td class="datebox bt-none h-60">晚上<br>
+							  <input type="text" value="19:00" id="nStart" class="timein">
+							  -
+							  <input type="text" value="22:00" id="nEnd" class="timein"></td>
+						  </tr>
+						</tbody>
+					  </table>
+					</div></td>
+				  <td valign="top" height="286px">
+				  	<div class="itembox">
+					  <div class="listbox">
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周一</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="1monname"></span><br>
+								<span class="showmore" id="1monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="1mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="1mon_inp">
+								</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="1aftname"></span><br>
+								<span class="showmore" id="1aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="1aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="1aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none  h-61 show-control"><span id="1nigname"></span><br>
+								<span class="showmore" id="1nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="1nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="1nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周一-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周二</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-61 show-control"><span id="2monname"></span><br>
+								<span class="showmore" id="2monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="2mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="2mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="2aftname"></span><br>
+								<span class="showmore" id="2aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="2aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="2aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td  class="datebox bt-none h-61 show-control"><span id="2nigname"></span><br>
+								<span class="showmore" id="2nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="2nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="2nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周二-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td height="61px" class="viewtitle h-61">周三</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-61 show-control"><span id="3monname"></span><br>
+								<span class="showmore" id="3monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="3mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="3mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="3aftname"></span><br>
+								<span class="showmore" id="3aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="3aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="3aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none h-61 show-control"><span id="3nigname"></span><br>
+								<span class="showmore" id="3nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="3nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="3nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周三-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle  h-61">周四</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="4monname"></span><br>
+								<span class="showmore" id="4monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="4mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="4mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-61 show-control"><span id="4aftname"></span><br>
+								<span class="showmore" id="4aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="4aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="4aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none h-61 show-control"><span id="4nigname"></span><br>
+								<span class="showmore" id="4nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="4nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="4nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周四-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周五</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="5monname"></span><br>
+								<span class="showmore" id="5monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="5mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="5mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="5aftname"></span><br>
+								<span class="showmore" id="5aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="5aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="5aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none h-61 show-control"><span id="5nigname"></span><br>
+								<span class="showmore" id="5nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="5nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="5nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周五-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周六</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="6monname"></span><br>
+								<span class="showmore" id="6monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="6mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="6mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="6aftname"></span><br>
+								<span class="showmore" id="6aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="6aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="6aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="datebox bt-none  h-61 show-control"><span id="6nigname"></span><br>
+								<span class="showmore" id="6nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="6nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="6nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周六-->
+						<table cellspacing="0" cellpadding="0" border="0" class="everydaybox">
+						  <tbody>
+							<tr>
+							  <td class="viewtitle h-61">周日</td>
+							</tr>
+							<tr>
+							  <td class="btd datebox h-60 show-control"><span id="7monname"></span><br>
+								<span class="showmore" id="7monmore">...</span><br>
+								<span onclick="editdate(this.id)" id="7mon"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="7mon_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td class="btd datebox  h-61 show-control"><span id="7aftname"></span><br>
+								<span class="showmore" id="7aftmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="7aft"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="7aft_inp">
+								<br></td>
+							</tr>
+							<tr>
+							  <td  class="datebox bt-none  h-61 show-control"><span id="7nigname"></span><br>
+								<span class="showmore" id="7nigmore">...</span><br>
+								<span class="addmore" onclick="editdate(this.id)" id="7nig"><span class="label label-success radius"><i class="Hui-iconfont" style="font-size:14px;">&#xe600;</i>&nbsp;添加</span></span>
+								<input type="hidden" value="" name="" id="7nig_inp">
+								<br></td>
+							</tr>
+						  </tbody>
+						</table><!--周日-->
+					  </div>
+					</div></td>
+				  <td width="120px" height="286px"><div style="width:100%;height:100%">
+					  <table  cellspacing="0" cellpadding="0" border="0" class="beginbox">
+						<tbody>
+						  <tr>
+							<td class="viewtitle  h-60"><a class="scroll-bt next" href="#"><i class="Hui-iconfont" style="font-size:20px;">&#xe69a;</i></a></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60"></td>
+						  </tr>
+						  <tr>
+							<td class="btd datebox  h-60"></td>
+						  </tr>
+						  <tr>
+							<td class="datebox bt-none  h-60"></td>
+						  </tr>
+						</tbody>
+					  </table>
+					</div></td>
+				</tr>
+			  </tbody>			 
+			</table>
+			<div class="row cl">
+			<label class="form-label col-5" style="text-align:left;"><b>使用本模板生成医生排班表：</b></label>
+			</div>
+		</div>
+		<div class="row cl">
+		<ul id="tab">
+			</ul>
+		</div>	
+		
+			
+		
+		<div class="row cl">
+			<label class="form-label col-3">起止日期：<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'logmin\')}',maxDate:'%y-%M-%d'})" id="logmax" class="input-text Wdate" style="width:120px;" name="end_time"></label>
+		<div class="formControls col-2 mt-3"><button onClick="" class="btn btn-success radius" type="submit"><i class="Hui-iconfont">&#xe638;</i> 开始生成</button></div>
+		</div>
+		<div class="row cl mt-5">
+			<div class="col-10 col-offset-1">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/scheduling.js"></script>
+<script type="text/javascript">
+$(function (){
+	
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+		
+	$('td.show-control').on('mouseenter',function(){
+		layer.tips('己添加医生列表', $(this), {
+			tips: 3
+		});
+	});
+	
+	var shi = document.getElementsByName("resertype");
+	for(var i = 0; i < shi.length; i++){
+		shi[i].onclick = function() {			
+			 //changetable();	    	 	    	 	    	 
+	    };
+	}
+	
+//		$('.showmore').live("hover",function(){
+//			
+//			 getAbsPoint($(this).get(0));
+//		
+//	});
+//	$('.showmore').live({
+//	'mouseenter': function () {
+// getAbsPoint($(this).get(0));
+//    },
+//    'mouseleave': function () {
+// 		setTimeout('closedivtip()', 1000);
+// 
+//    }
+//	
+//	
+//	});
+	$('body').on('change','#mStart,#mEnd',function(){
+		var mstartval=$('#mStart').val();
+		var mendval=$('#mEnd').val();
+		if(mstartval==""){
+			
+			
+			$('#mStart').val('08:00');
+			mstartval='08:00';
+		}
+		if(mendval==""){
+			$('#mEnd').val('12:00');
+			mendval='12:00';
+		}
+		
+		var timeval=mstartval+"-"+mendval;
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'updatetime',time:timeval,tem_id:temid,type:type,timein:"mon"},function(ret){
+			
+		});
+	});
+	
+	$('body').on('change','#aStart,#aEnd',function(){
+		var mstartval=$('#aStart').val();
+		var mendval=$('#aEnd').val();
+		if(mstartval==""){
+			
+			
+			$('#aStart').val('14:00');
+			mstartval='14:00';
+		}
+		if(mendval==""){
+			$('#aEnd').val('18:00');
+			mendval='18:00';
+		}
+		
+		var timeval=mstartval+"-"+mendval;
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'updatetime',time:timeval,tem_id:temid,type:type,timein:"aft"},function(ret){
+			
+		});
+	});
+	
+		$('body').on('change','#nStart,#nEnd',function(){
+		var mstartval=$('#nStart').val();
+		var mendval=$('#nEnd').val();
+		if(mstartval==""){
+			
+			
+			$('#nStart').val('19:00');
+			mstartval='19:00';
+		}
+		if(mendval==""){
+			$('#nEnd').val('22:00');
+			mendval='22:00';
+		}
+		
+		var timeval=mstartval+"-"+mendval;
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+		self.cmd(gHttp,{controller:'ReserTemplate',method:'updatetime',time:timeval,tem_id:temid,type:type,timein:"nig"},function(ret){
+			
+		});
+	});
+	
+	
+	
+	});
+	
+	function closedivtip(){
+		$('#divtip').hide();
+	}
+	
+	
+function getAbsPoint(e){
+	
+	var str = e.id;
+    var substr = str.match(/(\S*)(?=more)/);
+	if(substr!=null){
+	var thechange='#'+substr[0]+'name';
+	//console.log(substr[0]);
+	if ($(thechange + ' .doctorlists').length > 0) {
+	
+		var x = e.offsetLeft, y = e.offsetTop;
+		while (e = e.offsetParent) {
+			x += e.offsetLeft;
+			y += e.offsetTop;
+		}
+		//				console.log('x:',x);
+		//				console.log('y:',y);
+		var htmls=$(thechange + ' .doctorlists').html();
+		
+		$('#tipul').html(htmls);
+		
+		
+		
+		$('#divtip').css({
+			top: y - 80,
+			left: x - 200,
+			width: '80px',
+			//height: '100px',
+			border: '1px solid red',
+			position: 'absolute',
+			display: 'block',
+			background: '#f7f7f7',
+			filter: 'alpha(opacity=80)',
+			opacity: '80',
+			//overflow:'auto' 
+		
+		
+		
+		
+		});
+	}
+	}
+
+            }
+
+	
+
+
+	
+function getweeknum(num){
+	var weeknum="";
+		switch (num) {
+			case 1:
+				weeknum = "一";
+				break;
+			case 2:
+				weeknum = "二";
+				break;
+			case 3:
+				weeknum = "三";
+				break;
+			case 4:
+				weeknum = "四";
+				break;
+			case 5:
+				weeknum = "五";
+				break;
+			default:
+				weeknum = "一";
+				break;	
+}
+return weeknum;
+	}
+	
+	function editdate(id){
+		
+		var did=$('#departmentid').val();
+		var reg = /[1-9][0-9]*/g;
+		var lang=/[A-Za-z]+$/;
+		
+		var arr=id.match(reg);
+		var lan=id.match(lang);
+		//console.log(lan);
+		var mstart=$('#mStart').val();
+		var mend=$('#mEnd').val();
+		var timerang=mstart+'-'+mend;
+		var depid=$('#departmentid').val();
+		var temid=$('#temid').val();
+		var type=$('#temtype').val();
+										
+		artDialog(
+						        {	
+						        	id:'adddoctornum',
+						        	title:'添加医生，号源', 
+						            content:'<div id="add_doctor"><div id="tishi">请选择需要添加的医生和号源：</div><div class="doctor"><div class="example fl"><span class="fl">例如：</span><input type="checkbox" class="fl" checked="checked"><span class="fl doctorname">张医生</span><input type="text" class="fl" size="1" value="20">人</div></div><div id="message" style="display:none;"></div><div style="clear:both;"></div></div>',
+									width:250,
+						            fixed:false,
+						            lock:true,
+						            opacity:0.4,
+									button: [
+        {
+            name: "重置",
+            callback: function () {
+				
+	var dobox = document.getElementsByName("doctor");
+	for(var i = 0; i < dobox.length; i++){
+		dobox[i].checked = false;
+	}
+	$('.doctorlist input[type=text]').val('');
+ 
+       return false;
+            },
+            focus: true
+        }],													        
+						            ok:function(){
+
+										
+									var thedate=new Array();
+									var dobox = document.getElementsByName("doctor");
+										for(var i = 0; i < dobox.length; i++){
+											if(dobox[i].checked){
+											var documentnum	=document.getElementById(dobox[i].value+'text').value;
+											//var ids='id_'+dobox[i].value;
+											thedate[dobox[i].value]=documentnum;
+											
+											
+											}
+		                               
+	                                       }
+										   //console.log(thedate);
+										   
+                                          var jsonval=JSON.stringify(thedate);
+										  
+										  
+										   										   
+										
+										dd.cmd({controller:'ReserTemplate',method:'savetemitem',doctor:jsonval,department_id:depid,tem_id:temid,type:type,date:arr[0],time:lan[0],timerang:timerang},function(ret){
+											if(ret.statu){
+												var nametd='#'+id+'name';
+												//console.log('姓名的id:',nametd);
+												var html='<ul class="doctorlists">';
+												$.each(ret.date,function(i,val){
+												html+='<li><span>'+val.name+'</span><span>('+val.num+')</span></li>';	
+												});
+												html+='</ul>';
+												$(nametd).html(html);
+												
+												
+
+												
+												
+											}else{
+											$('#message').message(ret.msg);	
+											$('#message').css("display","block");
+											}
+											
+										});
+										
+										
+	                                        //this.close;
+						        	
+						        }
+
+						        }
+
+						);
+						
+		dd.cmd({controller:'DoctorManager',method:'getByDepartmentID',department_id:did},function(ret){
+			if (ret.statu) {
+				dd.cmd({
+					controller: 'ReserTemplate',
+					method: 'tditem',
+					department_id: did,
+					tem_id: temid,
+					type: type,
+					date: arr[0],
+					time: lan[0],
+					timerang: timerang
+				}, function(ret1){
+					var data = null;
+					if (ret1.statu) {
+						data = ret1.date;
+					}										
+						html = '<ul class="doctorlist">';
+						if (data == false||data==null) {
+							$.each(ret.data, function(i, val){
+								html += '<li><div class="doctor"><input type="checkbox" value="' + val.id + '" class="fl" name="doctor"><span class="fl doctorname">' + val.name + '</span><input id="' + val.id + 'text" type="text" value="" size="1" class="fl">人</div><div style="clear:both;"></div></li>';
+								
+							});
+						}else{
+							
+							var reformattedArray=$.map(data,function(item,index){
+								var rObj = [];
+                                 rObj[item] = index;
+                                 return rObj;
+							});
+							console.log(reformattedArray);
+							$.each(ret.data, function(i, val){
+								
+									var ss=$.inArray(val.id, reformattedArray);
+									
+									if (ss == -1) {
+									
+										html += '<li><div class="doctor"><input type="checkbox" value="' + val.id + '" class="fl" name="doctor" ><span class="fl doctorname">' + val.name + '</span><input id="' + val.id + 'text" type="text" value="" size="1" class="fl">人</div><div style="clear:both;"></div></li>';
+									}else{
+										html += '<li><div class="doctor"><input type="checkbox" value="' + val.id + '" class="fl" name="doctor" checked="checked"><span class="fl doctorname">' + val.name + '</span><input id="' + val.id + 'text" type="text" value="'+ss+'" size="1" class="fl">人</div><div style="clear:both;"></div></li>';
+									}
+								
+								
+							});
+						}
+						html += '</ul>';
+					
+					$('#add_doctor').append(html);
+					
+				});
+			}else{
+				$('#message').message(ret.msg);
+			}
+		});				
+						
+		
+	}
+
+function savetemplate(){
+	BaseFunc.call(this);
+		
+		var deval=$('#department_id  option:selected').val();
+		$('#departmentid').val(deval);
+		var templatename=$('#templatename').val();
+		var fump = document.getElementsByName("resertype");
+		var num="1";
+			for(var i=0;i<fump.length;i++){
+		  if(fump[i].checked){
+			  var shipval = fump[i].value;
+			  }	
+	}
+	
+	self.cmd(gHttp,{controller:'ReserTemplate',method:'savetem',type:shipval,title:templatename,department_id:deval},function(ret){
+		if(ret.statu){
+			$('#temtype').val(ret.data.type);
+			$('#temid').val(ret.data.id);
+			var pbtype=ret.data.type;
+			var pbid=ret.data.id;
+			
+			
+			self.cmd(gHttp,{controller:'ReserTemplate',method:'getloop',type:shipval},function(ret){
+          var wnum=getweeknum(num);
+
+			var html = '<div><div id="divtip"><ul id="tipul"></ul></div><span class="span_one">排班时间表:</span><table class="viewbox ml-30 table-border table-bordered" border="0" cellspacing="0" cellpadding="0"><tbody><tr><td width="120px" height="286px"><div style="width:100%;height:100%"><table border="0" cellspacing="0" cellpadding="0" class="beginbox"><tbody><tr><td class="viewtitle h-60"><a href="#" class="leftbotton prew scroll-bt prew"><i style="font-size:20px;" class="Hui-iconfont"></i></a></td></tr><tr><td class="btd datebox h-60">上午<br /><input type="text" class="timein" id="mStart" value="8:00" />-<input type="text" class="timein" id="mEnd" value="12:00"/></td></tr><tr><td class="btd datebox" height="60px">下午<br /><input type="text" class="timein" id="aStart" value="14:00"/>-<input type="text" class="timein" id="aEnd" value="18:00"/></td></tr><tr><td height="60px" class="datebox bt-none h-60">晚上<br /><input type="text" class="timein" id="nStart" value="19:00"/>-<input type="text" class="timein" id="nEnd" value="22:00"/></td></tr></tbody></table></div></td><td height="286px" valign="top"><div class="itembox"><div class="listbox">';
+					var week = '';
+					var weekE = '';
+					$.each(ret.date,function(i,val){
+						if(ret.week[i] == 7){
+							week = '周日';
+							weekE = 'sunday';
+						}else if(ret.week[i] == 1){
+							week = '周一';
+							weekE = 'monday';
+						}else if(ret.week[i] == 2){
+							week = '周二';
+							weekE = 'tuesday';
+						}else if(ret.week[i] == 3){
+							week = '周三';
+							weekE = 'wednesday';
+						}else if(ret.week[i] == 4){
+							week = '周四';
+							weekE = 'thursday';
+						}else if(ret.week[i] == 5){
+							week = '周五';
+							weekE = 'friday';
+						}else{
+							week = '周六';
+							weekE = 'saturday';
+						}
+						
+						html += '<table border="0" cellspacing="0" cellpadding="0" class="everydaybox"><tbody><tr><td class="viewtitle h-61">'+week+'</td></tr><tr><td class="btd datebox h-60 show-control"><span id="'+val+'monname"></span></br><span id="'+val+'monmore" class="showmore">...</span></br><span id="'+val+'mon" onclick="editdate(this.id)">添加</span><input id="'+val+'mon_inp" name="" type="hidden" value=""></br></td></tr><tr><td class="btd datebox  h-61 show-control"><span id="'+val+'aftname"></span></br><span id="'+val+'aftmore" class="showmore">...</span></br><span id="'+val+'aft" onclick="editdate(this.id)" class="addmore">添加</span><input id="'+val+'aft_inp" type="hidden" name="" value=""></br></td></tr><tr><td class="datebox bt-none  h-61 show-control"><span id="'+val+'nigname"></span></br><span id="'+val+'nigmore" class="showmore">...</span></br><span id="'+val+'nig" onclick="editdate(this.id)" class="addmore">添加</span><input id="'+val+'nig_inp" name="" value="" type="hidden"></br></td></tr></tbody></table>';
+					});
+					html += '</div></td><td width="120px" height="286px"><div style="width:100%;height:100%"><table border="0" cellspacing="0" cellpadding="0" class="beginbox"><tbody><tr><td class="viewtitle h-60"><a href="#"  class="rightbotton next scroll-bt"><i style="font-size:20px;" class="Hui-iconfont"></i></a></td></tr><tr><td class="btd datebox  h-60"></td></tr><tr><td class="btd datebox  h-60"></td></tr><tr><td class="datebox bt-none  h-60"></td></tr></tbody></table></div></td></tr><tbody></table></div>';
+					
+					$('#tab').html(html);
+					
+										//左右滚动
+					var page=1;
+					var listhtml=$("div.itembox").html();
+					var num=$("div.itembox table").length;
+					var html='';
+					html+='<div class="listbox" style="width:'+num*85+'px;left:0px">';
+					html+=listhtml+'</div>';
+					$("div.itembox").html(html);
+					var table_count=Math.ceil($("div.itembox table").length/7);
+					var showbox=$("div.listbox");
+					$("a.leftbotton").click(function(){
+						page--;
+					 if(page>1){
+			 			$(this).removeClass("prew").addClass("pret");
+			 			$("a.rightbotton").removeClass("nexf").addClass("next");
+			 			if(!showbox.is(":animated")){
+			 				showbox.animate({left:'+='+595},"slow");
+			 			}
+						$('#weeknum').html('第'+page+'周');
+					 }else{
+						 if(page == 1){
+							 showbox.animate({left:'+='+595},"slow");
+							 $(this).removeClass("pret").addClass("prew");
+							 $("a.rightbotton").removeClass("nexf").addClass("next");
+							 
+						 }else{
+							 $('#message').message('已经是第一页了');
+							$(this).removeClass("pret").addClass("prew");
+							$("a.rightbotton").removeClass("nexf").addClass("next");
+							page = 1;
+							
+						 }
+						$('#weeknum').html('第'+page+'周');
+					 }
+					});
+					$("a.rightbotton").click(function(){
+					page++;
+					if(page>=table_count){
+						if(page == table_count){
+							showbox.animate({left:'-='+595},"slow");
+							$(this).removeClass("next").addClass("nexf");
+						}else{
+							page = table_count;
+							$('#message').message('已经是最后一页了');
+						}
+						$('#weeknum').html('第'+page+'周');
+					}else{
+						$("a.leftbotton").removeClass("prew").addClass("pret");
+						if(!showbox.is(":animated")){
+							showbox.animate({left:'-='+595},"slow");
+						}
+						$('#weeknum').html('第'+page+'周');
+					}
+					});
+				
+			});
+		}else{
+			
+			$('#message').message(ret.msg);
+			
+		}
+		
+		
+	});
+	
+	
+	
+	
+		
+	}
+</script>
+<script type="text/javascript">
+var resertemppage = new Schedule();
+resertemppage.setThisName('resertemppage');
+</script>
+	
+
+</body>
+</html>

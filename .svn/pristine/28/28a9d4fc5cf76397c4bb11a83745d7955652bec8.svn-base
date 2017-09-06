@@ -1,0 +1,247 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>添加医院自购商品-积分商城</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="formEdit">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>商品名称：</label>
+			<div class="formControls col-93">
+				<input type="text" class="input-text" value="" placeholder="如：XX牌卫浴套装组合" id="" name="subject">
+				<input type="hidden" name="types" value="2" id="types">
+				<input type="hidden" name="get" value="1">
+				<input type="hidden" id="id" name="id" value=""/>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">商品图片：</label>						
+			<div class="formControls col-91">
+				<a class="btn btn-primary radius bt-normal" onClick="layer_show('上传图片','../../../js/boyicms/uploadimg.html?method=uploadPic&dir=commodity','720','420')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 上传图片</a>
+			</div>
+			<div class="thumbnailbox">
+				<img src="../../../images/boyicms/logo/thumbnail_auto.gif" flag="../../../images/boyicms/logo/thumbnail_auto.gif" id="thumbnail" width="160px" /><div class="img-btn"><span class="cancel" id="delete-thisimg">删除</span></div>
+			</div> 
+			<input type="hidden" id="pic" name="pic">
+		</div><!--上传图片-->	
+		<div class="row cl">
+			<div id="qrcodepic">
+			<label class="form-label col-2">电子识别码：</label>
+			<div class="formControls col-6" id="qrcode">
+			<input type="hidden" id="flag" name="flag">
+		</div>	
+		</div>
+		<div class="formControls col-6" id="qrcode">
+		   <img id="flag_img" src=""  style="display:none">
+		</div>	
+		<div class="row cl">			
+			<label class="form-label col-2">商城上架：</label>
+			<div class="formControls col-92 skin-minimal"><!--add col-92 css-->
+				<div class="radio-box">
+					<input type="radio" id="stutesy" name="status" datatype="*" nullmsg="" value="1" checked="checked">
+					<label>是</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="stutesn" name="status" value="0">
+					<label>否</label>
+				</div>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>商品总数：</label>
+			<div class="formControls col-93">
+				<input type="text" class="input-text" value="" placeholder="请输入本商品预售的总数量，限整数" id="quantity" name="quantity">
+			</div>
+		</div>
+		<div class="row cl" id="msg_div" info="部分热门产品为了避免个人屯积积分一次性购完，请选择相应限制措施！无须限制则选“无限制”">
+			<label class="form-label col-2">限购规则：</label>
+			<div class="formControls col-2"> <span class="select-box">
+			<select name="limit" class="select" id="limit">
+				<option value="1" selected="selected">无限制</option>	
+				<option value="0">每个账号限购一个</option>
+				<option value="1">每个账号每月限购一个</option>
+				<option value="1">每个账号每月限购二个</option>							
+			</select>
+			</span> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">兑换模式：</label>
+			<div class="formControls col-2"> <span class="select-box">
+			<select name="exchange" class="select" id="exchange">
+				<option value="1">纯积分</option>
+				<option value="2">积分+现金</option>				
+			</select>
+			</span> </div>
+		</div>
+		
+		<div class="row cl">
+			<label class="form-label col-2">商品目录：</label>
+			<div class="formControls col-2"> <span class="select-box">
+			<select name="categories_id" class="select" id="catalogue">
+			
+			</select>
+			</span> </div>
+			<div class="formControls col-2"> <a href="javascript:;" id="catamaner" class="btn btn-success radius"><i class="Hui-iconfont"></i> 管理</a></div>
+		</div>
+		
+		<div class="row cl" id="c-fee">			
+			<label class="form-label col-2">实际售价：</label>
+			<div class="formControls col-95">
+				<input type="text" class="input-text" value="" placeholder="单位元" id="price" name="price" info="该商品的实际销售金额"/>
+			</div>
+			<label class="form-label col-2">兑换积分：</label>
+			<div class="formControls col-95">
+				<input type="text" class="input-text" value="" placeholder="单位个" id="score" name="score" info="该商品上架销售时需要支付的积分个数，限整数"/>
+			</div>
+			<label class="form-label col-2 disdiv">折扣金额：</label>
+			<div class="formControls col-95 disdiv">
+				<input type="text" class="input-text" value="" placeholder="单位元" id="discount" name="discount" info="该商品上架销售时拟用积分抵扣的实际金额，限数字">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>领取商品：</label>
+			<div class="formControls col-93">到院领取</div>
+		</div>
+		
+		
+		<div class="row cl">
+			<label class="form-label col-2">活动有效期：</label>
+			<div class="formControls col-5">				
+				<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'logmax\')||\'%y-%M-%d\'}'})" id="logmin" class="input-text Wdate" style="width:120px;" name="start_time">
+				-
+				<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'logmin\')}'})" id="logmax" class="input-text Wdate" style="width:120px;" name="end_time">
+			</div>	
+		</div>	
+		
+		<div class="row cl">
+			<label class="form-label col-2">详细介绍：</label>
+			<div class="formControls col-8"> 				
+				<textarea nullmsg="详细介绍不能为空！" style="width:100%;height:400px;" id="editor" name="descript" datatype="*"></textarea> 
+			</div><div class="col-2"></div>
+		</div>
+
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button id="save" class="btn btn-primary radius bt-normal" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius bt-normal" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script> 
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../../../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/commodity.js"></script>
+<script type="text/javascript" src="jquery.qrcode.min.js"></script>
+<script type="text/javascript">
+//var editor = UE.getEditor('editor');
+var gCommodity = new Commodity();
+gCommodity.setThisName('gCommodity');
+gCommodity.initEdit();
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+});
+
+
+//info
+$('#c-fee').on('click','input.input-text',function(){
+	var msg=$(this).attr('info');
+	layer.tips(msg, $(this), {
+		tips: 3,
+		time:30000
+	});
+});
+
+
+		$('body').on('change','#exchange',function(){
+		
+			var theval=$('#exchange option:selected').val();
+			if(theval==1){
+				
+				$('.disdiv').show();
+				$('#discount').attr('datatype','n');
+				$('#discount').attr('nullmsg','不能为空');
+			}else{
+				$('.disdiv').hide();
+				$('#discount').val('');
+				$('#discount').removeAttr('datatype');
+				$('#discount').removeAttr('nullmsg');
+			}
+		});
+		
+		$('body').on('blur','#discount',function(){
+			var price=parseInt($('#price').val());
+			var discount=parseInt($('#discount').val());
+			console.log(discount);
+			if(price<=discount){
+				layer.alert(
+					   '折扣金额不能大于售价',
+					   function(index){
+						   $('#discount').focus();
+						   layer.close(index);
+					   
+					});
+			}
+			
+		});
+		
+				$('body').on('change','#exchange',function(){
+					//console.log('789');
+					var theval=$('#exchange option:selected').val();
+					if(theval==2){
+						
+						$('.disdiv').show();
+						$('#discount').attr('datatype','n');
+						$('#discount').attr('nullmsg','不能为空');
+					}else{
+						$('.disdiv').hide();
+						$('#discount').val('');
+						$('#discount').removeAttr('datatype');
+						$('#discount').removeAttr('nullmsg');
+					}
+				});
+				
+				
+
+				
+				    
+
+   
+</script>
+</script>
+</body>
+</html>

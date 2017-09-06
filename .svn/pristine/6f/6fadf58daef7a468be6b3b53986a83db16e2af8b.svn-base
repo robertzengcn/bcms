@@ -1,0 +1,38 @@
+<?php
+include './HM.php';
+
+class Reservationmanager extends HM{
+	public function __construct() {
+		parent::__construct();
+	}
+	/*
+	 * 设置用户为到诊
+	 * */
+	protected function __makeres(){
+		
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$id=(int)$_REQUEST['id'];
+			
+			$reseser=new ReservationDetailService();
+			$arr=array('id'=>$id);
+			$res=$reseser->changestatu($arr);
+			die(json_encode( array('code'=>0,'msg'=>'success') , true ));
+		}
+	}
+	
+	/*
+	 * 获取某个预约时段等待的人数
+	 * @param id预约时间段id
+	 * */
+	protected function __getresnum(){
+		if(isset($_REQUEST['id'])&&strlen($_REQUEST['id'])>0){
+			$id=(int)$_REQUEST['id'];
+			$reseser=new ReservationDetailService();
+			
+			$res=$reseser->getresnum(array('reserver_id'=>$id));
+			die(json_encode( array('code'=>0,'msg'=>$res) , true ));
+		}
+	}
+}
+new Reservationmanager();
+?>

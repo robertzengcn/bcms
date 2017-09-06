@@ -1,0 +1,21 @@
+<ul class="pager">
+   {{if $current == 1}}
+    <li class='active'><a>首页</a></li>
+    {{else}}
+    <li><a href="./list_1.html" target="_self">首页</a></li>
+    <li class="previous"><a href="../{{$dir}}/list_{{$pre}}.html">« 上一页</a></li>
+   {{/if}}
+   {{for $var = $start to $end}}
+		{{if $var != $current}}
+			<li><a href="../{{$dir}}/list_{{$var}}.html" target="_self">{{$var}}</a></li>
+		{{else}}
+			<li class='active'><a href="javascript:;" >{{$var}}</a></li>
+		{{/if}}
+	{{/for}}
+	{{if $current == $pageCount}}
+	<li class='active'><a>末页</a></li>
+	{{else}}
+    <li class="next"><a href="#">下一页 »</a></li>
+    <li><a href="../{{$dir}}/list_{{$pageCount}}.html" target="_self">末页</a></li>
+    {{/if}}
+</ul>

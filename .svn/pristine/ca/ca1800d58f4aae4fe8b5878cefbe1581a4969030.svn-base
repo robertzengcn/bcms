@@ -1,0 +1,40 @@
+/* CSS Document */
+/**Ô¤Ô¼¹ÒºÅ*/
+table.viewbox{align:left;background:#f8f8f8;width:835px;}
+table.viewbox a {display:inline-block;width:8px;height:14px;} 
+.addcolor{background:#fff;}
+.viewbox input{width:35px;background:none;border:none;}
+table.viewbox input.timein{margin-top:6px;}
+table.beginbox{background:#fff;width:100px;height:99.8%;}
+.beginbox tr td.bt-none,.everydaybox tr td.bt-none{border-bottom:none;}
+.viewbox div.itembox{width:665px;height:286px;overflow:hidden;margin:0px auto;padding:0px; position:relative;left:0px;}
+td.datebox{font-size:12px;color:#888;}
+td.btd{border-bottom:1px dashed #d2d2d2;}
+td.viewtitle{background:#d3ebf6;line-height:25px;text-align: center;color:#666;font-size:14px;}
+input:focus{box-shadow: 0 0 3px #060;}
+input.timein{width:36px;}
+td.h-59{height:65px;}
+td.h-60{height:70px;}
+td.h-61{height:73px;}
+table.everydaybox{width:95px;float:left;}
+table.everydaybox tr td,table.beginbox tr td {text-align:center;}
+a.scroll-bt:hover{text-decoration:none;}
+div.listbox{ position:absolute;height:240px;}
+.doctorname{width:45px; overflow:hidden;}
+.fl{float:left;}
+.doctor{display:inline;}
+.example{
+	margin-top:5px;
+}
+
+.doctorlist{
+	margin-top:20px;
+}
+
+.doctorlists {
+    height: 20px;
+    overflow: hidden;
+}
+#divtip,#addpage{
+	display:none;	
+}

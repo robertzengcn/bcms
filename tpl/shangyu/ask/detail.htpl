@@ -1,0 +1,154 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=body}}
+
+<div class="main_dpc4 container">
+	<ol class="breadcrumb">您的位置：
+      <li><a href="/index.html"><i class="icon icon-home"></i> {{contactlist  flag='name' }}[field:val/]{{/contactlist}}</a></li>
+      <li><a href="/ask">医患交流</a></li>
+      <li class="active">详细</li>
+    </ol>
+    <div class="dpc4_box">
+    	<div class="dpc4_tit">
+        	<div class="col-xs-12 col-sm-8 col-md-9  carousel">
+            	<span class="dpc4_ico">问</span>
+                <h1>{{$askinfo->subject}}</h1>
+                <div class="dpc4_info">
+                	<span>用户：{{$askinfo->name}}</span>
+                    <span>{{$askinfo->age}}岁</span>
+                    <span>{{date('Y-m-d h:i:s',$askinfo->plushtime)}}</span> 
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-3">
+            	<a class="btn btn-primary" data-toggle="modal" data-target="#mydoubt" >我还有疑问</a>
+            </div>
+        </div>
+        <div class="dpc4_con">
+        	<h5>病情描述（发病时间、主要症状、症状变化等）：</h5>
+            <p>{{$askinfo->description}}</p>
+            <div class="alert">
+            {{if $askinfo->isanswer == 1}}
+            	<h5>{{$askinfo->departname}}-{{$askinfo->doctor}} 在 {{$askinfo->answertime}} 回复：</h5>
+                <p>{{$askinfo->content}}</p>
+                <p>谢谢您的来访！</p>
+             {{else}}
+               <h5>该问题待回复中..</h5>  {{/if}} 
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 对话框HTML -->
+<div class="modal fade" id="mydoubt">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">关闭</span></button>
+        <h4 class="modal-title">标题</h4>
+      </div>
+      <div class="modal-body">
+        <form id="ask_form" name="addcontent" method="post">
+          <div class="form-group row">
+              <div class="col-md-6">
+               <select class="form-control" id="gender">
+               <option>请选择性别</option>
+               <option value="0">女</option>
+               <option value="1">男</option>
+               </select>
+               </div>
+               <div class="col-md-6">
+               <input name="author" id="age" placeholder="请输入您的年龄" class="form-control" type="text">
+               </div>
+          </div>
+          <hr>
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-2 control-label">咨询主题：</label>
+            <div class="col-xs-6 col-sm-7 col-md-8">
+               <input name="subject" id="subject" value="" placeholder="请填写主题" class="form-control" type="text">
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-2 pdc2_required text-danger">必填</div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 col-sm-2 col-md-2 control-label">咨询内容：</label>
+            <div class="col-xs-6 col-sm-7 col-md-8">
+               <textarea name="description" id="description" rows="3" placeholder="请填写咨询内容" class="form-control"></textarea>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-2 pdc2_required text-danger">必填</div>
+          </div>
+          <div class="text-right mt15">
+            <button class="btn" type="button" onclick="askquest();">提交问题</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/*我的疑问弹窗*/
+#mydoubt .modal-body .form-group{ line-height:32px; overflow:hidden;}
+#mydoubt button.btn{background: #004883; text-shadow: none; color:#fff;}
+#mydoubt button.btn:hover{background: #035da6;}
+</style>
+<<script type="text/javascript">
+function myask(){
+	$.ajax({
+		type:"POST",
+		url:'/home.php?mod=login&method=islogin',
+	    dataType:"json",
+	    success:function(ret){
+	    	if(ret.statu){
+	    		location.href = "/home.php?mod=askss";
+	    	}else{
+	    		//alert("请先登入！");
+	    		$('#register').modal({
+	    		    keyboard : false,
+	    		    show     : true
+	    		});
+	    	}
+	    }
+	})
+}
+//问题提交
+function askquest(){
+	var subject = document.getElementById("subject").value; 
+	var age = document.getElementById("age").value; 
+	var gender = document.getElementById("gender").value; 
+	var description = document.getElementById("description").value;
+	var re = /^[0-9]*[1-9][0-9]*$/;
+	if(subject == ''){
+		alert("问题不能为空！");
+	}else if(description == ''){
+		alert("咨询内容不能为空！");
+	}else if(gender == ''){
+		alert("性别不能为空！");
+	}else if(age == ''){
+		alert("年龄不能为空！");
+	}else if(re.test(age) == false){
+		alert("年龄格式错误")
+	}else{
+		$.ajax({
+			type:"GET",
+			url:'/home.php?mod=askss&method=save&subject='+subject+'&gender='+gender+'&age='+age+'&description='+subject,
+			dataType:"json",
+			success:function(ret){
+				if(ret.statu == 'unlogin'){
+					//alert("请先登入！");
+					$('#register').modal({
+					    keyboard : false,
+					    show     : true
+					});
+				}else if(ret.statu){
+					alert("问题提交成功！");
+					aska('');
+					askc('');
+				}else{
+					alert("提交失败！");
+				}
+			}
+		})
+	}
+}
+</script>
+
+
+{{/block}}
+       

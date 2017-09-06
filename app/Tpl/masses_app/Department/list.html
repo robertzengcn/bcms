@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+{{include file="Common/common.html"}}
+</head>
+
+<body>   
+{{$department=$DepartmentTag->getList(1,10,'false')}}
+
+    <section id="body">
+  {{foreach $department as $key=>$val}}  	
+    	<a href="app/department.php?method=index&id={{$val->id}}"><article class="menu">
+        <p>{{$val->name}}</p>
+        <span></span>	
+		
+        </article></a>
+  {{/foreach}}      
+          
+    </section>
+    
+
+    
+</body>
+</html>

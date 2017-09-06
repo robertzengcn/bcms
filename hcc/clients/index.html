@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="../css/H-ui.admin.css">
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>客服管理系统</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe6d0;</i>  医疗服务管理 <span class="c-gray en">&gt;</span> 客服管理 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form id="frm_post">
+	<div class="text-c"> 
+		姓名：<input type="text" name="username" id="username" placeholder=" 姓名" style="width:100px" class="input-text">&nbsp;
+		电话：<input type="text" name="telephone" id="telephone" placeholder=" " style="width:150px" class="input-text">&nbsp;	
+		<!-- 
+		<span class="select-box inline">
+			<select name="is_arrive" id="is_arrive" class="select">
+			    <option value="">是否到院</option>
+				<option value="1">己到院</option>
+				<option value="2">未到院</option>				
+			</select>
+		</span>&nbsp;
+		 -->	
+		<span class="select-box inline">
+			<select id="reception_id"  name="last_reception" class="select">
+			</select><!--咨询员-->
+		</span>&nbsp;
+		<span class="select-box inline">
+			<select id="department_id"  name="department_id" class="select">
+			</select>
+		</span>&nbsp;		
+		<span class="select-box inline">
+			<select id="source" name="source" class="select">
+			</select>
+		</span>&nbsp;
+		<!-- 
+		<span class="select-box inline">
+			<select id="is_used" name="is_used" class="select">
+				<option value="">预估到诊</option>
+				<option value="no">不到诊</option>
+				<option value="1">一天以内</option>
+				<option value="3">三天以内</option>
+				<option value="7">一周以内</option>
+				<option value="30">一月以内</option>
+			</select>
+		</span>&nbsp;
+		-->		
+		添加日期：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end\')||\'%y-%M-%d\'}'})" id="start" class="input-text Wdate" style="width:120px;" name="start">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start\')}'})" id="end" class="input-text Wdate" style="width:120px;" name="end">
+		&nbsp;<button id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+	</div>
+	</form>
+	<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a class="btn btn-success radius" onClick="gClients.addClients();" href="javascript:;"><i class="Hui-iconfont">&#xe607;</i> 新增记录</a> <a class="btn btn-primary radius" onClick="gClients.openEdit('统计报表','visit-stat.html')" href="javascript:;"><i class="Hui-iconfont">&#xe61e;</i> 统计报表</a> <a href="javascript:;" onClick="gClients.delBatch();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a href="javascript:;" onClick="gClients.syncData();" class="btn btn-warning radius"><i class="Hui-iconfont">&#xe645;</i> 同步预约</a> <a class="btn btn-success radius showmsg" onclick="gClients.updateStatData();" href="javascript:;" info="因平时编辑/导入/删除患者数据后会导致统计的基础样本出现偏差、致使统计报表不准确，需要重新计算统计样本时请点击使用该功能。数据量大时校正数据需要一定时间，请耐心等待"><i class="Hui-iconfont">&#xe68f;</i>统计校验</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+	<div class="mt-20" id="grid">
+		<table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th width="80">姓名</th>
+					<th width="110">电话</th>
+					<th width="50">性别</th>					
+					<th width="100">来源</th>					
+					<th width="120">对接客服</th>
+					<th width="120">预约日期</th>	
+					<th width="120">预约科室</th>
+					<th width="120">预约医生</th>						
+					<th width="120">到诊评估</th>
+					<th>备注</th>
+					<th width="60">操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/clients.js"></script>
+<script type="text/javascript">
+var gClients = new gClients();
+gClients.setThisName('gClients');
+gClients.init();
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../lib/html5.js"></script>
+<script type="text/javascript" src="../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+
+<!--[if IE 6]>
+<script type="text/javascript" src="../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>新增图片</title>
+
+<style type="text/css">
+.portfolio-area li.upload-li{width:152px;height:152px;}
+.upload-li .portfoliobox:hover{box-shadow: 0 0 0 3px #009966 inset, 0 0 0 4px  inset;}
+.img-choosed{box-shadow: 0 0 0 1px #009966 inset, 0 0 0 2px  inset;}
+.upload-pn{z-index:999;position:absolute;right:3px;bottom:2px;width:20px;height:20px;line-height:20px;text-align:right;font-size:16px;display:none;color:#FF0000;}
+.img-btn{background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;left: 0;overflow: hidden;position: absolute;top: 0;width: 100%;z-index: 300;height:0px;}
+.img-btn .cancel{cursor: pointer;display: inline;float: right;height: 24px;margin: 5px 1px 1px;overflow: hidden;text-indent: -9999px;width: 24px; background: rgba(0, 0, 0, 0) url(../../lib/webuploader/0.1.5/images/icons.png) no-repeat scroll -46px -22px;}
+</style>
+
+</head>
+<body>
+<div class="pd-5">
+	
+		<div id="tab-category" class="HuiTab">
+			<div class="tabBar cl"><span>上传图片</span><span>图片管理</span></div>
+			<!--上传图片-->
+			<div class="tabCon">
+				<form action="" method="post" class="form form-horizontal" id="form-article-add">		
+					<div class="row cl">						
+						<div class="formControls col-12">
+							<div class="uploader-list-container"> 
+								<div class="queueList">
+									<div id="dndArea" class="placeholder">
+										<div id="filePicker-2"></div>
+										<p>或将照片拖到这里，单次最多可选300张</p>
+									</div>
+								</div>
+								<div class="statusBar" style="display:none;">
+									<div class="progress"> <span class="text">0%</span> <span class="percentage"></span> </div>
+									<div class="info"></div>
+									<div class="btns">
+										<div id="filePicker2"></div>
+										<div class="uploadBtn">开始上传</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>			
+			</div><!--tabCon over-->
+			<!--图片管理-->
+			<div class="tabCon">
+			<div class="pd-5">
+				<div class="cl pd-5 bg-1 bk-gray mt-5">
+				<span class="r">
+				<span class="select-box inline">
+					<select name="picType" id="picType" class="select"></select>
+				</span> &nbsp;&nbsp;
+				<button name="searchBtn" id="searchBtn" class="btn btn-success bt-normal" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜索</button></span></div>
+				<div class="portfolio-content"><!--图片地址一定要取绝对地址，以免因目录层级不同导致的问题-->
+					<ul class="cl portfolio-area" id="imgItems"></ul>
+				</div>
+			</div>
+			</div><!--tabCon over-->
+		</div><!--huitab over-->	
+</div>
+<script type="text/javascript" src="../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../H-ui.js"></script> 
+<script type="text/javascript" src="../H-ui.admin.js"></script> 
+<script type="text/javascript" src="common.js"></script>
+<script type="text/javascript" src="uploadimg.js"></script> 
+<script type="text/javascript">
+var gUploader = new uploadImg();
+gUploader.setThisName('gUploader');
+gUploader.init();
+</script>
+</body>
+</html>

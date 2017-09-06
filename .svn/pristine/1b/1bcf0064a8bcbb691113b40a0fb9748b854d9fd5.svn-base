@@ -1,0 +1,153 @@
+<?php
+
+class Tag {
+
+    var $templateName;
+
+    var $htplFileName;
+
+    var $neededVars = Array();
+
+    var $tagObjects = Array();
+
+    var $smarty;
+
+    function __construct($htplFileName) {
+        $this->htplFileName = $htplFileName;
+        $this->smarty = new Smarty();
+    }
+
+    /**
+     * 初始化
+     */
+    function init() {
+        // 检查tpl目录下是否有配置文件。有则取配置文件种到变量定义，
+        // 无则选择vars.config种到变量定义 ，
+        // 将来有限制的情况下，没有找到配置文件则扔出错误
+        $result = $this->readFromConfig();
+        if ($result->statu) {
+            $data = $result->data->vars;
+            $this->neededVars[] = $data;
+        }
+
+        return $result;
+    }
+
+    /**
+     * 读取配置文件
+     *
+     * @return Result mixed
+     */
+    private function readFromConfig() {
+        // tagobjects.json
+        $configFile = ABSPATH . '/dynapage/tagobjects.json';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $this->tagObjects = json_decode($content);
+        } else {
+            return new Result(false, 33, ErrorMsgs::get(33), Null);
+        }
+
+        // config.json
+        $configFile = TEMPDIR . 'config.json';
+
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $templateName = json_decode($content);
+        } else {
+            return new Result(false, 33, ErrorMsgs::get(33), Null);
+        }
+
+        // 判断是否有设置currentUserd
+        if ($templateName[0]->currentUsed != '') {
+            $this->templateName = $templateName[0]->currentUsed;
+            if (! defined('TAGDIR')) {
+                define('TAGDIR', ABSPATH . '/tpl/' . $this->templateName . '/common/'); // 自定义插件模板目录
+            }
+        } else {
+            return new Result(false, 34, ErrorMsgs::get(34), Null);
+        }
+
+        // 模板
+        /*
+         * $tempFile = TEMPDIR . $this->templateName . '/' . $this->htplFileName . '.htpl'; if (! file_exists ( $tempFile )) { return new Result ( false, 35, ErrorMsgs::get ( 35 ), Null ); }
+         */
+        // 模板配置
+        $tplConfigFile = TEMPDIR . $this->templateName . '/' . $this->htplFileName . '.json';
+        
+
+        if (file_exists($tplConfigFile)) {
+            $content = file_get_contents($tplConfigFile);
+            $tplConfig = json_decode($content);
+        } else {
+            // 默认配置
+            $varsConfigFile = TEMPDIR . $this->templateName . '/vars.json';
+            if (file_exists($varsConfigFile)) {
+                $content = file_get_contents($varsConfigFile);
+                $tplConfig = json_decode($content);
+            } else {
+                return new Result(false, 34, ErrorMsgs::get(34), Null);
+            }
+        }
+
+        return new Result(true, 0, '', $tplConfig);
+    }
+
+    /**
+     * 保存变量到Smarty并display()
+     */
+    function assginVarsAndDisplay($param) {
+        // 根据预置到变量定义 在变量转入smarty
+        $this->prepareSystemVars();
+        $this->prepareDefineVars();
+        $this->smarty->setPluginsDir(PLUGINSDIR_SMARTY);
+        $this->smarty->setTemplateDir(TEMPDIR . $this->templateName . '/');
+        $this->smarty->setcompileDir(COMPILEDIR);
+        $this->smarty->setCacheDir(CACHEDIR);
+        $this->smarty->left_delimiter = LEFT_LIMITER;
+        $this->smarty->right_delimiter = RIGHT_LIMITER;
+        $this->smarty->assign("path", ROOT);
+        $this->smarty->assign("pic", PICPATH);
+        $this->smarty->assign("param", $param);
+        return $this->smarty->fetch($this->htplFileName . SUBFIX);
+    }
+
+    /**
+     * 保存变量到Smarty
+     */
+    public function prepareSystemVars() {
+        require_once ABSPATH . '/tagobj/CommonTag.php';
+        foreach ($this->neededVars[0] as $k => $v) {
+            $tagObject = $this->getTagObject($v);
+            if ($tagObject->statu) {
+                $cls = new $tagObject->data->obj();
+            } else {
+                continue;
+            }
+            $this->smarty->assign($tagObject->data->obj, $cls);
+        }
+    }
+
+    /**
+     * 根据$templateName获取数据库变量列表清单
+     */
+    public function prepareDefineVars() {
+        // 根据$templateName获取数据库变量列表清单
+    }
+
+    /**
+     * 获取tagObject
+     *
+     * @param unknown $key
+     * @return Result
+     */
+    public function getTagObject($key) {
+        foreach ($this->tagObjects as $k => $v) {
+            if ($v->key == $key) {
+                return new Result(true, 1, '', $v);
+            }
+        }
+        return new Result(false, 36, ErrorMsgs::get(36), Null);
+    }
+}
+

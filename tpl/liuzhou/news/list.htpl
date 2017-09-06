@@ -1,0 +1,87 @@
+{{extends file='./common/layout/layout.htpl'}}
+{{block name=body}}
+
+<!--面包屑 开始-->
+<div class="crumbs container">
+	<ol class="breadcrumb">
+      <span class="glyphicon glyphicon-map-marker"></span>您当前的位置：
+      <li><a href="#">首页</a></li>
+      <li><a href="#">新闻中心</a></li>
+      <li class="active">最新公告</li>
+    </ol>
+</div>
+<!--面包屑 结束--> 
+
+<!--医院概况 开始--> 
+<div class="main_yygk container mb-20">
+	<div class="row">
+    	
+        <div class="col-md-9 yygk_r">
+        	<div class="box">
+            	<div class="title">
+                	<span>最新公告</span>
+                </div>
+                <div class="pd-15">
+                	<!--新闻中心 开始--> 
+                	<ul class="main_xwzx">
+                    	<li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                        <li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                        <li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                        <li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                        <li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                        <li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                        <li><a href="#" target="_blank">冬日里的暖流，医院白衣天使用一腔热血温暖社会！</a><span>2017-01-19</span></li>
+                    </ul>
+                    <nav class="text-center paging">
+                      <span class="  pull-left">共<font color="#f00">01</font>条记录 当前页<font color="#f00">1/3</font>第1-15条</span>
+                      <ul class="pagination pager-loose">
+                      	<li><a href="#">«</a></li>
+                        <li class="disabled"><a href="#">‹</a></li>
+                        <li class="active"><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><span>...</span></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">›</a></li>
+                        <li><a href="#">»</a></li>
+                      </ul>
+                    </nav>
+                    <!--新闻中心 结束-->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 yygk_l">
+        	<div class="box l_one mb-20">
+            	<h2>新闻中心</h2>
+            	<ul>
+                	<li class="active"><a href="#" target="_self">最新公告</a></li>
+                    <li><a href="#" target="_self">医院动态</a></li>
+                    <li><a href="#" target="_self">党群建设</a></li>
+                    <li><a href="#" target="_self">廉政文化</a></li>
+                    <li><a href="#" target="_self">媒体新闻报道</a></li>
+                </ul>
+            </div>
+            <div class="box l_two mb-20">
+            	<a href="#" target="_blank"><img src="images/i/wsyy.png"></a>
+            </div>
+            <div class="box l_three">
+            	<div class="tit">
+                	<span class="pull-left">联系我们</span>
+                    <a class="pull-right" href="#">more+</a>
+                </div>
+                <div class="txt">
+                	<div class="map">
+                    	<a href="#"><img src="images/content/map.png"></a>
+                    </div>
+                    <p>地址：医院地址</p>
+                    <p>乘车指南：到院路线车辆线路</p>
+                    <p>预约电话：电话号码</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--医院概况 结束--> 
+
+{{/block}}

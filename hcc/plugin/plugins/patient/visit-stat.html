@@ -1,0 +1,389 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../../../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>病患统计</title>
+<style type="text/css">
+/*菜单收缩展开*/
+    .Huifold .item{ position:relative}
+    .Huifold .item h4{margin:0;font-weight:bold;position:relative;border-top: 1px solid #fff;font-size:15px;line-height:22px;padding:7px 10px;background-color:#eee;cursor:pointer;padding-right:30px}
+    .Huifold .item h4 b{position:absolute;display: block; cursor:pointer;right:10px;top:7px;width:16px;height:16px; text-align:center; color:#666}
+    .Huifold .item .info{display:none;padding:10px}
+	
+/*滚动*/
+.carousel_container{height: auto !important;position:relative;left:0px;	top:0px; }
+.carousel_inner {padding:0px 40px;height: auto !important;}
+.left_scroll{background: #45b0e6 url(i/leftbg.jpg) no-repeat scroll center center;cursor: pointer;height: 100%;position: absolute;width: 40px;left:0px;opacity:0.3;}
+.left_scroll:hover{ opacity:0.7;}
+.right_scroll {background: #45b0e6 url(i/rightbg.jpg) no-repeat scroll center center;cursor: pointer;height: 100%;position: absolute;right: 1px;top: 0;width: 40px;opacity:0.3;}
+.right_scroll:hover{ opacity:0.7;}
+.scrollbox{overflow:hidden;position:relative;}
+.scrollbox table{position:absolute;}
+
+/*表格样式*/
+#listAll1 tbody tr td{text-align:center;}
+#listAll2 tbody tr td{text-align:center;}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe6d0;</i>  医疗服务管理 <span class="c-gray en">&gt;</span> 患者管理 <span class="c-gray en">&gt;</span> 数据统计 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form id="frm_post">
+	<div class="text-c"> 
+		统计日期：
+		<input type="text" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'end\')||\'%y-%M-%d\'}'})" id="start" class="input-text Wdate" style="width:120px;" name="start">
+		-
+		<input type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'start\')}',maxDate:'%y-%M-%d'})" id="end" class="input-text Wdate" style="width:120px;" name="end">
+		<span class="select-box inline">
+			<select name="" id="type" class="select">
+				<option value="">统计类型</option>
+				<option value="1" selected="selected">综合统计</option>
+				<option value="2">周及时间段</option>
+				<option value="3">前台接诊</option>
+				<option value="4">病患来源</option>
+				<option value="5">医生接诊</option>
+				<option value="6">科室疾病</option>
+				<option value="7">财务统计</option>
+				<option value="8">诊疗项目</option>
+			</select>
+		</span>
+		<span class="select-box inline">
+			<select name="" id="showType" class="select">
+				<option value="">图表类型</option>
+				<option value="line" selected="selected">线型图</option>
+				<option value="pie">饼状图</option>
+				<option value="bar">柱状图</option>
+			</select>
+		</span>
+		<button name="" id="qry" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 查看统计</button>
+	</div>
+	</form>
+	<div class="mt-10">
+		    <ul id="Huifold1" class="Huifold">
+			  <li class="item" id="li_stat_1">
+				<h4>综合统计<b>+</b></h4>
+				<div class="info"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">												
+							<table id="listAll1" class="table table-border table-bordered table-bg table-hover table-sort">
+								<thead>
+									<tr class="text-c">
+										<th width="140">统计项目</th>	
+										<th width="150">到诊量（人次）</th>								
+										<th width="80">总计（人次）</th>										
+										<th width="80">操作</th>
+									</tr>
+								</thead>
+							</table>
+						</div>							
+					</div>
+					<div id="statImg1"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_1_day">
+				<h4>按日期统计<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg1_2">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_2" style="display:none;">
+				<h4>周及时间段统计<b>+</b></h4>
+				<div class="info"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">													
+							<table id="listAll2" class="table table-border table-bordered table-bg table-hover table-sort table-striped" >
+								<thead>
+									<tr class="text-c">
+										<th width="80">项目</th>	
+										<th width="110">周一</th>								
+										<th width="110">周二</th>
+										<th width="110">周三</th>	
+										<th width="110">周四</th>
+										<th width="110">周五</th>
+										<th width="110">周六</th>
+										<th width="110">周天</th>
+									</tr>
+								</thead>
+							</table>
+						</div>							
+					</div>
+					<div id="statImg2"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_3" style="display:none;">
+				<h4>前台接诊工作统计<b>-</b></h4>
+				<div class="info" id="info1"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+								<table id="listAll3" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+									<thead></thead>
+									<tbody></tbody>
+								</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>	
+						</div>							
+					</div>
+					<div style="width:100%;height:10px;clear:both;"></div>
+					<div id="statImg3"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_3_day" style="display:none;">
+				<h4>前台接诊人员每天工作统计<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg3_2">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_4" style="display:none;">
+				<h4>病患来源统计<b>-</b></h4>
+				<div class="info" id="info2"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll4" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>
+						</div>							
+					</div>
+					<div id="statImg4"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_4_day" style="display:none;">
+				<h4>来源时间曲线<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg4_2">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_5" style="display:none;">
+				<h4>医生接诊统计<b>-</b></h4>
+				<div class="info" id="info3"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll5" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>		
+						</div>							
+					</div>
+					<div id="statImg5"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_5_day" style="display:none;">
+				<h4>医生接诊量日期分布曲线<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg5_2">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_6" style="display:none;">
+				<h4>科室综合统计<b>-</b></h4>
+				<div class="info" id="info4"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll6" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>
+						</div>							
+					</div>
+					<div id="statImg6"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_6_2" style="display:none;">
+				<h4>疾病综合统计<b>-</b></h4>
+				<div class="info" id="info5"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll6_2" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>		
+						</div>							
+					</div>
+					<div id="statImg6_2"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_6_3" style="display:none;">
+				<h4>按月份和疾病统计<b>+</b></h4>
+				<div class="info"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">														
+							<table id="listAll6_3" class="table table-border table-bordered table-bg table-hover table-sort table-striped" >
+								<thead>
+									<tr class="text-c">
+										<th>病症名称</th>								
+										<th>1月</th>
+										<th>2月</th>
+										<th>3月</th>
+										<th>4月</th>
+										<th>5月</th>
+										<th>6月</th>
+										<th>7月</th>
+										<th>8月</th>
+										<th>9月</th>
+										<th>10月</th>
+										<th>11月</th>
+										<th>12月</th>
+									</tr>
+								</thead>
+							</table>
+						</div>							
+					</div>
+					<div id="statImg6_3"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_7_2" style="display:none;">
+				<h4>按科室统计<b>-</b></h4>
+				<div class="info" id="info7"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll7_2" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>
+						</div>							
+					</div>
+					<div id="statImg7_2"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_7_1" style="display:none;">
+				<h4>按病症统计<b>-</b></h4>
+				<div class="info" id="info9"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll7_1" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>	
+						</div>							
+					</div>
+					<div id="statImg7_1"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+			  <li class="item" id="li_stat_7_3" style="display:none;">
+				<h4>按医生统计<b>-</b></h4>
+				<div class="info" id="info8"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>
+							<div class="scrollbox">	
+							<table id="listAll7_3" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+								<thead></thead>
+								<tbody></tbody>
+							</table>							
+							</div>
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>	
+						</div>							
+					</div>
+					<div id="statImg7_3"  class="mt-5 cl col-99"></div>			
+				</div>
+				<div style="width:100%;height:2px;clear:both;"></div>
+			  </li>
+              <li class="item" id="li_stat_7_4" style="display:none;">
+				<h4>按天统计<b>+</b></h4>
+				<div class="info">
+					<div class="mt-5 cl col-99" id="statImg7_4">
+					</div>
+				</div>
+			  </li>
+			  
+			  <li class="item" id="li_stat_8" style="display:none;">
+				<h4>诊疗项目统计<b>-</b></h4>
+				<div class="info" id="info10"> 					
+					<div class="carousel_container">							
+						<div class="carousel_inner"  id="grid">
+							<div class="left_scroll" groupnum="0" nowlist="" scrollength='' onclick="gPatient.scrollright(this);"></div>					
+								<table id="listAll8" class="table table-border table-bordered table-bg table-hover table-sort table-striped">
+									<thead></thead>
+									<tbody></tbody>
+								</table>							
+							<div class="right_scroll" groupnum="0" nowlist="0" scrollength='' onclick="gPatient.scrollleft(this);"></div>
+						</div>							
+					</div>
+					<div id="statImg8"  class="mt-5 cl col-99"></div>			
+				</div>
+			  </li>
+			</ul>
+	</div>	
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../../../lib/Highcharts/4.1.7/js/highcharts.js"></script>
+<script type="text/javascript" src="../../../lib/Highcharts/4.1.7/js/modules/exporting.js"></script>
+<script type="text/javascript" src="/hcc/js/boyicms/common.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/js/Highcharts.js"></script>
+<script type="text/javascript" src="/hcc/plugin/plugins/patient/js/patient.js"></script>
+<script type="text/javascript">
+var gPatient = new Patient();
+gPatient.setThisName('gPatient');
+gPatient.stat();
+</script>
+</body>
+</html>

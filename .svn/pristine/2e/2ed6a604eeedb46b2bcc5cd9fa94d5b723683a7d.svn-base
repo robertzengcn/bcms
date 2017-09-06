@@ -1,0 +1,63 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../lib/html5.js"></script>
+<script type="text/javascript" src="../../../lib/respond.min.js"></script>
+<script type="text/javascript" src="../../../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../../../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/style.css" rel="stylesheet" type="text/css" />
+<link href="../../../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http:/lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>导航组详细-手机网页</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont" style="font-size:16px;">&#xe696;</i> 手机网页 <span class="c-gray en">&gt;</span> 导航管理 <span class="c-gray en">&gt;</span> 导航组详细</nav>
+<div class="pd-20">
+	<div class="cl pd-5 bg-1 bk-gray"> <span class="l"><a href="javascript:;" onClick="gMobile.delNavBatch();" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" onClick="gMobile.toAddNav();" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 新增导航</a></span> <span class="r">共有数据：<strong id="total"></strong> 条</span> </div>
+	<div class="mt-20" id="grid">
+		<table id="dataTable" class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th width="60">序号</th>
+					<th width="200">导航名称</th>
+					<th>绑定链接</th>
+					<th width="140">上级导航</th>
+					<th width="70">排序</th>					
+					<th width="100">操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../../../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../../../lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="../../../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../../../lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.js"></script> 
+<script type="text/javascript" src="../../../js/H-ui.admin.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../../../js/boyicms/mobile.js"></script>
+<script type="text/javascript">
+var gCate = 1;
+var gGroupId = '';
+var gMobile = new Mobile();
+gMobile.setThisName('gMobile');
+gMobile.initNavList();
+
+</script> 
+
+</body>
+</html>

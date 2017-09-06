@@ -1,0 +1,39 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/device.css">
+{{/block}}
+{{block name=body}}
+<!--正文-->
+<div class="clear h8"></div>
+<div class="main">
+<!--左边-->
+<div class="par-main">
+   <div id="breadcrumb">
+   <div>
+   <span>您的当前位置：
+   <a target="_blank" href="{{$WEBSITE}}">{{$ContactTag->get('name')}}</a>>>
+   <a target="_blank" href="#" onclick="return false;">视频新闻</a>
+   </span>
+    </div>
+   </div>
+   <h2 class="title">视频新闻列表</h2>
+   {{movies page="$cur"}}
+   {{foreach $movies as $v}}  
+   <div class="device"> 
+   <a target="_blank" href="{{$WEBSITE}}/hospital/movie/{{$v->id}}.html">
+   	<img src="{{$UPLOAD}}/{{$v->pic}}" alt="movie"/>
+   </a>
+   <h3><a target="_blank" href="{{$WEBSITE}}/hospital/movie/{{$v->id}}.html">{{$v->subject|truncate:20}}</a></h3>
+    <p><span>介绍：</span>{{$v->content|truncate:150}}...<a target="_blank" href="{{$WEBSITE}}/hospital/movie/{{$v->id}}.html">[详细]</a></p>
+   </div> 
+	{{/foreach}}
+      <p class="fenye">{{$MovieTag->getPageHtml($cur)}}</p>
+</div>
+    
+<!--右边-->
+{{include file="../common/right/doctor_right.htpl"}}
+<!--右边end-->    
+    
+    
+</div>
+{{/block}}

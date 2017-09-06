@@ -1,0 +1,33 @@
+{{extends file='../common/layout/layout.htpl'}}
+{{block name=css}}
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/style/article.css">
+{{/block}}
+{{block name=body}}
+{{$news = $tagOb->get($id)}}
+<div id="breadcrumb" ><span>您当前的位置:&nbsp;</span><a href='{{$WEBSITE}}'>{{$ContactTag->get('name')}}</a> >
+    <a href="{{$WEBSITE}}/news/">新闻资讯</a> > <a href="####" onclick="return false;">{{$news->title}}</a></div>
+<div class="clear h8"></div>
+<div class="main">
+
+    <div  class="par-main" >
+        <div class="content_title">
+            <h1>{{$news->subject}}</h1>
+            <p class="add-time">发布时间：{{'Y-m-d'|date:$news->plushtime}}</p>
+            <p>来源地址：{{$news->source}}</p>
+            <p class="top-zx"><a href="{{$ContactTag->get('swt')}}">立即咨询专家</a></p>
+        </div>
+        <div class="article_content">
+            {{$news->content}}
+        </div>
+    </div>
+
+   <!--right-->
+       {{include file = "../common/right/doctor_right.htpl"}}
+   <!--right end-->
+
+</div>
+  <div class="main-bottom"></div>
+  <!--footer-->
+  <div class="clear h8"></div>
+
+{{/block}}

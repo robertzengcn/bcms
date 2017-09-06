@@ -1,0 +1,44 @@
+﻿{{extends file='../Common/layout.html'}}
+{{block name=title}}科室导航{{/block}}
+
+{{block name=body}}
+<div class="am-offcanvas" id="my_ks">
+    <div class="am-offcanvas-bar am-offcanvas-bar-flip am-offcanvas-bar-overlay">
+    	<!--  <ul class="am-padding-sm">
+    	
+    	{{foreach $department as $v}}
+        	<li><a href="#" class="depitm" dataid="{{$v->id}}">{{$v->name}}</a></li>
+        {{/foreach}}
+        </ul>-->
+    </div>
+</div>
+<div style="padding-top:0;" class="am-tabs am-margin-0 main_irm">
+
+  <div class="main_dep am-tabs-bd">
+ 	 <div class="am-padding-0 float_none am-container am-tab-panel am-active">
+     	<div class="list" id="dielist">
+    
+     	
+     	       {{foreach $department as $s}}
+     	       {{if $s->name!="图片集锦"}}
+          <a href="/mobile/department.php?method=get&department_id={{$s->id}}" class="item">
+              <div class="title">{{$s->name}}</div>
+              <i class="am-icon-chevron-right am-fr"></i>
+          </a>
+          {{/if}}
+          {{/foreach}}
+         
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.setThisName('shangyu');
+gShangyu.department();
+</script>
+{{/block}}

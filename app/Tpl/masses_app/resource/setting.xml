@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+		<File>
+		    <item><source>/upload/banner.jpg</source><whither>/upload/picmanager/banner.jpg</whither></item>
+			<item><source>/upload/banner1.png</source><whither>/upload/picmanager/banner1.png</whither></item>
+			<item><source>/upload/iconfont-jiankangbaike.png</source><whither>/upload/nav/iconfont-jiankangbaike.png</whither></item>
+			<item><source>/upload/iconfont-jiankanggongju.png</source><whither>/upload/nav/iconfont-jiankanggongju.png</whither></item>
+			<item><source>/upload/iconfont-keshi.png</source><whither>/upload/nav/iconfont-keshi.png</whither></item>
+			<item><source>/upload/iconfont-pindaoicon.png</source><whither>/upload/nav/iconfont-pindaoicon.png</whither></item>
+			<item><source>/upload/iconfont-shoujiyuyueguahao.png</source><whither>/upload/nav/iconfont-shoujiyuyueguahao.png</whither></item>
+			<item><source>/upload/iconfont-wenda.png</source><whither>/upload/nav/iconfont-wenda.png</whither></item>
+			<item><source>/upload/iconfont-yiyuandaohang.png</source><whither>/upload/nav/iconfont-yiyuandaohang.png</whither></item>
+			<item><source>/upload/iconfont-zaixianzixun.png</source><whither>/upload/nav/iconfont-zaixianzixun.png</whither></item>
+		</File>
+	<!-- insert语句,每个sql节点为一条初始化语句 -->
+	<Insert>
+		<item>INSERT INTO `mobilepicmanager` (`name`, `flag`, `img`, `link`, `sort`, `kind`, `text`,`cate`) 
+		VALUES('app端首页大图', 'mobile_ad', 'picmanager/banner.jpg', '', 1, 1, NULL,2),
+		('app端医院导航大图', 'mobile_daohang', 'picmanager/banner1.png', '', 1, 1, NULL,2);
+		</item>	
+		<item>INSERT INTO `mobilenavigation` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) 
+		VALUES(1, 0, 'app首页导航', 'app_nav', NULL, NULL, NULL, NULL, 2, 1, NULL, NULL),
+		(0, 1, '预约挂号', 'app_nav01', '', 0, 0, 1, 2, 1, 'app_nav01', 'nav/iconfont-shoujiyuyueguahao.png'),
+		(0, 1, '科室医生', 'app_nav02', '/app/doctor.php', 0, 0, 2, 2, 1, 'app_nav01', 'nav/iconfont-keshi.png'),
+		(0, 1, '医院导航', 'app_nav03', '/app/contact.php?method=getRoute', 0, 0, 3, 2, 1, 'app_nav01', 'nav/iconfont-yiyuandaohang.png'),	
+		(0, 1, '健康工具', 'app_nav04', '', 0, 0, 4, 2, 1, 'app_nav01', 'nav/iconfont-jiankanggongju.png'),
+		(0, 1, '资讯频道', 'app_nav05', '/app/news.php', 0, 0, 5, 2, 1, 'app_nav01', 'nav/iconfont-pindaoicon.png'),
+		(0, 1, '在线咨询', 'app_nav06', '', 0, 0, 7, 2, 1, 'app_nav01', 'nav/iconfont-zaixianzixun.png'),
+		(0, 1, '健康百科', 'app_nav07', '', 0, 0, 7, 2, 1, 'app_nav01', 'nav/iconfont-jiankangbaike.png'),
+		(0, 1, '在线问答', 'app_nav07', '', 0, 0, 7, 2, 1, 'app_nav01', 'nav/iconfont-wenda.png');
+		</item>
+		<item>INSERT INTO `mobilenavigation` (`is_group`, `group_id`, `subject`, `flag`, `url`, `layer`, `pid`, `sort`, `cate`, `is_display`, `name`, `pic`) VALUES
+		(1, 0, '资讯导航', 'news_nav', NULL, NULL, NULL, NULL, 2, 1, NULL, NULL),
+		(0, 1, '疾病资讯', 'news_nav01', '', 0, 0, 1, 2, 1, 'news_nav01', ''),
+		(0, 1, '公益活动', 'news_nav02', '', 0, 0, 2, 2, 1, 'news_nav01', ''),
+		(0, 1, '优惠活动', 'news_nav03', '', 0, 0, 3, 2, 1, 'news_nav01', ''),	
+		(0, 1, '案例展示', 'news_nav04', '', 0, 0, 4, 2, 1, 'news_nav01', ''),
+		(0, 1, '先进技术', 'news_nav05', '', 0, 0, 5, 2, 1, 'news_nav01', '');
+		</item>									
+	</Insert>
+	<Delete>
+		<item>{t:mobilepicmanager,f:flag,v:{"mobile_ad"|"mobile_daohang"}}</item>
+		<item>{t:pic,f:text,v:{"mobile_index01"}}</item>
+		<item>{t:mobilenavigation,f:flag,v:{"app_nav"|"app_nav01"|"app_nav02"|"app_nav03"|"app_nav04"|"app_nav05"|"app_nav06"|"app_nav07"}}</item>
+		<item>{t:mobilenavigation,f:flag,v:{"news_nav"|"news_nav01"|"news_nav02"|"news_nav03"|"news_nav04"|"news_nav05"}}</item>					
+	</Delete>		
+	<Parent>
+		<item>
+			<get_t>SELECT {id} FROM mobilenavigation WHERE flag="app_nav" AND cate="2"</get_t>
+			<set_t>UPDATE mobilenavigation SET group_id="{id}" WHERE name="app_nav01" AND cate="2"</set_t>
+		</item>				
+		<item>
+			<get_t>SELECT {id} FROM mobilenavigation WHERE flag="news_nav" AND cate="2"</get_t>
+			<set_t>UPDATE mobilenavigation SET group_id="{id}" WHERE name="news_nav01" AND cate="2"</set_t>
+		</item>				
+	</Parent>			
+</body>

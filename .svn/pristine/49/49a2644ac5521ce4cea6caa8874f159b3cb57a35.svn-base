@@ -1,0 +1,19 @@
+<?php
+require_once ENTITYPATH . '/Entity.php';
+
+class Worker extends Entity {
+
+    var $id;
+
+    var $name;
+
+    var $password;
+
+    var $group;
+
+    var $plushtime;
+
+    var $purview;
+
+    public function validate() {}
+}

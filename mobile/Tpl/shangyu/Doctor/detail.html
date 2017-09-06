@@ -1,0 +1,88 @@
+{{extends file='../Common/layout.html'}}
+{{block name=title}}医生信息{{/block}}
+{{block name=body}}
+
+
+<div style="padding-top:0;" class="am-tabs am-margin-0 main_irm">
+  <div class="am-tabs-bd">
+     <div class="main_irm_ys float_none am-container am-tab-panel am-active">
+     <ul class="am-list">
+      <!--缩略图在标题左边-->
+      <li class="am-g am-list-item-desced am-list-item-thumb-left am-padding-bottom-0">
+        <div class="am-u-sm-4 am-list-thumb am-padding-left-0">
+            <img alt="{{$data->name}}" src="{{$smarty.const.UPLOAD}}{{$data->pic}}" class="am-img-responsive">
+        </div>
+        
+        <div class="am-list-main am-padding-0">
+          <h3 class="am-list-item-hd am-margin-bottom-xs" id="doctorname">{{$data->name}}</h3>
+          <div class="am-list-item-text am-margin-bottom-xs color_444">科室：{{$doctortodep}} &nbsp;&nbsp; 职称：{{$data->position}}</div>
+          <div class="am-list-item-text">个人简介: {{$data->description}}</div>
+        </div>
+      </li>
+    </ul>
+    <div id="schedutable">
+     <table class="am-table am-table-bordered">
+      <thead>
+        <tr>
+          <th></th>
+          <th>一</th>
+          <th>二</th>
+          <th>三</th>
+          <th>四</th>
+          <th>五</th>
+          <th>六</th>
+          <th>日</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>上午</td>
+          <td id="mon_1"></td>
+          <td id="mon_2"></td>
+          <td id="mon_3"></td>
+          <td id="mon_4"></td>
+          <td id="mon_5"></td>
+          <td id="mon_6"></td>
+          <td id="mon_7"></td>
+        </tr>
+        <tr>
+          <td>下午</td>
+          <td id="aft_1"></td>
+          <td id="aft_2"></td>
+          <td id="aft_3"></td>
+          <td id="aft_4"></td>
+          <td id="aft_5"></td>
+          <td id="aft_6"></td>
+          <td id="aft_7"></td>
+        </tr>
+          <tr>
+          <td>晚上</td>
+          <td id="nig_1"></td>
+          <td id="nig_2"></td>
+          <td id="nig_3"></td>
+          <td id="nig_4"></td>
+          <td id="nig_5"></td>
+          <td id="nig_6"></td>
+          <td id="nig_7"></td>
+        </tr>
+      </tbody>
+    </table>
+     <a target="_blank" href="/mobile/reservation.php" class="am-btn am-btn-primary my_persbtn2" id="goreser">确定挂号</a>
+     </div>
+    </div>          
+  </div>
+  
+</div>
+<div class=" am-container am-text-danger main_remind"><span class="am-fl">温馨提醒：</span><p>上午就诊时间：<strong>8:00-11:30</strong><br>中午就诊时间：<strong>12:00-13:30</strong><br>下午就诊时间：<strong>13:30-17:30</strong></p></div>
+{{/block}}
+{{block name=js}}
+<script src="{{$RESOURCE}}/js/shangyu.js"></script>
+<script src="{{$RESOURCE}}/js/laypage.js"></script>
+
+
+<script type="text/javascript">
+var gShangyu = new Shangyu();
+gShangyu.doctordetail();
+
+</script>
+{{/block}}

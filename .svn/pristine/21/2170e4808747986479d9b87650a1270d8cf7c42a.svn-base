@@ -1,0 +1,538 @@
+<?php
+include_once 'init.php';
+/**
+ * 
+ * 积分商城
+ * @author Administrator
+ *
+ */
+
+class CommodityMobile extends Mobile {
+
+	public $depr  = '/';	    // 各参数之间的分割符号;
+	public $action  = 'app';	//模块名称
+	public $suffix  = false;   //页面后缀
+	public $prefix = null;      //订单号前缀字母
+	private $Cartlist;			//购物车cookie列表
+	private $Mcartlist;			//decode购物车
+	private $initlogin;			
+	
+	public function __construct() {
+	    parent::__construct();
+		$this->Cartlist = $Mcartlist = $this->_getcookie('Cartlist');
+		$this->Mcartlist=json_decode(stripslashes($Mcartlist),true);
+		if(isset($_GET['type']) && $_GET['type'] =='weixin'){
+			$this->initlogin();
+		}else{
+			$this->getuser();	
+		}
+		$this->excute();
+		
+	}
+	//注销
+		 public function logout(){
+	 		$this->_setcookie('INIT_LOGIN',NULL);
+			unset($_SESSION['member_id']);
+			unset($_SESSION['user']);
+			$this->login();			
+		 }
+	 public function initlogin(){					
+		$this->initlogin = $this->_getcookie('INIT_LOGIN');	
+		if($this->initlogin){
+			$arr = unserialize($this->initlogin);
+			$where= array('user_id'=>$arr['user_id'],'remember_key'=>$arr['remember_key'],'lose_time'=>time());			
+			$isout  = $this->getServiceMethod('CommodityKey','isLose',$where);			
+			if($isout){
+				session_start();
+				$_SESSION['member_id']=	$arr['user_id'];
+			}else{
+				$this->logout();				
+			}
+		}else{
+			$this->login();
+		}
+	 }
+	 
+	public function login(){
+			$url = NETADDRESS . '/'. $this->action . '/login.php?method=login';
+			header("Location:".$url); 
+			exit;
+	}
+	//积分商城首页
+	public function index(){
+
+			/** 注入公共数据 **/
+			$this->_InjectPublicData();	
+			
+			/** 注入轮播图片 **/
+			$picManager  = $this->getServiceMethod('MobilePicManager','getByFlag','commodity_index');
+			$id = $picManager->data[0];
+			$pic  =  $this->getServiceMethod('pic','query',array('pid'=>$id->id));
+			$this->smarty->assign('pic',$pic->data);
+			/** 注入nav **/
+			$nav = array('index,order,details,goodslist,cart,success');
+			/** 获取数据 **/		
+			$model['categories_status'] = 1;
+			$goods_model=$this->getServiceMethod('CommodityCategories','query',$model);
+			$goods_list = array();
+			foreach($goods_model->data as $key =>$val){
+				$list['categories_id'] = $val->id;
+				$list['status'] = 1;
+				$list['query_type'] = 'shop';
+				$list['quantity'] = 1;
+				$list['end_time'] = time();
+				$list['num'] = 7;               //查询条数
+				$goods_arr=$this->getServiceMethod('Commodity','query',$list);
+				$goods_list[$key] = $goods_arr;
+				$goods_list[$key]->name = $val->name;
+				$goods_list[$key]->info_url = $this->_Url("commodity/details&id=");
+				$goods_list[$key]->list_url = $this->_Url("commodity/goodslist",array('id'=>$val->id));
+			}
+			$this->smarty->assign('goods_list', $goods_list);		
+			$this->smarty->display( 'Commodity/home/home' . TPLSUFFIX );
+	}
+
+	//商品详情
+	public function details(){
+		if($_GET['id']){
+			$this->_InjectPublicData();
+			$this->blindParams($commodity = new Commodity());
+			$goods_info=$this->getServiceMethod('Commodity','get',$commodity);
+			if($goods_info->data->piclist){
+				$piclist = explode('|',$goods_info->data->piclist);				
+			}else{
+				$piclist = '';
+			}
+			if($goods_info->data->exchange == 1){
+				$goods_info->data->real_price = 0;	
+			}else{
+				$goods_info->data->real_price=$goods_info->data->price-$goods_info->data->discount;				
+			}
+			
+			if($goods_info->data->descript){
+				$goods_info->data->descript = str_replace('\\"', '',  $goods_info->data->descript);//神了
+			}
+	
+			$this->smarty->assign('piclist', $piclist);	
+			$this->smarty->assign('info', $goods_info);			
+			$this->smarty->display( 'Commodity/home/info' . TPLSUFFIX );
+		}
+	}
+	//搜索 商品列表
+	public function goodslist(){
+
+		$this->_InjectPublicData();
+		$param = array();
+		if(isset($_GET['keyword']) && $_GET['keyword'] != ''){
+			$param['subject'] = htmlspecialchars($_GET['keyword']);
+		}
+		
+        if(!is_array($this->result)){
+        	unset($this->result);
+        }	
+			$param['status'] = 1;
+			$param['query_type'] = 'shop';
+			$param['end_time'] = time();
+			$param['quantity'] = 1;			
+			$model['categories_status'] = 1;   //品牌
+			$goods_result=$this->getServiceMethod('CommodityCategories','query',$model);
+		if(isset($_GET['id']) && $_GET['id'] != ''){
+			$param['categories_id'] = intval($_GET['id']);
+			$goods_brand=$this->getServiceMethod('CommodityCategories','getName',array('id'=>intval($_GET['id'])));
+		}	
+			$goods_ttl=$this->getServiceMethod('Commodity','totalRows',$param);
+			$this->result['ttl']=$goods_ttl->data;
+
+		$this->pageSetting( 12 ,'commodity','Commodity',$param);//分页式列表
+			$info->keyword = htmlspecialchars($_GET['keyword']);
+			$info->page = intval($_GET['page']) ? $_GET['page'] : 1;
+			$info->url = $this->_Url("commodity/details&id=");
+			$info->id = intval($_GET['id']);
+			$info->name = $goods_brand->name ? $goods_brand->name : '全部';
+			$this->smarty->assign('info', $info);					
+			$this->smarty->assign('model', $goods_result->data);					
+		$this->smarty->display( 'Commodity/home/list' . TPLSUFFIX );
+	}
+
+
+	 //购物车
+		public function cart(){
+			$this->_InjectPublicData();	
+		    $Mcartlist=json_decode(stripslashes($this->Cartlist),true);
+			$shopids='';
+			if(is_array($Mcartlist)){
+				foreach($Mcartlist as $key => $val){
+					$shopids.=intval($key).',';
+				}
+				$shopids=str_replace(',0','',$shopids);
+				$shopids=trim($shopids,',');
+
+			}
+			$shoplist=array();
+			if($shopids!=NULL){
+				$shoplist = $this->getServiceMethod('Commodity','getCartList',$shopids);
+				foreach($shoplist as $key => $val){	
+					  $shoplists[$val['id']]= $val;
+				}			
+			}
+				$MoenyCount=0;
+				$ScoreCount=0;			
+			if(count($shoplists)>=1){
+				foreach($Mcartlist as $key => $val){
+						$key=intval($key);
+						if(isset($shoplists[$key])){
+							$shoplists[$key]['cart_num']=$val['num'] ? $val['num'] : 1;
+							if($shoplists[$key]['exchange'] == 2){
+								$MoenyCount+=($shoplists[$key]['price']-$shoplists[$key]['discount'])*$shoplists[$key]['cart_num'];
+								$shoplists[$key]['real_price']=substr(sprintf("%.3f",($shoplists[$key]['price']-$shoplists[$key]['discount'])*$val['num']),0,-1);
+								$shoplists[$key]['dis_price'] = substr(sprintf("%.3f",$shoplists[$key]['discount']*$val['num']),0,-1);
+							}else{
+								$shoplists[$key]['real_price']=0;
+								$shoplists[$key]['dis_price']=substr(sprintf("%.3f",$shoplists[$key]['price']*$val['num']),0,-1);//每种优惠总价
+							}							
+							$ScoreCount+=$shoplists[$key]['score']*$val['num'];
+							$shoplists[$key]['cart_score']=$shoplists[$key]['score']*$val['num'];
+							$shoplists[$key]['cart_shenyu']=$shoplists[$key]['quantity']-$shoplists[$key]['salenum'];
+							$shoplists[$key]['cart_url'] = $this->_Url("commodity/details",array('id'=>$key));						
+						}
+				}
+				
+			}else{
+				$this->_setcookie('Cartlist',NULL);
+			}
+			$MoenyCount=substr(sprintf("%.3f",$MoenyCount),0,-1);
+			$CartCount = count($Mcartlist);	
+				$this->smarty->assign('shopnum', $shopnum);
+				$this->smarty->assign('MoenyCount', $MoenyCount);
+				$this->smarty->assign('ScoreCount', $ScoreCount);
+				$this->smarty->assign('CartCount', $CartCount);	
+				$this->smarty->assign('shoplists', $shoplists);					
+				$this->smarty->display( 'Commodity/parson/shopcart' . TPLSUFFIX );			
+		}
+		//成功页面
+	public function success(){
+		$this->_InjectPublicData();
+		$this->smarty->display( 'Commodity/parson/success' . TPLSUFFIX );		
+	}
+		//订单管理
+	public function order(){
+		$this->_InjectPublicData();	
+		$memberId = $_SESSION['member_id'];
+		if($memberId){
+			$where['uid'] = $memberId;
+			$orders = $this->getServiceMethod('CommodityOrder','query',$where);	
+			$buylist = array();
+			foreach($orders->data as $key=> $val){
+				$where['orders'] = $val->orders;
+				$buylist[$key] = $this->getServiceMethod('CommodityLog','query',$where);
+			}			
+			$this->smarty->assign('buylist', $buylist);			
+			$this->smarty->display( 'Commodity/parson/order' . TPLSUFFIX );				
+		}
+	
+	}
+
+	
+	//添加购物车
+	public function _addShopCart(){
+		$ShopId =$this->safe_replace(intval($_POST['id']));
+		$ShopNum =$this->safe_replace(intval($_POST['num']));	
+		$cartbs =$this->safe_replace($_POST['type']);//购物车里修改物品
+	  $shopis=0;          //0表示不存在  1表示存在
+	  $Mcartlist=$this->Mcartlist;
+		if($ShopId==0 || $ShopNum==0){
+		  $cart['code']=0;   //表示添加失败
+		}else{
+			  if(is_array($Mcartlist)){
+				foreach($Mcartlist as $key=>$val){
+				   if($key==$ShopId){
+					  if(isset($cartbs) && $cartbs=='cart'){
+						$Mcartlist[$ShopId]['num']=$ShopNum;
+					  }else{
+						$Mcartlist[$ShopId]['num']=$val['num']+$ShopNum;
+					  }
+					  $shopis=1;
+				   }else{
+					  $Mcartlist[$key]['num']=$val['num'];
+				   }
+				}
+			  }else{
+				  $Mcartlist =array();
+				  $Mcartlist[$ShopId]['num']=$ShopNum;
+			  }
+			   if($shopis==0){
+				 $Mcartlist[$ShopId]['num']=$ShopNum;
+			   }
+		   $this->_setcookie('Cartlist',json_encode($Mcartlist),'');
+		  $cart['code']=1;   //表示添加成功
+		}
+	  $cart['num']=count($Mcartlist);    //表示现在购物车有多少条记录
+		echo json_encode($cart);
+	}
+	//删除购物车物品
+	public function _delCartItem(){
+	   $ShopId=intval($_POST['gid']);
+	   $cartlist=$this->Mcartlist;
+		if($ShopId==0){
+		  $cart['code']=0;   //删除失败
+		}else{
+			   if(is_array($cartlist)){
+			      if(count($cartlist)==1){
+				     foreach($cartlist as $key=>$val){
+					   if($key==$ShopId){
+					     $cart['code']=1;
+						    $this->_setcookie('Cartlist','','');
+						}else{
+					     $cart['code']=0;
+					   }
+					 }
+				  }else{
+					   foreach($cartlist as $key=>$val){
+							if($key==$ShopId){
+							  $cart['code']=1;
+							}else{
+							  $Mcartlist[$key]['num']=$val['num'];
+							}
+						}
+
+						   $this->_setcookie('Cartlist',json_encode($Mcartlist),'');
+
+					}
+				}else{
+				   $cart['code']=0;   //删除失败
+				}
+		}
+		echo json_encode($cart);
+	}
+	//结算
+	public function pay(){	
+		$memberId = $_SESSION['member_id'];
+		//$memberId = 7;
+		$info['status']=0;
+		if($memberId){
+			$money=intval($_POST['moenycount']);//获取需支付总金额
+			$score=intval($_POST['scorecount']);//获取总积分
+			if(($money+$score)==0){
+				echo json_encode($info);
+				exit;
+			}
+		    $Mcartlist=json_decode(stripslashes($this->Cartlist),true);
+			$shopids='';
+			if(is_array($Mcartlist)){
+				foreach($Mcartlist as $key => $val){
+					$shopids.=intval($key).',';
+				}
+				$shopids=str_replace(',0','',$shopids);
+				$shopids=trim($shopids,',');
+			}
+			$shoplist=array();
+			if($shopids!=NULL){
+				$shoplist = $this->getServiceMethod('Commodity','getCartList',$shopids);
+				foreach($shoplist as $key => $val){	
+					  $shoplists[$val['id']]= $val;
+				}				
+			}
+			$i = 0;
+			$goodslist=array();
+			if(count($shoplists)>=1){
+							$orderid = $this->_CreateOrderId($this->prefix);
+							$qrcode = substr(md5($orderid.$memberId.time()),0,10);
+				foreach($Mcartlist as $key => $val){
+						$key=intval($key);
+						if(isset($shoplists[$key])){
+							$goodslist[$i]['totalscore']=$shoplists[$key]['score']*$val['num'];							//消费积分
+							if($shoplists[$key]['exchange'] == 2){
+							 $goodslist[$i]['totalcash']=($shoplists[$key]['price']-$shoplists[$key]['discount'])*$val['num'];}else{
+							  $goodslist[$i]['totalcash'] = 0;	
+							} //消费现金
+							
+							$goodslist[$i]['uid'] = $memberId;
+							$goodslist[$i]['gid'] = $key;
+							$goodslist[$i]['num'] = $val['num'];
+							$goodslist[$i]['orders'] =  $orderid; //生成订单号
+							$goodslist[$i]['buytime'] = time();
+							$goodslist[$i]['status'] = 0;
+							$goodslist[$i]['qrcode'] = $qrcode;
+							$i++;
+						}
+				}				
+			}		
+			$ret = $this->getServiceMethod('CommodityLog','saveAll',$goodslist);   //增加记录
+			if($ret){
+				$info['status']=1;
+				$this->_setcookie('Cartlist',NULL);			
+			}
+
+		}
+		echo json_encode($info);
+	}	
+	//积分规则
+	public function points(){
+		$this->_InjectPublicData();
+		$memberid = $_SESSION['member_id'];
+		if($memberid){
+			$memberinfo = $this->getServiceMethod('Member','getscore',intval($memberid));
+			$where['order'] = 'order by id desc';
+			$rule = $this->getServiceMethod('CommodityRule','query',$where); //积分规则
+			$this->smarty->assign('rule', $rule->data);	
+			$this->smarty->assign('ownscore', $memberinfo['ownscore']);	
+			$this->smarty->display( 'Commodity/parson/points' . TPLSUFFIX );	
+		}
+	}
+	
+	//提货条形码
+	public function code(){
+		$this->_InjectPublicData();
+		$memberid = $_SESSION['member_id'];
+		$order = $this->safe_replace($_GET['order']);
+		if($memberid && $order){
+			$where['uid'] = $memberId;
+			$where['orders'] = $order;
+			$buylist = $this->getServiceMethod('CommodityLog','query',$where);
+			$this->smarty->assign('buylist', $buylist);				
+			$this->smarty->display( 'Commodity/parson/barcode' . TPLSUFFIX );	
+		}		
+	}
+	//用户换购状态
+	public function _userStatus(){					
+		$memberid = $_SESSION['member_id'];
+		$shopnum =intval($_POST['num']);
+		$score =intval($_POST['score']); 
+		$gid =intval($_POST['gid']);
+		$lnum =intval($_POST['lnum']);
+		if($memberid){			
+			$memberinfo = $this->getServiceMethod('Member','getscore',intval($memberid));			
+			if($score*$shopnum > $memberinfo['ownscore']){
+				$info['status'] = 1;   //积分不够
+			}else{
+				$istobuy = $this->getServiceMethod('CommodityLog','isToBuy',array('uid'=>$memberid,'gid'=>$gid));
+				if($istobuy >= $lnum && $lnum != 0){
+					$info['status'] = 3;   //已经兑购	
+				}else{
+					$info['status'] = 2;   //ok					
+				}
+			}					
+		}else{
+			$info['status']=0; //未登陆
+		}
+		echo json_encode($info);		
+	}
+	/**
+	 * 
+	 * 注入公共数据
+	 */
+	public function _InjectPublicData() {
+			header("Content-type: text/html; charset=utf-8"); 
+		/** 注入contact信息  **/
+		/** 注入logo icon**/
+		$logo = array('shop_logo','shop_icon_72','shop_icon_32');
+		$goods_logo=$this->getServiceMethod('PicManager','getLogo',$logo);
+		$goods_url = array();
+		foreach($goods_logo->data as $key=>$value){
+			$goods_url[$key] = UPLOAD . $value->img;
+		}
+		/** 注入nav **/
+		$nav = array('index'=>'首页','goodslist'=>'商品列表','order'=>'订单管理','cart'=>'购物车','points'=>'积分规则','success'=>'注销');		
+		/** 注入轮播图片 **/		
+		/** 注入url **/
+	    $commodity = NETADDRESS . '/'. $this->action .'/commodity.php';
+		$index = $commodity . "?method=index";
+		$method_url= $commodity . "?method=";
+		$this->smarty->assign('shopnav',$nav);
+		$this->smarty->assign('LOGO',$goods_url);
+		$this->smarty->assign('INDEX',$index);
+		$this->smarty->assign('COMMODITY',$commodity);
+		$this->smarty->assign('METHOD',$method_url);		
+	}
+
+//生成二维码	
+public static function png($uid){   
+	$uid = 41;
+	include ABSPATH."/hcc/mobile/apk/phpqrcode.php";
+	$value = NETADDRESS.$uid; //二维码内容
+	$errorCorrectionLevel = 'L';//容错级别
+	$matrixPointSize = 6;//生成图片大小
+	//生成二维码图片
+	QRcode::png($value, false, $errorCorrectionLevel, $matrixPointSize, 2); 
+	exit;   
+}
+
+	//生成随机单号，规则：前缀+8位日期串（年+月+日）+8位随机数，型如：150425549753
+	public function _CreateOrderId($pre){		
+		if (strlen($pre) > 4){//如果前缀长度比大于4，截取前4个字符
+			$pre = substr($pre,0,4);
+		}
+		$rst = date('ymd').substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 6);
+		$rst = $pre.$rst;
+		return $rst;	
+	}
+/**
+ * URL组装 不支持不同URL模式  只支持pathinfo模式 
+ * @param string $url URL表达式，格式：'[模块/操作]?参数1=值1&参数2=值2...'  commodity.php?method=details&id=1
+ * @param string|array $vars 传入的参数，支持数组和字符串  不支持描点#
+ * @param string $suffix 后缀，默认为false 表示不获取配置值
+ * @param boolean $domain 是否显示域名
+ * @return string
+ */
+	public function _Url($url='',$vars='',$suffix=false,$domain=true){
+	    $info   =  parse_url($url);
+		$url    =  !empty($info['path'])?$info['path']:$_REQUEST['method'];
+		// 解析参数
+		if(is_string($vars)) { // aaa=1&bbb=2 转换成数组
+			parse_str($vars,$vars);
+		}elseif(!is_array($vars)){
+			$vars = array();
+		}
+		$path  =   explode($this->depr,$url);		
+		if($domain){
+			$domain = NETADDRESS . $this->depr. $this->action . $this->depr . $path[0] . ".php?method=" . $path[1];			
+		}else{
+			$domain = $this->action . $this->depr . $path[0] . ".php?method=" . $path[1];			
+		}
+		$con = '';
+        if(!empty($vars)) { // 添加参数
+            foreach ($vars as $var => $val){
+                if('' !== trim($val))   
+				$con .= '&'. $var . '='. urlencode($val);
+            }                
+        }	
+		return $domain . $con;
+	}
+	public function _getcookie($name){
+		if(empty($name)){return false;}
+		if(isset($_COOKIE[$name])){
+			return $_COOKIE[$name];
+		}else{		
+			return false;
+		}
+	}
+	public function _setcookie($name,$value,$time=0,$path='/',$domain=''){		
+		if(empty($name)){return false;}
+		$_COOKIE[$name]=$value;				//及时生效
+		$s = $_SERVER['SERVER_PORT'] == '443' ? 1 : 0;
+		if(!$time){
+			return setcookie($name,$value,0,$path,$domain,$s);
+		}else{
+			return setcookie($name,$value,time()+$time,$path,$domain,$s);
+		}
+	}
+	/*字符过滤url*/
+	public function safe_replace($string) {
+		$string = str_replace('%20','',$string);
+		$string = str_replace('%27','',$string);
+		$string = str_replace('%2527','',$string);
+		$string = str_replace('*','',$string);
+		$string = str_replace('"','&quot;',$string);
+		$string = str_replace("'",'',$string);
+		$string = str_replace('"','',$string);
+		$string = str_replace(';','',$string);
+		$string = str_replace('<','&lt;',$string);
+		$string = str_replace('>','&gt;',$string);
+		$string = str_replace("{",'',$string);
+		$string = str_replace('}','',$string);
+		$string = str_replace('\\','',$string);		
+		return $string;
+	}	
+}
+new CommodityMobile();
+?>

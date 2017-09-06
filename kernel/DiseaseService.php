@@ -1,0 +1,271 @@
+<?php
+
+class DiseaseService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new DiseaseDAO();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param array $arr(id,...)
+     * @return boolean
+     */
+    public function deleteBatch($ids) {
+        Entity::isIds($ids); // 验证ids是否合法
+
+        $diseases = $this->dao->getBatch($ids);
+
+        $files = array();
+        foreach ($diseases as $disease) {
+            $filename = GENERATEPATH . 'disease/' . $disease->url . '/' . $disease->id . '.html';
+            if ($disease->id == 0) {
+                throw new ValidatorException(78);
+            }
+            $files[] = $filename;
+        }
+
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        return $this->dao->deleteBeans($diseases);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param Entity $disease
+     * @param int $departmentID
+     * @return Result boolean
+     */
+    public function save($disease, $departmentID) {
+        $disease->validate();
+
+        // 获取channel对象
+        $department = new Department();
+        $department->id = $departmentID;
+        $departmentDao = new DepartmentDAO();
+        $departmentbean = $departmentDao->getDepartmentByID($department);
+
+        if ($department->id == 0) {
+            throw new ValidatorException(27);
+        }
+        // 获取class对象并插入数据
+        $this->dao->save($disease);
+
+        return $this->success();
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $diseases = $this->dao->query($where);
+            $departmentdao = new DepartmentDAO();
+        foreach ($diseases as $key => $value) {
+            $statisticsService = new StatisticsLogService();
+            $data = array();
+            $data['url'] = NETADDRESS . '/html/disease/' . $value->id . '.html';
+            // 获得昨日时间
+            $today = date('Y-m-d', time());
+            $time = strtotime($today);
+            $data['yestoday_start'] = $time - 24 * 3600;
+            $data['yestoday_end'] = $time - 1;
+
+            $totalRows = $statisticsService->getYes($data);
+
+            $value->count = $totalRows->data;
+			$value->department_name = $departmentdao->getName($value->department_id);
+            // description截取
+//             if (isset($value->description)) {
+//                 $diseases[$key]->description = mb_substr($value->description, 0, 45, 'utf-8') . '...';
+//             }
+        }
+
+        return $this->success($diseases);
+    }
+
+    /**
+     * 获取疾病信息
+     */
+    public function getByDepartmentID($department_id) {
+        $diseases = $this->dao->getByDepartmentID($department_id);
+
+        return $this->success($diseases);
+    }
+
+    /**
+     * 获取顶级疾病信息
+     */
+    public function getByDisease($department_id) {
+    	$diseases = $this->dao->getByDisease($department_id);
+    
+    	return $this->success($diseases);
+    }
+    /**
+     * 获取子级疾病信息
+     */
+    public function getByDiseaseID($id) {
+    	$diseases = $this->dao->getByDiseaseID($id);
+    
+    	return $this->success($diseases);
+    }
+    /**
+     * 获取单条数据
+     *
+     * @param unknown $disease
+     * @return Result
+     */
+    public function get($disease) {
+        if (! $disease->id) {
+            throw new ValidatorException(7);
+        }
+        $this->dao->get($disease->id, $disease);
+        if ($disease->pic != '') {
+            $disease->src = UPLOAD . $disease->pic;
+        }
+
+        return $this->success($disease);
+    }
+
+    /**
+     * 更改数据
+     *
+     * @param unknown $disease
+     * @return Result
+     */
+    public function update($disease) {
+        $disease->validate();
+        if (! $disease->id) {
+            throw new ValidatorException(7);
+        }
+        return $this->dao->update($disease);
+    }
+
+    /**
+     * 根据多条疾病数据获取疾病
+     *
+     * @param array $ids
+     */
+    public function getNames($ids) {
+        $diseases = $this->dao->getNames($ids);
+
+        return $diseases;
+    }
+
+    /**
+     *
+     *
+     * 根据科室id获取对应的疾病信息
+     *
+     * @param int $department_id
+     */
+    public function getByDepartment($department_id) {
+        $diseases = $this->dao->getByDepartment($department_id);
+
+        return $this->success($diseases);
+    }
+
+    /**
+     * 根据疾病名字获取数据
+     *
+     * @param unknown_type $where
+     */
+    public function getByName($where) {
+        $result = $this->dao->getByName($where);
+        return $this->success($result);
+    }
+    
+    /**
+     * 通过ID获取它的单个子集
+     */
+    public function getSub($Id) {
+        $diseases = $this->dao->getSub($Id);
+
+        return $this->success($diseases);
+    }
+    
+    /**
+     * 通过parent_id获取它的单个父集
+     */
+    public function getPar($parent_id) {
+        $diseases = $this->dao->getPar($parent_id);
+
+        return $this->success($diseases);
+    }
+    
+    /**
+     * 通过parentId获取它的所有父集
+     */
+    public function getParList() {
+        $diseases = $this->dao->getAllDisease();
+        
+        return $this->success($diseases);
+    }
+    
+    /**
+     * 
+     * 更新layer层级关系
+     * @param $data
+     */
+    public function updateSubLayer( $data ) {
+        $diseases = $this->dao->updateSubLayer( $data );
+        
+        return $this->success($diseases);
+    }
+    
+    /**
+     * 通过ID删除它的所有子集
+     * @param int $DiseaseID 疾病id
+     */
+    public function delSubList( $data ) {
+        $diseases = $this->dao->delSubList( $data );
+        
+        return $this->success($diseases);
+    }
+    
+    /**
+     * 通过ID更新它的所有子集的科室ID
+     * @param int $IDarray 子集数组
+     * @param int $DepartmentID 科室id
+     */
+    public function upSubListDepartment( $IDarray , $DepartmentID ) {
+        $diseases = $this->dao->upSubListDepartment( $IDarray , $DepartmentID );
+        
+        return $this->success($diseases);
+    }
+    /**
+     * 通过url获取id
+     */	
+    public function getIdByUrl($url) {
+        return $this->dao->getIdByUrl($url);		
+	}
+    /**
+     * 通过id获取url
+     */	
+    public function getUrlById($id) {
+        return $this->dao->getUrlById($id);		
+	}
+    /**
+     * 查询所有数据
+     */	
+    public function getInfo() {
+        return $this->dao->getInfo();		
+	}    
+    public function getdiseasebyname($arr){
+    	$diseases=$this->dao->getdiseasebyname($arr);
+    	return $this->success($diseases);
+    }
+}
+?>

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>患者管理</title>
+<script type="text/javascript" src="./plugin/plugins/patient/js/Highcharts.js"></script>
+<script type="text/javascript" src="./plugin/plugins/patient/js/public.js"></script>
+<script type="text/javascript" src="./plugin/plugins/patient/js/patient.js"></script>
+
+<script language="javascript" type="text/javascript" src="/hcc/js_plugin/date/WdatePicker.js"></script>
+<script type="text/javascript">
+function openWin(){
+	this.init = function(){
+		$(document).ready(function(){
+			result.start();
+		});
+	};
+	
+	this.returnDiagnosisList = function(id, code, patient_id){
+		result.returnDiagnosisList(id, code, patient_id);
+	};
+};
+
+var openObj = new openWin();
+
+$(document).ready(function(){
+	//这里要先弹出一个框来输入管理密码，默认是admin的登录密码
+	var flag = false;
+	var content = '<form id="contentForm" class="pageForm required-validate">';
+	content += '<div class="pageFormContent">';
+	content += '<ul>';
+	content += '<li>';
+	content += '<span>密码：<input type="password" class="textInput" name="password" id="password"></span>';
+	content += '<span id="error" style="color:red;"></span>';
+	content += '</li>';
+	content += '</ul>';
+	content += '</div>';
+	content　+= '</form>';
+	var dia = art.dialog({
+		title: '请输入密码（初始密码为管理员登录密码）',
+	    content:content,
+	    fixed:true,
+	    width:360,
+	    height:70,
+	    lock:true,
+	    async:false,
+	    opacity: .1,
+	    padding:0,
+	    okVal:'确定',
+	    close:false,
+	    ok:function(){
+	    	var password = $("#password").val();
+	    	$('#loading').addClass('loading');
+			getData({controller:'Patient',method:'loginPatient',password:password},function(ret){
+				$('#loading').removeClass('loading');
+				if(ret.statu){
+					flag = true;
+				}else{
+					$("#error").html(ret.msg);
+					flag = false;
+				}
+			});
+			
+			if (!flag) {
+				return false;
+			}
+			
+			result.start();
+	    },
+	    cancel:function(){
+	    	$.getScript('./public/js/plugin.js',function() {
+				result.muchplug();
+		    });
+	    }
+	});
+	$('#password').focus();
+});
+
+function changeAge(){
+	var timestamp = new Date();
+	var year = timestamp.getFullYear();
+	var birthday = $('#birthday').val();
+	var arr = birthday.split('-');
+	var age = year - parseInt(arr[0]);
+	$("#age").val(age);
+}
+
+</script>
+<style>
+.li-items {display:inline-block;overflow:hidden; text-overflow:ellipsis; white-space:nowrap;float:left;padding-right:12px;width:76px;}
+</style>
+</head>
+<body>
+<div id="each">
+
+</div>
+</body>
+</html>

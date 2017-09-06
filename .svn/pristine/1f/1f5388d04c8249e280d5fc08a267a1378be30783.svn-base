@@ -1,0 +1,518 @@
+<?php
+/**
+ * 
+ * HMA专用数据获取接口
+ * @author Administrator
+ * @version v1.0
+ */
+include_once '../hwibsc/common.class.php';
+class GetPart extends common {
+	private $part = null;
+	
+	public function __construct() {
+		parent::__construct();
+		ini_set("display_errors", "On");
+		if( isset( $_REQUEST['part'] ) &&  $_REQUEST['part'] != '' ) {
+			$this->part = trim( $_REQUEST['part'] );
+			$method = 'get_'.$this->part;
+			if ( method_exists( $this , $method ) ) {
+				$this->$method();
+			}else{
+				die( json_encode( array( 'code'=>1,'msg'=>'part参数错误,不存在该调用接口!','departments'=>null ) ) );
+			}
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'part参数为空!','departments'=>null ) ) );
+		}
+	}
+	
+	#.查询文章
+	private function get_article_info(){
+		$id = isset( $_REQUEST['articleId'] ) && $_REQUEST['articleId'] >=1 ? $_REQUEST['articleId'] : 0;
+		if( $id <= 0 ){
+			die( json_encode( array( 'code'=>1,'msg'=>'ID不能为空!','data'=>null ) ) );
+		}
+		new ArticleService();
+		$result = R::find('article',"id=".$id);
+		if( count($result) >= 1 ){
+			$data = array();
+			$data['code']    = 0;
+			$data['msg']     = '获取成功';
+			$data['title']   = $result[$id]->title;
+			$data['date']    = date('Y-m-d H:i:s',$result[$id]->plushtime);
+			$data['author']  = $result[$id]->source;
+			$data['content'] = $result[$id]->content;
+			die( json_encode( $data ) );
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'不存在对应的文章信息!','data'=>null ) ) );
+		}
+	}
+	
+	#.匹配文章列表
+	#.http://10.0.0.75/interface/hma/get.php?part=search_article
+	private function get_search_article(){
+		$page = isset( $_REQUEST['page'] ) && $_REQUEST['page'] >=1 ? $_REQUEST['page'] : 1;
+		$rows = isset( $_REQUEST['rows'] ) && $_REQUEST['rows'] >=1 ? $_REQUEST['rows'] : 10;
+		$word = isset( $_REQUEST['keyword'] ) ? $_REQUEST['keyword'] : '';
+		#.获取匹配关键词后的总条数
+		new ArticleService();
+		$result = R::find('article',"subject like '%".$word."%'");
+		$count  = count( $result );
+		if( count( $result ) <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'没有找到匹配的文章!','data'=>null ) ) );
+		}
+		#.计算最大页
+		$maxPage = ceil( $count / $rows );
+		if( $page > $maxPage ){
+			die( json_encode( array( 'code'=>0,'msg'=>'没有数据','data'=>null ) ) );
+		}
+		#.limit
+		$limit   = ( $page - 1 ) * 10 . ',' . $rows;
+		$result = R::find('article',"subject like '%". $word ."%' ORDER BY id desc limit ".$limit);
+		#.遍历获得hma像要的数据
+		$data = array();
+		foreach ( $result as $key => $value ) {
+			$data[$key-1]['articleId']    = $value->id;
+			$data[$key-1]['title']        = $value->subject;
+			$data[$key-1]['description']  = $value->description;
+			$data[$key-1]['date']         = date('Y-m-d H:i:s',$value->plushtime);
+			#.根据科室ID查科室
+			$deparment = R::find('department','id='.$value->department_id);
+			$disease   = R::find('disease','id='.$value->disease_id);
+			$data[$key-1]['url']          = NETADDRESS . '/mobile/article.php?method=get&id=' . $value->id;
+		}
+		#.输出
+		$ddata = array();
+		foreach ($data as $k => $v){$ddata[] = $v;}
+		die( json_encode( array( 'code'=>0,'msg'=>'','data'=>$ddata ) ) );
+	}
+	
+	#.通过医生ID取该医生的预约排班表
+	#.http://10.0.0.75/interface/hma/get.php?part=doctor_outpatient_time
+	private function get_doctor_outpatient_time() {
+		#.信息来源
+		if( ! isset( $_REQUEST['doctor_id'] ) || $_REQUEST['doctor_id'] == '' || (int)$_REQUEST['doctor_id'] <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'缺少doctor_id','data'=>null ) ) );
+		}
+		#.是否存在该医生的预约信息
+		new DoctorService();
+		$doctor_id = (int)$_REQUEST['doctor_id'];
+			$result    = R::find('reservation','doctor_id = '.$doctor_id);
+			if( count( $result ) <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'该医生不存在预约信息!','data'=>null ) ) );
+		}
+		#.遍历该医生的预约单,取出预约详情
+		$data = array();
+		$i    = 0;
+		foreach ($result as $key => $value) {
+		#.上午
+		$data[$i]['date'] = date('Y-m-d',$value->date);
+		$data[$i]['price'] = 0;
+			$data[$i]['time_day'] = '上午';
+						$data[$i]['week'] = $this->get_week($value->date);
+						$data[$i]['data'] = array();
+						if( $value->morning != '-' ) {
+						#.上午区间
+							$mb = strtotime( date('Y-m-d',$value->date).' 00:00:01' );
+				$me = strtotime( date('Y-m-d',$value->date).' 12:00:00' );
+				#.取上午数据
+						$bindsql  = "doctor_id = $doctor_id and date = '{$value->date}' and statu='待约' and times >= '{$mb}' and times <= '{$me}' order by times";
+						$deResult = R::find('reservationdetail', $bindsql);
+						#.遍历上午数据,进行组合
+						$deData = array();
+						$y = 0;
+						foreach ($deResult as $k => $v) {
+						$deData[$y]['time_id'] = $v->id;
+						$deData[$y]['time']    = date('H:i',$v->times);
+						$y++;
+						}
+						$data[$i]['data'] = $deData;
+		}
+		if(count($data[$i]['data'])<1){unset($data[$i]);}
+		$i++;
+		#.下午
+		$data[$i]['date'] = date('Y-m-d',$value->date);
+		$data[$i]['price'] = 0;
+			$data[$i]['time_day'] = '下午';
+						$data[$i]['week'] = $this->get_week($value->date);
+						$data[$i]['data'] = array();
+						if( $value->afternoon != '-' ) {
+								#.下午区间
+									$mb = strtotime( date('Y-m-d',$value->date).' 12:00:01' );
+									$me = strtotime( date('Y-m-d',$value->date).' 18:00:00' );
+									#.取下午数据
+									$bindsql  = "doctor_id = $doctor_id and date = '{$value->date}' and statu='待约' and times >= '{$mb}' and times <= '{$me}' order by times";
+									$deResult = R::find('reservationdetail', $bindsql);
+									#.遍历下午数据,进行组合
+									$deData = array();
+									$y = 0;
+									foreach ($deResult as $k => $v) {
+										$deData[$y]['time_id'] = $v->id;
+										$deData[$y]['time']    = date('H:i',$v->times);
+										$y++;
+									}
+									$data[$i]['data'] = $deData;
+								}
+								if(count($data[$i]['data'])<1){unset($data[$i]);}
+								$i++;
+								#.晚上
+								$data[$i]['date'] = date('Y-m-d',$value->date);
+								$data[$i]['price'] = 0;
+								$data[$i]['time_day'] = '晚上';
+								$data[$i]['week'] = $this->get_week($value->date);
+								$data[$i]['data'] = array();
+								if( $value->night != '-' ) {
+									#.下午区间
+									$mb = strtotime( date('Y-m-d',$value->date).' 18:00:01' );
+									$me = strtotime( date('Y-m-d',$value->date).' 24:00:00' );
+									#.取下午数据
+									$bindsql  = "doctor_id = $doctor_id and date = '{$value->date}' and statu='待约' and times >= '{$mb}' and times <= '{$me}' order by times";
+									$deResult = R::find('reservationdetail', $bindsql);
+									#.遍历下午数据,进行组合
+									$deData = array();
+									$y = 0;
+									foreach ($deResult as $k => $v) {
+										$deData[$y]['time_id'] = $v->id;
+										$deData[$y]['time']    = date('H:i',$v->times);
+										$y++;
+									}
+									$data[$i]['data'] = $deData;
+								}
+								if(count($data[$i]['data'])<1){unset($data[$i]);}
+								$i++;
+	}
+	//重置索引
+	$newData = array();
+	foreach ($data as $key => $value) {
+		$newData[] = $value;
+	}
+	die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$newData ) ) );
+	}
+	
+	#.通过医生ID取该医生的预约排班表
+	#.http://10.0.0.75/interface/hma/get.php?part=doctor_outpatient_time
+	private function get_doctormanager_outpatient_time() {
+// 		$filename=time();
+		                 
+// 			    	    $apk_url = dirname(__FILE__) . "/oldfile_".$filename.".txt";
+		 
+		
+// 			    	    $myfile = fopen( $apk_url, "w") or die("Unable to open file!");
+// 			    	    $txt = date('Y-m-d H:i:s',time());
+			    	   
+// 			    	    fwrite($myfile, $txt);
+// 			    	     $s = print_r($_REQUEST, true);
+// 			    	    fwrite($myfile, $s);
+// 			    	    fclose($myfile);
+		
+		
+		#.信息来源
+		if( ! isset( $_REQUEST['doctor_id'] ) || $_REQUEST['doctor_id'] == '' || (int)$_REQUEST['doctor_id'] <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'缺少doctor_id','data'=>null ) ) );
+		}
+		#.是否存在该医生的预约信息
+		new DoctorManagerService();
+	
+		$doctor_id = (int)$_REQUEST['doctor_id'];
+		$result    = R::find('reservation','doctor_id = '.$doctor_id);
+		if( count( $result ) <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'该医生不存在预约信息!','data'=>null ) ) );
+		}
+		#.遍历该医生的预约单,取出预约详情
+		$reserverser=new ReservationService();
+		if(isset($_REQUEST['date'])&&$_REQUEST['date']!=null){
+		
+		//$_REQUEST['normaldate']=$_REQUEST['date'];
+		$_REQUEST['date'] = strtotime($_REQUEST['date']);
+		$results = $reserverser->getDetail($_REQUEST);
+		}else{
+			$arrweek=array();
+			//$datearray=array('normaldate'=>$now=date('Y-m-d'));
+			//$_REQUEST['normaldate']=date('Y-m-d');
+			
+			$_REQUEST['date'] = strtotime(date('Y-m-d'));
+			
+			for($i=0;$i<7;$i++){
+				 $resudate= $reserverser->getDetail($_REQUEST);
+				 if($resudate->data!=null){
+				 $arrweek[$i]=$resudate->data;
+				 }
+				 $_REQUEST['date']= $_REQUEST['date']+86400;
+			}
+			
+			//$results=$arrweek;
+			
+			$results=array('statu'=>true,
+					'code'=>0,
+					'msg'=>null,
+					'data'=>array_merge($arrweek)
+			);
+			
+			
+		}
+		
+		echo json_encode($results);
+		
+// 		$data = array();
+// 		$i    = 0;
+// 		foreach ($result as $key => $value) {
+// 			#.上午
+// 			$data[$i]['date'] = date('Y-m-d',$value->date);
+// 			$data[$i]['price'] = 0;
+// 			$data[$i]['time_day'] = '上午';
+// 			$data[$i]['week'] = $this->get_week($value->date);
+// 			$data[$i]['data'] = array();
+// 			if( $value->morning != null&&strlen($value->morning)!=0 ) {
+// 				#.上午区间
+// 				$mb = strtotime( date('Y-m-d',$value->date).' 00:00:01' );
+// 				$me = strtotime( date('Y-m-d',$value->date).' 12:00:00' );
+// 				#.取上午数据
+// 				$bindsql  = "doctor_id = $doctor_id and date = '{$value->date}' and statu='待约' and times >= '{$mb}' and times <= '{$me}' order by times";
+// 				$deResult = R::find('reservationdetail', $bindsql);
+// 				#.遍历上午数据,进行组合
+// 				$deData = array();
+// 				$y = 0;
+// 				foreach ($deResult as $k => $v) {
+// 					$deData[$y]['time_id'] = $v->id;
+// 					$deData[$y]['time']    = date('H:i',$v->times);
+// 					$y++;
+// 				}
+// 				$data[$i]['data'] = $deData;
+// 			}
+// 			if(count($data[$i]['data'])<1){unset($data[$i]);}
+// 			$i++;
+// 			#.下午
+// 			$data[$i]['date'] = date('Y-m-d',$value->date);
+// 			$data[$i]['price'] = 0;
+// 			$data[$i]['time_day'] = '下午';
+// 			$data[$i]['week'] = $this->get_week($value->date);
+// 			$data[$i]['data'] = array();
+// 			if( $value->afternoon != null&&strlen($value->afternoon)!=0 ) {
+// 				#.下午区间
+// 				$mb = strtotime( date('Y-m-d',$value->date).' 12:00:01' );
+// 				$me = strtotime( date('Y-m-d',$value->date).' 18:00:00' );
+// 				#.取下午数据
+// 				$bindsql  = "doctor_id = $doctor_id and date = '{$value->date}' and statu='待约' and times >= '{$mb}' and times <= '{$me}' order by times";
+// 				$deResult = R::find('reservationdetail', $bindsql);
+// 				#.遍历下午数据,进行组合
+// 				$deData = array();
+// 				$y = 0;
+// 				foreach ($deResult as $k => $v) {
+// 					$deData[$y]['time_id'] = $v->id;
+// 					$deData[$y]['time']    = date('H:i',$v->times);
+// 					$y++;
+// 				}
+// 				$data[$i]['data'] = $deData;
+// 			}
+// 			if(count($data[$i]['data'])<1){unset($data[$i]);}
+// 			$i++;
+// 			#.晚上
+// 			$data[$i]['date'] = date('Y-m-d',$value->date);
+// 			$data[$i]['price'] = 0;
+// 			$data[$i]['time_day'] = '晚上';
+// 			$data[$i]['week'] = $this->get_week($value->date);
+// 			$data[$i]['data'] = array();
+// 			if( $value->night != null&&strlen($value->night)!=0 ) {
+// 				#.下午区间
+// 				$mb = strtotime( date('Y-m-d',$value->date).' 18:00:01' );
+// 				$me = strtotime( date('Y-m-d',$value->date).' 24:00:00' );
+// 				#.取下午数据
+// 				$bindsql  = "doctor_id = $doctor_id and date = '{$value->date}' and statu='待约' and times >= '{$mb}' and times <= '{$me}' order by times";
+// 				$deResult = R::find('reservationdetail', $bindsql);
+// 				#.遍历下午数据,进行组合
+// 				$deData = array();
+// 				$y = 0;
+// 				foreach ($deResult as $k => $v) {
+// 					$deData[$y]['time_id'] = $v->id;
+// 					$deData[$y]['time']    = date('H:i',$v->times);
+// 					$y++;
+// 				}
+// 				$data[$i]['data'] = $deData;
+// 			}
+// 			if(count($data[$i]['data'])<1){unset($data[$i]);}
+// 			$i++;
+// 		}
+// 		//重置索引
+// 		$newData = array();
+// 		foreach ($data as $key => $value) {
+// 			$newData[] = $value;
+// 		}
+// 		die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$newData ) ) );
+	}
+	
+	
+	#.通过科室获取医生列表
+	#.http://10.0.0.75/interface/hma/get.php?part=department_doctor_list&apartment=10
+	private function get_department_doctor_list() {
+		#.获取基本信息
+		$departmentID = (int)$_REQUEST['apartment'];
+		$service    = new DoctorService();
+		$docList    = $service->getByDepartmentID($departmentID);//取出所有
+		if( count( $docList->data ) <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'该科室分类下没有医生信息!','data'=>null ) ) );
+		}
+		$data = $docList->data;
+		#.遍历并组合hma需要的信息
+		$docArray = array();
+		foreach ( $data  as $key => $value) {
+			$docArray[$key]['doctor_id'] = $value->id;
+			$docArray[$key]['name']      = $value->name;
+			$docArray[$key]['position']  = $value->position;
+			$docArray[$key]['hospital']  = '';
+			$docArray[$key]['adept']     = $value->specialty;
+			#.查询该医生是否处于允许预约
+			$result = R::findOne('reservation','doctor_id = ' . $value->id);
+			$docArray[$key]['isEmpty']   = ! is_object( $result ) ? 1 : 0;
+			$docArray[$key]['img_url']   = UPLOAD . $value->pic;
+		}
+		#.是否有分页参数
+		if( ! isset( $_REQUEST['row'] ) || ! isset( $_REQUEST['page'] ) ){
+			die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$docArray ) ) );
+		}
+		$row  = (int)$_REQUEST['row'];
+		$page = (int)$_REQUEST['page'];
+		if($row <= 0 || $page <= 0){
+			die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$docArray ) ) );
+		}
+		#.进行分页操作
+		if( $page >= count( $docArray ) / $row ) {
+			$page = count( $docArray ) / $row;
+		}
+		$begin = ($page - 1) * $row;
+		$data = array_slice($docArray,$begin,$row);
+		die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$data ) ) );
+	}
+	
+	#.科室获取接口
+	private function get_department_list() {
+		$services = new DepartmentService();
+		$getDepartments = $services->getDepartments();
+		if( is_array( $getDepartments->data ) ) {
+			die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','departments'=>$getDepartments->data ) ) );
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'科室列表为空!','departments'=>null ) ) );
+		}
+	}
+	
+	
+	#.获取预约挂号科室列表
+	private function get_departmentmanager_list() {
+		$services = new DepartmentManagerService();
+		$getDepartments = $services->getDepartments();
+		if( is_array( $getDepartments->data ) ) {
+			die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','departments'=>$getDepartments->data ) ) );
+		}else{
+			die( json_encode( array( 'code'=>1,'msg'=>'科室列表为空!','departments'=>null ) ) );
+		}
+	}
+	
+	#.通过科室获取医生列表
+	#.http://10.0.0.75/interface/hma/get.php?part=department_doctor_list&apartment=10
+	private function get_department_doctormanager_list() {
+		#.获取基本信息
+		$departmentID = (int)$_REQUEST['apartment'];
+		$service    = new DoctorManagerService();
+		$docList    = $service->getByDepartmentID($departmentID);//取出所有
+		if( count( $docList->data ) <= 0 ) {
+			die( json_encode( array( 'code'=>1,'msg'=>'该科室分类下没有医生信息!','data'=>null ) ) );
+		}
+		$data = $docList->data;
+		#.遍历并组合hma需要的信息
+		$docArray = array();
+		foreach ( $data  as $key => $value) {
+			$docArray[$key]['doctor_id'] = $value->id;
+			$docArray[$key]['name']      = $value->name;
+			$docArray[$key]['position']  = $value->position;
+			$docArray[$key]['hospital']  = '';
+			$docArray[$key]['adept']     = $value->specialty;
+			#.查询该医生是否处于允许预约
+			$result = R::findOne('reservation','doctor_id = ' . $value->id);
+			$docArray[$key]['isEmpty']   = ! is_object( $result ) ? 1 : 0;
+			$docArray[$key]['img_url']   = UPLOAD . $value->pic;
+		}
+		#.是否有分页参数
+		if( ! isset( $_REQUEST['row'] ) || ! isset( $_REQUEST['page'] ) ){
+		die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$docArray ) ) );
+		}
+		$row  = (int)$_REQUEST['row'];
+				$page = (int)$_REQUEST['page'];
+						if($row <= 0 || $page <= 0){
+						die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$docArray ) ) );
+						}
+						#.进行分页操作
+						if( $page >= count( $docArray ) / $row ) {
+						$page = count( $docArray ) / $row;
+		}
+		$begin = ($page - 1) * $row;
+		$data = array_slice($docArray,$begin,$row);
+			die( json_encode( array( 'code'=>0,'msg'=>'获取成功!','data'=>$data ) ) );
+		}
+	
+	
+	#.通过总控预约ID取预约信息
+	private function get_reservation_info(){
+		new ReservationService();
+		$reservation_id = isset($_REQUEST['appointment_id']) ? $_REQUEST['appointment_id'] : 0;
+		if( $reservation_id <= 0 ){
+			die( json_encode( array('code'=>1,'msg'=>'查询失败,appointment_id不能为空!') ) );
+		}
+		$result = R::findOne('reseruser','reservation_id = ' . $reservation_id);
+		if( is_object($result) ){
+			$data['code']            = 0;
+			$data['msg']             = '查询成功';
+			#.查询医院名称
+			$contact = R::findOne('contact',"flag = 'name'");
+			$data['hospital_name']   = $contact->val;
+			#.查询预约详细信息
+			$reservaInfo = R::findOne('reservationdetail',"id = " . $result->reservation_fid);
+			#.查询科室
+			$deparment   = R::findOne('department',"id = " . $reservaInfo->department_id);
+			$data['department_name'] = isset( $deparment->name ) ? $deparment->name : '';
+			#.查询医生
+			$doctor      = R::findOne('doctor',"id = " . $reservaInfo->doctor_id);
+			$data['doctor_name'] 	 = isset( $doctor->name ) ? $doctor->name : '';
+			$data['date'] 			 = date('Y-m-d',$reservaInfo->date);
+			$data['time'] 			 = date('H:i:s',$reservaInfo->times);
+			$data['username'] 		 = $result->name;
+			$data['tel'] 			 = $reservaInfo->telephone;
+			die( json_encode( $data ) );
+		}else{
+			die( json_encode( array('code'=>1,'msg'=>'查询失败,appointment_id不存在!') ) );
+		}
+	}
+	
+	#.获取软件配置信息
+	private function get_configure_info(){
+		$contact = new ContactService();
+		$swt = $contact->getContact('swt_link');
+		$tel = $contact->getContact('tel');
+		$address_hos = $contact->getContact( 'address' );
+		$jwd     = $contact->getContact( 'map' );
+		$busNum  = $contact->getContact( 'route' );
+		$json = array();
+		$json['code'] = 0;
+		$json['chatUrl']     = $swt->data->val;
+		$json['tel']         = $tel->data->val;
+		$json['address_hos'] = $address_hos->data->val;
+		$json['busNum']      = $busNum->data->val;
+		//分割经纬度
+		if( $jwd->data->val != '' ){
+			$jwdArrays = explode(',',$jwd->data->val);
+			$json['log'] = $jwdArrays[0];
+			$json['lat'] = $jwdArrays[1];
+		}else{
+			$json['log'] = '';
+			$json['lat'] = '';
+		}
+		$json['msg'] = '获取成功';
+		die( json_encode( $json ) );
+	}
+	
+	#.获取星期几
+	private function get_week($time = null) {
+		$weekarray=array("星期日","星期一","星期二","星期三","星期四","星期五","星期六");
+		return $weekarray[date('w',$time)];
+	}
+	
+}
+new GetPart();
+?>

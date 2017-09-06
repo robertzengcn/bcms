@@ -1,0 +1,19 @@
+<?php
+
+class ReserUserService extends BaseService {
+
+    public function __construct() {
+        $this->dao = new ReserUserDAO();
+        
+    }
+
+    public function getreserbyfid($arr){
+	$result=$this->dao->getreserbyfid($arr);
+	return $this->success($result);
+    }
+    
+ 
+	
+	
+		
+}

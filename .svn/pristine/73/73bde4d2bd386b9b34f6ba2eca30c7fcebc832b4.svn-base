@@ -1,0 +1,15 @@
+(function(){
+	CKEDITOR.plugins.add('helloworld',{
+		requires : ['dialog'],
+		init : function(a){
+			a.addCommand('helloworld',new CKEDITOR.dialogCommand('helloworld'));
+			a.ui.addButton('helloworld',{
+				label : 'helloworld',
+				command : 'helloworld',
+				icon:this.path+'images/anchor.png'
+			});
+			CKEDITOR.dialog.add('helloworld',this.path+'dialogs/helloworld.js');
+		}
+
+	})
+})();

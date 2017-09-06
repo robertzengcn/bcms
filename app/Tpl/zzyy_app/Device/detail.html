@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes" >
+<title>{{$data->title}}</title>
+<meta name="keywords" content="{{$data->keywords}}" />
+<meta name="description" content="{{$data->description}}" />
+<link rel="stylesheet" type="text/css" href="{{$RESOURCE}}/css/style.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script type="text/javascript" src="{{$RESOURCE}}/js/jquery.js" ></script>
+</head>
+<body>
+{{include file="Common/right.html"}}
+<div style="width:95%;margin:0 auto;">
+       {{$data->content}} 
+    </div>
+</body>
+</html>

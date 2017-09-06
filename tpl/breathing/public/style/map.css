@@ -1,0 +1,7 @@
+@charset "gb2312";
+/* map */
+.map{padding:0px 20px;}
+.linkbox,.linkbox h3{clear:both;}
+.linkbox h3{line-height:32px;border-bottom:1px dashed #ddd;}
+.linkbox h3,.linkbox h3 a{color:#862202;}
+.linkbox ul li{float:left;line-height:30px;border-bottom:1px dashed #ddd;padding:0px 10px;white-space:normal;}

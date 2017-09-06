@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class PrizeDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_PRIZE;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {
+    	
+    	
+
+        
+        DTExpression::eq('drawid', $where);
+
+        DTExpression::page($where);
+
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+
+        
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql);
+        
+       
+    
+    }
+
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::eq('drawid', $where);
+
+        DTExpression::page($where);
+
+        DTOrder::$sql = isset($where['order']) ? $where['order'] : '';
+        //DTExpression::eq('pattern', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+}
+

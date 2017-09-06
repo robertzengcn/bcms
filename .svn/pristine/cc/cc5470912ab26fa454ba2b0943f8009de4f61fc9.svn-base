@@ -1,0 +1,186 @@
+<?php
+
+/**
+ * 资讯(news)DAO
+ *
+ * @author Administrator
+ *
+ */
+class ResDepartmentDAO extends DBBaseDAO {
+
+    public function __construct() {
+        parent::__construct();
+        $this->tableName = TABLENAME_DEPARTMENTMANAGER;
+        $this->department = TABLENAME_DEPARTMENT;
+        
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function query($where) {    	
+        DTExpression::like('name', $where);
+        DTExpression::like('url', $where);
+        DTExpression::page($where);
+        DTOrder::desc('id');
+        return $this->getByComposite(ORMMap::$classes[$this->tableName], DTExpression::$sql . DTOrder::$sql . DTExpression::$limit);
+        
+    }
+	
+    /**
+     * 添加科室信息
+     */
+    public function addDepartment($entity){
+    	return $this->dealAddOperator($entity, 'resdepartment');
+    }
+    
+    /**
+     * 编辑科室信息
+     */
+    public function editDepartment($entity){
+    	return $this->dealAddOperator($entity, 'resdepartment');
+    }
+    
+    /**
+     * 根据科室ID获得科室名称
+     */
+    public function getDepartmentNameByID($ID) {    	
+    	$ResDepartment = new ResDepartment();
+        $ResDepartment = R::load($this->tableName, $ID);
+        $ResDepartment->generateFromRedBean($ResDepartment);        
+        return $ResDepartment->name;  
+    }
+    
+    
+    /**
+     * 获得总数
+     *
+     * @param array $where
+     *            查询条件
+     *            return object $arr
+     */
+    public function totalRows($where) {
+        DTExpression::ge('plushtime', $where, 'start_time');
+        DTExpression::le('plushtime', $where, 'end_time');
+        DTExpression::like('name', $where);
+        DTExpression::like('url', $where);
+
+        return $this->getRecordCount(DTExpression::$sql, DTExpression::$params);
+    }
+
+    /**
+     * 获取科室数据
+     *
+     * @return multitype:Departments
+     */
+    public function getDepartments() {
+        $departments = R::findAll($this->tableName);		
+        $departmentArray = array();
+        foreach ($departments as $key => $value) {
+            $department = new ResDepartment();
+            $department->generateFromRedBean($value);
+            $departmentArray[] = $department;
+        }
+
+        return $departmentArray;
+    }
+
+    /**
+     * 获取科室
+     *
+     * @param Departments() $department
+     *            $channel->id
+     * @return bean
+     */
+    public function getDepartmentByID($department) {
+        $departmentBean = R::load($this->tableName, $department->id);
+        $department->generateFromRedBean($departmentBean);
+
+        return $departmentBean;
+    }
+    public function importdate(){
+    	$sql = 'INSERT INTO '.$this->tableName.' ( name ) SELECT name FROM `'.$this->department.'` ';
+    	R::exec($sql);
+    	return true;
+    }
+    /*
+     *
+    * 取顶级科室
+    * */
+    public function gettopDepartments(){
+    	$departments = R::findAll($this->tableName,'belong is null or belong = 0');
+    	 
+    	$departmentArray = array();
+    	foreach ($departments as $key => $value) {
+    		$department = new ResDepartment();
+    		$department->generateFromRedBean($value);
+    		$departmentArray[] = $department;
+    	}
+    	 
+    	return $departmentArray;
+    }
+    
+     /*
+     * 
+     *取某个科室的二级科室 
+     * */
+     public function getbelongdep($arr){
+     	$departments = R::findAll($this->tableName,'belong = :id',$arr);
+     	$departmentArray = array();
+     	foreach ($departments as $key => $value) {
+     		$department = new ResDepartment();
+     		$department->generateFromRedBean($value);
+     		$departmentArray[] = $department;
+     	}
+     	return $departmentArray;
+     }
+     
+     /**
+      * 检查数据是否存在
+      *
+      * @return boolean  true:存在   false:不存在
+      * */
+     protected function isExists($tablename, $where = array()) {
+     	if (is_array($where)) {
+     		foreach ($where as $key => $v) {
+     			DTExpression::eq($key, $where);
+     		}
+     
+     		$result = R::findOne($tablename, DTExpression::$sql, DTExpression::$params);
+     		if (empty($result)) {
+     			return false;
+     		}
+     		 
+     		return true;
+     	}
+     
+     	return false;
+     }
+     
+     /**
+      * 处理添加操作
+      * */
+     protected function dealAddOperator($entity, $tablename, $isReturnId = false) {
+     	if ($entity->id) {
+     		$entity->validate();
+     		$bean = R::load($tablename, $entity->id);
+     		$entity->generateRedBean ( $bean );
+     	} else {     		
+     		$entity->validate();      		 		
+     		$bean = R::dispense($tablename);      		 		
+     		$entity->generateRedBean($bean);
+     		
+     	}
+     	$insertId = R::store ( $bean );
+     	$entity->generateFromRedBean ( $bean );
+     	 
+     	if ($isReturnId) {
+     		return $insertId;
+     	}
+     	return $entity;
+     }
+}

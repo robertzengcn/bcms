@@ -1,0 +1,61 @@
+<style type="text/css">
+	.editor_main{margin:0 auto;width:700px;height:220px;}
+	.editor_main form{height:100%;}
+	.form_box ul li span.editor_title{float:left;line-height: 30px;text-align: right;width:60px;font-weight:border;}
+	.form_box ul li span.editor_info{float: left;line-height: 30px;margin-left:6px;text-align:left;width: 600px;color:#A5A5A5;}
+	.form_box{width:98%;margin:0 auto;}
+	.form_box ul li.list_item{font-family: Arial,sans-serif;font-size: 14px;margin: 0;padding: 0;line-height:25px;padding:2px 6px;width:120px;float:left;}
+	li.list_item p{width:100%;line-height:25px;font-size:12px;display:inline;}
+	span.editor_info ul{padding-left:9px;word-wrap:break-word;width:100%;}
+	div.htmlbox{width:400px;height:75px;background:url("plugin/plugins/website/i/showboxbg.png") no-repeat;overflow:hidden;display:none;position:absolute;top:25px;left:0px;z-index:999;}
+	div.htmlbox p{width:100%;line-height:25px;}
+</style>
+
+<div class="editor_main">
+<form id="information" class="pageForm required-validate">
+	<div class="form_box">
+		<ul>
+			<li>
+				<span class="editor_title">医院：</span>
+				<span class="editor_info">
+					<select class="textInput textSelect" style="float:left;" id="hospital" name="hospital">
+					</select>
+					<span id="hospital_error" style="color:red;padding-top:10px;"></span>
+				</span>
+				<div style='clear:both;'></div>
+			</li>
+			<li>
+				<span class="editor_title">组合标题：</span>
+				<span class="editor_info">
+			        <ul id="ul_titles"></ul>
+				</span>
+				<div style='clear:both;'></div>
+			</li>
+			<li>
+				<span class="editor_title">选择头部：</span>
+				<span class="editor_info">
+					<ul id="ul_headers"></ul>
+
+				</span>
+			<div style="clear:both;"></div>
+			</li>
+			<li>
+				<span class="editor_title">选择尾部：</span>
+				<span class="editor_info">
+					<ul id="ul_footers"></ul>
+				 <div style="clear:both;"></div>
+				</span>
+			</li>
+			<li>
+			<div style="clear:both;"></div>
+				<span class="editor_title"></span>
+				<span class="editor_info" style="color:red;"><b>说明：</b>自定义头尾用于同质文章差异化及伪原创，如勾选则自动将勾选的头尾添加至文章对应的地方，若未勾选则随机组合。
+				 <div style="clear:both;"></div>
+				</span>
+			</li>
+		</ul>
+		<input type="hidden" name="ids" id="ids" value="">
+	</div>
+
+</form>
+</div>

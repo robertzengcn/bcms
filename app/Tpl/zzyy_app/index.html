@@ -1,0 +1,107 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+{{include file="Common/header.html"}}
+<link type="text/css" rel="stylesheet" href="{{$RESOURCE}}/css/keshi.css">
+
+</head>
+
+<body>
+{{include file="Common/right.html"}}
+{{$doc=$PicManagerTag->getMobilePic(appkeshi,app)}}
+<img src="{{$doc->src}}" style="width:100%; max-width:740px; margin:0 auto; display:block;"> 
+{{$department=$DepartmentTag->get($id)}}
+
+<div id="menu_box">
+	<ul>
+	    {{$i=1}}
+	    {{$Diseases = $DiseaseTag->getByDeparment($department->id)}}
+		{{if $Diseases|@count <=1}}
+		<li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href=""></a>&nbsp;</li>
+        <li class="btn3"><a href=""></a>&nbsp;</li>
+        <li class="btn4"><a href=""></a>&nbsp;</li>
+        <li class="btn5"><a href=""></a>&nbsp;</li>
+        <li class="btn6"><a href=""></a>&nbsp;</li>
+        <li class="btn7"><a href=""></a>&nbsp;</li>
+        {{elseif $Diseases|@count <=2}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href=""></a>&nbsp;</li>
+        <li class="btn4"><a href=""></a>&nbsp;</li>
+        <li class="btn5"><a href=""></a>&nbsp;</li>
+        <li class="btn6"><a href=""></a>&nbsp;</li>
+        <li class="btn7"><a href=""></a>&nbsp;</li>
+        {{elseif $Diseases|@count <=3}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[2]->id}}">{{$Diseases[2]->name|truncate:4}}</a></li>
+        <li class="btn4"><a href=""></a>&nbsp;</li>
+        <li class="btn5"><a href=""></a>&nbsp;</li>
+        <li class="btn6"><a href=""></a>&nbsp;</li>
+        <li class="btn7"><a href=""></a>&nbsp;</li>
+        {{elseif $Diseases|@count <=4}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[2]->id}}">{{$Diseases[2]->name|truncate:4}}</a></li>
+        <li class="btn4"><a href=""></a>&nbsp;</li>
+        <li class="btn5"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[3]->id}}">{{$Diseases[3]->name|truncate:2}}</a></li>
+        <li class="btn6"><a href=""></a>&nbsp;</li>
+        <li class="btn7"><a href=""></a>&nbsp;</li>
+        {{elseif $Diseases|@count <=5}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[2]->id}}">{{$Diseases[2]->name|truncate:4}}</a></li>
+        <li class="btn4"><a href=""></a>&nbsp;</li>
+        <li class="btn5"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[3]->id}}">{{$Diseases[3]->name|truncate:2}}</a></li>
+        <li class="btn6"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[4]->id}}">{{$Diseases[4]->name|truncate:2}}</a></li>
+        <li class="btn7"><a href=""></a>&nbsp;</li>
+        {{elseif $Diseases|@count <=6}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[2]->id}}">{{$Diseases[2]->name|truncate:4}}</a></li>
+        <li class="btn4"><a href=""></a>&nbsp;</li>
+        <li class="btn5"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[3]->id}}">{{$Diseases[3]->name|truncate:2}}</a></li>
+        <li class="btn6"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[4]->id}}">{{$Diseases[4]->name|truncate:2}}</a></li>
+        <li class="btn7"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[5]->id}}">{{$Diseases[5]->name|truncate:5}}</a></li>
+        {{elseif $Diseases|@count <=7}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[2]->id}}">{{$Diseases[2]->name|truncate:4}}</a></li>
+        <li class="btn4"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[6]->id}}">{{$Diseases[6]->name|truncate:5}}</a></li>
+        <li class="btn5"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[3]->id}}">{{$Diseases[3]->name|truncate:2}}</a></li>
+        <li class="btn6"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[4]->id}}">{{$Diseases[4]->name|truncate:2}}</a></li>
+        <li class="btn7"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[5]->id}}">{{$Diseases[5]->name|truncate:5}}</a></li>
+        {{elseif $Diseases|@count >7}}
+        <li class="btn1"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[0]->id}}">{{$Diseases[0]->name|truncate:4}}</a></li>
+        <li class="btn2"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[1]->id}}">{{$Diseases[1]->name|truncate:2}}</a></li>
+        <li class="btn3"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[2]->id}}">{{$Diseases[2]->name|truncate:4}}</a></li>
+        <li class="btn4"><a href="{{$MOBILE}}/department.php?method=more&department_id={{$department->id}}">更多</a></li>
+        <li class="btn5"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[3]->id}}">{{$Diseases[3]->name|truncate:2}}</a></li>
+        <li class="btn6"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[4]->id}}">{{$Diseases[4]->name|truncate:2}}</a></li>
+        <li class="btn7"><a href="{{$MOBILE}}/department.php?method=query&department_id={{$department->id}}&disease_id={{$Diseases[5]->id}}">{{$Diseases[5]->name|truncate:5}}</a></li>
+        {{/if}}
+		
+    </ul>
+</div>
+
+
+
+<div class="border"></div> 
+
+<div id="news">
+	<div class="title">
+    <ins></ins>新闻动态
+    </div>
+    <ul>
+        {{$news = $NewsTag->getNewest(4)}}
+        {{foreach from=$news item=v}}
+    	<li><a class="news_txt" href="{{$MOBILE}}/news.php?method=get&id={{$v->id}}"><p>{{$v->subject|truncate:15}}</p></a><a href="tel:{{$contact.phone}}"><span></span></a></li>
+    	{{/foreach}}
+        <li class="news_txt_bottom"><a  href="{{$MOBILE}}/news.php">查看更多新闻动态>></a></li>
+    </ul>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+	"identity" : "work_fp",
+	"name" : "工作分配",
+	"description" : "工作分配",
+	"uninstall" : 0,
+	"version" : 1.0,
+	"serialID" : "",
+	"param_file" : "/work_fp/index.html"
+}

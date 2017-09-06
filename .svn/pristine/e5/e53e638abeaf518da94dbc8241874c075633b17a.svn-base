@@ -1,0 +1,166 @@
+<?php
+/**
+ * 特色技术相关标签
+ * */
+require_once 'common.php';
+/**
+ * 根据页码获取对应的数据
+ * 
+ * 对应function标签中的{technologys}
+ */
+function smarty_block_technologylist( $params, $content, $template, &$repeat ) {
+    $pagesize = isset($params['pagesize']) ? $params['pagesize'] : '';
+    $sort = isset($params['sort']) ? $params['sort'] : true;
+    $current = $template->getTemplateVars('cur');
+    $current = $current == '' ? 1 : $current;
+    
+    if (!$repeat) {
+        $ser = new TechnologyTag();
+        $data = $ser->getList($current, $pagesize, $sort);
+        foreach ($data as $k=>$v) {
+            if ($v->pic&&strpos($v->pic, NETADDRESS) === false) {
+                $data[$k]->pic = UPLOAD . $v->pic;
+            }
+            $data[$k]->url = getTechUrl($v->id);
+        }
+        
+        $template->assign('cur', $current);
+        
+        //保存pagesize
+        setcookie('pagesize', $pagesize);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据唯一id获取该id的详细信息
+ * 
+ * 对应function标签中的{technology}
+ */
+function smarty_block_technologyinfo( $params, $content, $template, &$repeat ) {
+    //在生成静态页面的时候，直接从注册模板中去取。其它可通过指定id去取
+    $id = isset($params['id']) ? $params['id'] : ($template->getTemplateVars('id'));
+
+    if (!$repeat) {
+        $ser = new TechnologyTag();
+        $data = $ser->get($id);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据推荐位置获取特色技术列表 ...
+ */
+function smarty_block_technologybyrecommend( $params, $content, $template, &$repeat ) {
+    $recommend = isset($params['recommend_name']) ? $params['recommend_name'] : '';
+    $name = isset($params['name']) ? $params['name'] : 'technology_id';
+
+    if (!$repeat) {
+        $ser = new TechnologyTag();
+        $data = $ser->getByRecommend($recommend,$name);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取置顶技术
+ */
+function smarty_block_toptechnology( $params, $content, $template, &$repeat ) {
+    $recommend = isset($params['recommend_name']) ? $params['recommend_name'] : '';
+    $is_top = isset($params['is_top']) ? $params['is_top'] : 1;
+    $name = isset($params['name']) ? $params['name'] : 'technology_id';
+
+    if (!$repeat) {
+        $ser = new TechnologyTag();
+        $data = $ser->getByTop($recommend,$is_top,$name);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 根据科室ID获取该特色技术的列表
+ */
+function smarty_block_technologybydept( $params, $content, $template, &$repeat ) {
+    $department = isset($params['department_id']) ? $params['department_id'] : '';
+    $limit = isset($params['limit']) ? $params['limit'] : '';
+
+    $offset = isset($params['from']) ? intval($params['from']) : '';
+    if ($offset) {
+        $limit = intval($limit) + $offset -1;
+        $offset = $offset -1;
+    }
+    
+    if (!$repeat) {
+        $ser = new TechnologyTag();
+        $data = $ser->getByDepartment($department,$limit);
+        if ($offset) {
+            $data = array_slice($data, $offset, $limit);
+        }
+        foreach ($data as $k=>$v) {
+            if ($v->pic&&strpos($v->pic, NETADDRESS) === false) {
+                $data[$k]->pic = UPLOAD . $v->pic;
+            }
+            $data[$k]->url = getTechUrl($v->id);
+        }
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * 获取最新特色技术
+ */
+function smarty_block_latesttechnology( $params, $content, $template, &$repeat ) {
+    $limit = isset($params['limit']) ? $params['limit'] : '';
+
+    if (!$repeat) {
+        $ser = new TechnologyTag();
+        $data = $ser->getNewest($limit);
+        
+        $assign = isset($params['assign']) ? $params['assign'] : '';
+        if ($assign) {
+            $template->assign($assign, $data);
+        }
+        
+        return formatReturnData($data, $content);
+    }
+}
+
+/**
+ * public方法：获取技术详情地址
+ * */
+function getTechUrl($id) {
+    if (empty($id)) {
+        return '';
+    }
+    return NETADDRESS . "/hospital/technology/{$id}.html";
+}

@@ -1,0 +1,63 @@
+<div class="w320 header">
+    <div class="topFixed">
+        <ul>
+            <li><a href="{{$MOBILE}}" target="_blank">首页</a></li>
+            <li><a href="{{$contact.swt_link}}" target="_blank">在线预约</a></li>
+            <li><a href="{{$contact.swt_link}}" target="_blank">免费挂号</a></li>
+            <li><a href="{{$MOBILE}}" target="_blank">返回</a></li>
+        </ul>
+    </div>
+    
+    <div class="logo"><img src="{{$LOGO}}" width="320" height="62"></div>
+    
+    <div class="nav">
+        <ul>
+            <li><a href="{{$MOBILE}}/introduce.php?method=getInfo" target="_blank">医院介绍</a></li>
+            <li><a href="{{$MOBILE}}/doctor.php" target="_blank">名医专家</a></li>
+            <li><a href="{{$MOBILE}}/news.php" target="_blank">新闻动态</a></li>
+            <li><a href="{{$MOBILE}}/technology.php" target="_blank">特色技术</a></li>
+            <li><a href="{{$contact.swt_link}}" target="_blank">预约挂号</a></li>
+            <li><a href="{{$MOBILE}}/contact.php?method=getRoute" target="_blank">来院路线</a></li>
+        </ul>
+    </div>
+    
+    <div class="logo">
+   <style type="text/css">
+		.scroll{width:320px;height:168px;position:relative;overflow:hidden;}
+		.mod_01{float:left;width:320px;}
+		.mod_01 img{display:block;width:320px;height:168px;}
+		.dotModule_new{padding:0 5px;height:11px;line-height:6px;-webkit-border-radius:11px;background:rgba(45,45,45,0.5);position:absolute;bottom:5px;right:10px;z-index:11;}
+		#slide_01_dot{text-align:center;margin:3px 0 0 0;}
+		#slide_01_dot span{display:inline-block;margin:0 3px;width:5px;height:5px;vertical-align:middle;background:#f7f7f7;-webkit-border-radius:5px;}
+		#slide_01_dot .selected{background:#66ff33;}
+   </style>
+		
+        <div class="scroll">
+            <div class="slide_01" id="slide_01">
+			{{foreach from=$pic item=value name=name}}
+                 <div class="mod_01"><a href="{{$value->url}}" target="_blank"><img src="{{$value->pic}}" height="160" width="320"></a></div>
+             {{/foreach}}           
+            </div>
+            <div class="dotModule_new">
+                <div id="slide_01_dot"></div>
+            </div>
+        </div>
+        <script type="text/javascript">
+		
+		if(document.getElementById("slide_01")){
+			var slide_01 = new ScrollPic();
+			slide_01.scrollContId   = "slide_01"; //内容容器ID
+			slide_01.dotListId      = "slide_01_dot";//点列表ID
+			slide_01.dotOnClassName = "selected";
+			slide_01.arrLeftId      = "sl_left"; //左箭头ID
+			slide_01.arrRightId     = "sl_right";//右箭头ID
+			slide_01.frameWidth     = 320;
+			slide_01.pageWidth      = 320;
+			slide_01.upright        = false;
+			slide_01.speed          = 10;
+			slide_01.space          = 30; 
+			slide_01.initialize(); //初始化
+		}
+		</script> 
+    </div>
+</div>

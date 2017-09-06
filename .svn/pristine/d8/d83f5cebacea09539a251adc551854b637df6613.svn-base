@@ -1,0 +1,127 @@
+<?php
+//载入入口文件
+include_once 'init.php';
+/**
+ * 博爱手机端类
+ * @author Administrator
+ *
+ */
+class boaiMobile extends Mobile{
+	/**
+	 * 
+	 * 构造方法,通过method方法,调取对应的输出函数
+	 * @param unknown_type $method
+	 */
+	public function __construct() {
+		parent::__construct();
+		$this->excute();
+	}
+	
+	/**
+	 * 展示首页
+	 */
+	public function index(){
+//		$diseaseS = new DiseaseService();
+//		$PicManager = new PicManagerTag();
+//		$medias = $this->getServiceMethod('MediaReport','query',array('page'=>1,'size'=>5));
+//		$departments = $this->getServiceMethod('Department','query',array('page'=>1,'size'=>7));
+//		$askes = $this->getServiceMethod('ask','query',array('page'=>1,'size'=>5));
+//		$honors = $this->getServiceMethod('honor','query',array('page'=>1,'size'=>6));
+//		$environment = $this->getServiceMethod('environment','query',array('page'=>1,'size'=>6));
+//		$devices = $this->getServiceMethod('device','query',array('page'=>1,'size'=>6));
+//		$links = $this->getServiceMethod('link','query',array());
+//		$this->smarty->assign('news',$news->data);
+//		$this->smarty->assign('media',$medias->data);
+//		$this->smarty->assign('department',$departments->data);
+//		$this->smarty->assign('asks',$askes->data);
+		//print_r($doctors->data);
+		//注入新闻动态
+		$news = $this->getServiceMethod('news','query',array());
+		$newsList = array();
+		$picNewsList = array();
+		if(count($news->data) >= 1){
+			$i = 1;
+			$y = 1;
+			foreach ($news->data as $key => $value){
+				if($i<=4){
+					$newsList[] = $value;$i++;
+				}
+				if($value->pic != '' && isset($value->pic)){
+					if($y<=2){
+						$picNewsList[] = $value;$y++;
+					}
+				}
+			}
+		}
+
+		$this->smarty->assign('news',$newsList);
+		$this->smarty->assign('picNews',$picNewsList);
+		//取疾病列表
+
+		$diseases = $this->getServiceMethod('disease','query',array());
+        $technology = $this->getServiceMethod('technology','query',array());
+
+		//疾病截取
+		$diseases->data = array_slice($diseases->data,0,count($diseases->data) - (count($diseases->data) % 3 ) );
+		//注入滚动条百分比
+		$this->smarty->assign('scroller1',ceil( count($diseases->data) / 3 ) * 100);//百分比
+		$this->smarty->assign('scroller_count',ceil( count($diseases->data) / 3 ));//页数
+		$this->smarty->assign('diseases_count',count($diseases->data));//总条数
+
+        //取科室列表
+        $departments = $this->getServiceMethod('department','query',array('page'=>1));
+        $departmentsmanager = $this->getServiceMethod('departmentmanager','query',array('page'=>1));
+//         print_r($departmentsmanager);
+//         exit();
+        
+        
+        //取每个科室下的疾病列表
+        $diseaseList =array();
+        foreach ($departments->data as $v){
+            $department_id =  $v->id;
+            $disIndep=$this->getServiceMethod('disease','getByDepartmentID',$department_id);
+            $diseaseList[] = $disIndep;
+            	
+        }  
+       
+      
+
+        //手机模板自定义导航注入
+        $depNav = $this->queryByFlag('dep_nav');
+        $mobileNav= $this->queryByFlag('mobile_nav');
+        $techNav= $this->queryByFlag('tech_nav');
+        $this->smarty->assign('depNav',$depNav);
+        $this->smarty->assign('mobileNav',$mobileNav);
+        $this->smarty->assign('techNav',$techNav);
+        
+        //取在线问答
+        $asks = $this->getServiceMethod('ask','query',array('page'=>1,'size'=>10));
+        
+        //取广告图
+        $mobileAd =$this->getServiceMethod('MobilePicManager','getByFlag','mobile_ad');
+        $this->smarty->assign('mobileAd',$mobileAd->data);
+  
+        //取患者推荐
+        $mobileRecommend =$this->getServiceMethod('MobilePicManager','getByFlag','mobile_recommend');
+        $this->smarty->assign('mobileRecommend',$mobileRecommend->data);
+      
+        //取医生
+		$doctors  = $this->getServiceMethod('doctor','query',array('page'=>1,'size'=>8));
+		
+		
+		$seo = $this->getServiceMethod('Seo','query',array("flag" => "index"));
+		$this->smarty->assign('seo',$seo->data[0]);
+		$this->smarty->assign('doctor',$doctors->data);
+		$this->smarty->assign('diseases',$diseases->data);
+        $this->smarty->assign('technology',$technology->data);
+        $this->smarty->assign('department',$departments->data);
+        $this->smarty->assign('departmentmanager',$departmentsmanager->data);
+        $this->smarty->assign('ask',$asks->data);
+        $this->smarty->assign('diseaseList',$diseaseList);
+		$this->smarty->display('Index/index' . TPLSUFFIX );
+		
+		
+	}
+	
+}
+new boaiMobile();

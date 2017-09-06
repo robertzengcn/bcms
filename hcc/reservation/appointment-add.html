@@ -1,0 +1,135 @@
+ <!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>现场新增/编辑医生排班信息</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="addreserform">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择科室：</label>
+			<div class="formControls col-2"> <span class="select-box" style="width:100px;">
+				<select id="department_id" class="select" name="department_id"   datatype="*" nullmsg="请选择科室"></select>
+				</span> </div>
+			<div class="col-2"> </div>
+			<label class="form-label col-2"><span class="c-red">*</span>选择医生：</label>
+			<div class="formControls col-2"> <span class="select-box" style="width:100px;">
+				<select class="select doctorlistsec" name="doctor_id" id="doctor_id" datatype="*" nullmsg="请选择医生"><option value="">请选择</option></select>
+				</span> </div>
+			<div class="col-2"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>值班日期：</label>
+			<div class="formControls col-2">
+				<input type="text" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" id="date" class="input-text Wdate" style="width:100px;" name="date" datatype="*" nullmsg="请选择时间" onchange="editorRes.getsameresvation(this.value);"/>
+			</div>
+			<div class="col-7" id="errormsg"> </div>
+		</div>
+		<div class="row cl enablebox">
+			<div class="col-7 l">
+				<label class="form-label col-2"><span class="c-red">*</span>上午排班：</label>
+				<div class="formControls col-74">
+					<input type="text" class="input-text timebox" value="" placeholder="08:00" id="morning_Start" name="morStart" datatype="Times" style="width:47px;" errormsg="请按“00:00”格式填写" />-<input type="text" class="input-text timebox" value="" placeholder="12:00" id="morning_End" name="morEnd" datatype="Times"  style="width:47px;" errormsg="请按“00:00”格式填写"/>
+				</div><div class="col-5 mortimeerror"> </div>
+			</div>
+			<div class="col-5 l">
+				<label class="form-label col-85"><span class="c-red">*</span>号源：</label>
+				<div class="formControls col-80">
+					<input type="text" class="input-text sourceNum" value="" placeholder="0" id="morning_source" name="morning_source" style="width:30px;text-align:center;" datatype="INTS" errormsg="限整数" nullmsg="不能为空！"/>
+				</div><div class="col-4 morerror"> </div>
+			</div>
+		</div>
+		<div class="row cl enablebox">			
+			<div class="formControls">
+				<input type="hidden" name="morning" id="morning" value="" datatype="Timeslot" ignore="ignore" errormsg="排班起止数据不完整，请补充完整，不需要排班请保持对应的起止时间均为空"/>				
+			</div><div class="col-11 morning_msgbox" style="margin-left:30px;"> </div>
+		</div>
+		<div class="row cl enablebox">
+			<div class="col-7 l">
+				<label class="form-label col-2"><span class="c-red">*</span>下午排班：</label>
+				<div class="formControls col-74">
+					<input type="text" class="input-text timebox" value="" placeholder="13:30" id="afternoon_Start" name="aftStart" datatype="Times" style="width:47px;" errormsg="请按“00:00”格式填写" placeholder="14:00"/>-<input type="text" class="input-text timebox" value="" placeholder="17:30" id="afternoon_End" name="aftEnd" datatype="Times"  style="width:47px;" errormsg="请按“00:00”格式填写" placeholder="17:00"/>
+				</div><div class="col-5 afttimeerror"> </div>
+			</div>
+			<div class="col-5 l">
+				<label class="form-label col-85"><span class="c-red">*</span>号源：</label>
+				<div class="formControls col-80">
+					<input type="text" class="input-text sourceNum" value="" placeholder="0" id="afternoon_source" name="afternoon_source" style="width:30px;text-align:center;" datatype="INTS" errormsg="限整数" nullmsg="不能为空！"/>
+				</div><div class="col-4 afterror"> </div>
+			</div>
+		</div>		
+		<div class="row cl enablebox">			
+			<div class="formControls">				
+				<input type="hidden" name="afternoon" id="afternoon" value="" datatype="Timeslot" ignore="ignore" errormsg="排班起止数据不完整，请补充完整，不需要排班请保持对应的起止时间均为空"/>				
+			</div><div class="col-11 afternoon_msgbox" style="margin-left:30px;"> </div>
+		</div>	
+		<div class="row cl enablebox">
+			<div class="col-7 l">
+				<label class="form-label col-2"><span class="c-red">*</span>晚上排班：</label>
+				<div class="formControls col-74">
+					<input type="text" class="input-text timebox" value="" placeholder="19:00" id="night_Start" name="nigStart" datatype="Times" style="width:47px;" errormsg="请按“00:00”格式填写" />-<input type="text" class="input-text timebox" value="" placeholder="21:00" id="night_End" name="nigEnd" datatype="Times"  style="width:47px;" errormsg="请按“00:00”格式填写"/>
+				</div><div class="col-5 nigtimeerror"> </div>
+			</div>
+			<div class="col-5 l">
+				<label class="form-label col-85"><span class="c-red">*</span>号源：</label>
+				<div class="formControls col-80">
+					<input type="text" class="input-text sourceNum" value="" placeholder="0" id="night_source" name="night_source" style="width:30px;text-align:center;" datatype="INTS" errormsg="限整数" nullmsg="不能为空！"/>
+				</div><div class="col-4 nigerror"> </div>
+			</div>
+		</div>		
+		<div class="row cl enablebox">			
+			<div class="formControls">				
+				<input type="hidden" name="night" id="night" value="" datatype="Timeslot" ignore="ignore" errormsg="排班起止数据不完整，请补充完整，不需要排班请保持对应的起止时间均为空"/>
+			</div><div class="col-11 night_msgbox" style="margin-left:30px;"> </div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>总号源：</label>
+			<div class="formControls col-85">
+				<input type="text" class="input-text" value="0" placeholder="" id="wholeNum" name="wholeNum"  style="width:50px;text-align:center;" disabled="disabled"/>
+			</div>
+			<div class="col-4"> </div>
+		</div>
+		<div style="width:100%;height:60px;clear:both;"></div>
+		<div class="row cl ps-b-5 pd-5 bg-1 bk-gray">
+			<div class="col-12 col-offset-1 enablebox">
+				<button class="btn btn-primary radius bt-normal" type="button" id="save"><i class="Hui-iconfont">&#xe632;</i> 保存</button>	
+			</div>
+		</div>		
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript" src="../js/boyicms/common.js"></script>
+<script type="text/javascript" src="../js/boyicms/reservation.js"></script>
+<script type="text/javascript">
+var editorRes = new Reservation();
+editorRes.setThisName('editorRes');
+editorRes.editorResVation();
+</script>
+
+</body>
+</html>

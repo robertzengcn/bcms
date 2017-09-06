@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../lib/html5.js"></script>
+<script type="text/javascript" src="../lib/respond.min.js"></script>
+<script type="text/javascript" src="../lib/PIE_IE678.js"></script>
+<![endif]-->
+<link href="../css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="../lib/icheck/icheck.css" rel="stylesheet" type="text/css" />
+<link href="../css/boyicms/common.css" rel="stylesheet" type="text/css" />
+<link href="../lib/Hui-iconfont/1.0.1/iconfont.css" rel="stylesheet" type="text/css" />
+<link href="../lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="../lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>排班模板管理</title>
+</head>
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="">		
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>选择科室：</label>	
+			<div class="formControls col-2"> <span class="select-box">
+				<select name="" class="select">
+					<option value="0">请选择</option>
+				</select>
+				</span> </div>							
+			<label class="form-label col-2"><span class="c-red">*</span>排班模式：</label>
+			<div class="formControls col-4 skin-minimal"><!--add col-91 css-->
+				<div class="radio-box">
+					<input type="radio" id="" name="" datatype="*" checked="checked" nullmsg="">
+					<label>每周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="" name="">
+					<label>两周循环</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" id="" name="">
+					<label>每月循环</label>
+				</div>
+			</div>		
+		</div>		
+		<div class="row cl">
+			<label class="form-label col-2">模板名称：</label>
+			<div class="formControls col-4">
+				<input type="text" class="input-text keywords" value="" placeholder="请给该模板一个名称，便于以后使用时识别及管理" id="" name="">
+			</div><button onClick="" class="btn btn-success radius" type="submit"><i class="Hui-iconfont">&#xe623;</i> 生成模板</button>	
+		</div>
+		<div class="row cl">
+			<table class="table table-border table-bordered table-bg table-hover table-sort">
+				<thead>
+					<tr class="text-c">
+						<th width="25"><a href="left-bt"><i class="Hui-article">&#xe69b;</i></a></th>
+						<th width="">周一</th>
+						<th width="">周二</th>
+						<th>周三</th>
+						<th>周四</th>								
+						<th>周五</th>
+						<th>周六</th>
+						<th>周日</th>
+						<th><a href="right-bt"><i class="Hui-article">&#xe69b;</i></a></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="text-c">
+						<td><li>上午</li><li><input class=""/>-<input class=""/></li></td>
+						<td><div id=""></div></td>
+						<td class="text-l">鲍凤兰</td>
+						<td width="120"><img src="../images/boyicms/temp/20150910151425329.jpg" width="90px"/></td>					
+						<td class="text-l">妇科是泉州南方医的权威科室之一，经过三代人四十年的不懈努力，目前己有博士生五十人，...</td><!--限40字-->									
+						<td class="f-14 td-manage"><a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+					</tr>
+					<tr class="text-c">
+						<td><input type="checkbox" value="" name=""></td>
+						<td>2</td>
+						<td class="text-l">鲍凤兰</td>
+						<td width="120"><img src="../images/boyicms/temp/20150910151425329.jpg" width="90px"/></td>					
+						<td class="text-l">妇科是泉州南方医的权威科室之一，经过三代人四十年的不懈努力，目前己有博士生五十人，...</td><!--限40字-->									
+						<td class="f-14 td-manage"><a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> <a style="text-decoration:none" class="ml-5" onClick="" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+					</tr>
+				</tbody>
+			</table>
+		
+		</div>
+		
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>				
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="../lib/layer/1.9.3/layer.js"></script> 
+<script type="text/javascript" src="../lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript" src="../lib/icheck/jquery.icheck.min.js"></script> 
+<script type="text/javascript" src="../lib/Validform/5.3.2/Validform.min.js"></script> 
+<script type="text/javascript" src="../lib/webuploader/0.1.5/webuploader.min.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.config.js"></script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/ueditor.all.min.js"> </script> 
+<script type="text/javascript" src="../lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script> 
+<script type="text/javascript" src="../js/H-ui.js"></script> 
+<script type="text/javascript" src="../js/H-ui.admin.js"></script> 
+<script type="text/javascript">
+/*上传图片*/
+function upload_img(title,url,w,h){
+	layer_show(title,url,w,h);
+}
+
+
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+		/*缩略图操作*/
+	$('div.thumbnailbox').on('mouseenter',function(){
+		$(this).find('div.img-btn').stop().animate({height:"30px"});
+	}).on('mouseleave', function() {
+		$(this).find('div.img-btn').stop().animate({height:"0px"});
+	});
+	$('div.img-btn').find('span').on('mouseenter',function(){
+		$(this).stop().css("background-position","-46px 0px");
+	}).on('mouseleave',function(){
+		$(this).stop().css("background-position","-46px -22px");
+	});
+	var defaultsrc=$('div.thumbnailbox img').attr('flag');
+	$('span#delete-thisimg').on('click',function(){
+		$thumbnail_img=$(this);
+		layer.confirm('确认不再使用当前缩略图吗？',function(index){		
+			$thumbnail_img.parent().parent().find('img').attr('src',defaultsrc);
+			layer.msg('已删除!',1);
+		});
+	});
+	/*缩略图操作完结*/
+	
+	
+	var ue = UE.getEditor('editor');
+	
+});
+
+</script>
+</body>
+</html>

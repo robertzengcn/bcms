@@ -1,0 +1,81 @@
+<?php
+
+class LogService extends BaseService {
+
+    /**
+     * 构造函数
+     */
+    public function __construct() {
+        $this->dao = new LogDAO();
+    }
+
+    /**
+     * 清空
+     *
+     * @return Result
+     */
+    public function clear() {
+        $result = $this->dao->clear();
+
+        return new Result($result, 118, ErrorMsgs::get(118), NULL);
+    }
+
+    /**
+     * 获取单条数据
+     *
+     * @param unknown $user_id
+     * @param unknown $name
+     * @param unknown $c
+     * @param unknown $m
+     * @return string
+     */
+    public function get($c, $m) {
+        $where = $_SESSION['id'] . '|' . $_SESSION['name'] . '|' . $_SESSION['group'] . '|' . $c . '|' . $m;
+        $log = $this->dao->get($where);
+
+        return $log;
+    }
+
+    /**
+     * 获得grid数据
+     *
+     * @param array $where
+     *            查询条件
+     * @return Result
+     */
+    public function query($where) {
+        $logs = $this->dao->query($where);
+        foreach ($logs as $key => $value) {
+            $value->logtime = date('Y-m-d H:i:s', $value->logtime);
+            $json = explode('|', $value->op);
+            $value->name =  $json[1];
+            $value->group = $json[2];
+            $value->op = LogMsgs::getController($json[3]) . ' 操作 ' . $json[5];
+        }
+
+        return $this->success($logs);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param $op 操作类型
+     * @param $msg 中文描述
+     * @return Result
+     */
+    public function save($msg) {
+        $configFile = ABSPATH . '/config.json';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            $config = json_decode($content);
+            if (isset($config->openLog) && $config->openLog && $msg != false) {
+                $log = new Log();
+                $log->logtime = time();
+                // id|name|group|c|m|msg
+                $log->op = $_SESSION['id'] . '|' . $_SESSION['name'] . '|' . $_SESSION['group'] . '|' . $_REQUEST['controller'] . '|' . $_REQUEST['method'] . '|' . $msg;
+                // 获取class对象并插入数据
+                $this->dao->save($log);
+            }
+        }
+    }
+}
